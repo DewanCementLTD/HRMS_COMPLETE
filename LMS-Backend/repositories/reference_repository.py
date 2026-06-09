@@ -1,0 +1,507 @@
+"""Reference data repository — read + add entries for lookup tables."""
+
+from core.database import get_connection
+
+
+def _coerce(val):
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return val
+
+
+def _try_progressive(cursor, sql_template: str, compc=None, brnch=None):
+    """Run sql_template with {filter} placeholder, trying filters progressively:
+       1) COMPC + BRNCH (if both supplied)
+       2) COMPC only (if supplied)
+       3) BRNCH only (if supplied)
+       4) Unfiltered
+    Each attempt that fails with ORA-00904 (column missing) advances to the next.
+    Returns rows from the first successful attempt.
+    """
+    attempts = []
+    if compc and brnch:
+        attempts.append((
+            "AND COMPC = :fcompc AND BRNCH = :fbrnch",
+            {"fcompc": _coerce(compc), "fbrnch": _coerce(brnch)},
+        ))
+    if compc:
+        attempts.append((
+            "AND COMPC = :fcompc",
+            {"fcompc": _coerce(compc)},
+        ))
+    if brnch:
+        attempts.append((
+            "AND BRNCH = :fbrnch",
+            {"fbrnch": _coerce(brnch)},
+        ))
+    attempts.append(("", {}))
+
+    last_err = None
+    for filter_sql, params in attempts:
+        try:
+            cursor.execute(sql_template.replace("{filter}", filter_sql), params)
+            return cursor.fetchall()
+        except Exception as e:
+            msg = str(e)
+            if "ORA-00904" in msg:
+                last_err = msg.splitlines()[0][:100]
+                continue
+            raise
+    print(f"[REFERENCE] All filter attempts failed: {last_err}")
+    return []
+
+
+# ─────────────────────────────────────────────────────────────────
+# READ FUNCTIONS
+# ─────────────────────────────────────────────────────────────────
+
+def get_departments(compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        rows = _try_progressive(
+            cursor,
+            "SELECT DEPT_NO, DEPT_NAME FROM HR_DEPT WHERE 1=1 {filter} ORDER BY DEPT_NAME",
+            compc, brnch,
+        )
+        return [{"dept_no": r[0], "dept_name": (r[1] or "").strip()} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_grades(compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        rows = _try_progressive(
+            cursor,
+            "SELECT GRADE_CD, DESCR FROM HR_GRADE_CD WHERE (STATUS = 'A' OR STATUS IS NULL) {filter} ORDER BY GRADE_CD",
+            compc, brnch,
+        )
+        return [{"grade_cd": (r[0] or "").strip(), "descr": (r[1] or "").strip()} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_designations(grade_cd: str = None, compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        # For designations we keep grade_cd as a regular filter and add compc/brnch progressively.
+        base_filter = "1=1"
+        if grade_cd:
+            base_filter += " AND GRADE_CD = :gradecd"
+        template = f"SELECT GRADE_CD, DESG_CD, DESG_DESC FROM HR_DESG WHERE {base_filter} {{filter}} ORDER BY GRADE_CD, DESG_CD"
+        # _try_progressive doesn't know about :gradecd, so we inline it via a closure
+        attempts = []
+        base_params = {"gradecd": grade_cd} if grade_cd else {}
+        if compc and brnch:
+            attempts.append(("AND COMPC = :fcompc AND BRNCH = :fbrnch",
+                             {**base_params, "fcompc": _coerce(compc), "fbrnch": _coerce(brnch)}))
+        if compc:
+            attempts.append(("AND COMPC = :fcompc",
+                             {**base_params, "fcompc": _coerce(compc)}))
+        if brnch:
+            attempts.append(("AND BRNCH = :fbrnch",
+                             {**base_params, "fbrnch": _coerce(brnch)}))
+        attempts.append(("", base_params))
+
+        rows = []
+        for filter_sql, params in attempts:
+            try:
+                cursor.execute(template.replace("{filter}", filter_sql), params)
+                rows = cursor.fetchall()
+                break
+            except Exception as e:
+                if "ORA-00904" in str(e):
+                    continue
+                raise
+        return [{"grade_cd": (r[0] or "").strip(), "desg_cd": str(r[1]).strip(), "desg_desc": (r[2] or "").strip()} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_shifts(compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        rows = _try_progressive(
+            cursor,
+            "SELECT SHIFT, SHIFT_DESC, TIME_FROM, TIME_TO FROM SHIFT_HEAD WHERE 1=1 {filter} ORDER BY SHIFT",
+            compc, brnch,
+        )
+        return [{"shift": r[0], "shift_desc": (r[1] or "").strip(),
+                 "time_from": r[2], "time_to": r[3]} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_blood_groups(compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        rows = _try_progressive(
+            cursor,
+            "SELECT BLOOD_GROUP_PK, BLOOD_GROUP FROM BLOOD_GROUP WHERE 1=1 {filter} ORDER BY BLOOD_GROUP_PK",
+            compc, brnch,
+        )
+        return [{"pk": r[0], "blood_group": r[1]} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_cadre(compc=None, brnch=None) -> list:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        rows = _try_progressive(
+            cursor,
+            "SELECT CADRE_PK, CADRE FROM CADRE WHERE 1=1 {filter} ORDER BY CADRE",
+            compc, brnch,
+        )
+        return [{"pk": r[0], "cadre": r[1]} for r in rows]
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_units() -> list:
+    # Units ARE the company list — never filter by company
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT UNIT_ID, UNIT_NAME FROM UNIT_MST ORDER BY UNIT_NAME")
+        return [{"unit_id": r[0], "unit_name": (r[1] or "").strip()} for r in cursor.fetchall()]
+    finally:
+        cursor.close(); conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────
+# ADD FUNCTIONS (HR admin only)
+# ─────────────────────────────────────────────────────────────────
+
+def _insert_progressive(cursor, conn, attempts):
+    """Try each (sql, params) attempt in order. On ORA-00904 (a referenced column
+    does not exist in this schema) roll back and fall through to the next, simpler
+    attempt. Commits and returns on the first success; re-raises other errors."""
+    last_err = None
+    for sql, params in attempts:
+        try:
+            cursor.execute(sql, params)
+            conn.commit()
+            return
+        except Exception as e:
+            if "ORA-00904" in str(e):
+                conn.rollback()
+                last_err = e
+                continue
+            raise
+    if last_err:
+        raise last_err
+
+
+def add_department(dept_name: str, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT NVL(MAX(DEPT_NO), 0) + 1 FROM HR_DEPT")
+        new_pk = cursor.fetchone()[0]
+        name = dept_name.strip()
+        # HR_DEPT has a NOT NULL COMPC (and usually BRNCH). Try the fullest insert
+        # first, falling back if a column doesn't exist in this schema.
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_DEPT (DEPT_NO, DEPT_NAME, COMPC, BRNCH) VALUES (:pk, :name, :compc, :brnch)",
+             {"pk": new_pk, "name": name, "compc": compc, "brnch": brnch}),
+            ("INSERT INTO HR_DEPT (DEPT_NO, DEPT_NAME, COMPC) VALUES (:pk, :name, :compc)",
+             {"pk": new_pk, "name": name, "compc": compc}),
+            ("INSERT INTO HR_DEPT (DEPT_NO, DEPT_NAME) VALUES (:pk, :name)",
+             {"pk": new_pk, "name": name}),
+        ])
+        return {"status": "success", "dept_no": new_pk, "dept_name": name}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_grade(grade_cd: str, descr: str, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cd = grade_cd.strip()
+        ds = descr.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_GRADE_CD (GRADE_CD, DESCR, STATUS, COMPC, BRNCH) VALUES (:cd, :descr, 'A', :compc, :brnch)",
+             {"cd": cd, "descr": ds, "compc": compc, "brnch": brnch}),
+            ("INSERT INTO HR_GRADE_CD (GRADE_CD, DESCR, STATUS, COMPC) VALUES (:cd, :descr, 'A', :compc)",
+             {"cd": cd, "descr": ds, "compc": compc}),
+            ("INSERT INTO HR_GRADE_CD (GRADE_CD, DESCR, STATUS) VALUES (:cd, :descr, 'A')",
+             {"cd": cd, "descr": ds}),
+        ])
+        return {"status": "success", "grade_cd": cd, "descr": ds}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_designation(grade_cd: str, desg_desc: str, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT NVL(MAX(DESG_CD), 0) + 1 FROM HR_DESG WHERE GRADE_CD = :g",
+            {"g": grade_cd}
+        )
+        new_cd = cursor.fetchone()[0]
+        dd = desg_desc.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_DESG (GRADE_CD, DESG_CD, DESG_DESC, COMPC, BRNCH) VALUES (:g, :cd, :desg_text, :compc, :brnch)",
+             {"g": grade_cd, "cd": new_cd, "desg_text": dd, "compc": compc, "brnch": brnch}),
+            ("INSERT INTO HR_DESG (GRADE_CD, DESG_CD, DESG_DESC, COMPC) VALUES (:g, :cd, :desg_text, :compc)",
+             {"g": grade_cd, "cd": new_cd, "desg_text": dd, "compc": compc}),
+            ("INSERT INTO HR_DESG (GRADE_CD, DESG_CD, DESG_DESC) VALUES (:g, :cd, :desg_text)",
+             {"g": grade_cd, "cd": new_cd, "desg_text": dd}),
+        ])
+        return {"status": "success", "grade_cd": grade_cd, "desg_cd": str(new_cd), "desg_desc": dd}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_shift(shift: str, shift_desc: str, time_from: str = None, time_to: str = None, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT NVL(MAX(SHIFT_HEAD_PK), 0) + 1 FROM SHIFT_HEAD")
+        new_pk = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO SHIFT_HEAD (SHIFT_HEAD_PK, SHIFT, SHIFT_DESC, TIME_FROM, TIME_TO, COMPC, BRNCH) VALUES (:pk, :shift, :shift_text, :tf, :tt, :compc, :brnch)",
+            {"pk": new_pk, "shift": shift.strip().upper(), "shift_text": shift_desc.strip(), "tf": time_from, "tt": time_to, "compc": compc, "brnch": brnch}
+        )
+        conn.commit()
+        return {"status": "success", "shift": shift.strip().upper(), "shift_desc": shift_desc.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_blood_group(blood_group: str, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT NVL(MAX(BLOOD_GROUP_PK), 0) + 1 FROM BLOOD_GROUP")
+        new_pk = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO BLOOD_GROUP (BLOOD_GROUP_PK, BLOOD_GROUP, COMPC, BRNCH) VALUES (:pk, :bg, :compc, :brnch)",
+            {"pk": new_pk, "bg": blood_group.strip(), "compc": compc, "brnch": brnch}
+        )
+        conn.commit()
+        return {"status": "success", "pk": new_pk, "blood_group": blood_group.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_cadre(cadre: str, compc=1, brnch=1) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT NVL(MAX(CADRE_PK), 0) + 1 FROM CADRE")
+        new_pk = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO CADRE (CADRE_PK, CADRE, COMPC, BRNCH) VALUES (:pk, :c, :compc, :brnch)",
+            {"pk": new_pk, "c": cadre.strip(), "compc": compc, "brnch": brnch}
+        )
+        conn.commit()
+        return {"status": "success", "pk": new_pk, "cadre": cadre.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_locations(allowed_branches=None) -> list:
+    """Return locations from COM_LOCATION.
+    If allowed_branches is provided (list of branch codes), only return those LCODEs.
+    COM_LOCATION has no COMPC column, so branch codes are the correct security boundary.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        params = {}
+        where = ""
+        if allowed_branches:
+            nums = []
+            for b in allowed_branches:
+                try:
+                    nums.append(int(float(str(b).strip())))
+                except (ValueError, TypeError):
+                    pass
+            if nums:
+                ph = ", ".join(f":lc{i}" for i in range(len(nums)))
+                where = f" WHERE TO_NUMBER(LCODE) IN ({ph})"
+                for i, n in enumerate(nums):
+                    params[f"lc{i}"] = n
+
+        cursor.execute(
+            f"SELECT LCODE, DESCR, SNAME, NVL(REGIONCODE,'') AS REGIONCODE, NVL(CITY,'') AS CITY"
+            f" FROM COM_LOCATION{where} ORDER BY LCODE",
+            params,
+        )
+        return [
+            {
+                "lcode": str(r[0] or "").strip(),
+                "descr": (r[1] or "").strip(),
+                "sname": (r[2] or "").strip(),
+                "regioncode": (r[3] or "").strip(),
+                "city": (r[4] or "").strip(),
+            }
+            for r in cursor.fetchall()
+        ]
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_location(lcode: str, descr: str, sname: str, regioncode: str, city: str) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO COM_LOCATION (LCODE, DESCR, SNAME, REGIONCODE, CITY) VALUES (:lcode, :descr, :sname, :region, :city)",
+            {"lcode": lcode.strip(), "descr": descr.strip(), "sname": (sname or descr).strip(), "region": regioncode.strip(), "city": city.strip()}
+        )
+        conn.commit()
+        return {"status": "success", "lcode": lcode.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def update_location(lcode: str, descr: str, sname: str, regioncode: str, city: str) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE COM_LOCATION SET DESCR=:descr, SNAME=:sname, REGIONCODE=:region, CITY=:city WHERE LCODE=:lcode",
+            {"lcode": lcode.strip(), "descr": descr.strip(), "sname": (sname or descr).strip(), "region": regioncode.strip(), "city": city.strip()}
+        )
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"status": "error", "message": f"Location {lcode} not found"}
+        return {"status": "success", "lcode": lcode.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_religions() -> list:
+    """Return distinct religion codes already in HR_EMP_MASTER, plus defaults."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT DISTINCT RELIGION FROM HR_EMP_MASTER
+            WHERE RELIGION IS NOT NULL AND TRIM(RELIGION) IS NOT NULL
+            ORDER BY RELIGION
+        """)
+        existing = {r[0].strip() for r in cursor.fetchall() if r[0] and r[0].strip()}
+        # Built-in 4-char defaults always available
+        defaults = ["ISLM", "CHRS", "HIND", "BUDH", "JAIN", "SIKK", "OTHR"]
+        combined = sorted(existing | set(defaults))
+        label_map = {
+            "ISLM": "Islam", "CHRS": "Christian", "HIND": "Hindu",
+            "BUDH": "Buddhist", "JAIN": "Jain", "SIKK": "Sikh", "OTHR": "Other",
+        }
+        return [{"code": c, "label": label_map.get(c, c)} for c in combined]
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_reporting_officers(compc=None, brnch=None) -> list:
+    """Return active employees for use as reporting officer options,
+    restricted to the selected company/branch (HR_EMP_MASTER.UNIT_ID / LOCATION)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    def _ints(v):
+        if v is None or v == "":
+            return []
+        vals = v if isinstance(v, (list, tuple)) else [v]
+        out = []
+        for x in vals:
+            try:
+                out.append(int(float(str(x).strip())))
+            except (ValueError, TypeError):
+                continue
+        return out
+
+    base = "(STATUS = 'A' OR STATUS IS NULL)", "NAME IS NOT NULL"
+    comp_nums = _ints(compc)
+    brn_nums = _ints(brnch)
+
+    # Build progressively-less-restrictive attempts. TO_NUMBER on UNIT_ID/LOCATION
+    # can raise ORA-01722 if a row holds non-numeric data, so each attempt falls
+    # back to a simpler filter rather than letting the error surface as a 500.
+    attempts = []
+    if comp_nums and brn_nums:
+        p = {}
+        cph = ", ".join(f":c{i}" for i in range(len(comp_nums)))
+        bph = ", ".join(f":b{i}" for i in range(len(brn_nums)))
+        for i, n in enumerate(comp_nums): p[f"c{i}"] = n
+        for i, n in enumerate(brn_nums): p[f"b{i}"] = n
+        attempts.append((f"{base[0]} AND {base[1]} AND TO_NUMBER(UNIT_ID) IN ({cph}) AND TO_NUMBER(LOCATION) IN ({bph})", p))
+    if comp_nums:
+        p = {f"c{i}": n for i, n in enumerate(comp_nums)}
+        cph = ", ".join(f":c{i}" for i in range(len(comp_nums)))
+        attempts.append((f"{base[0]} AND {base[1]} AND TO_NUMBER(UNIT_ID) IN ({cph})", p))
+    attempts.append((f"{base[0]} AND {base[1]}", {}))
+
+    try:
+        last_err = None
+        for where, params in attempts:
+            try:
+                cursor.execute(f"SELECT EMPCODE, NAME FROM HR_EMP_MASTER WHERE {where} ORDER BY NAME", params)
+                return [{"empcode": r[0], "name": (r[1] or "").strip()} for r in cursor.fetchall()]
+            except Exception as e:
+                last_err = e
+                print(f"[REPORTING_OFFICERS] filter attempt failed, falling back: {e}")
+                continue
+        print(f"[REPORTING_OFFICERS] all attempts failed: {last_err}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def add_unit(unit_name: str) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT NVL(MAX(UNIT_ID), 0) + 1 FROM UNIT_MST")
+        new_pk = cursor.fetchone()[0]
+        cursor.execute(
+            "INSERT INTO UNIT_MST (UNIT_ID, UNIT_NAME) VALUES (:pk, :name)",
+            {"pk": new_pk, "name": unit_name.strip()}
+        )
+        conn.commit()
+        return {"status": "success", "unit_id": new_pk, "unit_name": unit_name.strip()}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()

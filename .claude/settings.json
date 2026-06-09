@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash([ -d \"$d/.git\" ])",
+      "Bash(git -C \"C:/Erp_Systems/HRMS_LMS_APP/GIT_NEW\" remote -v)",
+      "Bash(git -C \"C:/Erp_Systems/HRMS_LMS_APP/GIT_NEW\" status -sb)"
+    ]
+  }
+}
