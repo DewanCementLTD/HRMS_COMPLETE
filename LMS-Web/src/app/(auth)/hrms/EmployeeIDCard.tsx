@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Printer, RotateCw } from "lucide-react";
 import type { EmployeeCard } from "@/services/hrmsService";
 
@@ -18,10 +19,9 @@ function Row({ label, value }: { label: string; value?: string }) {
   );
 }
 
-// ── Front face ──────────────────────────────────────────────
 function CardFront({ c }: { c: EmployeeCard }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-lg flex flex-col">
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
       <div className="relative shrink-0 h-[180px] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-start justify-center pt-5">
         <p className="text-white text-[13px] font-bold tracking-wide text-center px-3 leading-tight">
           {c.company_name || "Company"}
@@ -50,10 +50,9 @@ function CardFront({ c }: { c: EmployeeCard }) {
   );
 }
 
-// ── Back face ───────────────────────────────────────────────
 function CardBack({ c }: { c: EmployeeCard }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-lg flex flex-col">
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
       <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 text-center">
         <p className="text-white text-[11px] font-bold uppercase tracking-wider">Employee Details</p>
       </div>
@@ -80,34 +79,26 @@ function CardBack({ c }: { c: EmployeeCard }) {
 
 export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose: () => void }) {
   const [flipped, setFlipped] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 id-card-modal" onClick={onClose}>
-      {/* Blur backdrop — a SEPARATE sibling so it never flattens the 3D card */}
+  const modal = (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 id-card-modal" onClick={onClose}>
+      {/* Blur backdrop — separate sibling */}
       <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" />
 
-      {/* Content sits in its own stacking context (not a backdrop-filter child) */}
       <div className="relative flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-        <div className="id-card-screen" style={{ perspective: "1400px" }}>
+        {/* Only ONE face is ever rendered, so it always paints. Key triggers the
+            flip animation on change. */}
+        <div className="id-card-screen" style={{ width: 320, height: 508, perspective: "1200px" }}>
           <div
+            key={flipped ? "back" : "front"}
             onClick={() => setFlipped((f) => !f)}
             title="Click to flip"
-            style={{
-              position: "relative",
-              width: 320,
-              height: 508,
-              cursor: "pointer",
-              transformStyle: "preserve-3d",
-              transition: "transform 0.7s",
-              transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
-            }}
+            style={{ width: "100%", height: "100%", cursor: "pointer", animation: "idflip 0.4s ease" }}
           >
-            <div style={{ position: "absolute", inset: 0, WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden" }}>
-              <CardFront c={card} />
-            </div>
-            <div style={{ position: "absolute", inset: 0, WebkitBackfaceVisibility: "hidden", backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-              <CardBack c={card} />
-            </div>
+            {flipped ? <CardBack c={card} /> : <CardFront c={card} />}
           </div>
         </div>
 
@@ -134,6 +125,10 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
       </div>
 
       <style>{`
+        @keyframes idflip {
+          0%   { transform: rotateY(90deg); opacity: 0; }
+          100% { transform: rotateY(0deg);  opacity: 1; }
+        }
         .id-card-print { display: none; }
         @media print {
           @page { margin: 12mm; }
@@ -147,4 +142,6 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
       `}</style>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
