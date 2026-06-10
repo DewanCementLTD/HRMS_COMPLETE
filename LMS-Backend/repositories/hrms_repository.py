@@ -56,6 +56,39 @@ def _num_or_none(val):
             return None
 
 
+def _save_qualification_detail(cursor, conn, empcode: str, data: dict) -> None:
+    """Best-effort upsert of the profile Qualification + Qualification Detail into a
+    dedicated Q_TYPE='PR' row in HR_EMP_QUALIFICATION. Never touches the employee's
+    real qualification records (other Q_TYPE values). Non-fatal on any error."""
+    qual = _str_or_none(data.get("qfication"))
+    detail = _str_or_none(data.get("qual_detail"))
+    if qual is None and detail is None:
+        return
+    try:
+        cursor.execute("SELECT OLD_EMPCODE, UNIT_ID FROM HR_EMP_MASTER WHERE EMPCODE = :e",
+                       {"e": empcode})
+        r = cursor.fetchone()
+        old_emp = r[0] if r else None
+        unit_id = r[1] if r else None
+        cursor.execute("""
+            UPDATE HR_EMP_QUALIFICATION SET DESCR = :q, INTITUTE = :d
+            WHERE Q_TYPE = 'PR'
+              AND (EMPCODE = :e OR (:o IS NOT NULL AND OLD_EMPCODE = :o))
+        """, {"q": qual, "d": detail, "e": empcode, "o": old_emp})
+        if cursor.rowcount == 0:
+            cursor.execute("""
+                INSERT INTO HR_EMP_QUALIFICATION (EMPCODE, OLD_EMPCODE, UNIT_ID, Q_TYPE, DESCR, INTITUTE)
+                VALUES (:e, :o, :u, 'PR', :q, :d)
+            """, {"e": empcode, "o": old_emp, "u": unit_id, "q": qual, "d": detail})
+        conn.commit()
+    except Exception as e:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        print(f"[HRMS] qualification detail save skipped (non-fatal): {str(e).splitlines()[0][:90]}")
+
+
 def create_employee(data: dict) -> dict:
     conn = get_connection()
     cursor = conn.cursor()
@@ -71,7 +104,9 @@ def create_employee(data: dict) -> dict:
                 HR_ADMIN, RPT_OFFICER, MARSTAT,
                 GRADE_CD, RELIGION,
                 HOD1, HOD2, HOD3,
-                BASIC, GROSS, SHIFT, W_HOUR, BLDGRP, LOCATION
+                BASIC, GROSS, SHIFT, W_HOUR, BLDGRP, LOCATION,
+                EMP_STATUS, NTN, BNKCODE, BRNCODE, BNKACCT, QFICATION,
+                DTOFCONFIRM
             ) VALUES (
                 :name, :fhname, :atdtcard,
                 :sex,
@@ -84,7 +119,9 @@ def create_employee(data: dict) -> dict:
                 :hr_admin, :rpt_officer, :marstat,
                 :grade_cd, :religion,
                 :hod1, :hod2, :hod3,
-                :basic, :gross, :shift, :w_hour, :bldgrp, :location
+                :basic, :gross, :shift, :w_hour, :bldgrp, :location,
+                :emp_status, :ntn, :bnkcode, :brncode, :bnkacct, :qfication,
+                CASE WHEN :dtofconfirm IS NULL THEN NULL ELSE TO_DATE(:dtofconfirm, 'YYYY-MM-DD') END
             )
         """, {
             "name": data.get("name"),
@@ -116,8 +153,17 @@ def create_employee(data: dict) -> dict:
             "w_hour": _num_or_none(data.get("w_hour")),
             "bldgrp": _str_or_none(data.get("bldgrp")),
             "location": _num_or_none(data.get("location")),
+            "emp_status": _str_or_none(data.get("emp_status")),
+            "ntn": _str_or_none(data.get("ntn")),
+            "bnkcode": _str_or_none(data.get("bnkcode")),
+            "brncode": _str_or_none(data.get("brncode")),
+            "bnkacct": _str_or_none(data.get("bnkacct")),
+            "qfication": _str_or_none(data.get("qfication")),
+            "dtofconfirm": _str_or_none(data.get("dtofconfirm")),
         })
         conn.commit()
+        # Best-effort: persist qualification + detail into HR_EMP_QUALIFICATION.
+        _save_qualification_detail(cursor, conn, empcode, data)
         return {"status": "success", "empcode": empcode}
     except Exception as e:
         conn.rollback()
@@ -134,8 +180,46 @@ def create_employee(data: dict) -> dict:
 def get_employee_by_empcode(empcode: str) -> dict | None:
     conn = get_connection()
     cursor = conn.cursor()
-    try:
-        cursor.execute("""
+
+    # Extended SELECT (new profile fields + view-only salary from HR_EMP_MASTER_SAL
+    # + qualification detail from HR_EMP_QUALIFICATION). Falls back to the base
+    # SELECT if any of the extra columns/tables are missing (ORA-00904/942).
+    extended_sql = """
+            SELECT
+                m.EMPCODE, m.NAME, m.FHNAME, m."ATDTCARD#",
+                m.SEX,
+                TO_CHAR(m.DTOFBRTH, 'YYYY-MM-DD') AS DTOFBRTH,
+                m.NICNO,
+                TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
+                m.DEPT_NO, m.DESG_CD,
+                m."MOBILE#", m.EMAIL, m.ADDRESS,
+                m.UNIT_ID, m.STATUS, m.USER_PASWD,
+                m.HR_ADMIN, m.RPT_OFFICER, m.MARSTAT,
+                m.GRADE_CD, m.RELIGION,
+                m.HOD1, m.HOD2, m.HOD3,
+                m.BASIC, m.GROSS, m.SHIFT, m.W_HOUR,
+                m.TRACK_LOCATION, m.TRACK_LOCATION_HR,
+                m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
+                m.QFICATION,
+                TO_CHAR(m.DTOFCONFIRM, 'YYYY-MM-DD') AS DTOFCONFIRM,
+                (SELECT MAX(s.GROSS) FROM HR_EMP_MASTER_SAL s
+                   WHERE s.OLD_EMPCODE = m.OLD_EMPCODE AND s.UNIT_ID = m.UNIT_ID
+                     AND s.PERIOD# = (SELECT MAX(s2.PERIOD#) FROM HR_EMP_MASTER_SAL s2
+                                       WHERE s2.OLD_EMPCODE = m.OLD_EMPCODE AND s2.UNIT_ID = m.UNIT_ID)
+                ) AS SAL_GROSS,
+                (SELECT MAX(s.BASIC) FROM HR_EMP_MASTER_SAL s
+                   WHERE s.OLD_EMPCODE = m.OLD_EMPCODE AND s.UNIT_ID = m.UNIT_ID
+                     AND s.PERIOD# = (SELECT MAX(s2.PERIOD#) FROM HR_EMP_MASTER_SAL s2
+                                       WHERE s2.OLD_EMPCODE = m.OLD_EMPCODE AND s2.UNIT_ID = m.UNIT_ID)
+                ) AS SAL_BASIC,
+                (SELECT MAX(q.INTITUTE) FROM HR_EMP_QUALIFICATION q
+                   WHERE q.Q_TYPE = 'PR'
+                     AND (q.EMPCODE = m.EMPCODE OR q.OLD_EMPCODE = m.OLD_EMPCODE)
+                ) AS QUAL_DETAIL
+            FROM HR_EMP_MASTER m
+            WHERE m.EMPCODE = :empcode
+        """
+    base_sql = """
             SELECT
                 EMPCODE, NAME, FHNAME, "ATDTCARD#",
                 SEX,
@@ -152,7 +236,16 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
                 TRACK_LOCATION, TRACK_LOCATION_HR
             FROM HR_EMP_MASTER
             WHERE EMPCODE = :empcode
-        """, {"empcode": empcode})
+        """
+    try:
+        try:
+            cursor.execute(extended_sql, {"empcode": empcode})
+        except Exception as e:
+            if "ORA-00904" in str(e) or "ORA-00942" in str(e):
+                print(f"[HRMS] employee extended read fell back: {str(e).splitlines()[0][:90]}")
+                cursor.execute(base_sql, {"empcode": empcode})
+            else:
+                raise
         row = cursor.fetchone()
         if not row:
             return None
@@ -160,6 +253,9 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
         result = dict(zip(columns, row))
         result["atdtcard"] = result.pop("atdtcard#", None)
         result["mobile"] = result.pop("mobile#", None)
+        # Normalise the view-only salary aliases.
+        result["sal_gross"] = result.get("sal_gross")
+        result["sal_basic"] = result.get("sal_basic")
         return result
     finally:
         cursor.close()
@@ -186,8 +282,10 @@ def update_employee(empcode: str, data: dict) -> dict:
         "basic": "BASIC", "gross": "GROSS", "shift": "SHIFT",
         "w_hour": "W_HOUR", "bldgrp": "BLDGRP", "location": "LOCATION",
         "track_location": "TRACK_LOCATION", "track_location_hr": "TRACK_LOCATION_HR",
+        "emp_status": "EMP_STATUS", "ntn": "NTN", "bnkcode": "BNKCODE",
+        "brncode": "BRNCODE", "bnkacct": "BNKACCT", "qfication": "QFICATION",
     }
-    date_fields = {"dtofbrth": "DTOFBRTH", "dtofappt": "DTOFAPPT"}
+    date_fields = {"dtofbrth": "DTOFBRTH", "dtofappt": "DTOFAPPT", "dtofconfirm": "DTOFCONFIRM"}
 
     # Fields that hold numeric Oracle values but are passed as strings from the frontend
     numeric_str_fields = {"dept_no", "desg_cd", "location"}
@@ -218,15 +316,21 @@ def update_employee(empcode: str, data: dict) -> dict:
             set_parts.append(f"{col} = TO_DATE(:{key}, 'YYYY-MM-DD')")
             params[key] = date_val
 
-    if not set_parts:
+    # Qualification detail is stored in a child table; allow saving even if no
+    # master column changed.
+    has_qual = ("qfication" in data and data["qfication"] is not None) or \
+               ("qual_detail" in data and data["qual_detail"] is not None)
+    if not set_parts and not has_qual:
         return {"status": "error", "message": "No fields to update"}
 
-    sql = f"UPDATE HR_EMP_MASTER SET {', '.join(set_parts)} WHERE EMPCODE = :empcode"
     try:
-        cursor.execute(sql, params)
-        conn.commit()
-        if cursor.rowcount == 0:
-            return {"status": "error", "message": "Employee not found"}
+        if set_parts:
+            sql = f"UPDATE HR_EMP_MASTER SET {', '.join(set_parts)} WHERE EMPCODE = :empcode"
+            cursor.execute(sql, params)
+            conn.commit()
+            if cursor.rowcount == 0:
+                return {"status": "error", "message": "Employee not found"}
+        _save_qualification_detail(cursor, conn, empcode, data)
         return {"status": "success", "message": "Employee updated successfully"}
     except Exception as e:
         conn.rollback()

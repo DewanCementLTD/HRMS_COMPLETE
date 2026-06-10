@@ -15,6 +15,7 @@ from repositories.reference_repository import (
     get_locations, add_location, update_location,
     add_department, add_grade, add_designation, add_shift,
     add_blood_group, add_cadre, add_unit,
+    get_emp_statuses, get_banks, get_bank_branches, get_qualifications,
 )
 
 router = APIRouter(prefix="/reference", tags=["Reference Data"])
@@ -41,6 +42,26 @@ def list_designations(
     brnch: Optional[str] = Query(None),
 ):
     return {"items": get_designations(grade_cd, compc, brnch)}
+
+
+@router.get("/emp-statuses")
+def list_emp_statuses():
+    return {"items": get_emp_statuses()}
+
+
+@router.get("/banks")
+def list_banks(compc: Optional[str] = Query(None)):
+    return {"items": get_banks(compc)}
+
+
+@router.get("/bank-branches")
+def list_bank_branches(bnkcode: Optional[str] = Query(None)):
+    return {"items": get_bank_branches(bnkcode)}
+
+
+@router.get("/qualifications")
+def list_qualifications():
+    return {"items": get_qualifications()}
 
 
 @router.get("/shifts")

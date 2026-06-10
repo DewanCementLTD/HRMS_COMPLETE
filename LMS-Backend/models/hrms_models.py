@@ -35,6 +35,15 @@ class EmployeeCreateRequest(BaseModel):
     w_hour: Optional[float] = None
     bldgrp: Optional[str] = None
     location: Optional[str] = None
+    # Extended profile fields
+    emp_status: Optional[str] = None
+    ntn: Optional[str] = None
+    bnkcode: Optional[str] = None
+    brncode: Optional[str] = None
+    bnkacct: Optional[str] = None
+    qfication: Optional[str] = None
+    qual_detail: Optional[str] = None
+    dtofconfirm: Optional[str] = None
 
 
 class EmployeeUpdateRequest(BaseModel):
@@ -70,6 +79,15 @@ class EmployeeUpdateRequest(BaseModel):
     location: Optional[str] = None
     track_location: Optional[str] = None
     track_location_hr: Optional[int] = Field(default=None, ge=1, le=24)
+    # Extended profile fields
+    emp_status: Optional[str] = None
+    ntn: Optional[str] = None
+    bnkcode: Optional[str] = None
+    brncode: Optional[str] = None
+    bnkacct: Optional[str] = None
+    qfication: Optional[str] = None
+    qual_detail: Optional[str] = None
+    dtofconfirm: Optional[str] = None
 
 
 class MessageResponse(BaseModel):

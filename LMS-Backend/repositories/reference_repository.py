@@ -84,6 +84,88 @@ def get_grades(compc=None, brnch=None) -> list:
         cursor.close(); conn.close()
 
 
+def get_emp_statuses() -> list:
+    """Employee-status lookup (HR_EMP_STATUS) — code + description."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT EMP_STATUS, EMP_STATUS_DESC FROM HR_EMP_STATUS "
+            "WHERE EMP_STATUS IS NOT NULL ORDER BY EMP_STATUS"
+        )
+        return [{"emp_status": (r[0] or "").strip(), "descr": (r[1] or "").strip()}
+                for r in cursor.fetchall()]
+    except Exception as e:
+        print(f"[REFERENCE] emp_statuses failed: {e}")
+        return []
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_banks(compc=None) -> list:
+    """Bank lookup (HR_BANK). Banks are scoped by company (UNIT_ID) when set,
+    plus any global (UNIT_ID IS NULL) rows; falls back to all on error."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        c = _coerce(compc) if compc else None
+        if c is not None:
+            try:
+                cursor.execute(
+                    "SELECT BNKCODE, BNKNAME FROM HR_BANK "
+                    "WHERE (UNIT_ID = :u OR UNIT_ID IS NULL) AND BNKCODE IS NOT NULL "
+                    "ORDER BY BNKNAME", {"u": c})
+                return [{"bnkcode": (r[0] or "").strip(), "bnkname": (r[1] or "").strip()}
+                        for r in cursor.fetchall()]
+            except Exception:
+                pass
+        cursor.execute("SELECT BNKCODE, BNKNAME FROM HR_BANK WHERE BNKCODE IS NOT NULL ORDER BY BNKNAME")
+        return [{"bnkcode": (r[0] or "").strip(), "bnkname": (r[1] or "").strip()}
+                for r in cursor.fetchall()]
+    except Exception as e:
+        print(f"[REFERENCE] banks failed: {e}")
+        return []
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_bank_branches(bnkcode: str = None) -> list:
+    """Bank-branch lookup (HR_BRANCH), filtered to the selected bank (BNKCODE)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        if bnkcode:
+            cursor.execute(
+                "SELECT BRNCODE, BRNNAME FROM HR_BRANCH WHERE BNKCODE = :b "
+                "AND BRNCODE IS NOT NULL ORDER BY BRNNAME", {"b": str(bnkcode).strip()})
+        else:
+            cursor.execute(
+                "SELECT BRNCODE, BRNNAME FROM HR_BRANCH WHERE BRNCODE IS NOT NULL ORDER BY BRNNAME")
+        return [{"brncode": (r[0] or "").strip(), "brnname": (r[1] or "").strip()}
+                for r in cursor.fetchall()]
+    except Exception as e:
+        print(f"[REFERENCE] bank_branches failed: {e}")
+        return []
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_qualifications() -> list:
+    """Qualification options — distinct descriptions from HR_EMP_QUALIFICATION."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT DISTINCT TRIM(DESCR) FROM HR_EMP_QUALIFICATION "
+            "WHERE DESCR IS NOT NULL AND TRIM(DESCR) IS NOT NULL ORDER BY 1")
+        return [{"descr": (r[0] or "").strip()} for r in cursor.fetchall() if (r[0] or "").strip()]
+    except Exception as e:
+        print(f"[REFERENCE] qualifications failed: {e}")
+        return []
+    finally:
+        cursor.close(); conn.close()
+
+
 def get_designations(grade_cd: str = None, compc=None, brnch=None) -> list:
     conn = get_connection()
     cursor = conn.cursor()
