@@ -17,6 +17,7 @@ from services.attendance_service import (
     fetch_attendance_report_range,
     fetch_attendance_summary,
 )
+from repositories.app_version_repository import force_update_block
 
 router = APIRouter(prefix="/auth", tags=["Attendance"])
 
@@ -24,6 +25,15 @@ router = APIRouter(prefix="/auth", tags=["Attendance"])
 # POST /auth/attendance/face  — MUST be before /{card_no}
 @router.post("/attendance/face")
 def mark_face_attendance(request: FaceAttendanceRequest):
+    # Block attendance from app versions below the required minimum. Only fires
+    # when the client sends a too-old version — web/version-less callers pass.
+    blk = force_update_block(request.app_version, request.app_build, "ANDROID")
+    if blk:
+        raise HTTPException(
+            status_code=426,
+            detail={"code": "FORCE_UPDATE", "message": blk[0], "update_url": blk[1]},
+        )
+
     result = smart_mark_attendance(
         card_no=request.card_no,
         attendance_type=request.attendance_type,

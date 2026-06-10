@@ -24,3 +24,4 @@ class FaceAttendanceRequest(BaseModel):
     device_id: Optional[str] = None
     device_model: Optional[str] = None
     app_version: Optional[str] = None
+    app_build: Optional[int] = None       # monotonic build number (for version checks)

@@ -1,0 +1,46 @@
+# ── Dependencies ─────────────────────────────
+node_modules/
+**/node_modules/
+
+# ── Next.js / web build ──────────────────────
+.next/
+**/.next/
+out/
+**/out/
+
+# ── Python ───────────────────────────────────
+.venv/
+**/.venv/
+venv/
+**/venv/
+venv*/
+**/venv*/
+env/
+**/Lib/site-packages/
+**/Scripts/activate
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# ── Flutter / Dart (LMS_APP) ─────────────────
+**/build/
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/*.iml
+.gradle/
+**/.gradle/
+
+# ── Editor / OS ──────────────────────────────
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+
+# ── Submodule .git backups (created during flatten) ──
+_submodule_git_backup/
+
+# Flutter app — maintained separately on dev PC with its own git remote
+/LMS_APP/

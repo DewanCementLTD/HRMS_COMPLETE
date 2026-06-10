@@ -10,6 +10,7 @@ from routers.location_router import router as location_router
 from routers.recruitment_router import router as recruitment_router
 from routers.reference_router import router as reference_router
 from routers.location_tracking_router import router as location_tracking_router
+from routers.app_version_router import router as app_version_router
 
 app = FastAPI(title="LMS API")
 
@@ -40,6 +41,8 @@ app.include_router(recruitment_router)
 app.include_router(reference_router)
 # Location tracking configuration (/api/location-tracking/settings, /active-employees, etc.)
 app.include_router(location_tracking_router)
+# App version / force-update flow (/app/version-check, /app/download/latest)
+app.include_router(app_version_router)
 
 if __name__ == "__main__":
     import uvicorn

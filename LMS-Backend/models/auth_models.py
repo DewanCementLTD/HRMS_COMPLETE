@@ -9,6 +9,11 @@ from typing import List, Optional
 class LoginRequest(BaseModel):
     username: str
     password: str
+    # Optional client version info — only the mobile app sends these; the web
+    # omits them, so the force-update guard never affects web logins.
+    app_version: Optional[str] = None
+    app_build: Optional[int] = None
+    platform: Optional[str] = None
 
 
 class CompanyItem(BaseModel):

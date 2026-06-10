@@ -24,6 +24,7 @@ from services.auth_service import (
     change_password,
 )
 from repositories.user_repository import lookup_by_phone
+from repositories.app_version_repository import force_update_block
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -34,6 +35,15 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=LoginResponse)
 def login(request: LoginRequest):
+    # Force-update guard: only fires when the mobile app sends a version below the
+    # required minimum. Web omits app_version, so web logins are never affected.
+    blk = force_update_block(request.app_version, request.app_build, request.platform or "ANDROID")
+    if blk:
+        raise HTTPException(
+            status_code=426,
+            detail={"code": "FORCE_UPDATE", "message": blk[0], "update_url": blk[1]},
+        )
+
     try:
         user = login_user(request.username, request.password)
     except Exception as e:

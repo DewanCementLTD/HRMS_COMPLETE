@@ -3,7 +3,17 @@
     "allow": [
       "Bash([ -d \"$d/.git\" ])",
       "Bash(git -C \"C:/Erp_Systems/HRMS_LMS_APP/GIT_NEW\" remote -v)",
-      "Bash(git -C \"C:/Erp_Systems/HRMS_LMS_APP/GIT_NEW\" status -sb)"
+      "Bash(git -C \"C:/Erp_Systems/HRMS_LMS_APP/GIT_NEW\" status -sb)",
+      "Read(//c//**)",
+      "Bash(powershell -NoProfile -Command 'Get-ChildItem -Path '\\\\''C:\\\\'\\\\'' -Recurse -Filter '\\\\''AuthContext.tsx'\\\\'' -ErrorAction SilentlyContinue -Force | Where-Object { $_.FullName -notmatch '\\\\''node_modules'\\\\'' } | ForEach-Object { $hasAC = Select-String -Path $_.FullName -Pattern '\\\\''activeCompany'\\\\'' -SimpleMatch -Quiet -ErrorAction SilentlyContinue; [PSCustomObject]@{ Path=$_.FullName; Modified=$_.LastWriteTime; HasMultiCompany=$hasAC } } | Sort-Object Modified -Descending | Format-Table -AutoSize -Wrap')",
+      "Bash(npm run *)",
+      "Bash(timeout 90 .venv/Scripts/python.exe -c ' *)",
+      "Bash(gh auth *)",
+      "Bash(git submodule *)",
+      "Bash(grep -q \"size +50M\\\\|^$\" \"C:\\\\Users\\\\ADMINI~1\\\\AppData\\\\Local\\\\Temp\\\\2\\\\claude\\\\c--Erp-Systems-HRMS-LMS-APP-GIT-NEW\\\\e98d53f5-19f2-4478-90e3-887bde84b10d\\\\tasks\\\\bh6v4ycch.output\")",
+      "Bash(git add *)",
+      "Bash(grep -iE \"node_modules/|/\\\\.venv/|/\\\\.next/|/build/|__pycache__/\")",
+      "Bash(awk -F/ '{print $1}')"
     ]
   }
 }
