@@ -37,12 +37,14 @@ import {
   Settings,
   Navigation,
   FileText,
+  IdCard,
 } from "lucide-react";
-import { updateLocationTracking } from "@/services/hrmsService";
+import { updateLocationTracking, getEmployeeCard, type EmployeeCard } from "@/services/hrmsService";
 import { LocationPanel } from "./LocationPanel";
 import { SetupPanel } from "./SetupPanel";
 import { DynamicSelect } from "@/components/ui/DynamicSelect";
 import { EmployeeDocuments } from "./EmployeeDocuments";
+import { EmployeeIDCard } from "./EmployeeIDCard";
 import {
   fetchDepartments, fetchDesignations,
   fetchBloodGroups, fetchCadre, fetchUnits, fetchReligions, fetchReportingOfficers,
@@ -283,6 +285,7 @@ export default function HRMSPage() {
   const [form, setForm] = useState<HRMSEmployeeCreate>({ ...EMPTY_FORM });
   const [reportRange, setReportRange] = useState<AttendanceDateRange>(getPreset("month"));
   const [empFilter, setEmpFilter] = useState<EmpFilter>({ dept: "", gender: "", status: "", location: "" });
+  const [cardData, setCardData] = useState<EmployeeCard | null>(null);
 
   // Reference data
   const [refDepts,  setRefDepts]  = useState<Department[]>([]);
@@ -423,6 +426,16 @@ export default function HRMSPage() {
     ctrl.loadEmployee(empcode).then(() => setView("edit"));
   }
 
+  async function openCard(empcode: string) {
+    if (!user) return;
+    try {
+      const card = await getEmployeeCard(empcode, user.card_no);
+      setCardData(card);
+    } catch (e) {
+      console.error("Failed to load ID card", e);
+    }
+  }
+
   function startReport(emp: HRMSSearchResult) {
     ctrl.clearMessages();
     setReportRange(getPreset("month"));
@@ -533,6 +546,7 @@ export default function HRMSPage() {
 
     return (
       <div className="animate-fade-in">
+        {cardData && <EmployeeIDCard card={cardData} onClose={() => setCardData(null)} />}
         {/* Section toggle */}
         <SectionNav />
 
@@ -745,6 +759,14 @@ export default function HRMSPage() {
                             >
                               <BarChart2 className="h-3.5 w-3.5 mr-1" />
                               Report
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => openCard(emp.empcode)}
+                            >
+                              <IdCard className="h-3.5 w-3.5 mr-1" />
+                              ID Card
                             </Button>
                             {(emp.card_no || emp.atdtcard) && (
                               <Button

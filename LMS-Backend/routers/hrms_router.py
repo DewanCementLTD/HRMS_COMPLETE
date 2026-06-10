@@ -180,6 +180,20 @@ def hrms_get_employee(
     return emp
 
 
+@router.get("/employees/{empcode}/card")
+def hrms_get_employee_card(
+    empcode: str,
+    admin_card_no: str = Query(..., description="Card no of requesting HR admin"),
+):
+    """Printable ID-card data (names resolved) for one employee."""
+    require_hr_admin(admin_card_no)
+    from repositories.hrms_repository import get_employee_card
+    card = get_employee_card(empcode)
+    if not card:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    return card
+
+
 # ===================================
 # REGISTER NEW EMPLOYEE
 # ===================================

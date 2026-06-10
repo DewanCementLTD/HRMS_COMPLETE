@@ -19,6 +19,33 @@ export async function getHRMSEmployee(
   );
 }
 
+export interface EmployeeCard {
+  empcode: string;
+  card_no?: string;
+  name?: string;
+  fhname?: string;
+  designation?: string;
+  department?: string;
+  company_name?: string;
+  branch_name?: string;
+  nicno?: string;
+  mobile?: string;
+  email?: string;
+  atdtcard?: string;
+  dtofappt?: string;
+  sex?: string;
+  bldgrp?: string;
+}
+
+export async function getEmployeeCard(
+  empcode: string,
+  adminCardNo: string
+): Promise<EmployeeCard> {
+  return apiRequest<EmployeeCard>(
+    `/hrms/employees/${encodeURIComponent(empcode)}/card?admin_card_no=${encodeURIComponent(adminCardNo)}`
+  );
+}
+
 export async function createHRMSEmployee(
   data: HRMSEmployeeCreate,
   adminCardNo: string

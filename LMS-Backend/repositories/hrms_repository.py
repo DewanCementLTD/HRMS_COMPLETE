@@ -263,6 +263,54 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
 
 
 # ------------------------------------------------------------------
+# EMPLOYEE ID CARD (resolved names for printing)
+# ------------------------------------------------------------------
+
+def get_employee_card(empcode: str) -> dict | None:
+    """Return an employee's printable ID-card data with names resolved
+    (designation, department, company, branch). Falls back to the base detail
+    (codes) if the lookup joins aren't available in this schema."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        try:
+            cursor.execute("""
+                SELECT
+                    m.EMPCODE, m.NAME, m.FHNAME, m."ATDTCARD#", m.NICNO, m."MOBILE#",
+                    m.EMAIL, m.SEX, m.BLDGRP, m.STATUS,
+                    TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
+                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE dg.DESG_CD = m.DESG_CD) AS DESIGNATION,
+                    (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE d.DEPT_NO = m.DEPT_NO) AS DEPARTMENT,
+                    (SELECT u.UNIT_NAME FROM UNIT_MST u WHERE u.UNIT_ID = m.UNIT_ID) AS COMPANY_NAME,
+                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(m.LOCATION)) AS BRANCH_NAME
+                FROM HR_EMP_MASTER m
+                WHERE m.EMPCODE = :e
+            """, {"e": empcode})
+            row = cursor.fetchone()
+            if not row:
+                return None
+            cols = [c[0].lower() for c in cursor.description]
+            r = dict(zip(cols, row))
+            r["atdtcard"] = r.pop("atdtcard#", None)
+            r["mobile"] = r.pop("mobile#", None)
+            for k in ("name", "designation", "department", "company_name", "branch_name", "nicno"):
+                if r.get(k):
+                    r[k] = str(r[k]).strip()
+            r["card_no"] = r.get("empcode")
+            return r
+        except Exception as e:
+            if "ORA-00904" in str(e) or "ORA-00942" in str(e):
+                base = get_employee_by_empcode(empcode)
+                if base:
+                    base["card_no"] = base.get("empcode")
+                return base
+            raise
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# ------------------------------------------------------------------
 # UPDATE EMPLOYEE
 # ------------------------------------------------------------------
 
