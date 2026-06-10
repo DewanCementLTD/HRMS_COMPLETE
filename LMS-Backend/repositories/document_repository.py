@@ -19,8 +19,15 @@ import re
 
 from core.database import get_connection
 
-# Root directory for all employee documents.
-DOCS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "EMP_DOCS")
+# Root directory for all employee documents. Overridable via EMP_DOCS_ROOT.
+# Default: C:\Erp_Systems\HRMS_LMS_APP\EMP_DOCS (sibling of GIT_NEW), so files
+# live outside the repo.
+DOCS_ROOT = os.environ.get(
+    "EMP_DOCS_ROOT",
+    r"C:\Erp_Systems\HRMS_LMS_APP\EMP_DOCS",
+)
+# Parent of EMP_DOCS — relative paths stored in HR_DOCUMENT.IMG_NM resolve against this.
+DOCS_BASE = os.path.dirname(DOCS_ROOT)
 
 
 def _safe_name(name: str, fallback: str) -> str:
@@ -98,10 +105,12 @@ def create_document(empcode: str, d_type: str, doc_name: str, remarks: str, ext:
         doc_id = int(cursor.fetchone()[0])
 
         ext = (ext or "").lstrip(".").lower() or "bin"
+        # File name: <empcode>_<doc_id>.<ext>  e.g. 100011.2_5.png
+        fname = f"{_safe_name(str(empcode), 'emp')}_{doc_id}.{ext}"
         rel_dir = os.path.join("EMP_DOCS", company_folder, branch_folder)
-        rel_path = os.path.join(rel_dir, f"{doc_id}.{ext}")
-        abs_dir = os.path.join(os.path.dirname(DOCS_ROOT), rel_dir)
-        abs_path = os.path.join(os.path.dirname(DOCS_ROOT), rel_path)
+        rel_path = os.path.join(rel_dir, fname)
+        abs_dir = os.path.join(DOCS_BASE, rel_dir)
+        abs_path = os.path.join(DOCS_BASE, rel_path)
 
         cursor.execute("""
             INSERT INTO HR_DOCUMENT (DOC_ID, OLD_EMPCODE, UNIT_ID, D_TYPE, D_PATH, REMRK, IMG_NM)
@@ -130,7 +139,7 @@ def get_document(doc_id: int) -> dict | None:
         if not r:
             return None
         rel = (r[5] or "").strip()
-        abs_path = os.path.join(os.path.dirname(DOCS_ROOT), rel) if rel else None
+        abs_path = os.path.join(DOCS_BASE, rel) if rel else None
         return {
             "doc_id": int(r[0]), "empcode": (r[1] or "").strip(),
             "d_type": (r[2] or "").strip(), "doc_name": (r[3] or "").strip(),
