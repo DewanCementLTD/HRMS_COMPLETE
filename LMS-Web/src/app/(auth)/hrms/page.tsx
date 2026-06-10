@@ -42,12 +42,15 @@ import { updateLocationTracking } from "@/services/hrmsService";
 import { LocationPanel } from "./LocationPanel";
 import { SetupPanel } from "./SetupPanel";
 import { DynamicSelect } from "@/components/ui/DynamicSelect";
+import { EmployeeDocuments } from "./EmployeeDocuments";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts,
+  fetchDepartments, fetchDesignations,
   fetchBloodGroups, fetchCadre, fetchUnits, fetchReligions, fetchReportingOfficers,
-  addDepartment, addGrade, addDesignation, addShift, addBloodGroup, addCadre,
-  type Department, type Grade, type Designation, type Shift, type BloodGroup, type Cadre, type Unit,
+  fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
+  addDepartment, addBloodGroup, addCadre,
+  type Department, type Designation, type BloodGroup, type Cadre, type Unit,
   type Religion, type ReportingOfficer,
+  type EmpStatus, type Bank, type BankBranch, type Qualification,
 } from "@/services/referenceService";
 
 // ──────────────────────────────────────────────
@@ -84,15 +87,32 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   hr_admin: "N",
   rpt_officer: "",
   marstat: "",
-  grade_cd: "",
   religion: "",
   basic: undefined,
   gross: undefined,
-  shift: "",
   w_hour: undefined,
   bldgrp: "",
   location: "",
+  // Extended profile fields
+  emp_status: "",
+  ntn: "",
+  bnkcode: "",
+  brncode: "",
+  bnkacct: "",
+  qfication: "",
+  qual_detail: "",
+  dtofconfirm: "",
 };
+
+// Format an NIC as 4XXXX-XXXXXXX-X (5 digits - 7 digits - 1 digit).
+function formatNIC(v: string): string {
+  const d = (v || "").replace(/\D/g, "").slice(0, 13);
+  const p1 = d.slice(0, 5), p2 = d.slice(5, 12), p3 = d.slice(12, 13);
+  let out = p1;
+  if (p2) out += "-" + p2;
+  if (p3) out += "-" + p3;
+  return out;
+}
 
 // ── Filter state for employee list ──────────────────────────────
 type EmpFilter = { dept: string; gender: string; status: string; location: string };
@@ -266,14 +286,16 @@ export default function HRMSPage() {
 
   // Reference data
   const [refDepts,  setRefDepts]  = useState<Department[]>([]);
-  const [refGrades, setRefGrades] = useState<Grade[]>([]);
   const [refDesigs, setRefDesigs] = useState<Designation[]>([]);
-  const [refShifts, setRefShifts] = useState<Shift[]>([]);
   const [refBG,     setRefBG]     = useState<BloodGroup[]>([]);
   const [refCadre,  setRefCadre]  = useState<Cadre[]>([]);
   const [refUnits,      setRefUnits]      = useState<Unit[]>([]);
   const [refReligions,  setRefReligions]  = useState<Religion[]>([]);
   const [refRptOfficers,setRefRptOfficers]= useState<ReportingOfficer[]>([]);
+  const [refEmpStatuses,setRefEmpStatuses]= useState<EmpStatus[]>([]);
+  const [refBanks,      setRefBanks]      = useState<Bank[]>([]);
+  const [refBankBranches,setRefBankBranches]= useState<BankBranch[]>([]);
+  const [refQuals,      setRefQuals]      = useState<Qualification[]>([]);
 
   // Reference data — refetched when the selected company/branch changes so
   // employee-register/edit dropdowns only show options for the active scope.
@@ -282,21 +304,29 @@ export default function HRMSPage() {
     const c = activeCompany || undefined;
     const b = activeBranch || undefined;
     Promise.all([
-      fetchDepartments(c, b), fetchGrades(c, b), fetchDesignations(undefined, c, b),
-      fetchShifts(c, b), fetchBloodGroups(c, b), fetchCadre(c, b), fetchUnits(),
+      fetchDepartments(c, b), fetchDesignations(undefined, c, b),
+      fetchBloodGroups(c, b), fetchCadre(c, b), fetchUnits(),
       fetchReligions(), fetchReportingOfficers(),
-    ]).then(([d, g, des, s, bg, ca, u, rel, rpt]) => {
+      fetchEmpStatuses(), fetchBanks(c), fetchQualifications(),
+    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql]) => {
       setRefDepts(d.items);
-      setRefGrades(g.items);
       setRefDesigs(des.items);
-      setRefShifts(s.items);
       setRefBG(bg.items);
       setRefCadre(ca.items);
       setRefUnits(u.items);
       setRefReligions(rel.items);
       setRefRptOfficers(rpt.items);
+      setRefEmpStatuses(est.items);
+      setRefBanks(bk.items);
+      setRefQuals(ql.items);
     }).catch(console.error);
   }, [activeCompany, activeBranch]);
+
+  // Bank branches depend on the selected bank.
+  useEffect(() => {
+    if (!form.bnkcode) { setRefBankBranches([]); return; }
+    fetchBankBranches(form.bnkcode).then((r) => setRefBankBranches(r.items)).catch(console.error);
+  }, [form.bnkcode]);
 
   // Load employees on mount and when tab changes
   useEffect(() => {
@@ -430,14 +460,21 @@ export default function HRMSPage() {
       hr_admin: e.hr_admin || "N",
       rpt_officer: e.rpt_officer || "",
       marstat: e.marstat || "",
-      grade_cd: e.grade_cd || "",
       religion: e.religion || "",
       basic: e.basic ?? undefined,
       gross: e.gross ?? undefined,
-      shift: e.shift || "",
       w_hour: e.w_hour ?? undefined,
       track_location: e.track_location || "N",
       track_location_hr: e.track_location_hr ?? 2,
+      // Extended profile fields
+      emp_status: e.emp_status || "",
+      ntn: e.ntn || "",
+      bnkcode: e.bnkcode || "",
+      brncode: e.brncode || "",
+      bnkacct: e.bnkacct || "",
+      qfication: e.qfication || "",
+      qual_detail: e.qual_detail || "",
+      dtofconfirm: e.dtofconfirm || "",
     });
   }
 
@@ -1134,8 +1171,9 @@ export default function HRMSPage() {
               <Input
                 label="NIC Number"
                 value={form.nicno || ""}
-                onChange={(e) => updateField("nicno", e.target.value)}
-                placeholder="XXXXX-XXXXXXX-X"
+                onChange={(e) => updateField("nicno", formatNIC(e.target.value))}
+                placeholder="4XXXX-XXXXXXX-X"
+                maxLength={15}
               />
               <Select
                 label="Marital Status"
@@ -1224,41 +1262,44 @@ export default function HRMSPage() {
                 addLabel="Add department"
                 addPlaceholder="e.g. IT Department"
               />
-              <DynamicSelect
-                label="Grade"
-                value={form.grade_cd || ""}
-                onChange={(v) => {
-                  updateField("grade_cd", v);
-                  updateField("desg_cd", "");
-                }}
-                options={refGrades.map((g) => ({ value: g.grade_cd, label: `${g.grade_cd} — ${g.descr}` }))}
-                onAdd={async (val, extra) => {
-                  const res = await addGrade(user!.card_no, extra || val, val);
-                  setRefGrades((prev) => [...prev, res]);
-                  return { value: res.grade_cd, label: `${res.grade_cd} — ${res.descr}` };
-                }}
-                addLabel="Add grade"
-                addExtraPlaceholder="Grade code (e.g. WR)"
-                addExtraLabel="Grade Code"
-                addPlaceholder="Description (e.g. Worker)"
-              />
-              <DynamicSelect
+              <Select
                 label="Designation"
                 value={form.desg_cd?.toString() || ""}
-                onChange={(v) => updateField("desg_cd", v)}
-                options={(form.grade_cd
-                  ? refDesigs.filter((d) => d.grade_cd === form.grade_cd)
-                  : refDesigs
-                ).map((d) => ({ value: d.desg_cd, label: d.desg_desc }))}
-                onAdd={async (val) => {
-                  const gc = form.grade_cd || "";
-                  if (!gc) throw new Error("Select a grade first");
-                  const res = await addDesignation(user!.card_no, gc, val);
-                  setRefDesigs((prev) => [...prev, res]);
-                  return { value: res.desg_cd, label: res.desg_desc };
-                }}
-                addLabel="Add designation"
-                addPlaceholder="e.g. Senior Engineer"
+                onChange={(e) => updateField("desg_cd", e.target.value)}
+                options={[
+                  { value: "", label: "Select designation" },
+                  ...refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc })),
+                ]}
+              />
+              <Select
+                label="Employee Status"
+                value={form.emp_status || ""}
+                onChange={(e) => updateField("emp_status", e.target.value)}
+                options={[
+                  { value: "", label: "Select status" },
+                  ...refEmpStatuses.map((s) => ({ value: s.emp_status, label: s.descr })),
+                ]}
+              />
+              <Input
+                label="Date of Confirmation"
+                type="date"
+                value={form.dtofconfirm || ""}
+                onChange={(e) => updateField("dtofconfirm", e.target.value)}
+              />
+              <Select
+                label="Qualification"
+                value={form.qfication || ""}
+                onChange={(e) => updateField("qfication", e.target.value)}
+                options={[
+                  { value: "", label: "Select qualification" },
+                  ...refQuals.map((q) => ({ value: q.descr, label: q.descr })),
+                ]}
+              />
+              <Input
+                label="Qualification Detail"
+                value={form.qual_detail || ""}
+                onChange={(e) => updateField("qual_detail", e.target.value)}
+                placeholder="e.g. BSc Computer Science, Punjab University"
               />
               <Select
                 label="Reporting Officer"
@@ -1280,22 +1321,6 @@ export default function HRMSPage() {
                 value={form.unit_id?.toString() || ""}
                 onChange={(v) => updateField("unit_id", v ? parseInt(v) : 1)}
                 options={refUnits.map((u) => ({ value: String(u.unit_id), label: u.unit_name }))}
-              />
-              <DynamicSelect
-                label="Shift"
-                value={form.shift || ""}
-                onChange={(v) => updateField("shift", v)}
-                options={refShifts.map((s) => ({ value: s.shift, label: `${s.shift} — ${s.shift_desc}${s.time_from ? ` (${s.time_from}–${s.time_to})` : ""}` }))}
-                onAdd={async (val, extra) => {
-                  const [tf, tt] = (extra || "").split("-").map((x) => x.trim());
-                  const res = await addShift(user!.card_no, val, val, tf || undefined, tt || undefined);
-                  setRefShifts((prev) => [...prev, res]);
-                  return { value: res.shift, label: `${res.shift} — ${res.shift_desc}` };
-                }}
-                addLabel="Add shift"
-                addExtraPlaceholder="Hours e.g. 08:00-17:00"
-                addExtraLabel="Time range"
-                addPlaceholder="Shift code e.g. N"
               />
               <Input
                 label="Working Hours"
@@ -1322,26 +1347,46 @@ export default function HRMSPage() {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Input
-                label="Basic Salary"
-                type="number"
-                value={form.basic?.toString() || ""}
-                onChange={(e) =>
-                  updateField(
-                    "basic",
-                    e.target.value ? parseFloat(e.target.value) : undefined,
-                  )
-                }
+                label="Salary Basic (view-only)"
+                value={ctrl.selectedEmployee?.sal_basic != null ? String(ctrl.selectedEmployee.sal_basic) : "—"}
+                readOnly
+                disabled
               />
               <Input
-                label="Gross Salary"
-                type="number"
-                value={form.gross?.toString() || ""}
-                onChange={(e) =>
-                  updateField(
-                    "gross",
-                    e.target.value ? parseFloat(e.target.value) : undefined,
-                  )
-                }
+                label="Salary Gross (view-only)"
+                value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
+                readOnly
+                disabled
+              />
+              <Select
+                label="Bank"
+                value={form.bnkcode || ""}
+                onChange={(e) => { updateField("bnkcode", e.target.value); updateField("brncode", ""); }}
+                options={[
+                  { value: "", label: "Select bank" },
+                  ...refBanks.map((b) => ({ value: b.bnkcode, label: b.bnkname })),
+                ]}
+              />
+              <Select
+                label="Bank Branch"
+                value={form.brncode || ""}
+                onChange={(e) => updateField("brncode", e.target.value)}
+                options={[
+                  { value: "", label: form.bnkcode ? "Select branch" : "Select a bank first" },
+                  ...refBankBranches.map((b) => ({ value: b.brncode, label: b.brnname })),
+                ]}
+              />
+              <Input
+                label="Bank Account Number"
+                value={form.bnkacct || ""}
+                onChange={(e) => updateField("bnkacct", e.target.value)}
+                placeholder="Account number"
+              />
+              <Input
+                label="N.T.N #"
+                value={form.ntn || ""}
+                onChange={(e) => updateField("ntn", e.target.value)}
+                placeholder="National Tax Number"
               />
               <Select
                 label="HR Admin"
@@ -1427,6 +1472,11 @@ export default function HRMSPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Documents — only for an existing employee (needs an empcode) */}
+        {isEdit && ctrl.selectedEmployee?.empcode && (
+          <EmployeeDocuments empcode={ctrl.selectedEmployee.empcode} adminCardNo={user!.card_no} />
+        )}
 
         <div className="flex justify-end gap-3 mb-8">
           <Button type="button" variant="secondary" onClick={goList}>

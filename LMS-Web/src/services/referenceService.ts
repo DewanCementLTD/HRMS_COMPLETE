@@ -10,6 +10,10 @@ export interface Unit            { unit_id: number; unit_name: string }
 export interface Religion        { code: string; label: string }
 export interface ReportingOfficer { empcode: string; name: string }
 export interface Location    { lcode: string; descr: string; sname: string; regioncode: string; city: string }
+export interface EmpStatus   { emp_status: string; descr: string }
+export interface Bank        { bnkcode: string; bnkname: string }
+export interface BankBranch  { brncode: string; brnname: string }
+export interface Qualification { descr: string }
 
 function cbQuery(compc?: string, brnch?: string, extra = ""): string {
   const parts: string[] = [];
@@ -33,6 +37,14 @@ export const fetchBloodGroups  = (compc?: string, brnch?: string) =>
   apiRequest<{ items: BloodGroup[] }>(`/reference/blood-groups${cbQuery(compc, brnch)}`);
 export const fetchCadre        = (compc?: string, brnch?: string) =>
   apiRequest<{ items: Cadre[] }>(`/reference/cadre${cbQuery(compc, brnch)}`);
+export const fetchEmpStatuses  = () =>
+  apiRequest<{ items: EmpStatus[] }>("/reference/emp-statuses");
+export const fetchBanks        = (compc?: string) =>
+  apiRequest<{ items: Bank[] }>(`/reference/banks${compc ? `?compc=${encodeURIComponent(compc)}` : ""}`);
+export const fetchBankBranches = (bnkcode?: string) =>
+  apiRequest<{ items: BankBranch[] }>(`/reference/bank-branches${bnkcode ? `?bnkcode=${encodeURIComponent(bnkcode)}` : ""}`);
+export const fetchQualifications = () =>
+  apiRequest<{ items: Qualification[] }>("/reference/qualifications");
 export const fetchUnits              = () => apiRequest<{ items: Unit[]             }>("/reference/units");
 export const fetchReligions          = () => apiRequest<{ items: Religion[]         }>("/reference/religions");
 export const fetchReportingOfficers  = () => apiRequest<{ items: ReportingOfficer[] }>("/reference/reporting-officers");

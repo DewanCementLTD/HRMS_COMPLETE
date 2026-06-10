@@ -31,6 +31,17 @@ export interface HRMSEmployee {
   user_paswd?: string;
   track_location?: string;
   track_location_hr?: number;
+  // Extended profile fields
+  emp_status?: string;
+  ntn?: string;
+  bnkcode?: string;
+  brncode?: string;
+  bnkacct?: string;
+  qfication?: string;
+  qual_detail?: string;
+  dtofconfirm?: string;
+  sal_gross?: number;   // view-only (HR_EMP_MASTER_SAL latest period)
+  sal_basic?: number;   // view-only
 }
 
 export interface HRMSEmployeeCreate {
@@ -65,6 +76,15 @@ export interface HRMSEmployeeCreate {
   location?: string;
   track_location?: string;
   track_location_hr?: number;
+  // Extended profile fields
+  emp_status?: string;
+  ntn?: string;
+  bnkcode?: string;
+  brncode?: string;
+  bnkacct?: string;
+  qfication?: string;
+  qual_detail?: string;
+  dtofconfirm?: string;
 }
 
 export interface HRDashboardStats {
