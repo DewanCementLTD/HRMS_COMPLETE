@@ -54,12 +54,14 @@ function buildQuery(f: LocationReportFilters): string {
   return p.toString();
 }
 
+// NOTE: location_router is mounted with prefix="/auth", so the report endpoints
+// live under /auth/location/report/* (same as /auth/location/summary).
 export const fetchLocationTrailReport = (f: LocationReportFilters) =>
   apiRequest<{ items: TrailRow[]; from_date: string; to_date: string }>(
-    `/location/report/trail?${buildQuery(f)}`
+    `/auth/location/report/trail?${buildQuery(f)}`
   );
 
 export const fetchLocationSummaryReport = (f: LocationReportFilters) =>
   apiRequest<{ items: SummaryRow[]; from_date: string; to_date: string }>(
-    `/location/report/summary?${buildQuery(f)}`
+    `/auth/location/report/summary?${buildQuery(f)}`
   );
