@@ -76,18 +76,12 @@ function CardBack({ c }: { c: EmployeeCard }) {
           {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
         </div>
 
-        {/* QR + signature */}
-        <div className="mt-auto flex items-end justify-between pt-3">
-          <div className="flex flex-col items-center">
-            <div className="p-1.5 bg-white rounded-lg border border-gray-200">
-              <QRCodeSVG value={SITE_URL} size={66} level="M" />
-            </div>
-            <p className="text-[7px] text-gray-400 mt-1 text-center leading-tight">Scan to visit<br />hrms.sysnovix.com</p>
+        {/* QR — centered at the bottom middle */}
+        <div className="mt-auto flex flex-col items-center pt-3">
+          <div className="p-1.5 bg-white rounded-lg border border-gray-200 shadow-sm">
+            <QRCodeSVG value={SITE_URL} size={68} level="M" />
           </div>
-          <div className="text-right">
-            <div className="w-[88px] border-b border-gray-300 mb-1" />
-            <p className="text-[8px] text-gray-400 uppercase tracking-wide">Authorized Sign</p>
-          </div>
+          <p className="text-[7px] text-gray-400 mt-1 text-center leading-tight">Scan to visit hrms.sysnovix.com</p>
         </div>
       </div>
 
@@ -138,10 +132,11 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
         </div>
       </div>
 
-      {/* Print-only layout — both faces, real card size */}
+      {/* Print-only layout — each face rendered at its design size (320x508) and
+          scaled down as a whole, so nothing is clipped. */}
       <div className="id-card-print">
-        <div className="id-card-face"><CardFront c={card} /></div>
-        <div className="id-card-face"><CardBack c={card} /></div>
+        <div className="id-card-face"><div className="id-card-scale"><CardFront c={card} /></div></div>
+        <div className="id-card-face"><div className="id-card-scale"><CardBack c={card} /></div></div>
       </div>
 
       <style>{`
@@ -160,9 +155,17 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
             -webkit-backdrop-filter: none !important; padding: 0 !important; z-index: auto !important;
           }
           .id-card-backdrop, .id-card-content { display: none !important; }
-          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 8mm; }
-          .id-card-face { width: 54mm; height: 85.6mm; box-shadow: none !important; }
-          .id-card-face > div { box-shadow: none !important; }
+          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 10mm; align-items: flex-start; }
+          /* Footprint = scaled card size. Inner is full design size, scaled to fit. */
+          .id-card-face {
+            width: 60mm; height: 96mm; overflow: hidden; box-shadow: none !important;
+          }
+          .id-card-scale {
+            width: 320px; height: 508px;
+            transform: scale(0.708);          /* 320px -> 60mm (226.7px @96dpi) */
+            transform-origin: top left;
+          }
+          .id-card-scale > div { box-shadow: none !important; }
         }
       `}</style>
     </div>
