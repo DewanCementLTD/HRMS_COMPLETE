@@ -83,8 +83,10 @@ const INTERVIEW_TYPE_OPTS = [
 export function RecruitmentPanel({ adminCardNo }: { adminCardNo: string }) {
   const [tab, setTab] = useState<RecTab>("jobs");
   const { activeCompany, activeBranch } = useAuth();
-  // Jobs are filtered to the currently selected company/branch (backend-enforced).
+  // Recruitment data is filtered to the currently selected company/branch
+  // (backend-enforced). scopeKey re-mounts the active tab on switch → refetch.
   const scope = { compc: activeCompany || undefined, brnch: activeBranch || undefined };
+  const scopeKey = `${activeCompany}|${activeBranch}`;
 
   return (
     <div>
@@ -111,11 +113,11 @@ export function RecruitmentPanel({ adminCardNo }: { adminCardNo: string }) {
         ))}
       </div>
 
-      {tab === "jobs" && <JobsTab key={`${activeCompany}|${activeBranch}`} adminCardNo={adminCardNo} scope={scope} />}
-      {tab === "applications" && <ApplicationsTab adminCardNo={adminCardNo} />}
-      {tab === "interviews" && <InterviewsTab adminCardNo={adminCardNo} />}
-      {tab === "offers" && <OffersTab adminCardNo={adminCardNo} />}
-      {tab === "analytics" && <AnalyticsTab adminCardNo={adminCardNo} />}
+      {tab === "jobs" && <JobsTab key={scopeKey} adminCardNo={adminCardNo} scope={scope} />}
+      {tab === "applications" && <ApplicationsTab key={scopeKey} adminCardNo={adminCardNo} scope={scope} />}
+      {tab === "interviews" && <InterviewsTab key={scopeKey} adminCardNo={adminCardNo} scope={scope} />}
+      {tab === "offers" && <OffersTab key={scopeKey} adminCardNo={adminCardNo} scope={scope} />}
+      {tab === "analytics" && <AnalyticsTab key={scopeKey} adminCardNo={adminCardNo} scope={scope} />}
     </div>
   );
 }
@@ -313,7 +315,7 @@ function JobsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?
 // APPLICATIONS TAB
 // ─────────────────────────────────────────────────────────────────
 
-function ApplicationsTab({ adminCardNo }: { adminCardNo: string }) {
+function ApplicationsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?: string; brnch?: string } }) {
   const [apps, setApps] = useState<Application[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -330,8 +332,8 @@ function ApplicationsTab({ adminCardNo }: { adminCardNo: string }) {
     setError(null);
     try {
       const [appsRes, jobsRes] = await Promise.all([
-        listApplications(adminCardNo, filterJob ? parseInt(filterJob) : undefined, filterStatus || undefined),
-        listJobs(adminCardNo),
+        listApplications(adminCardNo, filterJob ? parseInt(filterJob) : undefined, filterStatus || undefined, scope),
+        listJobs(adminCardNo, undefined, scope),
       ]);
       setApps(appsRes.items);
       setJobs(jobsRes.items);
@@ -340,7 +342,8 @@ function ApplicationsTab({ adminCardNo }: { adminCardNo: string }) {
     } finally {
       setLoading(false);
     }
-  }, [adminCardNo, filterJob, filterStatus]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminCardNo, filterJob, filterStatus, scope?.compc, scope?.brnch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -486,7 +489,7 @@ function ApplicationsTab({ adminCardNo }: { adminCardNo: string }) {
 // INTERVIEWS TAB
 // ─────────────────────────────────────────────────────────────────
 
-function InterviewsTab({ adminCardNo }: { adminCardNo: string }) {
+function InterviewsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?: string; brnch?: string } }) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -503,8 +506,8 @@ function InterviewsTab({ adminCardNo }: { adminCardNo: string }) {
     setError(null);
     try {
       const [ivRes, appsRes] = await Promise.all([
-        listInterviews(adminCardNo),
-        listApplications(adminCardNo, undefined, "SHORTLISTED"),
+        listInterviews(adminCardNo, undefined, undefined, scope),
+        listApplications(adminCardNo, undefined, "SHORTLISTED", scope),
       ]);
       setInterviews(ivRes.items);
       setApps(appsRes.items);
@@ -513,7 +516,8 @@ function InterviewsTab({ adminCardNo }: { adminCardNo: string }) {
     } finally {
       setLoading(false);
     }
-  }, [adminCardNo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminCardNo, scope?.compc, scope?.brnch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -669,7 +673,7 @@ function InterviewsTab({ adminCardNo }: { adminCardNo: string }) {
 // OFFERS TAB
 // ─────────────────────────────────────────────────────────────────
 
-function OffersTab({ adminCardNo }: { adminCardNo: string }) {
+function OffersTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?: string; brnch?: string } }) {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [apps, setApps] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -684,8 +688,8 @@ function OffersTab({ adminCardNo }: { adminCardNo: string }) {
     setError(null);
     try {
       const [offRes, appsRes] = await Promise.all([
-        listOffers(adminCardNo),
-        listApplications(adminCardNo, undefined, "SHORTLISTED"),
+        listOffers(adminCardNo, undefined, scope),
+        listApplications(adminCardNo, undefined, "SHORTLISTED", scope),
       ]);
       setOffers(offRes.items);
       setApps(appsRes.items);
@@ -694,7 +698,8 @@ function OffersTab({ adminCardNo }: { adminCardNo: string }) {
     } finally {
       setLoading(false);
     }
-  }, [adminCardNo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminCardNo, scope?.compc, scope?.brnch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -815,18 +820,19 @@ function OffersTab({ adminCardNo }: { adminCardNo: string }) {
 // ANALYTICS TAB
 // ─────────────────────────────────────────────────────────────────
 
-function AnalyticsTab({ adminCardNo }: { adminCardNo: string }) {
+function AnalyticsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?: string; brnch?: string } }) {
   const [data, setData] = useState<RecruitmentAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
-    fetchRecruitmentAnalytics(adminCardNo)
+    fetchRecruitmentAnalytics(adminCardNo, scope)
       .then(setData)
       .catch((e: unknown) => setError(e instanceof Error ? e.message : "Failed to load analytics"))
       .finally(() => setLoading(false));
-  }, [adminCardNo]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminCardNo, scope?.compc, scope?.brnch]);
 
   if (loading) return <div className="flex justify-center py-20"><Spinner /></div>;
   if (error) return <Alert type="error" message={error} />;

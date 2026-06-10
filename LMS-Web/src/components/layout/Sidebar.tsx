@@ -46,12 +46,16 @@ function SwitcherDropdown<T extends { code: string; name: string }>({
   onSelect,
   icon: Icon,
   collapsed,
+  allowAll = false,
+  allLabel = "All",
 }: {
   items: T[];
   selected: T | null;
   onSelect: (item: T) => void;
   icon: React.ElementType;
   collapsed: boolean;
+  allowAll?: boolean;
+  allLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -66,13 +70,18 @@ function SwitcherDropdown<T extends { code: string; name: string }>({
 
   if (items.length === 0) return null;
 
+  // Prepend a synthetic "All" entry (empty code = no filter) when allowed.
+  const displayItems: T[] = allowAll
+    ? ([{ code: "", name: allLabel } as T, ...items])
+    : items;
+
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => items.length > 1 && setOpen(!open)}
+        onClick={() => displayItems.length > 1 && setOpen(!open)}
         className={cn(
           "flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg transition-colors text-xs",
-          items.length > 1
+          displayItems.length > 1
             ? "hover:bg-gray-100 cursor-pointer"
             : "cursor-default",
           collapsed && "justify-center"
@@ -83,7 +92,7 @@ function SwitcherDropdown<T extends { code: string; name: string }>({
         {!collapsed && (
           <>
             <span className="text-gray-600 truncate flex-1">{selected?.name ?? "—"}</span>
-            {items.length > 1 && (
+            {displayItems.length > 1 && (
               <ChevronDown className={cn("h-3 w-3 text-gray-400 shrink-0 transition-transform", open && "rotate-180")} />
             )}
           </>
@@ -92,7 +101,7 @@ function SwitcherDropdown<T extends { code: string; name: string }>({
 
       {open && !collapsed && (
         <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-          {items.map((item) => (
+          {displayItems.map((item) => (
             <button
               key={item.code}
               onClick={() => { onSelect(item); setOpen(false); }}
@@ -207,6 +216,8 @@ export function Sidebar() {
               onSelect={switchBranch}
               icon={MapPin}
               collapsed={collapsed}
+              allowAll
+              allLabel="All Branches"
             />
           )}
         </div>

@@ -29,7 +29,11 @@ export function useAuthController() {
           company_list: response.company_list ?? [],
           branch_list: response.branch_list ?? [],
           selected_company: response.company_list?.[0] ?? null,
-          selected_branch: response.branch_list?.[0] ?? null,
+          // Default to "All Branches" (empty code = no branch filter) so an admin
+          // sees the whole selected company until they narrow to one branch.
+          selected_branch: (response.branch_list?.length ?? 0) > 0
+            ? { code: "", name: "All Branches" }
+            : null,
         };
         setUser(user);
         localStorage.setItem("lms_user", JSON.stringify(user));

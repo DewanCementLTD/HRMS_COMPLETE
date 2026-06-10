@@ -101,9 +101,12 @@ def list_applications(
     admin_card_no: str = Query(...),
     job_id: int = Query(None),
     status: str = Query(None),
+    compc: Optional[str] = Query(None),
+    brnch: Optional[str] = Query(None),
 ):
     require_hr_admin(admin_card_no)
-    return {"items": svc_list_applications(job_id, status)}
+    final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+    return {"items": svc_list_applications(job_id, status, compc=final_c, brnch=final_b)}
 
 
 @router.post("/applications")
@@ -154,9 +157,12 @@ def list_interviews(
     admin_card_no: str = Query(...),
     app_id: int = Query(None),
     status: str = Query(None),
+    compc: Optional[str] = Query(None),
+    brnch: Optional[str] = Query(None),
 ):
     require_hr_admin(admin_card_no)
-    return {"items": svc_list_interviews(app_id, status)}
+    final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+    return {"items": svc_list_interviews(app_id, status, compc=final_c, brnch=final_b)}
 
 
 @router.post("/interviews")
@@ -192,9 +198,12 @@ def update_interview(
 def list_offers(
     admin_card_no: str = Query(...),
     status: str = Query(None),
+    compc: Optional[str] = Query(None),
+    brnch: Optional[str] = Query(None),
 ):
     require_hr_admin(admin_card_no)
-    return {"items": svc_list_offers(status)}
+    final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+    return {"items": svc_list_offers(status, compc=final_c, brnch=final_b)}
 
 
 @router.post("/offers")
@@ -227,6 +236,11 @@ def update_offer(
 # ===================================
 
 @router.get("/analytics")
-def analytics(admin_card_no: str = Query(...)):
+def analytics(
+    admin_card_no: str = Query(...),
+    compc: Optional[str] = Query(None),
+    brnch: Optional[str] = Query(None),
+):
     require_hr_admin(admin_card_no)
-    return svc_get_analytics()
+    final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+    return svc_get_analytics(compc=final_c, brnch=final_b)

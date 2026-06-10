@@ -152,6 +152,33 @@ def _job_scope_filter(params: dict, compc=None, brnch=None) -> str:
     return (" AND " + " AND ".join(parts)) if parts else ""
 
 
+def _scoped_list(cursor, sql_with_placeholder: str, base_conditions: list,
+                 base_params: dict, compc=None, brnch=None) -> list:
+    """Run a recruitment list query scoped to the selected company/branch via the
+    job's COMPC/BRNCH. The SQL must JOIN RECRUITMENT_JOBS j and contain the literal
+    token __WHERE__ where its WHERE clause belongs. Falls back to unscoped when the
+    COMPC/BRNCH columns are absent (ORA-00904)."""
+    base_where = ("WHERE " + " AND ".join(base_conditions)) if base_conditions else ""
+
+    def _run(where: str, params: dict) -> list:
+        cursor.execute(sql_with_placeholder.replace("__WHERE__", where), params)
+        rows = cursor.fetchall()
+        cols = [c[0].lower() for c in cursor.description]
+        return [dict(zip(cols, r)) for r in rows]
+
+    scoped_params = dict(base_params)
+    scope = _job_scope_filter(scoped_params, compc, brnch)
+    if scope:
+        where = (base_where + scope) if base_where else ("WHERE 1=1" + scope)
+        try:
+            return _run(where, scoped_params)
+        except Exception as e:
+            if "ORA-00904" not in str(e):
+                raise
+            print(f"[RECRUITMENT] COMPC/BRNCH absent, listing unscoped: {e}")
+    return _run(base_where, base_params)
+
+
 def list_jobs(status: str = None, compc=None, brnch=None) -> list:
     ensure_recruitment_company_columns()
     conn = get_connection()
@@ -323,7 +350,7 @@ def create_application(data: dict) -> dict:
         conn.close()
 
 
-def list_applications(job_id: int = None, status: str = None) -> list:
+def list_applications(job_id: int = None, status: str = None, compc=None, brnch=None) -> list:
     conn = get_connection()
     cursor = conn.cursor()
     conditions = []
@@ -334,9 +361,7 @@ def list_applications(job_id: int = None, status: str = None) -> list:
     if status:
         conditions.append("a.STATUS = :status")
         params["status"] = status
-    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
-    try:
-        cursor.execute(f"""
+    sql = """
             SELECT
                 a.APP_ID,
                 a.JOB_ID,
@@ -351,12 +376,11 @@ def list_applications(job_id: int = None, status: str = None) -> list:
                 TO_CHAR(a.CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT
             FROM RECRUITMENT_APPLICATIONS a
             JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID
-            {where}
+            __WHERE__
             ORDER BY a.APP_ID DESC
-        """, params)
-        rows = cursor.fetchall()
-        columns = [col[0].lower() for col in cursor.description]
-        return [dict(zip(columns, r)) for r in rows]
+        """
+    try:
+        return _scoped_list(cursor, sql, conditions, params, compc, brnch)
     finally:
         cursor.close()
         conn.close()
@@ -439,7 +463,7 @@ def create_interview(data: dict) -> dict:
         conn.close()
 
 
-def list_interviews(app_id: int = None, status: str = None) -> list:
+def list_interviews(app_id: int = None, status: str = None, compc=None, brnch=None) -> list:
     conn = get_connection()
     cursor = conn.cursor()
     conditions = []
@@ -450,9 +474,7 @@ def list_interviews(app_id: int = None, status: str = None) -> list:
     if status:
         conditions.append("i.STATUS = :status")
         params["status"] = status
-    where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
-    try:
-        cursor.execute(f"""
+    sql = """
             SELECT
                 i.INTERVIEW_ID,
                 i.APP_ID,
@@ -467,12 +489,11 @@ def list_interviews(app_id: int = None, status: str = None) -> list:
             FROM RECRUITMENT_INTERVIEWS i
             JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = i.APP_ID
             JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID
-            {where}
+            __WHERE__
             ORDER BY i.INTERVIEW_ID DESC
-        """, params)
-        rows = cursor.fetchall()
-        columns = [col[0].lower() for col in cursor.description]
-        return [dict(zip(columns, r)) for r in rows]
+        """
+    try:
+        return _scoped_list(cursor, sql, conditions, params, compc, brnch)
     finally:
         cursor.close()
         conn.close()
@@ -543,13 +564,15 @@ def create_offer(data: dict) -> dict:
         conn.close()
 
 
-def list_offers(status: str = None) -> list:
+def list_offers(status: str = None, compc=None, brnch=None) -> list:
     conn = get_connection()
     cursor = conn.cursor()
-    where = "WHERE o.STATUS = :status" if status else ""
-    params = {"status": status} if status else {}
-    try:
-        cursor.execute(f"""
+    conditions = []
+    params = {}
+    if status:
+        conditions.append("o.STATUS = :status")
+        params["status"] = status
+    sql = """
             SELECT
                 o.OFFER_ID,
                 o.APP_ID,
@@ -563,12 +586,11 @@ def list_offers(status: str = None) -> list:
             FROM RECRUITMENT_OFFERS o
             JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = o.APP_ID
             JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID
-            {where}
+            __WHERE__
             ORDER BY o.OFFER_ID DESC
-        """, params)
-        rows = cursor.fetchall()
-        columns = [col[0].lower() for col in cursor.description]
-        return [dict(zip(columns, r)) for r in rows]
+        """
+    try:
+        return _scoped_list(cursor, sql, conditions, params, compc, brnch)
     finally:
         cursor.close()
         conn.close()
@@ -609,74 +631,102 @@ def update_offer(offer_id: int, data: dict) -> dict:
 # ANALYTICS
 # ------------------------------------------------------------------
 
-def get_analytics() -> dict:
+def get_analytics(compc=None, brnch=None) -> dict:
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        # Open positions count
-        cursor.execute("SELECT COUNT(*) FROM RECRUITMENT_JOBS WHERE STATUS = 'OPEN'")
-        open_jobs = int(cursor.fetchone()[0] or 0)
-
-        # Total applications by status
-        cursor.execute("""
-            SELECT STATUS, COUNT(*) FROM RECRUITMENT_APPLICATIONS GROUP BY STATUS
-        """)
-        app_counts = {r[0]: int(r[1]) for r in cursor.fetchall()}
-
-        # Total interviews
-        cursor.execute("SELECT COUNT(*) FROM RECRUITMENT_INTERVIEWS")
-        total_interviews = int(cursor.fetchone()[0] or 0)
-
-        # Hires this month (ACCEPTED offers in current month)
-        cursor.execute("""
-            SELECT COUNT(*) FROM RECRUITMENT_OFFERS
-            WHERE STATUS = 'ACCEPTED'
-              AND TRUNC(OFFER_DATE, 'MM') = TRUNC(SYSDATE, 'MM')
-        """)
-        hires_this_month = int(cursor.fetchone()[0] or 0)
-
-        # Monthly hires (last 6 months)
-        cursor.execute("""
-            SELECT
-                TO_CHAR(OFFER_DATE, 'MON YYYY') AS MONTH,
-                COUNT(*) AS HIRES
-            FROM RECRUITMENT_OFFERS
-            WHERE STATUS = 'ACCEPTED'
-              AND OFFER_DATE >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -5)
-            GROUP BY TO_CHAR(OFFER_DATE, 'MON YYYY'), TRUNC(OFFER_DATE, 'MM')
-            ORDER BY TRUNC(OFFER_DATE, 'MM')
-        """)
-        monthly_hires = [{"month": r[0], "hires": int(r[1])} for r in cursor.fetchall()]
-
-        # Avg time to hire (days from APP_DATE to OFFER ACCEPTED date)
-        cursor.execute("""
-            SELECT AVG(o.OFFER_DATE - a.APP_DATE)
-            FROM RECRUITMENT_OFFERS o
-            JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = o.APP_ID
-            WHERE o.STATUS = 'ACCEPTED'
-        """)
-        row = cursor.fetchone()
-        avg_time_to_hire = round(float(row[0]), 1) if row and row[0] else 0
-
-        # Avg cost per hire (avg salary offered for ACCEPTED offers)
-        cursor.execute("""
-            SELECT AVG(SALARY_OFFERED) FROM RECRUITMENT_OFFERS WHERE STATUS = 'ACCEPTED'
-        """)
-        row = cursor.fetchone()
-        avg_cost_per_hire = round(float(row[0]), 0) if row and row[0] else 0
-
-        return {
-            "open_jobs": open_jobs,
-            "total_applications": sum(app_counts.values()),
-            "pending": app_counts.get("PENDING", 0),
-            "shortlisted": app_counts.get("SHORTLISTED", 0),
-            "rejected": app_counts.get("REJECTED", 0),
-            "total_interviews": total_interviews,
-            "hires_this_month": hires_this_month,
-            "avg_time_to_hire_days": avg_time_to_hire,
-            "avg_cost_per_hire": avg_cost_per_hire,
-            "monthly_hires": monthly_hires,
-        }
+        # Build the company/branch scope once (references the RECRUITMENT_JOBS alias j).
+        sp: dict = {}
+        scope = _job_scope_filter(sp, compc, brnch)
+        if scope:
+            try:
+                return _analytics_query(cursor, scope, sp)
+            except Exception as e:
+                if "ORA-00904" not in str(e):
+                    raise
+                print(f"[RECRUITMENT] COMPC/BRNCH absent, analytics unscoped: {e}")
+        return _analytics_query(cursor, "", {})
     finally:
         cursor.close()
         conn.close()
+
+
+def _analytics_query(cursor, scope: str, sp: dict) -> dict:
+    """Recruitment analytics. When `scope` is set, every count is constrained to
+    jobs in the selected company/branch by joining through to RECRUITMENT_JOBS j."""
+    j_join_app = "JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID"
+    j_join_off = ("JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = o.APP_ID "
+                  "JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID")
+
+    # Open positions
+    cursor.execute(f"SELECT COUNT(*) FROM RECRUITMENT_JOBS j WHERE j.STATUS = 'OPEN'{scope}", sp)
+    open_jobs = int(cursor.fetchone()[0] or 0)
+
+    # Applications by status
+    cursor.execute(f"""
+        SELECT a.STATUS, COUNT(*)
+        FROM RECRUITMENT_APPLICATIONS a {j_join_app}
+        WHERE 1=1{scope}
+        GROUP BY a.STATUS
+    """, sp)
+    app_counts = {r[0]: int(r[1]) for r in cursor.fetchall()}
+
+    # Total interviews
+    cursor.execute(f"""
+        SELECT COUNT(*)
+        FROM RECRUITMENT_INTERVIEWS i
+        JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = i.APP_ID {j_join_app}
+        WHERE 1=1{scope}
+    """, sp)
+    total_interviews = int(cursor.fetchone()[0] or 0)
+
+    # Hires this month (ACCEPTED offers in current month)
+    cursor.execute(f"""
+        SELECT COUNT(*)
+        FROM RECRUITMENT_OFFERS o {j_join_off}
+        WHERE o.STATUS = 'ACCEPTED'
+          AND TRUNC(o.OFFER_DATE, 'MM') = TRUNC(SYSDATE, 'MM'){scope}
+    """, sp)
+    hires_this_month = int(cursor.fetchone()[0] or 0)
+
+    # Monthly hires (last 6 months)
+    cursor.execute(f"""
+        SELECT TO_CHAR(o.OFFER_DATE, 'MON YYYY') AS MONTH, COUNT(*) AS HIRES
+        FROM RECRUITMENT_OFFERS o {j_join_off}
+        WHERE o.STATUS = 'ACCEPTED'
+          AND o.OFFER_DATE >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -5){scope}
+        GROUP BY TO_CHAR(o.OFFER_DATE, 'MON YYYY'), TRUNC(o.OFFER_DATE, 'MM')
+        ORDER BY TRUNC(o.OFFER_DATE, 'MM')
+    """, sp)
+    monthly_hires = [{"month": r[0], "hires": int(r[1])} for r in cursor.fetchall()]
+
+    # Avg time to hire (days from APP_DATE to OFFER ACCEPTED date)
+    cursor.execute(f"""
+        SELECT AVG(o.OFFER_DATE - a.APP_DATE)
+        FROM RECRUITMENT_OFFERS o {j_join_off}
+        WHERE o.STATUS = 'ACCEPTED'{scope}
+    """, sp)
+    row = cursor.fetchone()
+    avg_time_to_hire = round(float(row[0]), 1) if row and row[0] else 0
+
+    # Avg cost per hire (avg salary offered for ACCEPTED offers)
+    cursor.execute(f"""
+        SELECT AVG(o.SALARY_OFFERED)
+        FROM RECRUITMENT_OFFERS o {j_join_off}
+        WHERE o.STATUS = 'ACCEPTED'{scope}
+    """, sp)
+    row = cursor.fetchone()
+    avg_cost_per_hire = round(float(row[0]), 0) if row and row[0] else 0
+
+    return {
+        "open_jobs": open_jobs,
+        "total_applications": sum(app_counts.values()),
+        "pending": app_counts.get("PENDING", 0),
+        "shortlisted": app_counts.get("SHORTLISTED", 0),
+        "rejected": app_counts.get("REJECTED", 0),
+        "total_interviews": total_interviews,
+        "hires_this_month": hires_this_month,
+        "avg_time_to_hire_days": avg_time_to_hire,
+        "avg_cost_per_hire": avg_cost_per_hire,
+        "monthly_hires": monthly_hires,
+    }

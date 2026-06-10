@@ -24,8 +24,8 @@ def svc_update_job(job_id: int, data: dict) -> dict:
 def svc_create_application(data: dict) -> dict:
     return create_application(data)
 
-def svc_list_applications(job_id: int = None, status: str = None) -> list:
-    return list_applications(job_id, status)
+def svc_list_applications(job_id: int = None, status: str = None, compc=None, brnch=None) -> list:
+    return list_applications(job_id, status, compc=compc, brnch=brnch)
 
 def svc_get_application(app_id: int) -> dict | None:
     return get_application(app_id)
@@ -36,8 +36,8 @@ def svc_update_application_status(app_id: int, status: str, notes: str = None) -
 def svc_create_interview(data: dict) -> dict:
     return create_interview(data)
 
-def svc_list_interviews(app_id: int = None, status: str = None) -> list:
-    return list_interviews(app_id, status)
+def svc_list_interviews(app_id: int = None, status: str = None, compc=None, brnch=None) -> list:
+    return list_interviews(app_id, status, compc=compc, brnch=brnch)
 
 def svc_update_interview(interview_id: int, data: dict) -> dict:
     return update_interview(interview_id, data)
@@ -45,11 +45,11 @@ def svc_update_interview(interview_id: int, data: dict) -> dict:
 def svc_create_offer(data: dict) -> dict:
     return create_offer(data)
 
-def svc_list_offers(status: str = None) -> list:
-    return list_offers(status)
+def svc_list_offers(status: str = None, compc=None, brnch=None) -> list:
+    return list_offers(status, compc=compc, brnch=brnch)
 
 def svc_update_offer(offer_id: int, data: dict) -> dict:
     return update_offer(offer_id, data)
 
-def svc_get_analytics() -> dict:
-    return get_analytics()
+def svc_get_analytics(compc=None, brnch=None) -> dict:
+    return get_analytics(compc=compc, brnch=brnch)
