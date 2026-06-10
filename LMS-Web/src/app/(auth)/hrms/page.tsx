@@ -45,6 +45,7 @@ import { SetupPanel } from "./SetupPanel";
 import { DynamicSelect } from "@/components/ui/DynamicSelect";
 import { EmployeeDocuments } from "./EmployeeDocuments";
 import { EmployeeIDCard } from "./EmployeeIDCard";
+import { AttendancePanel } from "./AttendancePanel";
 import {
   fetchDepartments, fetchDesignations,
   fetchBloodGroups, fetchCadre, fetchUnits, fetchReligions, fetchReportingOfficers,
@@ -277,7 +278,7 @@ export default function HRMSPage() {
   const { user, activeCompany, activeBranch } = useAuth();
   const ctrl = useHRMSController();
 
-  const [section, setSection] = useState<"employees" | "locations" | "setup">("employees");
+  const [section, setSection] = useState<"employees" | "locations" | "setup" | "attendance">("employees");
   const [locationFocusCard, setLocationFocusCard] = useState<string | undefined>();
   const [view, setView] = useState<View>("list");
   const [activeTab, setActiveTab] = useState<StatusTab>("");
@@ -358,6 +359,7 @@ export default function HRMSPage() {
   const SectionNav = () => {
     const tabs = [
       { id: "employees" as const,   icon: Users,     label: "Employees" },
+      { id: "attendance" as const,  icon: Clock,     label: "Attendance" },
       { id: "locations" as const,   icon: MapPin,    label: "Locations" },
       { id: "setup" as const,       icon: Settings,  label: "Setup" },
     ];
@@ -395,6 +397,15 @@ export default function HRMSPage() {
       <div className="animate-fade-in">
         <SectionNav />
         <SetupPanel adminCardNo={user.card_no} />
+      </div>
+    );
+  }
+
+  if (section === "attendance") {
+    return (
+      <div className="animate-fade-in">
+        <SectionNav />
+        <AttendancePanel adminCardNo={user.card_no} />
       </div>
     );
   }
