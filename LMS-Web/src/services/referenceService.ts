@@ -37,14 +37,14 @@ export const fetchBloodGroups  = (compc?: string, brnch?: string) =>
   apiRequest<{ items: BloodGroup[] }>(`/reference/blood-groups${cbQuery(compc, brnch)}`);
 export const fetchCadre        = (compc?: string, brnch?: string) =>
   apiRequest<{ items: Cadre[] }>(`/reference/cadre${cbQuery(compc, brnch)}`);
-export const fetchEmpStatuses  = () =>
-  apiRequest<{ items: EmpStatus[] }>("/reference/emp-statuses");
+export const fetchEmpStatuses  = (compc?: string) =>
+  apiRequest<{ items: EmpStatus[] }>(`/reference/emp-statuses${compc ? `?compc=${encodeURIComponent(compc)}` : ""}`);
 export const fetchBanks        = (compc?: string) =>
   apiRequest<{ items: Bank[] }>(`/reference/banks${compc ? `?compc=${encodeURIComponent(compc)}` : ""}`);
 export const fetchBankBranches = (bnkcode?: string) =>
   apiRequest<{ items: BankBranch[] }>(`/reference/bank-branches${bnkcode ? `?bnkcode=${encodeURIComponent(bnkcode)}` : ""}`);
-export const fetchQualifications = () =>
-  apiRequest<{ items: Qualification[] }>("/reference/qualifications");
+export const fetchQualifications = (compc?: string) =>
+  apiRequest<{ items: Qualification[] }>(`/reference/qualifications${compc ? `?compc=${encodeURIComponent(compc)}` : ""}`);
 export const fetchUnits              = () => apiRequest<{ items: Unit[]             }>("/reference/units");
 export const fetchReligions          = () => apiRequest<{ items: Religion[]         }>("/reference/religions");
 export const fetchReportingOfficers  = () => apiRequest<{ items: ReportingOfficer[] }>("/reference/reporting-officers");
@@ -78,3 +78,27 @@ export const addLocation    = (adminCardNo: string, lcode: string, descr: string
 
 export const updateLocation = (adminCardNo: string, lcode: string, descr: string, sname: string, regioncode: string, city: string) =>
   apiRequest<Location>(`/reference/locations/${encodeURIComponent(lcode)}${q(adminCardNo)}`, { method: "PUT", body: { lcode, descr, sname, regioncode, city } });
+
+// ── Per-company lookup management (Setup section) ──
+const qc = (adminCardNo: string, compc?: string) =>
+  `?admin_card_no=${encodeURIComponent(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`;
+
+export const addEmpStatus = (adminCardNo: string, descr: string, compc?: string) =>
+  apiRequest<EmpStatus>(`/reference/emp-statuses${qc(adminCardNo, compc)}`, { method: "POST", body: { descr } });
+export const deleteEmpStatus = (adminCardNo: string, empStatus: string, compc?: string) =>
+  apiRequest(`/reference/emp-statuses/${encodeURIComponent(empStatus)}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+export const addBank = (adminCardNo: string, bnkname: string, compc?: string) =>
+  apiRequest<Bank>(`/reference/banks${qc(adminCardNo, compc)}`, { method: "POST", body: { bnkname } });
+export const deleteBank = (adminCardNo: string, bnkcode: string, compc?: string) =>
+  apiRequest(`/reference/banks/${encodeURIComponent(bnkcode)}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+export const addBankBranch = (adminCardNo: string, bnkcode: string, brnname: string, compc?: string) =>
+  apiRequest<BankBranch>(`/reference/bank-branches${qc(adminCardNo, compc)}`, { method: "POST", body: { bnkcode, brnname } });
+export const deleteBankBranch = (adminCardNo: string, bnkcode: string, brncode: string, compc?: string) =>
+  apiRequest(`/reference/bank-branches/${encodeURIComponent(bnkcode)}/${encodeURIComponent(brncode)}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+export const addQualification = (adminCardNo: string, descr: string, compc?: string) =>
+  apiRequest<Qualification>(`/reference/qualifications${qc(adminCardNo, compc)}`, { method: "POST", body: { descr } });
+export const deleteQualification = (adminCardNo: string, descr: string, compc?: string) =>
+  apiRequest(`/reference/qualifications/${encodeURIComponent(descr)}${qc(adminCardNo, compc)}`, { method: "DELETE" });

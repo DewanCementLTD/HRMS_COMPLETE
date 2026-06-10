@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Check, Loader2, RefreshCw, Settings, Pencil, X } from "lucide-react";
+import { Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2 } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -10,21 +10,30 @@ import {
   fetchBloodGroups, fetchUnits, fetchLocations,
   addDepartment, addGrade, addDesignation, addShift, addBloodGroup, addUnit,
   addLocation, updateLocation,
+  fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
+  addEmpStatus, deleteEmpStatus, addBank, deleteBank,
+  addBankBranch, deleteBankBranch, addQualification, deleteQualification,
   type Department, type Grade, type Designation, type Shift, type BloodGroup, type Unit, type Location,
+  type EmpStatus, type Bank, type BankBranch, type Qualification,
 } from "@/services/referenceService";
 
 // ─── Types ────────────────────────────────────────────────
 
-type Tab = "departments" | "grades" | "designations" | "shifts" | "blood_groups" | "units" | "locations";
+type Tab = "departments" | "grades" | "designations" | "shifts" | "blood_groups" | "units" | "locations"
+  | "emp_statuses" | "banks" | "bank_branches" | "qualifications";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "departments",  label: "Departments" },
-  { id: "grades",       label: "Grades" },
-  { id: "designations", label: "Designations" },
-  { id: "shifts",       label: "Shifts" },
-  { id: "blood_groups", label: "Blood Groups" },
-  { id: "units",        label: "Units" },
-  { id: "locations",    label: "Locations" },
+  { id: "departments",   label: "Departments" },
+  { id: "designations",  label: "Designations" },
+  { id: "emp_statuses",  label: "Employee Status" },
+  { id: "qualifications",label: "Qualifications" },
+  { id: "banks",         label: "Banks" },
+  { id: "bank_branches", label: "Bank Branches" },
+  { id: "blood_groups",  label: "Blood Groups" },
+  { id: "grades",        label: "Grades" },
+  { id: "shifts",        label: "Shifts" },
+  { id: "units",         label: "Units" },
+  { id: "locations",     label: "Locations" },
 ];
 
 // ─── Inline add row ───────────────────────────────────────
@@ -99,6 +108,7 @@ function MasterTable({
   onRefresh,
   addFields,
   onAdd,
+  onDelete,
 }: {
   columns: string[];
   rows: (string | number | null | undefined)[][];
@@ -106,8 +116,24 @@ function MasterTable({
   onRefresh: () => void;
   addFields: { key: string; label: string; placeholder: string }[];
   onAdd: (values: Record<string, string>) => Promise<void>;
+  onDelete?: (rowIndex: number) => Promise<void>;
 }) {
   const [showAdd, setShowAdd] = useState(false);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  async function handleDelete(i: number) {
+    if (!onDelete) return;
+    if (!confirm("Remove this entry?")) return;
+    setDeleting(i);
+    try {
+      await onDelete(i);
+      onRefresh();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to remove");
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   return (
     <div className="space-y-3">
@@ -176,7 +202,18 @@ function MasterTable({
                       {cell ?? "—"}
                     </td>
                   ))}
-                  <td />
+                  <td className="px-4 py-2.5 text-right">
+                    {onDelete && (
+                      <button
+                        onClick={() => handleDelete(i)}
+                        disabled={deleting === i}
+                        className="text-red-500 hover:text-red-700 disabled:opacity-40"
+                        title="Remove"
+                      >
+                        {deleting === i ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
           </tbody>
@@ -346,6 +383,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [bgs,    setBgs]    = useState<BloodGroup[]>([]);
   const [units,  setUnits]  = useState<Unit[]>([]);
   const [locs,   setLocs]   = useState<Location[]>([]);
+  const [empStatuses, setEmpStatuses] = useState<EmpStatus[]>([]);
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [bankBranches, setBankBranches] = useState<BankBranch[]>([]);
+  const [quals, setQuals] = useState<Qualification[]>([]);
+  const [branchBank, setBranchBank] = useState("");   // selected bank for Bank Branches tab
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async (t: Tab) => {
@@ -359,13 +401,22 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch);  setBgs(r.items);    break; }
         case "units":        { const r = await fetchUnits();        setUnits(r.items);  break; }
         case "locations":    { const r = await fetchLocations();    setLocs(r.items);   break; }
+        case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
+        case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
+        case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
+        case "bank_branches": {
+          const r = await fetchBanks(activeCompany); setBanks(r.items);
+          if (branchBank) { const b = await fetchBankBranches(branchBank); setBankBranches(b.items); }
+          else setBankBranches([]);
+          break;
+        }
       }
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [activeCompany, activeBranch]);
+  }, [activeCompany, activeBranch, branchBank]);
 
   useEffect(() => { load(tab); }, [tab, load]);
 
@@ -502,6 +553,75 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
+  // ── Employee Status (per company) ────────────────────────
+  const empStatusTable = (
+    <MasterTable
+      columns={["Code", "Description"]}
+      rows={empStatuses.map((s) => [s.emp_status, s.descr])}
+      loading={loading}
+      onRefresh={() => load("emp_statuses")}
+      addFields={[{ key: "descr", label: "Status", placeholder: "e.g. Permanent" }]}
+      onAdd={async (v) => { await addEmpStatus(adminCardNo, v.descr, activeCompany); }}
+      onDelete={async (i) => { await deleteEmpStatus(adminCardNo, empStatuses[i].emp_status, activeCompany); }}
+    />
+  );
+
+  // ── Qualifications (per company) ─────────────────────────
+  const qualTable = (
+    <MasterTable
+      columns={["Qualification"]}
+      rows={quals.map((q) => [q.descr])}
+      loading={loading}
+      onRefresh={() => load("qualifications")}
+      addFields={[{ key: "descr", label: "Qualification", placeholder: "e.g. BSc Computer Science" }]}
+      onAdd={async (v) => { await addQualification(adminCardNo, v.descr, activeCompany); }}
+      onDelete={async (i) => { await deleteQualification(adminCardNo, quals[i].descr, activeCompany); }}
+    />
+  );
+
+  // ── Banks (per company) ──────────────────────────────────
+  const bankTable = (
+    <MasterTable
+      columns={["Code", "Bank Name"]}
+      rows={banks.map((b) => [b.bnkcode, b.bnkname])}
+      loading={loading}
+      onRefresh={() => load("banks")}
+      addFields={[{ key: "bnkname", label: "Bank Name", placeholder: "e.g. HBL" }]}
+      onAdd={async (v) => { await addBank(adminCardNo, v.bnkname, activeCompany); }}
+      onDelete={async (i) => { await deleteBank(adminCardNo, banks[i].bnkcode, activeCompany); }}
+    />
+  );
+
+  // ── Bank Branches (per company, under a selected bank) ───
+  const bankBranchTable = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <label className="text-sm text-gray-600">Bank:</label>
+        <select
+          value={branchBank}
+          onChange={(e) => setBranchBank(e.target.value)}
+          className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        >
+          <option value="">Select bank</option>
+          {banks.map((b) => <option key={b.bnkcode} value={b.bnkcode}>{b.bnkname}</option>)}
+        </select>
+      </div>
+      {branchBank ? (
+        <MasterTable
+          columns={["Branch Code", "Branch Name"]}
+          rows={bankBranches.map((b) => [b.brncode, b.brnname])}
+          loading={loading}
+          onRefresh={() => load("bank_branches")}
+          addFields={[{ key: "brnname", label: "Branch Name", placeholder: "e.g. Main Branch" }]}
+          onAdd={async (v) => { await addBankBranch(adminCardNo, branchBank, v.brnname, activeCompany); }}
+          onDelete={async (i) => { await deleteBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, activeCompany); }}
+        />
+      ) : (
+        <p className="text-sm text-gray-400 py-6 text-center">Select a bank to manage its branches.</p>
+      )}
+    </div>
+  );
+
   const contentMap: Record<Tab, React.ReactNode> = {
     departments:  deptTable,
     grades:       gradeTable,
@@ -510,6 +630,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     blood_groups: bgTable,
     units:        unitTable,
     locations:    locationTable,
+    emp_statuses: empStatusTable,
+    qualifications: qualTable,
+    banks:        bankTable,
+    bank_branches: bankBranchTable,
   };
 
   return (

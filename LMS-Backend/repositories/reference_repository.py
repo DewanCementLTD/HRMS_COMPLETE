@@ -84,15 +84,26 @@ def get_grades(compc=None, brnch=None) -> list:
         cursor.close(); conn.close()
 
 
-def get_emp_statuses() -> list:
-    """Employee-status lookup (HR_EMP_STATUS) — code + description."""
+def get_emp_statuses(compc=None) -> list:
+    """Employee-status lookup (HR_EMP_STATUS) — code + description, scoped to the
+    company (UNIT_ID) plus any global (UNIT_ID IS NULL) rows."""
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        c = _coerce(compc) if compc else None
+        if c is not None:
+            try:
+                cursor.execute(
+                    "SELECT EMP_STATUS, EMP_STATUS_DESC FROM HR_EMP_STATUS "
+                    "WHERE EMP_STATUS IS NOT NULL AND (UNIT_ID = :u OR UNIT_ID IS NULL) "
+                    "ORDER BY EMP_STATUS", {"u": c})
+                return [{"emp_status": (r[0] or "").strip(), "descr": (r[1] or "").strip()}
+                        for r in cursor.fetchall()]
+            except Exception:
+                pass
         cursor.execute(
             "SELECT EMP_STATUS, EMP_STATUS_DESC FROM HR_EMP_STATUS "
-            "WHERE EMP_STATUS IS NOT NULL ORDER BY EMP_STATUS"
-        )
+            "WHERE EMP_STATUS IS NOT NULL ORDER BY EMP_STATUS")
         return [{"emp_status": (r[0] or "").strip(), "descr": (r[1] or "").strip()}
                 for r in cursor.fetchall()]
     except Exception as e:
@@ -150,11 +161,22 @@ def get_bank_branches(bnkcode: str = None) -> list:
         cursor.close(); conn.close()
 
 
-def get_qualifications() -> list:
-    """Qualification options — distinct descriptions from HR_EMP_QUALIFICATION."""
+def get_qualifications(compc=None) -> list:
+    """Qualification options — distinct descriptions from HR_EMP_QUALIFICATION,
+    scoped to the company (UNIT_ID) plus any global (UNIT_ID IS NULL)."""
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        c = _coerce(compc) if compc else None
+        if c is not None:
+            try:
+                cursor.execute(
+                    "SELECT DISTINCT TRIM(DESCR) FROM HR_EMP_QUALIFICATION "
+                    "WHERE DESCR IS NOT NULL AND TRIM(DESCR) IS NOT NULL "
+                    "AND (UNIT_ID = :u OR UNIT_ID IS NULL) ORDER BY 1", {"u": c})
+                return [{"descr": (r[0] or "").strip()} for r in cursor.fetchall() if (r[0] or "").strip()]
+            except Exception:
+                pass
         cursor.execute(
             "SELECT DISTINCT TRIM(DESCR) FROM HR_EMP_QUALIFICATION "
             "WHERE DESCR IS NOT NULL AND TRIM(DESCR) IS NOT NULL ORDER BY 1")
@@ -162,6 +184,161 @@ def get_qualifications() -> list:
     except Exception as e:
         print(f"[REFERENCE] qualifications failed: {e}")
         return []
+    finally:
+        cursor.close(); conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────
+# ADD / REMOVE for the new per-company lookups (Setup section).
+# Each entry is owned by a company (UNIT_ID); seed/global rows (UNIT_ID IS NULL)
+# are shown to everyone but can only be removed where company-owned.
+# ─────────────────────────────────────────────────────────────────
+
+def _next_code(cursor, table: str, col: str) -> str:
+    cursor.execute(
+        f"SELECT NVL(MAX(TO_NUMBER({col})), 0) + 1 FROM {table} "
+        f"WHERE REGEXP_LIKE({col}, '^[0-9]+$')")
+    return str(int(cursor.fetchone()[0]))
+
+
+def add_emp_status(descr: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        code = _next_code(cursor, "HR_EMP_STATUS", "EMP_STATUS")
+        d = descr.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_EMP_STATUS (EMP_STATUS, EMP_STATUS_DESC, UNIT_ID) VALUES (:c, :d, :u)",
+             {"c": code, "d": d, "u": _coerce(compc)}),
+            ("INSERT INTO HR_EMP_STATUS (EMP_STATUS, EMP_STATUS_DESC) VALUES (:c, :d)",
+             {"c": code, "d": d}),
+        ])
+        return {"status": "success", "emp_status": code, "descr": d}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def delete_emp_status(emp_status: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM HR_EMP_STATUS WHERE EMP_STATUS = :c AND UNIT_ID = :u",
+            {"c": str(emp_status), "u": _coerce(compc)})
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"status": "error", "message": "Only entries added for this company can be removed."}
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_bank(bnkname: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        code = _next_code(cursor, "HR_BANK", "BNKCODE")
+        nm = bnkname.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_BANK (BNKCODE, BNKNAME, UNIT_ID) VALUES (:c, :n, :u)",
+             {"c": code, "n": nm, "u": _coerce(compc)}),
+            ("INSERT INTO HR_BANK (BNKCODE, BNKNAME) VALUES (:c, :n)",
+             {"c": code, "n": nm}),
+        ])
+        return {"status": "success", "bnkcode": code, "bnkname": nm}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def delete_bank(bnkcode: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM HR_BRANCH WHERE BNKCODE = :c AND UNIT_ID = :u",
+                       {"c": str(bnkcode), "u": _coerce(compc)})
+        cursor.execute("DELETE FROM HR_BANK WHERE BNKCODE = :c AND UNIT_ID = :u",
+                       {"c": str(bnkcode), "u": _coerce(compc)})
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"status": "error", "message": "Only banks added for this company can be removed."}
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_bank_branch(bnkcode: str, brnname: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT NVL(MAX(TO_NUMBER(BRNCODE)), 0) + 1 FROM HR_BRANCH "
+            "WHERE BNKCODE = :b AND REGEXP_LIKE(BRNCODE, '^[0-9]+$')", {"b": str(bnkcode)})
+        code = str(int(cursor.fetchone()[0]))
+        nm = brnname.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_BRANCH (BNKCODE, BRNCODE, BRNNAME, UNIT_ID) VALUES (:b, :c, :n, :u)",
+             {"b": str(bnkcode), "c": code, "n": nm, "u": _coerce(compc)}),
+            ("INSERT INTO HR_BRANCH (BNKCODE, BRNCODE, BRNNAME) VALUES (:b, :c, :n)",
+             {"b": str(bnkcode), "c": code, "n": nm}),
+        ])
+        return {"status": "success", "bnkcode": str(bnkcode), "brncode": code, "brnname": nm}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def delete_bank_branch(bnkcode: str, brncode: str, compc=None) -> dict:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM HR_BRANCH WHERE BNKCODE = :b AND BRNCODE = :c AND UNIT_ID = :u",
+            {"b": str(bnkcode), "c": str(brncode), "u": _coerce(compc)})
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"status": "error", "message": "Only branches added for this company can be removed."}
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def add_qualification(descr: str, compc=None) -> dict:
+    """Register a qualification option (Q_TYPE='OPT' template row) for a company."""
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        d = descr.strip()
+        _insert_progressive(cursor, conn, [
+            ("INSERT INTO HR_EMP_QUALIFICATION (DESCR, Q_TYPE, UNIT_ID) VALUES (:d, 'OPT', :u)",
+             {"d": d, "u": _coerce(compc)}),
+            ("INSERT INTO HR_EMP_QUALIFICATION (DESCR, Q_TYPE) VALUES (:d, 'OPT')",
+             {"d": d}),
+        ])
+        return {"status": "success", "descr": d}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def delete_qualification(descr: str, compc=None) -> dict:
+    """Remove a qualification OPTION (only the Q_TYPE='OPT' template rows — never
+    real employee qualification records)."""
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "DELETE FROM HR_EMP_QUALIFICATION WHERE TRIM(DESCR) = :d AND Q_TYPE = 'OPT' AND UNIT_ID = :u",
+            {"d": descr.strip(), "u": _coerce(compc)})
+        conn.commit()
+        if cursor.rowcount == 0:
+            return {"status": "error", "message": "Only options added for this company can be removed."}
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback(); return {"status": "error", "message": str(e)}
     finally:
         cursor.close(); conn.close()
 

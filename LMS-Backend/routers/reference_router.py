@@ -16,6 +16,8 @@ from repositories.reference_repository import (
     add_department, add_grade, add_designation, add_shift,
     add_blood_group, add_cadre, add_unit,
     get_emp_statuses, get_banks, get_bank_branches, get_qualifications,
+    add_emp_status, delete_emp_status, add_bank, delete_bank,
+    add_bank_branch, delete_bank_branch, add_qualification, delete_qualification,
 )
 
 router = APIRouter(prefix="/reference", tags=["Reference Data"])
@@ -45,8 +47,8 @@ def list_designations(
 
 
 @router.get("/emp-statuses")
-def list_emp_statuses():
-    return {"items": get_emp_statuses()}
+def list_emp_statuses(compc: Optional[str] = Query(None)):
+    return {"items": get_emp_statuses(compc)}
 
 
 @router.get("/banks")
@@ -60,8 +62,8 @@ def list_bank_branches(bnkcode: Optional[str] = Query(None)):
 
 
 @router.get("/qualifications")
-def list_qualifications():
-    return {"items": get_qualifications()}
+def list_qualifications(compc: Optional[str] = Query(None)):
+    return {"items": get_qualifications(compc)}
 
 
 @router.get("/shifts")
@@ -130,6 +132,29 @@ def _admin_compc_brnch(admin_card_no: str):
         return default
 
     return _first_int(final_c, 1), _first_int(final_b, 1)
+
+
+def _setup_company(admin_card_no: str, compc: Optional[str]) -> int:
+    """Resolve which company a Setup add/remove targets: the selected company
+    (compc) when it's within the admin's rights, else the admin's first company."""
+    final_c, _ = _resolve_filter_lists(admin_card_no, compc, None)
+
+    def _to_int(v, default):
+        try:
+            return int(float(str(v).strip()))
+        except (ValueError, TypeError):
+            return default
+
+    if compc:
+        ci = _to_int(compc, None)
+        allowed = {_to_int(c, None) for c in (final_c or [])}
+        if ci is not None and (not allowed or ci in allowed):
+            return ci
+    for v in (final_c or []):
+        iv = _to_int(v, None)
+        if iv is not None:
+            return iv
+    return 1
 
 
 class AddDeptRequest(BaseModel):
@@ -271,3 +296,84 @@ def edit_location(lcode: str, req: LocationRequest, admin_card_no: str = Query(.
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
     return result
+
+
+# ─────────────────────────────────────────────────────────────────
+# Per-company lookup management (Setup): employee status, bank,
+# bank branch, qualification — add/remove scoped to the selected company.
+# ─────────────────────────────────────────────────────────────────
+
+class AddEmpStatusRequest(BaseModel):
+    descr: str
+
+class AddBankRequest(BaseModel):
+    bnkname: str
+
+class AddBankBranchRequest(BaseModel):
+    bnkcode: str
+    brnname: str
+
+class AddQualificationRequest(BaseModel):
+    descr: str
+
+
+def _checked(result: dict):
+    if result.get("status") == "error":
+        raise HTTPException(status_code=400, detail=result.get("message"))
+    return result
+
+
+@router.post("/emp-statuses")
+def create_emp_status(req: AddEmpStatusRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    if not req.descr.strip():
+        raise HTTPException(status_code=400, detail="Description is required")
+    return _checked(add_emp_status(req.descr, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.delete("/emp-statuses/{emp_status}")
+def remove_emp_status(emp_status: str, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return _checked(delete_emp_status(emp_status, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.post("/banks")
+def create_bank(req: AddBankRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    if not req.bnkname.strip():
+        raise HTTPException(status_code=400, detail="Bank name is required")
+    return _checked(add_bank(req.bnkname, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.delete("/banks/{bnkcode}")
+def remove_bank(bnkcode: str, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return _checked(delete_bank(bnkcode, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.post("/bank-branches")
+def create_bank_branch(req: AddBankBranchRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    if not req.bnkcode.strip() or not req.brnname.strip():
+        raise HTTPException(status_code=400, detail="Bank and branch name are required")
+    return _checked(add_bank_branch(req.bnkcode, req.brnname, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.delete("/bank-branches/{bnkcode}/{brncode}")
+def remove_bank_branch(bnkcode: str, brncode: str, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return _checked(delete_bank_branch(bnkcode, brncode, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.post("/qualifications")
+def create_qualification(req: AddQualificationRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    if not req.descr.strip():
+        raise HTTPException(status_code=400, detail="Qualification is required")
+    return _checked(add_qualification(req.descr, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.delete("/qualifications/{descr}")
+def remove_qualification(descr: str, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return _checked(delete_qualification(descr, compc=_setup_company(admin_card_no, compc)))

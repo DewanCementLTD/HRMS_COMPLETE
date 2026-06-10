@@ -307,7 +307,7 @@ export default function HRMSPage() {
       fetchDepartments(c, b), fetchDesignations(undefined, c, b),
       fetchBloodGroups(c, b), fetchCadre(c, b), fetchUnits(),
       fetchReligions(), fetchReportingOfficers(),
-      fetchEmpStatuses(), fetchBanks(c), fetchQualifications(),
+      fetchEmpStatuses(c), fetchBanks(c), fetchQualifications(c),
     ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql]) => {
       setRefDepts(d.items);
       setRefDesigs(des.items);

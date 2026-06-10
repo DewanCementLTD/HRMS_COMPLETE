@@ -15,6 +15,7 @@ Column mapping:
 """
 
 import os
+import re
 
 from core.database import get_connection
 
@@ -22,18 +23,45 @@ from core.database import get_connection
 DOCS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "EMP_DOCS")
 
 
+def _safe_name(name: str, fallback: str) -> str:
+    """Make a string safe to use as a folder name: strip filesystem-illegal
+    characters, collapse whitespace, trim trailing dots/spaces."""
+    s = re.sub(r'[\\/:*?"<>|]+', " ", str(name or "")).strip()
+    s = re.sub(r"\s+", " ", s).strip(" .")
+    return s or fallback
+
+
 def _emp_unit_branch(cursor, empcode: str):
-    """Return (unit_id, location/branch) for an employee, defaulting to (1, 0)."""
+    """Return (unit_id, branch_code, company_folder, branch_folder) for an
+    employee. Folder names use the real company/branch names where available,
+    falling back to Comp{id}/branch{code}."""
     cursor.execute(
         "SELECT NVL(UNIT_ID, 1), NVL(LOCATION, '0') FROM HR_EMP_MASTER WHERE EMPCODE = :e",
         {"e": empcode},
     )
     r = cursor.fetchone()
-    if not r:
-        return 1, "0"
-    unit = int(r[0]) if r[0] is not None else 1
-    branch = str(r[1]).strip() if r[1] is not None else "0"
-    return unit, (branch or "0")
+    unit = int(r[0]) if r and r[0] is not None else 1
+    branch = (str(r[1]).strip() if r and r[1] is not None else "0") or "0"
+
+    company_name = None
+    try:
+        cursor.execute("SELECT UNIT_NAME FROM UNIT_MST WHERE UNIT_ID = :u", {"u": unit})
+        cr = cursor.fetchone()
+        company_name = cr[0] if cr else None
+    except Exception:
+        pass
+
+    branch_name = None
+    try:
+        cursor.execute("SELECT DESCR FROM COM_LOCATION WHERE LCODE = :l", {"l": branch})
+        br = cursor.fetchone()
+        branch_name = br[0] if br else None
+    except Exception:
+        pass
+
+    company_folder = _safe_name(company_name, f"Comp{unit}")
+    branch_folder = _safe_name(branch_name, f"branch{branch}")
+    return unit, branch, company_folder, branch_folder
 
 
 def list_documents(empcode: str) -> list:
@@ -65,12 +93,12 @@ def create_document(empcode: str, d_type: str, doc_name: str, remarks: str, ext:
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        unit, branch = _emp_unit_branch(cursor, empcode)
+        unit, branch, company_folder, branch_folder = _emp_unit_branch(cursor, empcode)
         cursor.execute("SELECT NVL(MAX(DOC_ID), 0) + 1 FROM HR_DOCUMENT")
         doc_id = int(cursor.fetchone()[0])
 
         ext = (ext or "").lstrip(".").lower() or "bin"
-        rel_dir = os.path.join("EMP_DOCS", f"Comp{unit}", f"branch{branch}")
+        rel_dir = os.path.join("EMP_DOCS", company_folder, branch_folder)
         rel_path = os.path.join(rel_dir, f"{doc_id}.{ext}")
         abs_dir = os.path.join(os.path.dirname(DOCS_ROOT), rel_dir)
         abs_path = os.path.join(os.path.dirname(DOCS_ROOT), rel_path)
