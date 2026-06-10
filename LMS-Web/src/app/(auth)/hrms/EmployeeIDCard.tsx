@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { QRCodeSVG } from "qrcode.react";
 import { X, Printer, RotateCw } from "lucide-react";
 import type { EmployeeCard } from "@/services/hrmsService";
+
+const SITE_URL = "https://hrms.sysnovix.com";
 
 function initials(name?: string) {
   const p = (name || "?").trim().split(/\s+/);
@@ -12,22 +15,23 @@ function initials(name?: string) {
 
 function Row({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="flex justify-between gap-2 py-[3px] border-b border-gray-100 last:border-0">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{label}</span>
-      <span className="text-[11px] font-medium text-gray-800 text-right truncate max-w-[58%]">{value || "—"}</span>
+    <div className="flex items-start justify-between gap-2 py-[5px] border-b border-gray-100 last:border-0">
+      <span className="text-[9px] font-semibold uppercase tracking-wide text-gray-400 shrink-0 pt-px">{label}</span>
+      <span className="text-[11px] font-semibold text-gray-800 text-right leading-snug">{value || "—"}</span>
     </div>
   );
 }
 
+// ── Front face ──────────────────────────────────────────────
 function CardFront({ c }: { c: EmployeeCard }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
-      <div className="relative shrink-0 h-[180px] bg-gradient-to-br from-indigo-600 to-purple-600 flex items-start justify-center pt-5">
+      <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex items-start justify-center pt-5">
         <p className="text-white text-[13px] font-bold tracking-wide text-center px-3 leading-tight">
           {c.company_name || "Company"}
         </p>
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-[-36px]">
-          <div className="h-[72px] w-[72px] rounded-full bg-white p-1 shadow-md">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-[-38px]">
+          <div className="h-[76px] w-[76px] rounded-full bg-white p-1 shadow-lg ring-2 ring-white">
             <div className="h-full w-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-extrabold">
               {initials(c.name)}
             </div>
@@ -35,42 +39,61 @@ function CardFront({ c }: { c: EmployeeCard }) {
         </div>
       </div>
       <div className="flex-1 flex flex-col items-center px-4 pt-12 pb-4 text-center">
-        <p className="text-[15px] font-extrabold text-gray-900 leading-tight">{c.name || "—"}</p>
-        <p className="text-[11px] font-semibold text-indigo-600 mt-1">{c.designation || "—"}</p>
+        <p className="text-[16px] font-extrabold text-gray-900 leading-tight">{c.name || "—"}</p>
+        <p className="text-[11px] font-bold text-indigo-600 mt-1 uppercase tracking-wide">{c.designation || "—"}</p>
         {c.department && <p className="text-[10px] text-gray-400 mt-0.5">{c.department}</p>}
         <div className="mt-auto w-full">
-          <div className="bg-gray-50 rounded-lg py-2 px-2">
-            <p className="text-[9px] uppercase tracking-wider text-gray-400 font-semibold">Card No</p>
-            <p className="text-[14px] font-bold text-gray-900 font-mono">{c.card_no || c.empcode}</p>
+          <div className="bg-indigo-50 rounded-xl py-2 px-2 border border-indigo-100">
+            <p className="text-[8px] uppercase tracking-wider text-indigo-400 font-bold">Card No</p>
+            <p className="text-[15px] font-extrabold text-indigo-700 font-mono">{c.card_no || c.empcode}</p>
           </div>
-          <p className="mt-2 text-[8px] uppercase tracking-[0.2em] text-gray-400 font-semibold">Employee ID Card</p>
+          <p className="mt-2.5 text-[8px] uppercase tracking-[0.25em] text-gray-400 font-bold">Employee ID Card</p>
         </div>
       </div>
     </div>
   );
 }
 
+// ── Back face ───────────────────────────────────────────────
 function CardBack({ c }: { c: EmployeeCard }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
-      <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 text-center">
-        <p className="text-white text-[11px] font-bold uppercase tracking-wider">Employee Details</p>
+      <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-center">
+        <p className="text-white text-[12px] font-bold uppercase tracking-[0.15em]">Employee Details</p>
+        <p className="text-indigo-100 text-[9px] mt-0.5 truncate">{c.company_name || ""}</p>
       </div>
-      <div className="flex-1 px-4 py-3">
-        <Row label="Name" value={c.name} />
-        <Row label="Card No" value={c.card_no || c.empcode} />
-        <Row label="Designation" value={c.designation} />
-        <Row label="CNIC" value={c.nicno} />
-        <Row label="Phone" value={c.mobile} />
-        <Row label="Department" value={c.department} />
-        <Row label="Branch / Location" value={c.branch_name} />
-        <Row label="Company" value={c.company_name} />
-        {c.bldgrp && <Row label="Blood Group" value={c.bldgrp} />}
-        {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
+
+      <div className="flex-1 px-4 py-2.5 flex flex-col">
+        <div>
+          <Row label="Name" value={c.name} />
+          <Row label="Card No" value={c.card_no || c.empcode} />
+          <Row label="Designation" value={c.designation} />
+          <Row label="CNIC" value={c.nicno} />
+          <Row label="Phone" value={c.mobile} />
+          <Row label="Department" value={c.department} />
+          <Row label="Branch" value={c.branch_name} />
+          {c.bldgrp && <Row label="Blood Group" value={c.bldgrp} />}
+          {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
+        </div>
+
+        {/* QR + signature */}
+        <div className="mt-auto flex items-end justify-between pt-3">
+          <div className="flex flex-col items-center">
+            <div className="p-1.5 bg-white rounded-lg border border-gray-200">
+              <QRCodeSVG value={SITE_URL} size={66} level="M" />
+            </div>
+            <p className="text-[7px] text-gray-400 mt-1 text-center leading-tight">Scan to visit<br />hrms.sysnovix.com</p>
+          </div>
+          <div className="text-right">
+            <div className="w-[88px] border-b border-gray-300 mb-1" />
+            <p className="text-[8px] text-gray-400 uppercase tracking-wide">Authorized Sign</p>
+          </div>
+        </div>
       </div>
-      <div className="shrink-0 border-t border-gray-100 py-2 text-center">
-        <p className="text-[9px] text-gray-400">
-          Powered by <span className="font-semibold text-indigo-500">hrms.sysnovix.com</span>
+
+      <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 py-1.5 text-center">
+        <p className="text-[9px] text-white/90">
+          Powered by <span className="font-bold">hrms.sysnovix.com</span>
         </p>
       </div>
     </div>
@@ -85,13 +108,10 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
 
   const modal = (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 id-card-modal" onClick={onClose}>
-      {/* Blur backdrop — separate sibling */}
-      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm id-card-backdrop" />
 
-      <div className="relative flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
-        {/* Only ONE face is ever rendered, so it always paints. Key triggers the
-            flip animation on change. */}
-        <div className="id-card-screen" style={{ width: 320, height: 508, perspective: "1200px" }}>
+      <div className="relative flex flex-col items-center gap-4 id-card-content" onClick={(e) => e.stopPropagation()}>
+        <div className="id-card-screen" style={{ width: 320, height: 508 }}>
           <div
             key={flipped ? "back" : "front"}
             onClick={() => setFlipped((f) => !f)}
@@ -118,7 +138,7 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
         </div>
       </div>
 
-      {/* Print-only layout: both faces at real card size */}
+      {/* Print-only layout — both faces, real card size */}
       <div className="id-card-print">
         <div className="id-card-face"><CardFront c={card} /></div>
         <div className="id-card-face"><CardBack c={card} /></div>
@@ -131,13 +151,18 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
         }
         .id-card-print { display: none; }
         @media print {
-          @page { margin: 12mm; }
-          body * { visibility: hidden !important; }
-          .id-card-print, .id-card-print * { visibility: visible !important; }
-          .id-card-screen, .id-card-controls { display: none !important; }
-          .id-card-modal { position: static !important; display: block !important; padding: 0 !important; background: none !important; }
-          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 10mm; position: absolute; left: 0; top: 0; }
-          .id-card-face { width: 54mm; height: 85.6mm; }
+          @page { size: A4 portrait; margin: 12mm; }
+          /* Collapse the whole app so it doesn't print blank pages */
+          body > *:not(.id-card-modal) { display: none !important; }
+          .id-card-modal {
+            position: static !important; inset: auto !important; display: block !important;
+            background: none !important; backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important; padding: 0 !important; z-index: auto !important;
+          }
+          .id-card-backdrop, .id-card-content { display: none !important; }
+          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 8mm; }
+          .id-card-face { width: 54mm; height: 85.6mm; box-shadow: none !important; }
+          .id-card-face > div { box-shadow: none !important; }
         }
       `}</style>
     </div>

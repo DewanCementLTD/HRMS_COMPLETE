@@ -20,6 +20,7 @@ import {
   Building2,
   MapPin,
   ChevronDown,
+  IdCard,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
@@ -38,6 +39,7 @@ const employeeNavItems = [
 const hrNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
+  { href: "/id-cards", label: "ID Cards", icon: IdCard },
 ];
 
 function SwitcherDropdown<T extends { code: string; name: string }>({
