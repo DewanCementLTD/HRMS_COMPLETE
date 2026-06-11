@@ -64,6 +64,11 @@ export function LoanPanel({ adminCardNo }: { adminCardNo: string }) {
     return loans.filter((l) => l.name?.toLowerCase().includes(q) || l.old_empcode?.toLowerCase().includes(q) || l.loan_desc?.toLowerCase().includes(q));
   }, [loans, query]);
 
+  // No. of installments is derived from amount / installment (rounded up).
+  const amt = Number(form.loan_amt);
+  const inst = Number(form.instalment_amt);
+  const computedNof = amt > 0 && inst > 0 ? String(Math.ceil(amt / inst)) : "";
+
   function openAdd() { setEditDoc(null); setForm({ ...EMPTY }); setShowForm(true); }
   function openEdit(l: Loan) {
     setEditDoc(l.doc);
@@ -84,7 +89,7 @@ export function LoanPanel({ adminCardNo }: { adminCardNo: string }) {
       const body = {
         empcode: form.empcode, loan_cd: form.loan_cd || undefined, loan_date: form.loan_date || undefined,
         loan_amt: form.loan_amt || undefined, instalment_amt: form.instalment_amt || undefined,
-        nof_instalment: form.nof_instalment || undefined, start_dt: form.start_dt || undefined,
+        nof_instalment: computedNof || form.nof_instalment || undefined, start_dt: form.start_dt || undefined,
         charge_int: form.charge_int, int_rate: form.int_rate || undefined,
         chq_no: form.chq_no || undefined, chq_dt: form.chq_dt || undefined, remarks: form.remarks || undefined,
       };
@@ -163,7 +168,8 @@ export function LoanPanel({ adminCardNo }: { adminCardNo: string }) {
                 <Input label="Loan Date" type="date" value={form.loan_date} onChange={(e) => setForm((f) => ({ ...f, loan_date: e.target.value }))} />
                 <Input label="Loan Amount" type="number" value={form.loan_amt} onChange={(e) => setForm((f) => ({ ...f, loan_amt: e.target.value }))} />
                 <Input label="Installment Amount" type="number" value={form.instalment_amt} onChange={(e) => setForm((f) => ({ ...f, instalment_amt: e.target.value }))} />
-                <Input label="No. of Installments" type="number" value={form.nof_instalment} onChange={(e) => setForm((f) => ({ ...f, nof_instalment: e.target.value }))} />
+                <Input label="No. of Installments (auto)" type="number" value={computedNof || form.nof_instalment} readOnly disabled
+                  placeholder="amount ÷ installment" />
                 <Input label="Start Date" type="date" value={form.start_dt} onChange={(e) => setForm((f) => ({ ...f, start_dt: e.target.value }))} />
                 <Select label="Charge Interest" value={form.charge_int} onChange={(e) => setForm((f) => ({ ...f, charge_int: e.target.value }))}
                   options={[{ value: "N", label: "No" }, { value: "Y", label: "Yes" }]} />
