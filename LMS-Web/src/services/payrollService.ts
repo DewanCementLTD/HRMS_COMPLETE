@@ -79,3 +79,31 @@ export const updateLoan = (adminCardNo: string, doc: number, body: Record<string
   apiRequest(`/payroll/loans/${doc}?${a(adminCardNo)}`, { method: "PUT", body });
 export const deleteLoan = (adminCardNo: string, doc: number, compc?: string) =>
   apiRequest(`/payroll/loans/${doc}?${ac(adminCardNo, compc)}`, { method: "DELETE" });
+
+// ── Salary / Payslips (read-only) ──
+export interface SalaryPeriod { period: number; period_frm: string; period_to: string; label: string; emp_count: number }
+export interface SalarySheetRow {
+  old_empcode: string; name: string; atdtcard: string; empcode: string; dept_name: string;
+  actual_gross: number; earned_gross: number; total_earning: number; total_deduction: number; net: number;
+}
+export interface PayslipLine { desc: string; this: number; fiscal: number; cal: number; atype: number }
+export interface Payslip {
+  header: {
+    name: string; code: string; joining_date?: string; grade: string; designation: string;
+    dept_name: string; location: string; emp_type: string; bank_acct: string; company_name: string;
+    period_label: string; w_day: number; absent_days: number; earning_days: number;
+  };
+  earnings: PayslipLine[];
+  deductions: PayslipLine[];
+  master: { actual_gross: number; actual_basic: number; earned_gross: number; earned_basic: number;
+            w_day: number; absent_days: number; total_earning: number; net_pay: number | null };
+  totals: { earning_this: number; deduction_this: number; deduction_fiscal: number; deduction_cal: number; net_payable: number };
+  loans: { loan_desc: string; balance: number }[];
+}
+
+export const fetchSalaryPeriods = (adminCardNo: string, compc?: string) =>
+  apiRequest<{ items: SalaryPeriod[] }>(`/payroll/salary/periods?${ac(adminCardNo, compc)}`);
+export const fetchSalarySheet = (adminCardNo: string, period: number, compc?: string, q?: string) =>
+  apiRequest<{ items: SalarySheetRow[] }>(`/payroll/salary/sheet?${ac(adminCardNo, compc)}&period=${period}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
+export const fetchPayslip = (adminCardNo: string, empcode: string, period: number, compc?: string) =>
+  apiRequest<Payslip>(`/payroll/salary/payslip?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&period=${period}`);

@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Wallet, CalendarRange, Percent, Banknote } from "lucide-react";
+import { Wallet, CalendarRange, Percent, Banknote, FileText } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PeriodOpeningPanel } from "./PeriodOpeningPanel";
 import { TaxSlabPanel } from "./TaxSlabPanel";
 import { LoanPanel } from "./LoanPanel";
+import { SalaryPanel } from "./SalaryPanel";
 
-type Tab = "periods" | "tax" | "loans";
+type Tab = "salary" | "periods" | "tax" | "loans";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
+  { id: "salary", label: "Salary / Payslips", icon: FileText },
   { id: "periods", label: "Period Opening", icon: CalendarRange },
   { id: "tax", label: "Tax Slabs", icon: Percent },
   { id: "loans", label: "Loans", icon: Banknote },
@@ -18,7 +20,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
 
 export default function PayrollPage() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<Tab>("periods");
+  const [tab, setTab] = useState<Tab>("salary");
 
   if (!user?.hr_admin) {
     return (
@@ -49,6 +51,7 @@ export default function PayrollPage() {
         })}
       </div>
 
+      {tab === "salary" && <SalaryPanel adminCardNo={user.card_no} />}
       {tab === "periods" && <PeriodOpeningPanel adminCardNo={user.card_no} />}
       {tab === "tax" && <TaxSlabPanel adminCardNo={user.card_no} />}
       {tab === "loans" && <LoanPanel adminCardNo={user.card_no} />}
