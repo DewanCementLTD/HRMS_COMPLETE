@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { Navigation, Download, RefreshCw, Search, MapPin, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { useAuth } from "@/context/AuthContext";
 import {
   fetchLocationTrailReport,
@@ -202,13 +203,9 @@ export function LocationReportsPanel({ adminCardNo }: { adminCardNo: string }) {
               {lockedBranchName}
             </div>
           ) : (
-            <select value={branchFilter} onChange={(e) => setBranchFilter(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 min-w-[10rem]">
-              <option value="">All Branches</option>
-              {(user?.branch_list || []).map((b) => (
-                <option key={b.code} value={b.code}>{b.name}</option>
-              ))}
-            </select>
+            <SearchableSelect value={branchFilter} onChange={(v) => setBranchFilter(v)}
+              placeholder="All Branches" className="min-w-[12rem]"
+              options={(user?.branch_list || []).map((b) => ({ value: b.code, label: b.name }))} />
           )}
         </div>
 

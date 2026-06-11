@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/ui/Badge";
@@ -1296,23 +1297,19 @@ export default function HRMSPage() {
                 addLabel="Add department"
                 addPlaceholder="e.g. IT Department"
               />
-              <Select
+              <SearchableSelect
                 label="Designation"
                 value={form.desg_cd?.toString() || ""}
-                onChange={(e) => updateField("desg_cd", e.target.value)}
-                options={[
-                  { value: "", label: "Select designation" },
-                  ...refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc })),
-                ]}
+                onChange={(v) => updateField("desg_cd", v)}
+                placeholder="Search designation…"
+                options={refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc }))}
               />
-              <Select
+              <SearchableSelect
                 label="Employee Status"
                 value={form.emp_status || ""}
-                onChange={(e) => updateField("emp_status", e.target.value)}
-                options={[
-                  { value: "", label: "Select status" },
-                  ...refEmpStatuses.map((s) => ({ value: s.emp_status, label: s.descr })),
-                ]}
+                onChange={(v) => updateField("emp_status", v)}
+                placeholder="Search status…"
+                options={refEmpStatuses.map((s) => ({ value: s.emp_status, label: s.descr }))}
               />
               <Input
                 label="Date of Confirmation"
@@ -1320,14 +1317,12 @@ export default function HRMSPage() {
                 value={form.dtofconfirm || ""}
                 onChange={(e) => updateField("dtofconfirm", e.target.value)}
               />
-              <Select
+              <SearchableSelect
                 label="Qualification"
                 value={form.qfication || ""}
-                onChange={(e) => updateField("qfication", e.target.value)}
-                options={[
-                  { value: "", label: "Select qualification" },
-                  ...refQuals.map((q) => ({ value: q.descr, label: q.descr })),
-                ]}
+                onChange={(v) => updateField("qfication", v)}
+                placeholder="Search qualification…"
+                options={refQuals.map((q) => ({ value: q.descr, label: q.descr }))}
               />
               <Input
                 label="Qualification Detail"
@@ -1335,14 +1330,12 @@ export default function HRMSPage() {
                 onChange={(e) => updateField("qual_detail", e.target.value)}
                 placeholder="e.g. BSc Computer Science, Punjab University"
               />
-              <Select
+              <SearchableSelect
                 label="Reporting Officer"
                 value={form.rpt_officer || ""}
-                onChange={(e) => updateField("rpt_officer", e.target.value)}
-                options={[
-                  { value: "", label: "Select reporting officer" },
-                  ...refRptOfficers.map((o) => ({ value: o.empcode, label: `${o.name} (${o.empcode})` })),
-                ]}
+                onChange={(v) => updateField("rpt_officer", v)}
+                placeholder="Type a name or code…"
+                options={refRptOfficers.map((o) => ({ value: o.empcode, label: `${o.name} (${o.empcode})` }))}
               />
               <Select
                 label="Status"
@@ -1392,23 +1385,20 @@ export default function HRMSPage() {
                 readOnly
                 disabled
               />
-              <Select
+              <SearchableSelect
                 label="Bank"
                 value={form.bnkcode || ""}
-                onChange={(e) => { updateField("bnkcode", e.target.value); updateField("brncode", ""); }}
-                options={[
-                  { value: "", label: "Select bank" },
-                  ...refBanks.map((b) => ({ value: b.bnkcode, label: b.bnkname })),
-                ]}
+                onChange={(v) => { updateField("bnkcode", v); updateField("brncode", ""); }}
+                placeholder="Search bank…"
+                options={refBanks.map((b) => ({ value: b.bnkcode, label: b.bnkname }))}
               />
-              <Select
+              <SearchableSelect
                 label="Bank Branch"
                 value={form.brncode || ""}
-                onChange={(e) => updateField("brncode", e.target.value)}
-                options={[
-                  { value: "", label: form.bnkcode ? "Select branch" : "Select a bank first" },
-                  ...refBankBranches.map((b) => ({ value: b.brncode, label: b.brnname })),
-                ]}
+                onChange={(v) => updateField("brncode", v)}
+                placeholder={form.bnkcode ? "Search branch…" : "Select a bank first"}
+                disabled={!form.bnkcode}
+                options={refBankBranches.map((b) => ({ value: b.brncode, label: b.brnname }))}
               />
               <Input
                 label="Bank Account Number"

@@ -342,8 +342,12 @@ def _fetch_trail_rows(from_date, to_date, *, allowed_companies=None, allowed_bra
             SELECT
                 h.EMPCODE,
                 h.NAME,
-                NVL(dep.DEPT_NAME, TO_CHAR(h.DEPT_NO)) AS DEPT_NAME,
-                NVL(dsg.DESG_DESC, TO_CHAR(h.DESG_CD)) AS DESG_NAME,
+                NVL((SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                       WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(h.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(h.UNIT_ID)),
+                    TO_CHAR(h.DEPT_NO)) AS DEPT_NAME,
+                NVL((SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
+                       WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(h.DESG_CD,'0')),
+                    TO_CHAR(h.DESG_CD)) AS DESG_NAME,
                 TO_CHAR(lt.ATTENDANCE_DATE, 'YYYY-MM-DD')          AS ADATE,
                 TO_CHAR(lt.RECORDED_AT, 'YYYY-MM-DD HH24:MI:SS')   AS RECORDED_AT,
                 lt.LATITUDE,
@@ -353,9 +357,6 @@ def _fetch_trail_rows(from_date, to_date, *, allowed_companies=None, allowed_bra
             INNER JOIN EMPLOYEE e ON TO_CHAR(e.CARD_NO) = lt.CARD_NO
                                   OR e.CARD_NO = TO_NUMBER(REGEXP_SUBSTR(lt.CARD_NO, '^[0-9]+'))
             INNER JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
-            LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep
-                ON dep.DEPT_NO = h.DEPT_NO
-            LEFT JOIN HR_DESG dsg ON dsg.GRADE_CD = h.GRADE_CD AND dsg.DESG_CD = h.DESG_CD
             WHERE lt.ATTENDANCE_DATE BETWEEN TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
               {core}{extra_filter}
             ORDER BY h.EMPCODE, lt.ATTENDANCE_DATE, lt.RECORDED_AT, lt.ID

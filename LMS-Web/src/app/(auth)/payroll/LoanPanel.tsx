@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { listHRMSEmployees } from "@/services/hrmsService";
@@ -161,10 +162,12 @@ export function LoanPanel({ adminCardNo }: { adminCardNo: string }) {
                 <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-700"><X className="h-4 w-4" /></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <Select label="Employee" value={form.empcode} onChange={(e) => setForm((f) => ({ ...f, empcode: e.target.value }))}
-                  options={[{ value: "", label: "Select employee" }, ...emps.map((e) => ({ value: e.empcode, label: `${e.name} (${e.empcode})` }))]} />
-                <Select label="Loan Type" value={form.loan_cd} onChange={(e) => setForm((f) => ({ ...f, loan_cd: e.target.value }))}
-                  options={[{ value: "", label: "Select type" }, ...types.map((t) => ({ value: t.loan_cd, label: t.loan_desc }))]} />
+                <SearchableSelect label="Employee" value={form.empcode} onChange={(v) => setForm((f) => ({ ...f, empcode: v }))}
+                  placeholder="Type a name or code…"
+                  options={emps.map((e) => ({ value: e.empcode, label: `${e.name} (${e.empcode})` }))} />
+                <SearchableSelect label="Loan Type" value={form.loan_cd} onChange={(v) => setForm((f) => ({ ...f, loan_cd: v }))}
+                  placeholder="Search type…"
+                  options={types.map((t) => ({ value: t.loan_cd, label: t.loan_desc }))} />
                 <Input label="Loan Date" type="date" value={form.loan_date} onChange={(e) => setForm((f) => ({ ...f, loan_date: e.target.value }))} />
                 <Input label="Loan Amount" type="number" value={form.loan_amt} onChange={(e) => setForm((f) => ({ ...f, loan_amt: e.target.value }))} />
                 <Input label="Installment Amount" type="number" value={form.instalment_amt} onChange={(e) => setForm((f) => ({ ...f, instalment_amt: e.target.value }))} />
