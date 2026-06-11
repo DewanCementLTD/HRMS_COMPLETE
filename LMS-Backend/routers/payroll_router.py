@@ -22,6 +22,9 @@ from repositories.payroll_repository import (
     list_loan_types, add_loan_type, delete_loan_type,
     list_loans, create_loan, update_loan, delete_loan,
 )
+from repositories.salary_repository import (
+    list_salary_periods, list_processed_salaries, get_payslip,
+)
 
 router = APIRouter(prefix="/payroll", tags=["Payroll"])
 USR = "HR"
@@ -212,3 +215,28 @@ def put_loan(doc: int, req: LoanRequest, admin_card_no: str = Query(...)):
 def del_loan(doc: int, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
     require_hr_admin(admin_card_no)
     return _checked(delete_loan(doc, _company(admin_card_no, compc)))
+
+
+# ─────────────────────────── Salary / Payslips (read-only) ───────────────────────────
+
+@router.get("/salary/periods")
+def get_salary_periods(admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return {"items": list_salary_periods(_company(admin_card_no, compc))}
+
+
+@router.get("/salary/sheet")
+def get_salary_sheet(admin_card_no: str = Query(...), period: int = Query(...),
+                     compc: Optional[str] = Query(None), q: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return {"items": list_processed_salaries(_company(admin_card_no, compc), period, q)}
+
+
+@router.get("/salary/payslip")
+def get_salary_payslip(admin_card_no: str = Query(...), empcode: str = Query(...),
+                       period: int = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    ps = get_payslip(_company(admin_card_no, compc), empcode, period)
+    if not ps:
+        raise HTTPException(status_code=404, detail="No processed salary for this employee/period")
+    return ps
