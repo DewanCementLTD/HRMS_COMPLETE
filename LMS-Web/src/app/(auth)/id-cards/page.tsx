@@ -83,21 +83,36 @@ export default function IDCardsPage() {
     });
   }
 
-  async function printSelected() {
-    if (!user || selected.size === 0) return;
+  async function buildAndPrint(codes: string[]) {
+    if (!user || codes.length === 0) return;
     setBulkBusy(true);
     try {
-      const codes = filtered.filter((e) => selected.has(e.empcode)).map((e) => e.empcode);
-      const results = await Promise.all(
-        codes.map((code) => getEmployeeCard(code, user.card_no).catch(() => null)),
-      );
-      const cards = results.filter((c): c is EmployeeCard => !!c);
+      // Fetch in small batches so a few hundred employees don't hammer the API at once.
+      const cards: EmployeeCard[] = [];
+      const BATCH = 12;
+      for (let i = 0; i < codes.length; i += BATCH) {
+        const slice = codes.slice(i, i + BATCH);
+        const res = await Promise.all(
+          slice.map((code) => getEmployeeCard(code, user.card_no).catch(() => null)),
+        );
+        res.forEach((c) => { if (c) cards.push(c); });
+      }
       if (cards.length) setBulkCards(cards);
     } catch (e) {
       console.error("Failed to build bulk cards", e);
     } finally {
       setBulkBusy(false);
     }
+  }
+
+  function printSelected() {
+    buildAndPrint(filtered.filter((e) => selected.has(e.empcode)).map((e) => e.empcode));
+  }
+
+  function printAll() {
+    if (filtered.length > 150 &&
+        !confirm(`Generate ID cards for all ${filtered.length} employees? This may take a moment.`)) return;
+    buildAndPrint(filtered.map((e) => e.empcode));
   }
 
   if (!user?.hr_admin) {
@@ -131,10 +146,16 @@ export default function IDCardsPage() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <Button size="sm" onClick={printSelected} disabled={selected.size === 0 || bulkBusy} className="ml-auto">
-              <Printer className="h-4 w-4 mr-1.5" />
-              {bulkBusy ? "Preparing…" : `Print Selected (${selected.size})`}
-            </Button>
+            <div className="ml-auto flex items-center gap-2">
+              <Button size="sm" variant="secondary" onClick={printAll} disabled={filtered.length === 0 || bulkBusy}>
+                <Printer className="h-4 w-4 mr-1.5" />
+                {bulkBusy ? "Preparing…" : `Print All (${filtered.length})`}
+              </Button>
+              <Button size="sm" onClick={printSelected} disabled={selected.size === 0 || bulkBusy}>
+                <Printer className="h-4 w-4 mr-1.5" />
+                Print Selected ({selected.size})
+              </Button>
+            </div>
           </div>
 
           {loading ? (
