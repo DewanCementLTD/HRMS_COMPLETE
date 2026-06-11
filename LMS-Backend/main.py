@@ -12,6 +12,7 @@ from routers.reference_router import router as reference_router
 from routers.location_tracking_router import router as location_tracking_router
 from routers.app_version_router import router as app_version_router
 from routers.document_router import router as document_router
+from routers.payroll_router import router as payroll_router
 
 app = FastAPI(title="LMS API")
 
@@ -46,6 +47,8 @@ app.include_router(location_tracking_router)
 app.include_router(app_version_router)
 # Employee documents (/documents — upload/list/download, files under EMP_DOCS)
 app.include_router(document_router)
+# Payroll (/payroll — period opening, tax slabs, loans)
+app.include_router(payroll_router)
 
 if __name__ == "__main__":
     import uvicorn
