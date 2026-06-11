@@ -19,10 +19,12 @@ export function BulkCardSheet({
   cards,
   onClose,
   includeBack = true,
+  adminCardNo,
 }: {
   cards: EmployeeCard[];
   onClose: () => void;
   includeBack?: boolean;
+  adminCardNo?: string;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -48,7 +50,7 @@ export function BulkCardSheet({
 
       <div className="bulk-card-grid flex flex-wrap gap-4 justify-center p-6">
         {cards.map((c) => (
-          <Face key={`f-${c.empcode}`}><CardFront c={c} /></Face>
+          <Face key={`f-${c.empcode}`}><CardFront c={c} adminCardNo={adminCardNo} /></Face>
         ))}
         {includeBack && cards.map((c) => (
           <Face key={`b-${c.empcode}`}><CardBack c={c} /></Face>

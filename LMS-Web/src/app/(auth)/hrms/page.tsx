@@ -44,6 +44,7 @@ import { LocationPanel } from "./LocationPanel";
 import { SetupPanel } from "./SetupPanel";
 import { DynamicSelect } from "@/components/ui/DynamicSelect";
 import { EmployeeDocuments } from "./EmployeeDocuments";
+import { EmployeePhoto } from "./EmployeePhoto";
 import { EmployeeIDCard } from "./EmployeeIDCard";
 import { AttendancePanel } from "./AttendancePanel";
 import {
@@ -557,7 +558,7 @@ export default function HRMSPage() {
 
     return (
       <div className="animate-fade-in">
-        {cardData && <EmployeeIDCard card={cardData} onClose={() => setCardData(null)} />}
+        {cardData && <EmployeeIDCard card={cardData} adminCardNo={user.card_no} onClose={() => setCardData(null)} />}
         {/* Section toggle */}
         <SectionNav />
 
@@ -1506,9 +1507,12 @@ export default function HRMSPage() {
           </CardContent>
         </Card>
 
-        {/* Documents — only for an existing employee (needs an empcode) */}
+        {/* Profile photo + Documents — only for an existing employee (needs an empcode) */}
         {isEdit && ctrl.selectedEmployee?.empcode && (
-          <EmployeeDocuments empcode={ctrl.selectedEmployee.empcode} adminCardNo={user!.card_no} />
+          <>
+            <EmployeePhoto empcode={ctrl.selectedEmployee.empcode} adminCardNo={user!.card_no} />
+            <EmployeeDocuments empcode={ctrl.selectedEmployee.empcode} adminCardNo={user!.card_no} />
+          </>
         )}
 
         <div className="flex justify-end gap-3 mb-8">

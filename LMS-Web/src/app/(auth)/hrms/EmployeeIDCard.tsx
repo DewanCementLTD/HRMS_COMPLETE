@@ -5,13 +5,9 @@ import { createPortal } from "react-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { X, Printer, RotateCw } from "lucide-react";
 import type { EmployeeCard } from "@/services/hrmsService";
+import { EmployeeAvatar } from "./EmployeeAvatar";
 
 const SITE_URL = "https://hrms.sysnovix.com";
-
-function initials(name?: string) {
-  const p = (name || "?").trim().split(/\s+/);
-  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || "?";
-}
 
 function Row({ label, value }: { label: string; value?: string }) {
   return (
@@ -23,7 +19,7 @@ function Row({ label, value }: { label: string; value?: string }) {
 }
 
 // ── Front face ──────────────────────────────────────────────
-export function CardFront({ c }: { c: EmployeeCard }) {
+export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: string }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
       <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex items-start justify-center pt-5">
@@ -32,8 +28,8 @@ export function CardFront({ c }: { c: EmployeeCard }) {
         </p>
         <div className="absolute left-1/2 -translate-x-1/2 bottom-[-38px]">
           <div className="h-[76px] w-[76px] rounded-full bg-white p-1 shadow-lg ring-2 ring-white">
-            <div className="h-full w-full rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-extrabold">
-              {initials(c.name)}
+            <div className="h-full w-full rounded-full overflow-hidden">
+              <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} />
             </div>
           </div>
         </div>
@@ -94,7 +90,7 @@ export function CardBack({ c }: { c: EmployeeCard }) {
   );
 }
 
-export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose: () => void }) {
+export function EmployeeIDCard({ card, onClose, adminCardNo }: { card: EmployeeCard; onClose: () => void; adminCardNo?: string }) {
   const [flipped, setFlipped] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -112,7 +108,7 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
             title="Click to flip"
             style={{ width: "100%", height: "100%", cursor: "pointer", animation: "idflip 0.4s ease" }}
           >
-            {flipped ? <CardBack c={card} /> : <CardFront c={card} />}
+            {flipped ? <CardBack c={card} /> : <CardFront c={card} adminCardNo={adminCardNo} />}
           </div>
         </div>
 
@@ -135,7 +131,7 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
       {/* Print-only layout — each face rendered at its design size (320x508) and
           scaled down as a whole, so nothing is clipped. */}
       <div className="id-card-print">
-        <div className="id-card-face"><div className="id-card-scale"><CardFront c={card} /></div></div>
+        <div className="id-card-face"><div className="id-card-scale"><CardFront c={card} adminCardNo={adminCardNo} /></div></div>
         <div className="id-card-face"><div className="id-card-scale"><CardBack c={card} /></div></div>
       </div>
 

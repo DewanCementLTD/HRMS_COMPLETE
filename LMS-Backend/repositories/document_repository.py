@@ -170,3 +170,57 @@ def delete_document(doc_id: int) -> dict:
     finally:
         cursor.close()
         conn.close()
+
+
+# ------------------------------------------------------------------
+# EMPLOYEE PHOTO  (stored on disk under EMP_PHOTOS, path in HR_EMP_MASTER.PATH)
+# ------------------------------------------------------------------
+
+PHOTO_DIRNAME = "EMP_PHOTOS"
+
+
+def employee_photo_target(empcode: str, ext: str) -> dict:
+    """Return where an employee's photo should be written + the relative path
+    to store in HR_EMP_MASTER.PATH."""
+    safe = _safe_name(str(empcode), "emp")
+    ext = (ext or "").lstrip(".").lower() or "jpg"
+    rel = os.path.join(PHOTO_DIRNAME, f"{safe}.{ext}")
+    return {
+        "rel_path": rel,
+        "abs_path": os.path.join(DOCS_BASE, rel),
+        "abs_dir": os.path.join(DOCS_BASE, PHOTO_DIRNAME),
+    }
+
+
+def set_employee_photo_path(empcode: str, rel_path: str) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE HR_EMP_MASTER SET PATH = :p WHERE EMPCODE = :e",
+                       {"p": rel_path, "e": str(empcode)})
+        if cursor.rowcount == 0:
+            cursor.execute("UPDATE HR_EMP_MASTER SET PATH = :p WHERE OLD_EMPCODE = :e",
+                           {"p": rel_path, "e": str(empcode)})
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_employee_photo_abs(empcode: str) -> str | None:
+    """Absolute path to an employee's photo file, or None if not set/missing."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT PATH FROM HR_EMP_MASTER WHERE EMPCODE = :e OR OLD_EMPCODE = :e FETCH FIRST 1 ROWS ONLY",
+                       {"e": str(empcode)})
+        r = cursor.fetchone()
+        rel = (r[0] or "").strip() if r else ""
+        if not rel:
+            return None
+        abs_path = rel if os.path.isabs(rel) else os.path.join(DOCS_BASE, rel)
+        return abs_path if os.path.isfile(abs_path) else None
+    finally:
+        cursor.close()
+        conn.close()

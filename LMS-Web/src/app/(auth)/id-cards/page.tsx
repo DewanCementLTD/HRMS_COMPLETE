@@ -129,8 +129,8 @@ export default function IDCardsPage() {
 
   return (
     <div className="animate-fade-in">
-      {card && <EmployeeIDCard card={card} onClose={() => setCard(null)} />}
-      {bulkCards && <BulkCardSheet cards={bulkCards} onClose={() => setBulkCards(null)} />}
+      {card && <EmployeeIDCard card={card} adminCardNo={user.card_no} onClose={() => setCard(null)} />}
+      {bulkCards && <BulkCardSheet cards={bulkCards} adminCardNo={user.card_no} onClose={() => setBulkCards(null)} />}
 
       <PageHeader title="Employee ID Cards" subtitle="Generate, preview and print employee ID cards" />
 

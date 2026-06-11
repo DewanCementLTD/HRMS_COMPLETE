@@ -50,3 +50,21 @@ export const deleteDocument = (docId: number, adminCardNo: string) =>
     `/documents/${docId}?admin_card_no=${encodeURIComponent(adminCardNo)}`,
     { method: "DELETE" }
   );
+
+// ── Employee profile photo (shown on the ID card) ──
+export const employeePhotoUrl = (empcode: string, adminCardNo: string, bust?: number | string) =>
+  `${API_BASE}/documents/employee-photo?empcode=${encodeURIComponent(empcode)}&admin_card_no=${encodeURIComponent(adminCardNo)}${bust ? `&t=${bust}` : ""}`;
+
+export async function uploadEmployeePhoto(adminCardNo: string, empcode: string, file: File): Promise<{ status: string; path: string }> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(
+    `${API_BASE}/documents/employee-photo?empcode=${encodeURIComponent(empcode)}&admin_card_no=${encodeURIComponent(adminCardNo)}`,
+    { method: "POST", body: form },
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Upload failed" }));
+    throw new Error(typeof err.detail === "string" ? err.detail : "Upload failed");
+  }
+  return res.json();
+}
