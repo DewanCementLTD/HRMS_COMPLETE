@@ -102,7 +102,7 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
                 <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                   <tr>
                     <th className="px-3 py-2 text-left">Name</th><th className="px-3 py-2 text-left">Code</th>
-                    <th className="px-3 py-2 text-left">Department</th><th className="px-3 py-2 text-right">Actual Gross</th>
+                    <th className="px-3 py-2 text-left">Department</th>{/* code = empcode */}<th className="px-3 py-2 text-right">Actual Gross</th>
                     <th className="px-3 py-2 text-right">Earned Gross</th><th className="px-3 py-2 text-right">Total Earning</th>
                     <th className="px-3 py-2 text-right">Deductions</th><th className="px-3 py-2 text-right">Net</th>
                     <th className="px-3 py-2 text-right">Payslip</th>
@@ -112,7 +112,7 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
                   {filtered.map((r) => (
                     <tr key={r.old_empcode} className="hover:bg-gray-50">
                       <td className="px-3 py-2 font-medium text-gray-900">{r.name || r.old_empcode}</td>
-                      <td className="px-3 py-2 text-gray-500">{r.atdtcard || "—"}</td>
+                      <td className="px-3 py-2 font-mono text-gray-500">{r.empcode || r.old_empcode || "—"}</td>
                       <td className="px-3 py-2 text-gray-500">{r.dept_name || "—"}</td>
                       <td className="px-3 py-2 text-right text-gray-700">{money(r.actual_gross)}</td>
                       <td className="px-3 py-2 text-right text-gray-700">{money(r.earned_gross)}</td>

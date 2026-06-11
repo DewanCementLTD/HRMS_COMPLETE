@@ -35,15 +35,17 @@ export function Payslip({ data, onClose }: { data: PayslipData; onClose: () => v
   const adjustments = E.filter((e) => e.atype === 2 || e.atype === 3);
   const leave = E.filter((e) => e.atype === 4);
 
-  const actualGross = { this: data.master.actual_gross, fiscal: sumBy(E, "fiscal", (e) => e.atype === 1), cal: sumBy(E, "cal", (e) => e.atype === 1) };
+  // Subtotals are computed from the line items so the displayed components always
+  // add up to the gross (and they equal the ERP master totals for this period).
+  const actualGross = { this: sumBy(E, "this", (e) => e.atype === 1), fiscal: sumBy(E, "fiscal", (e) => e.atype === 1), cal: sumBy(E, "cal", (e) => e.atype === 1) };
   const daysAdj = { this: sumBy(adjustments, "this", () => true), fiscal: sumBy(adjustments, "fiscal", () => true), cal: sumBy(adjustments, "cal", () => true) };
   const leaveSum = { this: sumBy(leave, "this", () => true), fiscal: sumBy(leave, "fiscal", () => true), cal: sumBy(leave, "cal", () => true) };
   const earnedGross = {
-    this: data.master.earned_gross,
+    this: actualGross.this + daysAdj.this + leaveSum.this,
     fiscal: actualGross.fiscal + daysAdj.fiscal + leaveSum.fiscal,
     cal: actualGross.cal + daysAdj.cal + leaveSum.cal,
   };
-  const totalEarning = { this: data.master.total_earning, fiscal: earnedGross.fiscal, cal: earnedGross.cal };
+  const totalEarning = { this: earnedGross.this, fiscal: earnedGross.fiscal, cal: earnedGross.cal };
   const ded = data.totals;
 
   const SUB = "bg-cyan-50 font-bold";

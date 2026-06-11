@@ -66,7 +66,9 @@ def list_processed_salaries(compc, period, q=None, brnch=None) -> list:
                    (SELECT MAX(e.NAME) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE=m.OLD_EMPCODE OR e.EMPCODE=m.OLD_EMPCODE),
                    (SELECT MAX(e."ATDTCARD#") FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE=m.OLD_EMPCODE OR e.EMPCODE=m.OLD_EMPCODE),
                    (SELECT MAX(e.EMPCODE) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE=m.OLD_EMPCODE OR e.EMPCODE=m.OLD_EMPCODE),
-                   NVL((SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE TO_CHAR(d.DEPT_NO)=TO_CHAR(m.DEPT_NO)), TO_CHAR(m.DEPT_NO)),
+                   NVL((SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                          WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
+                       TO_CHAR(m.DEPT_NO)),
                    NVL(m.ACTUAL_GROSS,0), NVL(m.EARNED_GROSS,0), NVL(m.TOTAL_EARNING,0),
                    (SELECT NVL(SUM(s.TRANS_AMOUNT),0) FROM HR_SALARY_PROCESS s
                       WHERE s.OLD_EMPCODE=m.OLD_EMPCODE AND s."PERIOD#"=m."PERIOD#" AND s.UNIT_ID=m.UNIT_ID AND s.TRANS_TYPE='D'),
@@ -110,17 +112,21 @@ def get_payslip(compc, empcode, period) -> dict | None:
             pass
 
         cur.execute("""
-            SELECT NVL(ACTUAL_GROSS,0), NVL(ACTUAL_BASIC,0), NVL(EARNED_GROSS,0), NVL(EARNED_BASIC,0),
-                   NVL(W_DAY,0), NVL(ABSENT_DAYS,0), NVL(TOTAL_EARNING,0), SAL, GRADE_CD, DEPT_NO,
-                   LOCATION, BNKACCT, EMP_STATUS, OLD_EMPCODE
-            FROM HR_SALARY_PROCESS_MASTER
-            WHERE OLD_EMPCODE IN (:e, :ec) AND "PERIOD#" = :p AND (:u IS NULL OR UNIT_ID = :u)
+            SELECT NVL(m.ACTUAL_GROSS,0), NVL(m.ACTUAL_BASIC,0), NVL(m.EARNED_GROSS,0), NVL(m.EARNED_BASIC,0),
+                   NVL(m.W_DAY,0), NVL(m.ABSENT_DAYS,0), NVL(m.TOTAL_EARNING,0), m.SAL, m.GRADE_CD, m.DEPT_NO,
+                   m.LOCATION, m.BNKACCT, m.EMP_STATUS, m.OLD_EMPCODE,
+                   (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
+                   (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(m.LOCATION))
+            FROM HR_SALARY_PROCESS_MASTER m
+            WHERE m.OLD_EMPCODE IN (:e, :ec) AND m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
             FETCH FIRST 1 ROWS ONLY
         """, {"e": key, "ec": str(empcode), "p": per, "u": u})
         m = cur.fetchone()
         if not m:
             return None
         key = (m[13] or key)
+        m_dept = (m[14] or "").strip() if m[14] else None
+        m_loc = (m[15] or "").strip() if m[15] else None
 
         cur.execute("""SELECT TO_CHAR(PERIOD_FRM,'YYYY-MM-DD'), TO_CHAR(PERIOD_TO,'YYYY-MM-DD')
                        FROM HR_ATTND_PERIOD WHERE "PERIOD#" = :p AND (:u IS NULL OR UNIT_ID = :u) FETCH FIRST 1 ROWS ONLY""",
@@ -134,7 +140,8 @@ def get_payslip(compc, empcode, period) -> dict | None:
         cur.execute("""
             SELECT NAME, "ATDTCARD#", TO_CHAR(DTOFAPPT,'YYYY-MM-DD'), GRADE_CD,
                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE dg.DESG_CD = HR_EMP_MASTER.DESG_CD),
-                   (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE TO_CHAR(d.DEPT_NO)=TO_CHAR(HR_EMP_MASTER.DEPT_NO)),
+                   (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                      WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(HR_EMP_MASTER.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(HR_EMP_MASTER.UNIT_ID)),
                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(HR_EMP_MASTER.LOCATION)),
                    (SELECT MIN(s.EMP_STATUS_DESC) FROM HR_EMP_STATUS s WHERE s.EMP_STATUS = HR_EMP_MASTER.EMP_STATUS),
                    BNKACCT, (SELECT MIN(u2.UNIT_NAME) FROM UNIT_MST u2 WHERE u2.UNIT_ID = HR_EMP_MASTER.UNIT_ID),
@@ -191,8 +198,8 @@ def get_payslip(compc, empcode, period) -> dict | None:
                 "name": (h[0] or "").strip(), "code": (h[10] or str(empcode) or "").strip(),
                 "atdtcard": (h[1] or "").strip(),
                 "joining_date": h[2], "grade": (h[3] or m[8] or "").strip(),
-                "designation": (h[4] or "").strip(), "dept_name": (h[5] or "").strip(),
-                "location": (h[6] or "").strip(), "emp_type": (h[7] or "").strip(),
+                "designation": (h[4] or "").strip(), "dept_name": m_dept or (h[5] or "").strip(),
+                "location": m_loc or (h[6] or "").strip(), "emp_type": (h[7] or "").strip(),
                 "bank_acct": (h[8] or m[11] or "").strip(), "company_name": (h[9] or "").strip(),
                 "period_label": _label(pfrm) if pfrm else f"Period {per}",
                 "w_day": master["w_day"], "absent_days": master["absent_days"],
