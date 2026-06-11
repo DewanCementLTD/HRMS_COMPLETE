@@ -219,17 +219,30 @@ def del_loan(doc: int, admin_card_no: str = Query(...), compc: Optional[str] = Q
 
 # ─────────────────────────── Salary / Payslips (read-only) ───────────────────────────
 
+def _branch(admin_card_no: str, compc: Optional[str], brnch: Optional[str]) -> Optional[str]:
+    """The branch (LOCATION) to filter by: the selected branch when within the
+    admin's rights, else None (all branches of the company)."""
+    if not brnch:
+        return None
+    _, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+    allowed = {str(b).strip() for b in (final_b or [])}
+    return str(brnch).strip() if (not allowed or str(brnch).strip() in allowed) else None
+
+
 @router.get("/salary/periods")
-def get_salary_periods(admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+def get_salary_periods(admin_card_no: str = Query(...), compc: Optional[str] = Query(None),
+                       brnch: Optional[str] = Query(None)):
     require_hr_admin(admin_card_no)
-    return {"items": list_salary_periods(_company(admin_card_no, compc))}
+    return {"items": list_salary_periods(_company(admin_card_no, compc), _branch(admin_card_no, compc, brnch))}
 
 
 @router.get("/salary/sheet")
 def get_salary_sheet(admin_card_no: str = Query(...), period: int = Query(...),
-                     compc: Optional[str] = Query(None), q: Optional[str] = Query(None)):
+                     compc: Optional[str] = Query(None), brnch: Optional[str] = Query(None),
+                     q: Optional[str] = Query(None)):
     require_hr_admin(admin_card_no)
-    return {"items": list_processed_salaries(_company(admin_card_no, compc), period, q)}
+    return {"items": list_processed_salaries(_company(admin_card_no, compc), period, q,
+                                             _branch(admin_card_no, compc, brnch))}
 
 
 @router.get("/salary/payslip")

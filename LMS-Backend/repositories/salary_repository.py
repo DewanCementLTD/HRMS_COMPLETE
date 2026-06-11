@@ -34,7 +34,12 @@ def _fiscal_cal_starts(period_frm):
     return f"{fy}-07-01", f"{y}-01-01"
 
 
-def list_salary_periods(compc=None) -> list:
+def _b(v):
+    s = None if v is None else str(v).strip()
+    return s or None
+
+
+def list_salary_periods(compc=None, brnch=None) -> list:
     conn = get_connection(); cur = conn.cursor()
     try:
         cur.execute("""
@@ -43,8 +48,9 @@ def list_salary_periods(compc=None) -> list:
             FROM HR_SALARY_PROCESS_MASTER m
             LEFT JOIN HR_ATTND_PERIOD p ON p."PERIOD#" = m."PERIOD#" AND p.UNIT_ID = m.UNIT_ID
             WHERE (:u IS NULL OR m.UNIT_ID = :u)
+              AND (:b IS NULL OR TRIM(m.LOCATION) = TRIM(:b))
             GROUP BY m."PERIOD#" ORDER BY m."PERIOD#" DESC
-        """, {"u": _int(compc)})
+        """, {"u": _int(compc), "b": _b(brnch)})
         return [{"period": int(r[0]), "period_frm": r[1], "period_to": r[2],
                  "label": _label(r[1]) or f"Period {int(r[0])}", "emp_count": int(r[3])}
                 for r in cur.fetchall()]
@@ -52,7 +58,7 @@ def list_salary_periods(compc=None) -> list:
         cur.close(); conn.close()
 
 
-def list_processed_salaries(compc, period, q=None) -> list:
+def list_processed_salaries(compc, period, q=None, brnch=None) -> list:
     conn = get_connection(); cur = conn.cursor()
     try:
         cur.execute("""
@@ -67,8 +73,9 @@ def list_processed_salaries(compc, period, q=None) -> list:
                    m.SAL
             FROM HR_SALARY_PROCESS_MASTER m
             WHERE m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
+              AND (:b IS NULL OR TRIM(m.LOCATION) = TRIM(:b))
             ORDER BY 2
-        """, {"p": _int(period), "u": _int(compc)})
+        """, {"p": _int(period), "u": _int(compc), "b": _b(brnch)})
         out = []
         for r in cur.fetchall():
             earned = float(r[6] or 0); ded = float(r[8] or 0)
@@ -130,10 +137,11 @@ def get_payslip(compc, empcode, period) -> dict | None:
                    (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE TO_CHAR(d.DEPT_NO)=TO_CHAR(HR_EMP_MASTER.DEPT_NO)),
                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(HR_EMP_MASTER.LOCATION)),
                    (SELECT MIN(s.EMP_STATUS_DESC) FROM HR_EMP_STATUS s WHERE s.EMP_STATUS = HR_EMP_MASTER.EMP_STATUS),
-                   BNKACCT, (SELECT MIN(u2.UNIT_NAME) FROM UNIT_MST u2 WHERE u2.UNIT_ID = HR_EMP_MASTER.UNIT_ID)
+                   BNKACCT, (SELECT MIN(u2.UNIT_NAME) FROM UNIT_MST u2 WHERE u2.UNIT_ID = HR_EMP_MASTER.UNIT_ID),
+                   EMPCODE
             FROM HR_EMP_MASTER WHERE OLD_EMPCODE = :e OR EMPCODE = :ec FETCH FIRST 1 ROWS ONLY
         """, {"e": key, "ec": str(empcode)})
-        h = cur.fetchone() or [None] * 10
+        h = cur.fetchone() or [None] * 11
 
         cur.execute("""
             SELECT l.TRANS_TYPE,
@@ -180,7 +188,8 @@ def get_payslip(compc, empcode, period) -> dict | None:
 
         return {
             "header": {
-                "name": (h[0] or "").strip(), "code": (h[1] or "").strip(),
+                "name": (h[0] or "").strip(), "code": (h[10] or str(empcode) or "").strip(),
+                "atdtcard": (h[1] or "").strip(),
                 "joining_date": h[2], "grade": (h[3] or m[8] or "").strip(),
                 "designation": (h[4] or "").strip(), "dept_name": (h[5] or "").strip(),
                 "location": (h[6] or "").strip(), "emp_type": (h[7] or "").strip(),

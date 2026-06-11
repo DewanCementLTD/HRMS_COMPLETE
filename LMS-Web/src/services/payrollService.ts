@@ -101,9 +101,10 @@ export interface Payslip {
   loans: { loan_desc: string; balance: number }[];
 }
 
-export const fetchSalaryPeriods = (adminCardNo: string, compc?: string) =>
-  apiRequest<{ items: SalaryPeriod[] }>(`/payroll/salary/periods?${ac(adminCardNo, compc)}`);
-export const fetchSalarySheet = (adminCardNo: string, period: number, compc?: string, q?: string) =>
-  apiRequest<{ items: SalarySheetRow[] }>(`/payroll/salary/sheet?${ac(adminCardNo, compc)}&period=${period}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
+const brq = (brnch?: string) => (brnch ? `&brnch=${encodeURIComponent(brnch)}` : "");
+export const fetchSalaryPeriods = (adminCardNo: string, compc?: string, brnch?: string) =>
+  apiRequest<{ items: SalaryPeriod[] }>(`/payroll/salary/periods?${ac(adminCardNo, compc)}${brq(brnch)}`);
+export const fetchSalarySheet = (adminCardNo: string, period: number, compc?: string, q?: string, brnch?: string) =>
+  apiRequest<{ items: SalarySheetRow[] }>(`/payroll/salary/sheet?${ac(adminCardNo, compc)}&period=${period}${brq(brnch)}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
 export const fetchPayslip = (adminCardNo: string, empcode: string, period: number, compc?: string) =>
   apiRequest<Payslip>(`/payroll/salary/payslip?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&period=${period}`);

@@ -174,9 +174,12 @@ export function Payslip({ data, onClose }: { data: PayslipData; onClose: () => v
           {/* Footer */}
           <div className="mt-8 pt-2 border-t border-gray-300 flex justify-between text-[10px] text-gray-500">
             <span>This is computer generated document no signature required.</span>
-            <span>Hr_Pay_Slip_FH</span>
           </div>
-          <p className="text-[10px] text-gray-400 mt-1">Powered By Yousuf Dewan Companies...</p>
+          <p className="text-[10px] text-gray-400 mt-1">
+            Powered by{" "}
+            <a href="https://hrms.sysnovix.com" target="_blank" rel="noreferrer"
+              className="font-semibold text-indigo-600 hover:underline">HRMS.sysnovix.com</a>
+          </p>
         </div>
       </div>
 

@@ -15,8 +15,9 @@ import { Payslip } from "./Payslip";
 const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
 
 export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
-  const { activeCompany } = useAuth();
+  const { activeCompany, activeBranch } = useAuth();
   const compc = activeCompany || undefined;
+  const brnch = activeBranch || undefined;
 
   const [periods, setPeriods] = useState<SalaryPeriod[]>([]);
   const [period, setPeriod] = useState<number | null>(null);
@@ -29,21 +30,21 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
 
   const loadPeriods = useCallback(async () => {
     try {
-      const r = await fetchSalaryPeriods(adminCardNo, compc);
+      const r = await fetchSalaryPeriods(adminCardNo, compc, brnch);
       setPeriods(r.items || []);
-      if (r.items?.length && period == null) setPeriod(r.items[0].period);
-      if (!r.items?.length) setRows([]);
+      if (r.items?.length) setPeriod((cur) => (cur != null && r.items.some((p) => p.period === cur) ? cur : r.items[0].period));
+      else { setPeriod(null); setRows([]); }
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to load periods"); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminCardNo, compc]);
+  }, [adminCardNo, compc, brnch]);
 
   const loadSheet = useCallback(async (p: number) => {
     setLoading(true); setError(null);
-    try { const r = await fetchSalarySheet(adminCardNo, p, compc); setRows(r.items || []); }
+    try { const r = await fetchSalarySheet(adminCardNo, p, compc, undefined, brnch); setRows(r.items || []); }
     catch (e) { setError(e instanceof Error ? e.message : "Failed to load salaries"); }
     finally { setLoading(false); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminCardNo, compc]);
+  }, [adminCardNo, compc, brnch]);
 
   useEffect(() => { loadPeriods(); }, [loadPeriods]);
   useEffect(() => { if (period != null) loadSheet(period); }, [period, loadSheet]);
