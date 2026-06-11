@@ -21,6 +21,7 @@ import {
   MapPin,
   ChevronDown,
   IdCard,
+  Wallet,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
@@ -39,6 +40,7 @@ const employeeNavItems = [
 const hrNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
+  { href: "/payroll", label: "Payroll", icon: Wallet },
   { href: "/id-cards", label: "ID Cards", icon: IdCard },
 ];
 
