@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { IdCard, Search, Users } from "lucide-react";
+import { IdCard, Search, Users, Printer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Spinner } from "@/components/ui/Spinner";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { listHRMSEmployees, getEmployeeCard, type EmployeeCard } from "@/services/hrmsService";
 import type { HRMSSearchResult } from "@/models/hrms";
 import { EmployeeIDCard } from "../hrms/EmployeeIDCard";
+import { BulkCardSheet } from "../hrms/BulkCardSheet";
 
 export default function IDCardsPage() {
   const { user, activeCompany, activeBranch } = useAuth();
@@ -18,6 +19,9 @@ export default function IDCardsPage() {
   const [query, setQuery] = useState("");
   const [card, setCard] = useState<EmployeeCard | null>(null);
   const [opening, setOpening] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkCards, setBulkCards] = useState<EmployeeCard[] | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!user?.hr_admin) return;
@@ -60,6 +64,42 @@ export default function IDCardsPage() {
     }
   }
 
+  function toggleSelect(empcode: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(empcode)) next.delete(empcode);
+      else next.add(empcode);
+      return next;
+    });
+  }
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((e) => selected.has(e.empcode));
+  function toggleAll() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) filtered.forEach((e) => next.delete(e.empcode));
+      else filtered.forEach((e) => next.add(e.empcode));
+      return next;
+    });
+  }
+
+  async function printSelected() {
+    if (!user || selected.size === 0) return;
+    setBulkBusy(true);
+    try {
+      const codes = filtered.filter((e) => selected.has(e.empcode)).map((e) => e.empcode);
+      const results = await Promise.all(
+        codes.map((code) => getEmployeeCard(code, user.card_no).catch(() => null)),
+      );
+      const cards = results.filter((c): c is EmployeeCard => !!c);
+      if (cards.length) setBulkCards(cards);
+    } catch (e) {
+      console.error("Failed to build bulk cards", e);
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
   if (!user?.hr_admin) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -75,19 +115,26 @@ export default function IDCardsPage() {
   return (
     <div className="animate-fade-in">
       {card && <EmployeeIDCard card={card} onClose={() => setCard(null)} />}
+      {bulkCards && <BulkCardSheet cards={bulkCards} onClose={() => setBulkCards(null)} />}
 
       <PageHeader title="Employee ID Cards" subtitle="Generate, preview and print employee ID cards" />
 
       <Card>
         <CardContent className="py-4">
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-full max-w-sm mb-4">
-            <Search className="h-4 w-4 text-gray-400 shrink-0" />
-            <input
-              className="bg-transparent text-sm outline-none w-full placeholder:text-gray-400"
-              placeholder="Search name / code…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-full max-w-sm">
+              <Search className="h-4 w-4 text-gray-400 shrink-0" />
+              <input
+                className="bg-transparent text-sm outline-none w-full placeholder:text-gray-400"
+                placeholder="Search name / code…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Button size="sm" onClick={printSelected} disabled={selected.size === 0 || bulkBusy} className="ml-auto">
+              <Printer className="h-4 w-4 mr-1.5" />
+              {bulkBusy ? "Preparing…" : `Print Selected (${selected.size})`}
+            </Button>
           </div>
 
           {loading ? (
@@ -102,6 +149,10 @@ export default function IDCardsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                   <tr>
+                    <th className="px-4 py-2 w-8">
+                      <input type="checkbox" checked={allVisibleSelected} onChange={toggleAll}
+                        className="accent-indigo-600 cursor-pointer" title="Select all" />
+                    </th>
                     <th className="px-4 py-2 text-left">Empcode</th>
                     <th className="px-4 py-2 text-left">Name</th>
                     <th className="px-4 py-2 text-left">Card / ATDT</th>
@@ -110,7 +161,11 @@ export default function IDCardsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filtered.map((e) => (
-                    <tr key={e.empcode} className="hover:bg-gray-50">
+                    <tr key={e.empcode} className={`hover:bg-gray-50 ${selected.has(e.empcode) ? "bg-indigo-50/50" : ""}`}>
+                      <td className="px-4 py-2">
+                        <input type="checkbox" checked={selected.has(e.empcode)} onChange={() => toggleSelect(e.empcode)}
+                          className="accent-indigo-600 cursor-pointer" />
+                      </td>
                       <td className="px-4 py-2 font-mono text-gray-600">{e.empcode}</td>
                       <td className="px-4 py-2 font-medium text-gray-900">{e.name || "—"}</td>
                       <td className="px-4 py-2 text-gray-500">{e.card_no || e.atdtcard || "—"}</td>

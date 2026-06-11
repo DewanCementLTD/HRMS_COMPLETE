@@ -23,7 +23,7 @@ function Row({ label, value }: { label: string; value?: string }) {
 }
 
 // ── Front face ──────────────────────────────────────────────
-function CardFront({ c }: { c: EmployeeCard }) {
+export function CardFront({ c }: { c: EmployeeCard }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
       <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex items-start justify-center pt-5">
@@ -55,7 +55,7 @@ function CardFront({ c }: { c: EmployeeCard }) {
 }
 
 // ── Back face ───────────────────────────────────────────────
-function CardBack({ c }: { c: EmployeeCard }) {
+export function CardBack({ c }: { c: EmployeeCard }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
       <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-center">
@@ -155,14 +155,14 @@ export function EmployeeIDCard({ card, onClose }: { card: EmployeeCard; onClose:
             -webkit-backdrop-filter: none !important; padding: 0 !important; z-index: auto !important;
           }
           .id-card-backdrop, .id-card-content { display: none !important; }
-          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 10mm; align-items: flex-start; }
-          /* Footprint = scaled card size. Inner is full design size, scaled to fit. */
+          .id-card-print { display: flex !important; flex-wrap: wrap; gap: 8mm; align-items: flex-start; }
+          /* CR80 card: 54mm x 85.6mm. Inner is the full design (320x508) scaled to fit. */
           .id-card-face {
-            width: 60mm; height: 96mm; overflow: hidden; box-shadow: none !important;
+            width: 54mm; height: 85.6mm; overflow: hidden; box-shadow: none !important;
           }
           .id-card-scale {
             width: 320px; height: 508px;
-            transform: scale(0.708);          /* 320px -> 60mm (226.7px @96dpi) */
+            transform: scale(0.6367);         /* 508px -> 85.6mm (323.5px @96dpi) */
             transform-origin: top left;
           }
           .id-card-scale > div { box-shadow: none !important; }
