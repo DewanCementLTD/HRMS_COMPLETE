@@ -25,6 +25,7 @@ export interface LoginResponse {
   allowed_branches: string[];
   company_list: CompanyItem[];
   branch_list: BranchItem[];
+  can_edit_salary?: boolean;
 }
 
 export interface User {
@@ -39,4 +40,5 @@ export interface User {
   branch_list: BranchItem[];
   selected_company: CompanyItem | null;
   selected_branch: BranchItem | null;
+  can_edit_salary?: boolean;
 }

@@ -38,6 +38,7 @@ class LoginResponse(BaseModel):
     allowed_branches: List[str] = []
     company_list: List[CompanyItem] = []
     branch_list: List[BranchItem] = []
+    can_edit_salary: bool = False   # SEC_USERNAME.ULEVL == 'M'
 
 
 class ChangePasswordRequest(BaseModel):

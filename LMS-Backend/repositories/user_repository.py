@@ -8,36 +8,68 @@ from datetime import datetime
 # USER SECURITY RIGHTS
 # ===============================
 
+def admin_can_edit_salary(card_no: str) -> bool:
+    """True if the admin (matched in SEC_USERNAME by mobile/empcode/card) has
+    ULEVL='M'. Fails OPEN when the admin can't be resolved, so M-level managers
+    are never wrongly blocked (the UI is the primary gate)."""
+    if not card_no:
+        return True
+    c = str(card_no).strip()
+    c0 = ("0" + c) if not c.startswith("0") else c
+    cn = c[1:] if c.startswith("0") else c
+    conn = get_connection(); cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT ULEVL FROM SEC_USERNAME WHERE STATS = 'E' AND (
+                TO_CHAR(MOBILE) IN (:c, :c0, :cn)
+                OR ECODE = :c
+                OR ECODE IN (SELECT h.EMPCODE FROM HR_EMP_MASTER h
+                             LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
+                             WHERE h.EMPCODE = :c OR TO_CHAR(e.CARD_NO) = :c)
+            )
+        """, {"c": c, "c0": c0, "cn": cn})
+        rows = cur.fetchall()
+        if not rows:
+            return True
+        return any((r[0] or "").strip().upper() == "M" for r in rows)
+    except Exception as e:
+        print(f"[RIGHTS] admin_can_edit_salary check failed (allowing): {e}")
+        return True
+    finally:
+        cur.close(); conn.close()
+
+
 def get_user_rights(mobile: str, empcode: str = "") -> dict:
     """Return SEC_USERNAME company/branch rights for the given employee."""
     conn = get_connection()
     cur = conn.cursor()
     try:
         usrid = None
+        ulevel = None
         if mobile:
             m = str(mobile).strip()
             m_w   = ('0' + m) if not m.startswith('0') else m
             m_no0 = m[1:]     if m.startswith('0')     else m
             cur.execute("""
-                SELECT USRID FROM SEC_USERNAME
+                SELECT USRID, ULEVL FROM SEC_USERNAME
                 WHERE TO_CHAR(MOBILE) IN (:m1, :m2, :m3) AND STATS = 'E'
                 FETCH FIRST 1 ROWS ONLY
             """, {"m1": m, "m2": m_w, "m3": m_no0})
             row = cur.fetchone()
             if row:
-                usrid = str(row[0])
+                usrid = str(row[0]); ulevel = (row[1] or "").strip()
         if not usrid and empcode:
             cur.execute("""
-                SELECT USRID FROM SEC_USERNAME
+                SELECT USRID, ULEVL FROM SEC_USERNAME
                 WHERE ECODE = :ec AND STATS = 'E'
                 FETCH FIRST 1 ROWS ONLY
             """, {"ec": str(empcode).strip()})
             row = cur.fetchone()
             if row:
-                usrid = str(row[0])
+                usrid = str(row[0]); ulevel = (row[1] or "").strip()
         if not usrid:
             return {"usrid": None, "allowed_companies": [], "allowed_branches": [],
-                    "company_list": [], "branch_list": []}
+                    "company_list": [], "branch_list": [], "ulevel": None, "can_edit_salary": False}
 
         cur.execute("""
             SELECT sc.COMPC, NVL(ci.DESCR, TO_CHAR(sc.COMPC))
@@ -60,11 +92,12 @@ def get_user_rights(mobile: str, empcode: str = "") -> dict:
         branch_list = [{"code": str(r[0]), "name": str(r[1] or r[0])} for r in brn_rows]
 
         return {"usrid": usrid, "allowed_companies": companies, "allowed_branches": branches,
-                "company_list": company_list, "branch_list": branch_list}
+                "company_list": company_list, "branch_list": branch_list,
+                "ulevel": ulevel, "can_edit_salary": (ulevel or "").upper() == "M"}
     except Exception as e:
         print(f"[RIGHTS] Error: {e}")
         return {"usrid": None, "allowed_companies": [], "allowed_branches": [],
-                "company_list": [], "branch_list": []}
+                "company_list": [], "branch_list": [], "ulevel": None, "can_edit_salary": False}
     finally:
         cur.close()
         conn.close()
@@ -89,7 +122,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
         sec_row = None
         try:
             cur.execute("""
-                SELECT USRID, DESCR, PASWD, MOBILE, ECODE
+                SELECT USRID, DESCR, PASWD, MOBILE, ECODE, ULEVL
                 FROM SEC_USERNAME
                 WHERE TO_CHAR(MOBILE) IN (:m1, :m2, :m3) AND STATS = 'E'
                 FETCH FIRST 1 ROWS ONLY
@@ -106,8 +139,9 @@ def authenticate_user(username: str, password: str) -> dict | None:
             print(f"[AUTH] SEC_USERNAME query failed: {e}")
 
         sec_authenticated = False
+        ulevl = None
         if sec_row:
-            usrid, descr, raw_paswd, sec_mobile, ecode = sec_row
+            usrid, descr, raw_paswd, sec_mobile, ecode, ulevl = sec_row
             # Try to decrypt; fall back to raw comparison if decryption fails
             stored_paswd = None
             try:
@@ -225,6 +259,7 @@ def authenticate_user(username: str, password: str) -> dict | None:
                 "allowed_branches": branches,
                 "company_list": company_list,
                 "branch_list": branch_list,
+                "can_edit_salary": str(ulevl or "").strip().upper() == "M",
                 "has_self_service": has_self_service,
                 "has_employee_features": has_employee_features,  # False if not in HR_EMP_MASTER
             }

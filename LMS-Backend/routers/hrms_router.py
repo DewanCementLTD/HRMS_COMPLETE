@@ -13,7 +13,7 @@ from models.hrms_models import (
     EmployeeUpdateRequest,
     MessageResponse,
 )
-from repositories.user_repository import get_user_rights
+from repositories.user_repository import get_user_rights, admin_can_edit_salary
 from services.hrms_service import (
     register_employee,
     get_employee,
@@ -208,7 +208,11 @@ def hrms_create_employee(
     if not request.name or not request.name.strip():
         raise HTTPException(status_code=400, detail="Employee name is required")
 
-    result = register_employee(request.model_dump())
+    data = request.model_dump()
+    # Only ULEVL='M' users may set basic/gross salary.
+    if not admin_can_edit_salary(admin_card_no):
+        data.pop("basic", None); data.pop("gross", None)
+    result = register_employee(data)
 
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result.get("message", "Registration failed"))
@@ -236,7 +240,11 @@ def hrms_update_employee(
     if not existing:
         raise HTTPException(status_code=404, detail="Employee not found")
 
-    result = edit_employee(empcode, request.model_dump(exclude_none=True))
+    data = request.model_dump(exclude_none=True)
+    # Only ULEVL='M' users may change basic/gross salary.
+    if not admin_can_edit_salary(admin_card_no):
+        data.pop("basic", None); data.pop("gross", None)
+    result = edit_employee(empcode, data)
 
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result.get("message", "Update failed"))

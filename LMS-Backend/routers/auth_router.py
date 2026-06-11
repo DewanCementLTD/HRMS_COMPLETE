@@ -66,6 +66,7 @@ def login(request: LoginRequest):
         allowed_branches=user.get("allowed_branches", []),
         company_list=user.get("company_list", []),
         branch_list=user.get("branch_list", []),
+        can_edit_salary=user.get("can_edit_salary", False),
     )
 
 

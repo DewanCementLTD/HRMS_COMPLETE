@@ -1373,18 +1373,37 @@ export default function HRMSPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Input
-                label="Salary Basic (view-only)"
-                value={ctrl.selectedEmployee?.sal_basic != null ? String(ctrl.selectedEmployee.sal_basic) : "—"}
-                readOnly
-                disabled
-              />
-              <Input
-                label="Salary Gross (view-only)"
-                value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
-                readOnly
-                disabled
-              />
+              {user?.can_edit_salary ? (
+                <>
+                  <Input
+                    label="Basic Salary"
+                    type="number"
+                    value={form.basic?.toString() ?? ""}
+                    onChange={(e) => updateField("basic", e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                  <Input
+                    label="Gross Salary"
+                    type="number"
+                    value={form.gross?.toString() ?? ""}
+                    onChange={(e) => updateField("gross", e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                </>
+              ) : (
+                <>
+                  <Input
+                    label="Salary Basic (view-only)"
+                    value={ctrl.selectedEmployee?.sal_basic != null ? String(ctrl.selectedEmployee.sal_basic) : "—"}
+                    readOnly
+                    disabled
+                  />
+                  <Input
+                    label="Salary Gross (view-only)"
+                    value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
+                    readOnly
+                    disabled
+                  />
+                </>
+              )}
               <SearchableSelect
                 label="Bank"
                 value={form.bnkcode || ""}

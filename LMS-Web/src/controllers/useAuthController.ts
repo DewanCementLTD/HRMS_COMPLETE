@@ -28,6 +28,7 @@ export function useAuthController() {
           allowed_branches: response.allowed_branches ?? [],
           company_list: response.company_list ?? [],
           branch_list: response.branch_list ?? [],
+          can_edit_salary: response.can_edit_salary ?? false,
           selected_company: response.company_list?.[0] ?? null,
           // Default to "All Branches" (empty code = no branch filter) so an admin
           // sees the whole selected company until they narrow to one branch.
