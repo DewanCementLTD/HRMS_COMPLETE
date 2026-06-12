@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload, Image as ImageIcon } from "lucide-react";
+import {
+  Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload,
+  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight,
+} from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
@@ -24,19 +27,38 @@ import {
 type Tab = "departments" | "grades" | "designations" | "shifts" | "blood_groups" | "units" | "locations"
   | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "departments",   label: "Departments" },
-  { id: "designations",  label: "Designations" },
-  { id: "emp_statuses",  label: "Employee Status" },
-  { id: "qualifications",label: "Qualifications" },
-  { id: "banks",         label: "Banks" },
-  { id: "bank_branches", label: "Bank Branches" },
-  { id: "blood_groups",  label: "Blood Groups" },
-  { id: "grades",        label: "Grades" },
-  { id: "shifts",        label: "Shifts" },
-  { id: "units",         label: "Units" },
-  { id: "locations",     label: "Locations" },
-  { id: "company_logo",  label: "Company Logo" },
+const TAB_LABEL: Record<Tab, string> = {
+  departments: "Departments", designations: "Designations", grades: "Grades",
+  units: "Units", locations: "Locations", emp_statuses: "Employee Status",
+  qualifications: "Qualifications", blood_groups: "Blood Groups", shifts: "Shifts",
+  banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
+};
+
+// Master tables grouped into a few areas so Setup reads as clear sections
+// instead of one long row of tabs.
+interface SetupGroup { id: string; label: string; icon: React.ElementType; desc: string; tabs: Tab[] }
+
+const GROUPS: SetupGroup[] = [
+  {
+    id: "organization", label: "Organization", icon: Building2,
+    desc: "Company structure: units, locations, departments, designations and grades.",
+    tabs: ["units", "locations", "departments", "designations", "grades"],
+  },
+  {
+    id: "employee", label: "Employee", icon: BadgeCheck,
+    desc: "Employee attributes used on the employee form.",
+    tabs: ["emp_statuses", "qualifications", "blood_groups", "shifts"],
+  },
+  {
+    id: "banking", label: "Banking", icon: Landmark,
+    desc: "Banks and their branches for salary accounts.",
+    tabs: ["banks", "bank_branches"],
+  },
+  {
+    id: "branding", label: "Branding", icon: ImageIcon,
+    desc: "Company logo shown on ID cards and payslips.",
+    tabs: ["company_logo"],
+  },
 ];
 
 // ─── Inline add row ───────────────────────────────────────
@@ -452,6 +474,7 @@ function CompanyLogoTab({ adminCardNo, compc, companyName }: { adminCardNo: stri
 
 export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const { activeCompany, activeBranch, user } = useAuth();
+  const [groupId, setGroupId] = useState<string>("organization");
   const [tab, setTab] = useState<Tab>("departments");
 
   // Data
@@ -501,6 +524,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
 
   function switchTab(t: Tab) {
     setTab(t);
+  }
+
+  function selectGroup(g: SetupGroup) {
+    setGroupId(g.id);
+    setTab(g.tabs[0]);   // jump to the area's first master table
   }
 
   // ── Departments ──────────────────────────────────────────
@@ -722,8 +750,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     ),
   };
 
+  const group = GROUPS.find((g) => g.id === groupId) ?? GROUPS[0];
+  const activeTab = group.tabs.includes(tab) ? tab : group.tabs[0];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Settings className="h-5 w-5 text-indigo-500" />
@@ -731,25 +762,56 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         <span className="text-xs text-gray-400 ml-2">HR Admin only</span>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex flex-wrap gap-1 p-1 bg-gray-100 rounded-xl">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => switchTab(t.id)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              tab === t.id
-                ? "bg-white text-indigo-700 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      {/* Level 1 — area cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {GROUPS.map((g) => {
+          const Icon = g.icon;
+          const active = g.id === groupId;
+          return (
+            <button key={g.id} onClick={() => selectGroup(g)}
+              className={`text-left rounded-2xl border p-3.5 transition-all ${
+                active
+                  ? "border-indigo-300 bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200"
+                  : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-gray-50"
+              }`}>
+              <div className="flex items-center gap-2">
+                <span className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${active ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className={`text-sm font-semibold leading-tight ${active ? "text-indigo-700" : "text-gray-800"}`}>{g.label}</p>
+                  <p className="text-[11px] text-gray-400">{g.tabs.length} {g.tabs.length === 1 ? "table" : "tables"}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Level 2 — master tables within the chosen area */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-gray-400 hidden sm:flex items-center gap-1">
+          {group.label} <ChevronRight className="h-3 w-3" />
+        </span>
+        {group.tabs.length > 1 ? (
+          <div className="flex flex-wrap gap-1 p-1 bg-gray-100 rounded-xl">
+            {group.tabs.map((t) => (
+              <button key={t} onClick={() => switchTab(t)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === t ? "bg-white text-indigo-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                }`}>
+                {TAB_LABEL[t]}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="text-sm font-medium text-gray-700">{TAB_LABEL[group.tabs[0]]}</span>
+        )}
+        <span className="text-xs text-gray-400 ml-auto hidden md:block">{group.desc}</span>
       </div>
 
       {/* Content */}
-      <div>{contentMap[tab]}</div>
+      <div>{contentMap[activeTab]}</div>
     </div>
   );
 }
