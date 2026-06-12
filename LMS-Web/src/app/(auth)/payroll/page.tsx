@@ -2,20 +2,28 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Wallet, CalendarRange, Percent, Banknote, FileText } from "lucide-react";
+import { Wallet, CalendarRange, Percent, Banknote, FileText, HandCoins, Coins, MinusCircle, CalendarX } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PeriodOpeningPanel } from "./PeriodOpeningPanel";
 import { TaxSlabPanel } from "./TaxSlabPanel";
 import { LoanPanel } from "./LoanPanel";
 import { SalaryPanel } from "./SalaryPanel";
+import { LoanRecoveryPanel } from "./LoanRecoveryPanel";
+import { MonthlyAllowancePanel } from "./MonthlyAllowancePanel";
+import { MonthlyDeductionPanel } from "./MonthlyDeductionPanel";
+import { AbsentDaysPanel } from "./AbsentDaysPanel";
 
-type Tab = "salary" | "periods" | "tax" | "loans";
+type Tab = "salary" | "periods" | "tax" | "loans" | "recovery" | "allowances" | "deductions" | "absent";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "salary", label: "Salary / Payslips", icon: FileText },
   { id: "periods", label: "Period Opening", icon: CalendarRange },
   { id: "tax", label: "Tax Slabs", icon: Percent },
   { id: "loans", label: "Loans", icon: Banknote },
+  { id: "recovery", label: "Loan Recovery", icon: HandCoins },
+  { id: "allowances", label: "Monthly Allowances", icon: Coins },
+  { id: "deductions", label: "Monthly Deductions", icon: MinusCircle },
+  { id: "absent", label: "Absent Days", icon: CalendarX },
 ];
 
 export default function PayrollPage() {
@@ -55,6 +63,10 @@ export default function PayrollPage() {
       {tab === "periods" && <PeriodOpeningPanel adminCardNo={user.card_no} />}
       {tab === "tax" && <TaxSlabPanel adminCardNo={user.card_no} />}
       {tab === "loans" && <LoanPanel adminCardNo={user.card_no} />}
+      {tab === "recovery" && <LoanRecoveryPanel adminCardNo={user.card_no} />}
+      {tab === "allowances" && <MonthlyAllowancePanel adminCardNo={user.card_no} />}
+      {tab === "deductions" && <MonthlyDeductionPanel adminCardNo={user.card_no} />}
+      {tab === "absent" && <AbsentDaysPanel adminCardNo={user.card_no} />}
     </div>
   );
 }

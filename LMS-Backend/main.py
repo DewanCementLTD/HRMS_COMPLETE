@@ -13,6 +13,7 @@ from routers.location_tracking_router import router as location_tracking_router
 from routers.app_version_router import router as app_version_router
 from routers.document_router import router as document_router
 from routers.payroll_router import router as payroll_router
+from routers.payroll_entry_router import router as payroll_entry_router
 
 app = FastAPI(title="LMS API")
 
@@ -49,6 +50,8 @@ app.include_router(app_version_router)
 app.include_router(document_router)
 # Payroll (/payroll — period opening, tax slabs, loans)
 app.include_router(payroll_router)
+# Payroll entry (/payroll-entry — loan recovery, monthly allow/ded, absent days)
+app.include_router(payroll_entry_router)
 
 if __name__ == "__main__":
     import uvicorn
