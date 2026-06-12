@@ -91,6 +91,7 @@ export interface Payslip {
   header: {
     name: string; code: string; joining_date?: string; grade: string; designation: string;
     dept_name: string; location: string; emp_type: string; bank_acct: string; company_name: string;
+    company_compc?: string;
     period_label: string; w_day: number; absent_days: number; earning_days: number;
   };
   earnings: PayslipLine[];

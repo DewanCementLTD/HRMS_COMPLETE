@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useProfileController } from "@/controllers/useProfileController";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { formatDate } from "@/lib/utils";
+import { uploadMyPhoto, myPhotoUrl } from "@/services/documentService";
 import {
   User,
   Mail,
@@ -20,11 +22,68 @@ import {
   Lock,
   Shield,
   Activity,
+  Camera,
+  Loader2,
 } from "lucide-react";
+
+// Employee's own profile photo with click-to-upload (no admin needed).
+function ProfilePhoto({ cardNo, fallback }: { cardNo: string; fallback: string }) {
+  const [bust, setBust] = useState(() => Date.now());
+  const [hasPhoto, setHasPhoto] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (fileRef.current) fileRef.current.value = "";
+    if (!f || !cardNo) return;
+    setUploading(true); setError(null);
+    try {
+      await uploadMyPhoto(cardNo, f);
+      setHasPhoto(true);
+      setBust(Date.now());
+    } catch (ex) {
+      setError(ex instanceof Error ? ex.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <button
+        type="button"
+        onClick={() => fileRef.current?.click()}
+        disabled={uploading || !cardNo}
+        title="Change photo"
+        className="group relative h-16 w-16 rounded-2xl overflow-hidden bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shrink-0 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      >
+        {hasPhoto && cardNo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={myPhotoUrl(cardNo, bust)}
+            alt=""
+            onError={() => setHasPhoto(false)}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span>{fallback || "U"}</span>
+        )}
+        <span className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
+        </span>
+      </button>
+      <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={onPick} className="hidden" />
+      {error && <span className="text-[10px] text-red-500 max-w-[80px] text-center">{error}</span>}
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { profile, loading, changingPassword, error, success, handleChangePassword, clearMessages } =
     useProfileController();
+  const { user } = useAuth();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -81,9 +140,10 @@ export default function ProfilePage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-2xl bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                  {profile?.emp_name?.charAt(0) || "U"}
-                </div>
+                <ProfilePhoto
+                  cardNo={user?.card_no || profile?.card_no || profile?.emp_code || ""}
+                  fallback={profile?.emp_name?.charAt(0) || "U"}
+                />
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">{profile?.emp_name}</h2>
                   <p className="text-sm text-gray-500">{profile?.designation} - {profile?.department}</p>

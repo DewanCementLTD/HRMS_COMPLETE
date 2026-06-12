@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { X, Printer, RotateCw } from "lucide-react";
 import type { EmployeeCard } from "@/services/hrmsService";
 import { EmployeeAvatar } from "./EmployeeAvatar";
+import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 const SITE_URL = "https://hrms.sysnovix.com";
 
@@ -22,8 +23,9 @@ function Row({ label, value }: { label: string; value?: string }) {
 export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: string }) {
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
-      <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex items-start justify-center pt-5">
-        <p className="text-white text-[13px] font-bold tracking-wide text-center px-3 leading-tight">
+      <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex flex-col items-center pt-3">
+        <CompanyLogo compc={c.compc} className="h-9 max-w-[120px] bg-white rounded px-1.5 py-0.5 mb-1 shadow-sm" />
+        <p className="text-white text-[12px] font-bold tracking-wide text-center px-3 leading-tight">
           {c.company_name || "Company"}
         </p>
         <div className="absolute left-1/2 -translate-x-1/2 bottom-[-38px]">

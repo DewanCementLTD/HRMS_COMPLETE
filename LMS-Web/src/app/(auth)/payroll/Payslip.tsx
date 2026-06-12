@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Printer, X } from "lucide-react";
 import type { Payslip as PayslipData, PayslipLine } from "@/services/payrollService";
+import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 const money = (v?: number) => (v == null ? "" : Math.round(v).toLocaleString());
 
@@ -67,9 +68,12 @@ export function Payslip({ data, onClose }: { data: PayslipData; onClose: () => v
       <div className="flex justify-center p-6">
         <div className="payslip-page bg-white p-6 shadow-lg" style={{ width: "210mm", minHeight: "auto" }} onClick={(e) => e.stopPropagation()}>
           {/* Title */}
-          <div className="border-b-2 border-gray-300 pb-2 mb-3">
-            <h1 className="text-[18px] font-extrabold text-red-700">{h.company_name || "Company"}</h1>
-            <p className="text-[12px] font-bold text-blue-700">Pay Slip For the Month of {h.period_label}</p>
+          <div className="border-b-2 border-gray-300 pb-2 mb-3 flex items-center gap-4">
+            <CompanyLogo compc={h.company_compc} className="h-14 max-w-[150px]" />
+            <div>
+              <h1 className="text-[18px] font-extrabold text-red-700">{h.company_name || "Company"}</h1>
+              <p className="text-[12px] font-bold text-blue-700">Pay Slip For the Month of {h.period_label}</p>
+            </div>
           </div>
 
           {/* Header grid */}

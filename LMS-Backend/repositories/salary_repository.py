@@ -201,6 +201,7 @@ def get_payslip(compc, empcode, period) -> dict | None:
                 "designation": (h[4] or "").strip(), "dept_name": m_dept or (h[5] or "").strip(),
                 "location": m_loc or (h[6] or "").strip(), "emp_type": (h[7] or "").strip(),
                 "bank_acct": (h[8] or m[11] or "").strip(), "company_name": (h[9] or "").strip(),
+                "company_compc": str(u) if u is not None else "",
                 "period_label": _label(pfrm) if pfrm else f"Period {per}",
                 "w_day": master["w_day"], "absent_days": master["absent_days"],
                 "earning_days": master["w_day"] - master["absent_days"],

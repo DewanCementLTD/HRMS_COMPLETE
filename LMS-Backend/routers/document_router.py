@@ -13,7 +13,9 @@ from core.dependencies import require_hr_admin
 from repositories.document_repository import (
     list_documents, create_document, get_document, delete_document,
     employee_photo_target, set_employee_photo_path, get_employee_photo_abs,
+    company_logo_target, set_company_logo, get_company_logo_abs,
 )
+from core.database import get_connection
 
 router = APIRouter(prefix="/documents", tags=["Employee Documents"])
 
@@ -99,6 +101,98 @@ def get_employee_photo(admin_card_no: str = Query(...), empcode: str = Query(...
     path = get_employee_photo_abs(empcode)
     if not path:
         raise HTTPException(status_code=404, detail="No photo")
+    return FileResponse(path, headers={"Cache-Control": "no-cache"})
+
+
+def _empcode_for_card(card_no: str) -> str | None:
+    """Resolve an employee's EMPCODE from their login card_no."""
+    conn = get_connection(); cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT h.EMPCODE FROM HR_EMP_MASTER h
+            LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
+            WHERE h.EMPCODE = :c OR TO_CHAR(e.CARD_NO) = :c FETCH FIRST 1 ROWS ONLY
+        """, {"c": str(card_no)})
+        r = cur.fetchone()
+        return str(r[0]).strip() if r and r[0] else None
+    finally:
+        cur.close(); conn.close()
+
+
+@router.post("/my-photo")
+async def upload_my_photo(card_no: str = Query(...), file: UploadFile = File(...)):
+    """An employee uploads their OWN profile photo (from the profile page)."""
+    empcode = _empcode_for_card(card_no)
+    if not empcode:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    ext = (os.path.splitext(file.filename or "")[1] or "").lstrip(".").lower()
+    if ext not in PHOTO_EXT:
+        raise HTTPException(status_code=400, detail="Photo must be an image (png/jpg/webp/gif)")
+    t = employee_photo_target(empcode, ext)
+    try:
+        os.makedirs(t["abs_dir"], exist_ok=True)
+        for e in PHOTO_EXT:
+            prev = employee_photo_target(empcode, e)["abs_path"]
+            if prev != t["abs_path"] and os.path.isfile(prev):
+                try:
+                    os.remove(prev)
+                except OSError:
+                    pass
+        with open(t["abs_path"], "wb") as f:
+            f.write(await file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save photo: {e}")
+    set_employee_photo_path(empcode, t["rel_path"])
+    return {"status": "success"}
+
+
+@router.get("/my-photo")
+def get_my_photo(card_no: str = Query(...)):
+    empcode = _empcode_for_card(card_no)
+    path = get_employee_photo_abs(empcode) if empcode else None
+    if not path:
+        raise HTTPException(status_code=404, detail="No photo")
+    return FileResponse(path, headers={"Cache-Control": "no-cache"})
+
+
+# ── Company logo ──
+@router.post("/company-logo")
+async def upload_company_logo(
+    admin_card_no: str = Query(...),
+    compc: str = Query(...),
+    file: UploadFile = File(...),
+):
+    """HR uploads a company logo → COMP_LOGO/<CompanyName>_logo.<ext>; path saved
+    to COMPANY_INFO.IMG. Stored as-is (colour/transparency preserved)."""
+    require_hr_admin(admin_card_no)
+    ext = (os.path.splitext(file.filename or "")[1] or "").lstrip(".").lower()
+    if ext not in (PHOTO_EXT | {"svg"}):
+        raise HTTPException(status_code=400, detail="Logo must be an image (png/jpg/webp/gif/svg)")
+    t = company_logo_target(compc, ext)
+    try:
+        os.makedirs(t["abs_dir"], exist_ok=True)
+        # Drop other-extension variants of this company's logo.
+        for e in (PHOTO_EXT | {"svg"}):
+            prev = company_logo_target(compc, e)["abs_path"]
+            if prev != t["abs_path"] and os.path.isfile(prev):
+                try:
+                    os.remove(prev)
+                except OSError:
+                    pass
+        with open(t["abs_path"], "wb") as f:
+            f.write(await file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save logo: {e}")
+    set_company_logo(compc, t["abs_path"])
+    return {"status": "success", "filename": t["filename"]}
+
+
+@router.get("/company-logo")
+def get_company_logo(compc: str = Query(...)):
+    """Serve a company's logo (for the ID card / payslip). Public (branding)."""
+    path = get_company_logo_abs(compc)
+    if not path:
+        raise HTTPException(status_code=404, detail="No logo")
     return FileResponse(path, headers={"Cache-Control": "no-cache"})
 
 

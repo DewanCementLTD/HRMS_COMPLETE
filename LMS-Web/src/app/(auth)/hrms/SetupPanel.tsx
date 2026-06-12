@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload, Image as ImageIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { uploadCompanyLogo } from "@/services/documentService";
+import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
   fetchDepartments, fetchGrades, fetchDesignations, fetchShifts,
   fetchBloodGroups, fetchUnits, fetchLocations,
@@ -20,7 +22,7 @@ import {
 // ─── Types ────────────────────────────────────────────────
 
 type Tab = "departments" | "grades" | "designations" | "shifts" | "blood_groups" | "units" | "locations"
-  | "emp_statuses" | "banks" | "bank_branches" | "qualifications";
+  | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "departments",   label: "Departments" },
@@ -34,6 +36,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "shifts",        label: "Shifts" },
   { id: "units",         label: "Units" },
   { id: "locations",     label: "Locations" },
+  { id: "company_logo",  label: "Company Logo" },
 ];
 
 // ─── Inline add row ───────────────────────────────────────
@@ -369,10 +372,86 @@ function LocationsTable({
   );
 }
 
+// ─── Company logo upload (per company) ───────────────────
+
+function CompanyLogoTab({ adminCardNo, compc, companyName }: { adminCardNo: string; compc: string; companyName: string }) {
+  const [bust, setBust] = useState(() => Date.now());
+  const [hasLogo, setHasLogo] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [ok, setOk] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Re-probe when the active company changes.
+  useEffect(() => { setHasLogo(true); setError(null); setOk(false); setBust(Date.now()); }, [compc]);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (fileRef.current) fileRef.current.value = "";
+    if (!f || !compc) return;
+    setUploading(true); setError(null); setOk(false);
+    try {
+      await uploadCompanyLogo(adminCardNo, compc, f);
+      setHasLogo(true);
+      setBust(Date.now());
+      setOk(true);
+    } catch (ex) {
+      setError(ex instanceof Error ? ex.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  if (!compc) {
+    return <p className="text-sm text-gray-400 py-6 text-center">Select a company first.</p>;
+  }
+
+  return (
+    <div className="max-w-xl space-y-4">
+      <p className="text-sm text-gray-500">
+        Upload the logo for <span className="font-semibold text-gray-800">{companyName || `Company ${compc}`}</span>.
+        It appears on employee ID cards and payslips. Saved as
+        <span className="font-mono text-gray-700"> {(companyName || "company").replace(/\s+/g, "_")}_logo</span>.
+        Any colour or transparency is preserved.
+      </p>
+
+      <div className="flex items-center gap-6">
+        <div className="h-28 w-44 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden p-2">
+          {hasLogo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={companyLogoUrl(compc, bust)}
+              alt=""
+              onError={() => setHasLogo(false)}
+              className="max-h-full max-w-full object-contain"
+            />
+          ) : (
+            <div className="text-center text-gray-300">
+              <ImageIcon className="h-8 w-8 mx-auto mb-1" />
+              <span className="text-xs">No logo</span>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" onChange={onPick} className="hidden" />
+          <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
+            {uploading ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+            {hasLogo ? "Replace Logo" : "Upload Logo"}
+          </Button>
+          <p className="text-xs text-gray-400">PNG, JPG, WEBP, GIF or SVG.</p>
+          {ok && <p className="text-xs text-emerald-600">Logo updated.</p>}
+          {error && <p className="text-xs text-red-500">{error}</p>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main panel ───────────────────────────────────────────
 
 export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
-  const { activeCompany, activeBranch } = useAuth();
+  const { activeCompany, activeBranch, user } = useAuth();
   const [tab, setTab] = useState<Tab>("departments");
 
   // Data
@@ -634,6 +713,13 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     qualifications: qualTable,
     banks:        bankTable,
     bank_branches: bankBranchTable,
+    company_logo: (
+      <CompanyLogoTab
+        adminCardNo={adminCardNo}
+        compc={activeCompany}
+        companyName={user?.selected_company?.name ?? ""}
+      />
+    ),
   };
 
   return (

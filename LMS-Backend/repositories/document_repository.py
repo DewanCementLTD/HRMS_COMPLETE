@@ -224,3 +224,71 @@ def get_employee_photo_abs(empcode: str) -> str | None:
     finally:
         cursor.close()
         conn.close()
+
+
+# ------------------------------------------------------------------
+# COMPANY LOGO  (file under COMP_LOGO, path in COMPANY_INFO.IMG)
+# ------------------------------------------------------------------
+
+COMP_LOGO_ROOT = os.environ.get("COMP_LOGO_ROOT", r"C:\Erp_Systems\HRMS_LMS_APP\COMP_LOGO")
+_LOGO_EXTS = ("png", "jpg", "jpeg", "webp", "gif", "svg")
+
+
+def _company_descr(cursor, compc) -> str:
+    try:
+        cursor.execute("SELECT DESCR FROM COMPANY_INFO WHERE TO_CHAR(COMPC) = :c", {"c": str(compc)})
+        r = cursor.fetchone()
+        return (r[0] or "").strip() if r else ""
+    except Exception:
+        return ""
+
+
+def company_logo_target(compc, ext: str) -> dict:
+    """Where a company's logo is saved: COMP_LOGO/<CompanyName>_logo.<ext>."""
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        descr = _company_descr(cursor, compc)
+    finally:
+        cursor.close(); conn.close()
+    safe = _safe_name(descr, f"company{compc}")
+    ext = (ext or "png").lstrip(".").lower()
+    fname = f"{safe}_logo.{ext}"
+    return {"abs_dir": COMP_LOGO_ROOT, "abs_path": os.path.join(COMP_LOGO_ROOT, fname), "filename": fname}
+
+
+def set_company_logo(compc, abs_path: str) -> bool:
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute("UPDATE COMPANY_INFO SET IMG = :p WHERE TO_CHAR(COMPC) = :c",
+                       {"p": abs_path, "c": str(compc)})
+        conn.commit()
+        return cursor.rowcount > 0
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_company_logo_abs(compc) -> str | None:
+    """Absolute path to a company's logo file. Prefers COMPANY_INFO.IMG when it
+    points to an existing file, else looks for <CompanyName>_logo.* in COMP_LOGO."""
+    conn = get_connection(); cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT IMG, DESCR FROM COMPANY_INFO WHERE TO_CHAR(COMPC) = :c", {"c": str(compc)})
+        r = cursor.fetchone()
+    finally:
+        cursor.close(); conn.close()
+    img = (r[0] or "").strip() if r else ""
+    if img:
+        # IMG may be a full path, or a bare filename relative to COMP_LOGO.
+        if os.path.isfile(img):
+            return img
+        cand = os.path.join(COMP_LOGO_ROOT, os.path.basename(img))
+        if os.path.isfile(cand):
+            return cand
+    descr = (r[1] or "").strip() if r else ""
+    safe = _safe_name(descr, "")
+    if safe:
+        for ext in _LOGO_EXTS:
+            p = os.path.join(COMP_LOGO_ROOT, f"{safe}_logo.{ext}")
+            if os.path.isfile(p):
+                return p
+    return None

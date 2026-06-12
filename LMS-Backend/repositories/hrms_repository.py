@@ -279,10 +279,12 @@ def get_employee_card(empcode: str) -> dict | None:
                     m.EMPCODE, m.NAME, m.FHNAME, m."ATDTCARD#", m.NICNO, m."MOBILE#",
                     m.EMAIL, m.SEX, m.BLDGRP, m.STATUS,
                     TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
-                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE dg.DESG_CD = m.DESG_CD) AS DESIGNATION,
-                    (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE d.DEPT_NO = m.DEPT_NO) AS DEPARTMENT,
+                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(m.DESG_CD,'0')) AS DESIGNATION,
+                    (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                       WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)) AS DEPARTMENT,
                     (SELECT u.UNIT_NAME FROM UNIT_MST u WHERE u.UNIT_ID = m.UNIT_ID) AS COMPANY_NAME,
-                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(m.LOCATION)) AS BRANCH_NAME
+                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(m.LOCATION)) AS BRANCH_NAME,
+                    TO_CHAR(m.UNIT_ID) AS COMPC
                 FROM HR_EMP_MASTER m
                 WHERE m.EMPCODE = :e
             """, {"e": empcode})
@@ -293,7 +295,7 @@ def get_employee_card(empcode: str) -> dict | None:
             r = dict(zip(cols, row))
             r["atdtcard"] = r.pop("atdtcard#", None)
             r["mobile"] = r.pop("mobile#", None)
-            for k in ("name", "designation", "department", "company_name", "branch_name", "nicno"):
+            for k in ("name", "designation", "department", "company_name", "branch_name", "nicno", "compc"):
                 if r.get(k):
                     r[k] = str(r[k]).strip()
             r["card_no"] = r.get("empcode")

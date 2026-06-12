@@ -27,6 +27,7 @@ export interface EmployeeCard {
   designation?: string;
   department?: string;
   company_name?: string;
+  compc?: string;
   branch_name?: string;
   nicno?: string;
   mobile?: string;
