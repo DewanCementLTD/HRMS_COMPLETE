@@ -48,7 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   function switchCompany(company: CompanyItem) {
     if (!user) return;
-    const updated = { ...user, selected_company: company };
+    // Branches belong to a company, so switching company resets the branch to
+    // "All" — the branch switcher then only offers this company's branches.
+    const updated = { ...user, selected_company: company, selected_branch: null };
     setUserState(updated);
     localStorage.setItem("lms_user", JSON.stringify(updated));
   }

@@ -12,24 +12,24 @@ import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
   fetchDepartments, fetchGrades, fetchDesignations, fetchShifts,
-  fetchBloodGroups, fetchUnits, fetchLocations,
-  addDepartment, addGrade, addDesignation, addShift, addBloodGroup, addUnit,
+  fetchBloodGroups, fetchLocations,
+  addDepartment, addDesignation, addShift, addBloodGroup,
   addLocation, updateLocation,
   fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
   addEmpStatus, deleteEmpStatus, addBank, deleteBank,
   addBankBranch, deleteBankBranch, addQualification, deleteQualification,
-  type Department, type Grade, type Designation, type Shift, type BloodGroup, type Unit, type Location,
+  type Department, type Grade, type Designation, type Shift, type BloodGroup, type Location,
   type EmpStatus, type Bank, type BankBranch, type Qualification,
 } from "@/services/referenceService";
 
 // ─── Types ────────────────────────────────────────────────
 
-type Tab = "departments" | "grades" | "designations" | "shifts" | "blood_groups" | "units" | "locations"
+type Tab = "departments" | "designations" | "shifts" | "blood_groups" | "locations"
   | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo";
 
 const TAB_LABEL: Record<Tab, string> = {
-  departments: "Departments", designations: "Designations", grades: "Grades",
-  units: "Units", locations: "Locations", emp_statuses: "Employee Status",
+  departments: "Departments", designations: "Designations",
+  locations: "Locations", emp_statuses: "Employee Status",
   qualifications: "Qualifications", blood_groups: "Blood Groups", shifts: "Shifts",
   banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
 };
@@ -41,8 +41,8 @@ interface SetupGroup { id: string; label: string; icon: React.ElementType; desc:
 const GROUPS: SetupGroup[] = [
   {
     id: "organization", label: "Organization", icon: Building2,
-    desc: "Company structure: units, locations, departments, designations and grades.",
-    tabs: ["units", "locations", "departments", "designations", "grades"],
+    desc: "Company structure: departments, designations and branches.",
+    tabs: ["departments", "designations", "locations"],
   },
   {
     id: "employee", label: "Employee", icon: BadgeCheck,
@@ -254,11 +254,13 @@ function LocationsTable({
   locs,
   loading,
   adminCardNo,
+  compc,
   onRefresh,
 }: {
   locs: Location[];
   loading: boolean;
   adminCardNo: string;
+  compc: string;
   onRefresh: () => void;
 }) {
   const [showAdd, setShowAdd] = useState(false);
@@ -324,7 +326,7 @@ function LocationsTable({
                   { key: "city",       label: "City",        placeholder: "e.g. Dhaka",        optional: true },
                 ]}
                 onSave={async (vals) => {
-                  await addLocation(adminCardNo, vals.lcode, vals.descr, vals.sname || vals.descr, vals.regioncode || "", vals.city || "");
+                  await addLocation(adminCardNo, vals.lcode, vals.descr, vals.sname || vals.descr, vals.regioncode || "", vals.city || "", compc);
                   setShowAdd(false);
                   onRefresh();
                 }}
@@ -483,7 +485,6 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [desigs, setDesigs] = useState<Designation[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [bgs,    setBgs]    = useState<BloodGroup[]>([]);
-  const [units,  setUnits]  = useState<Unit[]>([]);
   const [locs,   setLocs]   = useState<Location[]>([]);
   const [empStatuses, setEmpStatuses] = useState<EmpStatus[]>([]);
   const [banks, setBanks] = useState<Bank[]>([]);
@@ -497,12 +498,17 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     try {
       switch (t) {
         case "departments":  { const r = await fetchDepartments(activeCompany, activeBranch);  setDepts(r.items);  break; }
-        case "grades":       { const r = await fetchGrades(activeCompany, activeBranch);       setGrades(r.items); break; }
-        case "designations": { const r = await fetchDesignations(undefined, activeCompany, activeBranch); setDesigs(r.items); break; }
+        case "designations": {
+          // Grades are loaded alongside so the "filter by grade" dropdown works.
+          const [r, g] = await Promise.all([
+            fetchDesignations(undefined, activeCompany, activeBranch),
+            fetchGrades(activeCompany, activeBranch),
+          ]);
+          setDesigs(r.items); setGrades(g.items); break;
+        }
         case "shifts":       { const r = await fetchShifts(activeCompany, activeBranch);       setShifts(r.items); break; }
         case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch);  setBgs(r.items);    break; }
-        case "units":        { const r = await fetchUnits();        setUnits(r.items);  break; }
-        case "locations":    { const r = await fetchLocations();    setLocs(r.items);   break; }
+        case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
         case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
         case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
         case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
@@ -543,23 +549,6 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       ]}
       onAdd={async (v) => {
         await addDepartment(adminCardNo, v.dept_name);
-      }}
-    />
-  );
-
-  // ── Grades ───────────────────────────────────────────────
-  const gradeTable = (
-    <MasterTable
-      columns={["Grade Code", "Description"]}
-      rows={grades.map((g) => [g.grade_cd, g.descr])}
-      loading={loading}
-      onRefresh={() => load("grades")}
-      addFields={[
-        { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1" },
-        { key: "descr",     label: "Description",  placeholder: "e.g. Grade 1 Officer" },
-      ]}
-      onAdd={async (v) => {
-        await addGrade(adminCardNo, v.grade_cd, v.descr);
       }}
     />
   );
@@ -636,26 +625,13 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
-  // ── Units ────────────────────────────────────────────────
-  const unitTable = (
-    <MasterTable
-      columns={["Unit ID", "Unit Name"]}
-      rows={units.map((u) => [u.unit_id, u.unit_name])}
-      loading={loading}
-      onRefresh={() => load("units")}
-      addFields={[
-        { key: "unit_name", label: "Unit Name", placeholder: "e.g. Head Office" },
-      ]}
-      onAdd={async (v) => { await addUnit(adminCardNo, v.unit_name); }}
-    />
-  );
-
-  // ── Locations ────────────────────────────────────────────
+  // ── Locations (branches, per company) ────────────────────
   const locationTable = (
     <LocationsTable
       locs={locs}
       loading={loading}
       adminCardNo={adminCardNo}
+      compc={activeCompany}
       onRefresh={() => load("locations")}
     />
   );
@@ -731,11 +707,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
 
   const contentMap: Record<Tab, React.ReactNode> = {
     departments:  deptTable,
-    grades:       gradeTable,
     designations: desigTable,
     shifts:       shiftTable,
     blood_groups: bgTable,
-    units:        unitTable,
     locations:    locationTable,
     emp_statuses: empStatusTable,
     qualifications: qualTable,

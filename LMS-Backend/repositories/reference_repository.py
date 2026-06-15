@@ -589,16 +589,20 @@ def add_cadre(cadre: str, compc=1, brnch=1) -> dict:
         cursor.close(); conn.close()
 
 
-def get_locations(allowed_branches=None) -> list:
-    """Return locations from COM_LOCATION.
-    If allowed_branches is provided (list of branch codes), only return those LCODEs.
-    COM_LOCATION has no COMPC column, so branch codes are the correct security boundary.
+def get_locations(allowed_branches=None, compc=None) -> list:
+    """Return locations (branches) from COM_LOCATION.
+    - compc: when given, only branches of that company (COM_LOCATION.COMPC).
+    - allowed_branches: when given (list of branch codes), only those LCODEs
+      (the admin's branch rights).
     """
     conn = get_connection()
     cursor = conn.cursor()
     try:
         params = {}
-        where = ""
+        conds = []
+        if compc is not None and str(compc).strip() != "":
+            conds.append("TO_CHAR(COMPC) = TO_CHAR(:cmp)")
+            params["cmp"] = str(compc).strip()
         if allowed_branches:
             nums = []
             for b in allowed_branches:
@@ -608,13 +612,14 @@ def get_locations(allowed_branches=None) -> list:
                     pass
             if nums:
                 ph = ", ".join(f":lc{i}" for i in range(len(nums)))
-                where = f" WHERE TO_NUMBER(LCODE) IN ({ph})"
+                conds.append(f"TO_NUMBER(LCODE) IN ({ph})")
                 for i, n in enumerate(nums):
                     params[f"lc{i}"] = n
+        where = (" WHERE " + " AND ".join(conds)) if conds else ""
 
         cursor.execute(
             f"SELECT LCODE, DESCR, SNAME, NVL(REGIONCODE,'') AS REGIONCODE, NVL(CITY,'') AS CITY"
-            f" FROM COM_LOCATION{where} ORDER BY LCODE",
+            f" FROM COM_LOCATION{where} ORDER BY LPAD(LCODE, 6)",
             params,
         )
         return [
@@ -631,13 +636,16 @@ def get_locations(allowed_branches=None) -> list:
         cursor.close(); conn.close()
 
 
-def add_location(lcode: str, descr: str, sname: str, regioncode: str, city: str) -> dict:
+def add_location(lcode: str, descr: str, sname: str, regioncode: str, city: str, compc=None) -> dict:
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "INSERT INTO COM_LOCATION (LCODE, DESCR, SNAME, REGIONCODE, CITY) VALUES (:lcode, :descr, :sname, :region, :city)",
-            {"lcode": lcode.strip(), "descr": descr.strip(), "sname": (sname or descr).strip(), "region": regioncode.strip(), "city": city.strip()}
+            "INSERT INTO COM_LOCATION (LCODE, DESCR, SNAME, REGIONCODE, CITY, COMPC)"
+            " VALUES (:lcode, :descr, :sname, :region, :city, :compc)",
+            {"lcode": lcode.strip(), "descr": descr.strip(), "sname": (sname or descr).strip(),
+             "region": regioncode.strip(), "city": city.strip(),
+             "compc": (str(compc).strip() if compc is not None and str(compc).strip() != "" else None)}
         )
         conn.commit()
         return {"status": "success", "lcode": lcode.strip()}

@@ -102,15 +102,15 @@ def list_locations(
     compc: Optional[str] = Query(None),
     brnch: Optional[str] = Query(None),
 ):
-    # Enforce admin's branch rights server-side.
-    # COM_LOCATION has no COMPC column — locations ARE branches, so we filter
-    # by the admin's allowed branch codes (SEC_USERBRCH.BRNCH = COM_LOCATION.LCODE).
+    # Branches (COM_LOCATION) belong to a company via COM_LOCATION.COMPC, so when
+    # a company is selected we scope to it. We additionally enforce the admin's
+    # branch rights (SEC_USERBRCH.BRNCH = COM_LOCATION.LCODE) server-side.
     allowed_branches = None
     if admin_card_no:
         _, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
         if final_b:
             allowed_branches = final_b
-    return {"items": get_locations(allowed_branches=allowed_branches)}
+    return {"items": get_locations(allowed_branches=allowed_branches, compc=compc)}
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -277,11 +277,13 @@ class LocationRequest(BaseModel):
 
 
 @router.post("/locations")
-def create_location(req: LocationRequest, admin_card_no: str = Query(...)):
+def create_location(req: LocationRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
     require_hr_admin(admin_card_no)
     if not req.lcode.strip() or not req.descr.strip():
         raise HTTPException(status_code=400, detail="Location code and description are required")
-    result = add_location(req.lcode, req.descr, req.sname or req.descr, req.regioncode or "", req.city or "")
+    # New branch belongs to the selected company (COM_LOCATION.COMPC).
+    company = _setup_company(admin_card_no, compc)
+    result = add_location(req.lcode, req.descr, req.sname or req.descr, req.regioncode or "", req.city or "", compc=company)
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
     return result

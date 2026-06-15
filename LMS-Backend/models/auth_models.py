@@ -24,6 +24,7 @@ class CompanyItem(BaseModel):
 class BranchItem(BaseModel):
     code: str
     name: str
+    compc: Optional[str] = None   # company (COM_LOCATION.COMPC) this branch belongs to
 
 
 class LoginResponse(BaseModel):

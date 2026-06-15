@@ -11,6 +11,7 @@ export interface CompanyItem {
 export interface BranchItem {
   code: string;
   name: string;
+  compc?: string;   // company this branch belongs to (COM_LOCATION.COMPC)
 }
 
 export interface LoginResponse {

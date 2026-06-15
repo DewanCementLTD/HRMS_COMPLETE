@@ -212,18 +212,26 @@ export function Sidebar() {
             />
           )}
 
-          {/* Branch switcher */}
-          {(user?.branch_list?.length ?? 0) > 0 && (
-            <SwitcherDropdown<BranchItem>
-              items={user!.branch_list}
-              selected={user!.selected_branch}
-              onSelect={switchBranch}
-              icon={MapPin}
-              collapsed={collapsed}
-              allowAll
-              allLabel="All Branches"
-            />
-          )}
+          {/* Branch switcher — only the selected company's branches.
+              (Branches carry compc; older sessions without it are shown as-is.) */}
+          {(() => {
+            const companyCode = user?.selected_company?.code ?? "";
+            const branchesForCompany = (user?.branch_list ?? []).filter(
+              (b) => !companyCode || !b.compc || String(b.compc) === String(companyCode)
+            );
+            if (branchesForCompany.length === 0) return null;
+            return (
+              <SwitcherDropdown<BranchItem>
+                items={branchesForCompany}
+                selected={user!.selected_branch}
+                onSelect={switchBranch}
+                icon={MapPin}
+                collapsed={collapsed}
+                allowAll
+                allLabel="All Branches"
+              />
+            );
+          })()}
         </div>
 
         {/* Navigation */}

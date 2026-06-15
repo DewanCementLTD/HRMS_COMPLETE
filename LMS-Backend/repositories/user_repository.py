@@ -82,14 +82,15 @@ def get_user_rights(mobile: str, empcode: str = "") -> dict:
         company_list = [{"code": str(r[0]), "name": str(r[1] or r[0])} for r in cmp_rows]
 
         cur.execute("""
-            SELECT sb.BRNCH, NVL(cl.DESCR, TO_CHAR(sb.BRNCH))
+            SELECT sb.BRNCH, NVL(cl.DESCR, TO_CHAR(sb.BRNCH)), cl.COMPC
             FROM SEC_USERBRCH sb
             LEFT JOIN COM_LOCATION cl ON TO_CHAR(cl.LCODE) = TO_CHAR(sb.BRNCH)
             WHERE sb.USRID = :usrid2 ORDER BY sb.BRNCH
         """, {"usrid2": usrid})
         brn_rows    = cur.fetchall()
         branches    = [str(r[0]) for r in brn_rows]
-        branch_list = [{"code": str(r[0]), "name": str(r[1] or r[0])} for r in brn_rows]
+        branch_list = [{"code": str(r[0]), "name": str(r[1] or r[0]),
+                        "compc": (str(r[2]).strip() if r[2] is not None else None)} for r in brn_rows]
 
         return {"usrid": usrid, "allowed_companies": companies, "allowed_branches": branches,
                 "company_list": company_list, "branch_list": branch_list,
@@ -230,15 +231,16 @@ def authenticate_user(username: str, password: str) -> dict | None:
                 cur3 = conn.cursor()
                 try:
                     cur3.execute("""
-                        SELECT sb.BRNCH, NVL(cl.DESCR, TO_CHAR(sb.BRNCH))
+                        SELECT sb.BRNCH, NVL(cl.DESCR, TO_CHAR(sb.BRNCH)), cl.COMPC
                         FROM SEC_USERBRCH sb
                         LEFT JOIN COM_LOCATION cl ON TO_CHAR(cl.LCODE) = TO_CHAR(sb.BRNCH)
-                        WHERE sb.USRID = :usrid 
+                        WHERE sb.USRID = :usrid
                         ORDER BY sb.BRNCH
                     """, {"usrid": usrid_numeric})
                     brn_rows = cur3.fetchall()
                     branches = [str(r[0]) for r in brn_rows]
-                    branch_list = [{"code": str(r[0]), "name": str(r[1] or r[0])} for r in brn_rows]
+                    branch_list = [{"code": str(r[0]), "name": str(r[1] or r[0]),
+                                    "compc": (str(r[2]).strip() if r[2] is not None else None)} for r in brn_rows]
                     print(f"[AUTH] SEC_USERBRCH query returned {len(brn_rows)} branches for USRID={usrid_numeric}")
                 finally:
                     cur3.close()
