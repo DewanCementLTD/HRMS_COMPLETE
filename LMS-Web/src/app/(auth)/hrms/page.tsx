@@ -246,6 +246,49 @@ function printReport() {
 }
 
 // ──────────────────────────────────────────────
+// Employee directory CSV export
+// ──────────────────────────────────────────────
+
+function downloadEmployeesCSV(
+  employees: HRMSSearchResult[],
+  depts: Department[],
+  desigs: Designation[],
+) {
+  const deptName = (no?: string) =>
+    depts.find((d) => d.dept_no === Number(no))?.dept_name || no || "";
+  const desigName = (cd?: string) =>
+    desigs.find((d) => String(d.desg_cd) === String(cd))?.desg_desc || cd || "";
+  const sexLabel = (s?: string) => (s === "M" ? "Male" : s === "F" ? "Female" : s || "");
+  const statusText = (s?: string) =>
+    ({ A: "Active", I: "Inactive", D: "Inactive", L: "Left" }[s || ""] || s || "");
+
+  const headers = [
+    "Employee Code", "Name", "Father/Husband Name", "Card No", "Attendance Card",
+    "Department", "Designation", "Mobile", "Email", "Gender", "Status",
+  ];
+  const rows = employees.map((e) => [
+    e.empcode, e.name || "", e.fhname || "", e.card_no || "", e.atdtcard || "",
+    deptName(e.dept_no), desigName(e.desg_cd), e.mobile || "", e.email || "",
+    sexLabel(e.sex), statusText(e.status),
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `employees_${todayStr()}.csv`;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 150);
+}
+
+// ──────────────────────────────────────────────
 // Status badge
 // ──────────────────────────────────────────────
 
@@ -567,10 +610,20 @@ export default function HRMSPage() {
           title="HRMS — Employee Management"
           subtitle="Manage employees and view attendance reports"
           actions={
-            <Button onClick={startRegister}>
-              <UserPlus className="h-4 w-4 mr-1.5" />
-              Register Employee
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                onClick={() => downloadEmployeesCSV(visibleEmployees, refDepts, refDesigs)}
+                disabled={visibleEmployees.length === 0}
+              >
+                <Download className="h-4 w-4 mr-1.5" />
+                Download CSV ({visibleEmployees.length})
+              </Button>
+              <Button onClick={startRegister}>
+                <UserPlus className="h-4 w-4 mr-1.5" />
+                Register Employee
+              </Button>
+            </div>
           }
         />
 
