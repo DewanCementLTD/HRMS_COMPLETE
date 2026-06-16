@@ -903,12 +903,12 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
             shift_params = {}
             shift_filter = _roster_card_filter(compc, brnch, shift_params, prefix="sh")
             cursor.execute("""
-                SELECT NVL(SHIFT, 'Day') AS shift_name,
+                SELECT NVL(ROSTER_SHIFT, 'Day') AS shift_name,
                     SUM(CASE WHEN IN_TIME IS NOT NULL THEN 1 ELSE 0 END) AS present,
                     COUNT(*) AS total
                 FROM DUTY_ROSTER
                 WHERE TRUNC(ROSTER_DATE) = {td}{cf}
-                GROUP BY NVL(SHIFT, 'Day')
+                GROUP BY NVL(ROSTER_SHIFT, 'Day')
                 ORDER BY total DESC
             """.format(td=td, cf=shift_filter), shift_params)
             for r in cursor.fetchall():
@@ -930,7 +930,7 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
                 SELECT NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK)) AS reason,
                     COUNT(*) AS cnt
                 FROM LEAVE_APPLICATION la
-                LEFT JOIN LEAVE_TYPE lt ON lt.LEAVE_TYPE = la.LEAVE_TYPE_FK
+                LEFT JOIN LEAVE_TYPES lt ON lt.LEAVE_TYPE_PK = la.LEAVE_TYPE_FK
                 WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE, 'YYYY')
                 GROUP BY NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK))
                 ORDER BY cnt DESC
@@ -1436,7 +1436,7 @@ def get_bulk_attendance_details(
                     return [], None
                 raise
 
-        # ── Attempt 1: full columns (DUTY_IN/DUTY_OUT/SHIFT) + EMPLOYEE join ──────
+        # ── Attempt 1: full columns (SHIFT_START_TIME/SHIFT_END_TIME) + EMPLOYEE join ──
         # Uses identical join as summary (TO_CHAR both sides). Falls through on
         # ORA-00904 (columns missing) or 0 rows.
         rows, cols = _run(f"""
@@ -1445,8 +1445,8 @@ def get_bulk_attendance_details(
                 TO_CHAR(e.CARD_NO)                       AS card_no,
                 h.NAME                                   AS name,
                 d.ROSTER_DATE                            AS roster_date,
-                d.DUTY_IN                                AS duty_in,
-                d.DUTY_OUT                               AS duty_out,
+                d.SHIFT_START_TIME                       AS duty_in,
+                d.SHIFT_END_TIME                         AS duty_out,
                 d.IN_TIME                                AS in_time,
                 d.OUT_TIME                               AS out_time
             FROM HR_EMP_MASTER h
@@ -1458,7 +1458,7 @@ def get_bulk_attendance_details(
             WHERE h.STATUS = 'A'{filter_sql}
             ORDER BY NVL(h."ATDTCARD#", TO_CHAR(d.CARD_NO)), d.ROSTER_DATE
             FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 1 (DUTY_IN/OUT + SHIFT + EMPLOYEE)")
+        """, params, "Attempt 1 (SHIFT_START/END + EMPLOYEE)")
         if rows:
             return _process(rows, cols)
 
