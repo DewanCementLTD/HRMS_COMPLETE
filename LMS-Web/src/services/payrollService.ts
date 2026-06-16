@@ -109,3 +109,11 @@ export const fetchSalarySheet = (adminCardNo: string, period: number, compc?: st
   apiRequest<{ items: SalarySheetRow[] }>(`/payroll/salary/sheet?${ac(adminCardNo, compc)}&period=${period}${brq(brnch)}${q ? `&q=${encodeURIComponent(q)}` : ""}`);
 export const fetchPayslip = (adminCardNo: string, empcode: string, period: number, compc?: string) =>
   apiRequest<Payslip>(`/payroll/salary/payslip?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&period=${period}`);
+
+// ── Salary process (runs the ERP procedure HR_SALARY_PROCES_PRO on the open period) ──
+export interface SalaryOpenPeriod { period: number; rule_id?: number; period_frm: string; period_to: string; label: string }
+export const fetchSalaryOpenPeriod = (adminCardNo: string, compc?: string) =>
+  apiRequest<{ open_period: SalaryOpenPeriod | null }>(`/payroll/salary/open-period?${ac(adminCardNo, compc)}`);
+export const runSalaryProcess = (adminCardNo: string, compc?: string) =>
+  apiRequest<{ status: string; period: number; label: string; processed: number }>(
+    `/payroll/salary/process?${ac(adminCardNo, compc)}`, { method: "POST" });

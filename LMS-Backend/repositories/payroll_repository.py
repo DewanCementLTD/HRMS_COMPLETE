@@ -96,12 +96,14 @@ def _generate_periods(cur, rule_id: int, from_date: str, to_date: str, scode: st
     for y, m in _months_between(from_date, to_date):
         pfrm, pto, pdays = _month_bounds(y, m)
         pno += 1
+        # Auto-generated periods start CLOSED ('C'); HR opens the one they want to
+        # work on (attendance, monthly inputs, salary process) from Period Opening.
         cur.execute("""
             INSERT INTO HR_ATTND_PERIOD
               (RULE_ID, "PERIOD#", PERIOD_FRM, PERIOD_TO, STATUS, BLOCK_FLAG,
                UNIT_ID, USR_ID_UPD, USR_DATE_UPD, P_DAYS, SCODE)
             VALUES (:r, :pno, TO_DATE(:pf,'YYYY-MM-DD'), TO_DATE(:pt,'YYYY-MM-DD'),
-                    'O', 'N', :u, :usr, SYSDATE, :pd, :sc)
+                    'C', 'N', :u, :usr, SYSDATE, :pd, :sc)
         """, {"r": rule_id, "pno": pno, "pf": pfrm, "pt": pto,
               "u": compc, "usr": usr, "pd": pdays, "sc": (scode or str(y))[:10]})
         created += 1

@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, Search, FileText, Users, Loader2 } from "lucide-react";
+import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import {
   fetchSalaryPeriods, fetchSalarySheet, fetchPayslip,
-  type SalaryPeriod, type SalarySheetRow, type Payslip as PayslipData,
+  fetchSalaryOpenPeriod, runSalaryProcess,
+  type SalaryPeriod, type SalarySheetRow, type Payslip as PayslipData, type SalaryOpenPeriod,
 } from "@/services/payrollService";
 import { Payslip } from "./Payslip";
 
@@ -27,6 +28,9 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
   const [error, setError] = useState<string | null>(null);
   const [opening, setOpening] = useState<string | null>(null);
   const [slip, setSlip] = useState<PayslipData | null>(null);
+  const [openPeriod, setOpenPeriod] = useState<SalaryOpenPeriod | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [processMsg, setProcessMsg] = useState<string | null>(null);
 
   const loadPeriods = useCallback(async () => {
     try {
@@ -38,6 +42,11 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCardNo, compc, brnch]);
 
+  const loadOpenPeriod = useCallback(async () => {
+    try { const r = await fetchSalaryOpenPeriod(adminCardNo, compc); setOpenPeriod(r.open_period); }
+    catch { setOpenPeriod(null); }
+  }, [adminCardNo, compc]);
+
   const loadSheet = useCallback(async (p: number) => {
     setLoading(true); setError(null);
     try { const r = await fetchSalarySheet(adminCardNo, p, compc, undefined, brnch); setRows(r.items || []); }
@@ -47,7 +56,28 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
   }, [adminCardNo, compc, brnch]);
 
   useEffect(() => { loadPeriods(); }, [loadPeriods]);
+  useEffect(() => { loadOpenPeriod(); }, [loadOpenPeriod]);
   useEffect(() => { if (period != null) loadSheet(period); }, [period, loadSheet]);
+
+  async function runProcess() {
+    if (!openPeriod) return;
+    const ok = window.confirm(
+      `Run the salary process for the open period ${openPeriod.label}?\n\n` +
+      `This recomputes attendance and rebuilds the salary breakdown for this period, ` +
+      `replacing any previously processed salary for it. This can take a while.`
+    );
+    if (!ok) return;
+    setProcessing(true); setError(null); setProcessMsg(null);
+    try {
+      const r = await runSalaryProcess(adminCardNo, compc);
+      setProcessMsg(`Salary processed for ${r.label} — ${r.processed} employee${r.processed === 1 ? "" : "s"}.`);
+      await loadPeriods();
+      // Jump to the just-processed period so the sheet shows the new results.
+      setPeriod(r.period);
+      await loadSheet(r.period);
+    } catch (e) { setError(e instanceof Error ? e.message : "Salary process failed"); }
+    finally { setProcessing(false); }
+  }
 
   const filtered = useMemo(() => {
     if (!query.trim()) return rows;
@@ -73,6 +103,32 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
     <div className="space-y-4">
       {slip && <Payslip data={slip} onClose={() => setSlip(null)} />}
       {error && <div className="p-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">{error}</div>}
+      {processMsg && <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-sm text-emerald-700">{processMsg}</div>}
+
+      {/* Salary process — runs the ERP procedure on the company's open period */}
+      <Card>
+        <CardContent className="py-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2"><Cog className="h-4 w-4 text-indigo-600" /> Salary Process</h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Builds the full salary breakdown for the open period.
+              </p>
+            </div>
+            {openPeriod ? (
+              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-2.5 py-1">
+                <CalendarRange className="h-3.5 w-3.5" /> Open Period: {openPeriod.label}
+              </span>
+            ) : (
+              <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-1">No open period — open one in Period Opening</span>
+            )}
+            <Button onClick={runProcess} disabled={processing || !openPeriod} className="ml-auto">
+              {processing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Cog className="h-4 w-4 mr-1.5" />}
+              {processing ? "Processing…" : "Run Salary Process"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="py-4">

@@ -24,6 +24,7 @@ from repositories.payroll_repository import (
 )
 from repositories.salary_repository import (
     list_salary_periods, list_processed_salaries, get_payslip,
+    get_open_period, run_salary_process,
 )
 
 router = APIRouter(prefix="/payroll", tags=["Payroll"])
@@ -253,3 +254,17 @@ def get_salary_payslip(admin_card_no: str = Query(...), empcode: str = Query(...
     if not ps:
         raise HTTPException(status_code=404, detail="No processed salary for this employee/period")
     return ps
+
+
+@router.get("/salary/open-period")
+def get_salary_open_period(admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    """The company's open period — what the 'Run Salary Process' button will act on."""
+    require_hr_admin(admin_card_no)
+    return {"open_period": get_open_period(_company(admin_card_no, compc))}
+
+
+@router.post("/salary/process")
+def post_salary_process(admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    """Run the ERP salary-process procedure for the company's open period."""
+    require_hr_admin(admin_card_no)
+    return _checked(run_salary_process(_company(admin_card_no, compc)))

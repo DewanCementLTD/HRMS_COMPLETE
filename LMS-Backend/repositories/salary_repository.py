@@ -215,3 +215,62 @@ def get_payslip(compc, empcode, period) -> dict | None:
         }
     finally:
         cur.close(); conn.close()
+
+
+def get_open_period(compc) -> dict | None:
+    """The company's currently OPEN payroll period (latest if more than one)."""
+    conn = get_connection(); cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT "PERIOD#", RULE_ID, TO_CHAR(PERIOD_FRM,'YYYY-MM-DD'), TO_CHAR(PERIOD_TO,'YYYY-MM-DD')
+            FROM HR_ATTND_PERIOD
+            WHERE UNIT_ID = :u AND UPPER(NVL(STATUS,'O')) = 'O'
+            ORDER BY PERIOD_FRM DESC, "PERIOD#" DESC FETCH FIRST 1 ROWS ONLY
+        """, {"u": _int(compc)})
+        r = cur.fetchone()
+        if not r:
+            return None
+        return {"period": int(r[0]), "rule_id": int(r[1]) if r[1] is not None else None,
+                "period_frm": r[2], "period_to": r[3],
+                "label": _label(r[2]) or f"Period {int(r[0])}"}
+    finally:
+        cur.close(); conn.close()
+
+
+def run_salary_process(compc) -> dict:
+    """Run the ERP salary-process procedure HR_SALARY_PROCES_PRO for the company's
+    currently OPEN period. The procedure recomputes attendance and rebuilds
+    HR_SALARY_PROCESS / HR_SALARY_PROCESS_MASTER for that unit & period.
+
+    Signature: HR_SALARY_PROCES_PRO(MUNIT, MPRIOD, MPRIOD_FRM, MPRIOD_TO, MRULE_ID).
+    We pass the open period's real values; the procedure commits internally.
+    """
+    u = _int(compc)
+    if u is None:
+        return {"status": "error", "message": "Company is required"}
+    conn = get_connection(); cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT "PERIOD#", RULE_ID, PERIOD_FRM, PERIOD_TO, TO_CHAR(PERIOD_FRM,'YYYY-MM-DD')
+            FROM HR_ATTND_PERIOD
+            WHERE UNIT_ID = :u AND UPPER(NVL(STATUS,'O')) = 'O'
+            ORDER BY PERIOD_FRM DESC, "PERIOD#" DESC FETCH FIRST 1 ROWS ONLY
+        """, {"u": u})
+        r = cur.fetchone()
+        if not r:
+            return {"status": "error", "message": "No open period for this company. Open a period first."}
+        period = int(r[0])
+        rule_id = int(r[1]) if r[1] is not None else None
+        pfrm, pto = r[2], r[3]
+        cur.callproc("HR_SALARY_PROCES_PRO", [u, period, pfrm, pto, rule_id])
+        conn.commit()
+        cur.execute('SELECT COUNT(*) FROM HR_SALARY_PROCESS_MASTER WHERE UNIT_ID = :u AND "PERIOD#" = :p',
+                    {"u": u, "p": period})
+        processed = int(cur.fetchone()[0] or 0)
+        return {"status": "success", "period": period,
+                "label": _label(r[4]) or f"Period {period}", "processed": processed}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cur.close(); conn.close()
