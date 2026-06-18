@@ -70,6 +70,8 @@ export default function AttendancePage() {
                   summary,
                   dateRange.from,
                   dateRange.to,
+                  "print",
+                  user?.selected_company?.name,
                 )
               }
             >

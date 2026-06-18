@@ -43,6 +43,10 @@ const STATUS_LABEL: Record<string, string> = {
   A: "ACTIVE", I: "INACTIVE", D: "INACTIVE", L: "LEFT",
 };
 
+function escHtml(v: unknown): string {
+  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 export function printTimesheetWindow(
   emp: PrintEmployeeInfo,
   records: AttendanceRecord[],
@@ -50,6 +54,7 @@ export function printTimesheetWindow(
   fromDate: string,
   toDate: string,
   mode: "print" | "view" = "print",
+  companyName?: string,
 ) {
   const runTime = new Date().toLocaleString("en-US", {
     year: "numeric", month: "long", day: "numeric",
@@ -111,7 +116,7 @@ export function printTimesheetWindow(
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Time Sheet — ${empName}</title>
+  <title>${escHtml([(companyName || "").trim(), "Time Sheet", empName].filter(Boolean).join(" - "))}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -244,7 +249,7 @@ export function printTimesheetWindow(
     <div class="header-left">
       <img src="/LMS_Black.png" alt="Logo" onerror="this.style.display='none'">
       <div>
-        <div class="header-title">YDC Leave Management System</div>
+        <div class="header-title">${escHtml((companyName || "").trim() || "Leave Management System")}</div>
         <div class="header-subtitle">Time Sheet</div>
       </div>
     </div>

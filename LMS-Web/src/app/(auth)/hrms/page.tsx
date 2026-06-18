@@ -9,6 +9,7 @@ import {
 import { HRMSEmployeeCreate, HRMSSearchResult } from "@/models/hrms";
 import { AttendanceRecord } from "@/models/attendance";
 import { printTimesheetWindow } from "@/lib/printTimesheet";
+import { printTablePdf } from "@/lib/printTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
@@ -286,6 +287,34 @@ function downloadEmployeesCSV(
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 150);
+}
+
+function downloadEmployeesPDF(
+  employees: HRMSSearchResult[],
+  depts: Department[],
+  desigs: Designation[],
+  companyName?: string,
+) {
+  const deptName = (no?: string) =>
+    depts.find((d) => d.dept_no === Number(no))?.dept_name || no || "";
+  const desigName = (cd?: string) =>
+    desigs.find((d) => String(d.desg_cd) === String(cd))?.desg_desc || cd || "";
+  const sexLabel = (s?: string) => (s === "M" ? "Male" : s === "F" ? "Female" : s || "");
+  const statusText = (s?: string) =>
+    ({ A: "Active", I: "Inactive", D: "Inactive", L: "Left" }[s || ""] || s || "");
+
+  printTablePdf({
+    companyName,
+    title: "Employee Directory",
+    meta: `${employees.length} employee${employees.length === 1 ? "" : "s"}`,
+    landscape: true,
+    columns: ["Code", "Name", "Father/Husband", "Card No", "Att. Card", "Department", "Designation", "Mobile", "Email", "Gender", "Status"],
+    rows: employees.map((e) => [
+      e.empcode, e.name || "", e.fhname || "", e.card_no || "", e.atdtcard || "",
+      deptName(e.dept_no), desigName(e.desg_cd), e.mobile || "", e.email || "",
+      sexLabel(e.sex), statusText(e.status),
+    ]),
+  });
 }
 
 // ──────────────────────────────────────────────
@@ -617,7 +646,15 @@ export default function HRMSPage() {
                 disabled={visibleEmployees.length === 0}
               >
                 <Download className="h-4 w-4 mr-1.5" />
-                Download CSV ({visibleEmployees.length})
+                CSV ({visibleEmployees.length})
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => downloadEmployeesPDF(visibleEmployees, refDepts, refDesigs, user?.selected_company?.name)}
+                disabled={visibleEmployees.length === 0}
+              >
+                <FileText className="h-4 w-4 mr-1.5" />
+                PDF
               </Button>
               <Button onClick={startRegister}>
                 <UserPlus className="h-4 w-4 mr-1.5" />
@@ -1015,6 +1052,7 @@ export default function HRMSPage() {
                 reportRange.from,
                 reportRange.to,
                 "view",
+                user?.selected_company?.name,
               )
             }
           >
@@ -1032,6 +1070,7 @@ export default function HRMSPage() {
                 reportRange.from,
                 reportRange.to,
                 "print",
+                user?.selected_company?.name,
               )
             }
           >

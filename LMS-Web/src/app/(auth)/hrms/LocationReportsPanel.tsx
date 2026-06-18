@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { Navigation, Download, RefreshCw, Search, MapPin, FileSpreadsheet } from "lucide-react";
+import { Navigation, Download, RefreshCw, Search, MapPin, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { useAuth } from "@/context/AuthContext";
+import { printTablePdf } from "@/lib/printTable";
 import {
   fetchLocationTrailReport,
   fetchLocationSummaryReport,
@@ -156,6 +157,18 @@ export function LocationReportsPanel({ adminCardNo }: { adminCardNo: string }) {
     downloadBlob(html, "application/vnd.ms-excel", `location-${kind}-${fromDate}_to_${toDate}.xls`);
   };
 
+  const exportPdf = () => {
+    const { headers, rows } = buildMatrix();
+    printTablePdf({
+      companyName: user?.selected_company?.name,
+      title: kind === "trail" ? "Location Trail Report" : "Location Tracking Report",
+      meta: `From ${fromDate} to ${toDate}`,
+      landscape: true,
+      columns: headers,
+      rows,
+    });
+  };
+
   return (
     <div className="space-y-5">
       {/* Header + report-type toggle */}
@@ -221,6 +234,9 @@ export function LocationReportsPanel({ adminCardNo }: { adminCardNo: string }) {
             </Button>
             <Button variant="secondary" size="sm" onClick={exportExcel}>
               <FileSpreadsheet className="h-4 w-4 mr-1.5" /> Excel
+            </Button>
+            <Button variant="secondary" size="sm" onClick={exportPdf}>
+              <FileText className="h-4 w-4 mr-1.5" /> PDF
             </Button>
           </div>
         )}

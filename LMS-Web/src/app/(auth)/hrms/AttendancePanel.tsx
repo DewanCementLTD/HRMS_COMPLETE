@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { Clock, Search, RefreshCw, Download, Calendar, Users } from "lucide-react";
+import { Clock, Search, RefreshCw, Download, Calendar, Users, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
+import { printTablePdf } from "@/lib/printTable";
 import {
   fetchBulkAttendance, fetchAttendanceDetails,
   type BulkAttendanceRow, type AttendanceDetailRow,
@@ -51,7 +52,7 @@ function downloadCsv(headers: string[], rows: string[][], filename: string) {
 }
 
 export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
-  const { activeCompany, activeBranch } = useAuth();
+  const { activeCompany, activeBranch, user } = useAuth();
   const [mode, setMode] = useState<Mode>("summary");
   const init = presetRange("month");
   const [from, setFrom] = useState(init.from);
@@ -130,6 +131,33 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
     }
   }
 
+  function exportPdf() {
+    const company = user?.selected_company?.name;
+    const meta = `From ${from} to ${to}`;
+    if (mode === "summary") {
+      printTablePdf({
+        companyName: company, title: "Attendance Summary", meta, landscape: true,
+        columns: ["Empcode", "Name", "ATDT", "Department",
+          { header: "Present", align: "right" }, { header: "Absent", align: "right" }, { header: "Total Days", align: "right" },
+          { header: "Late", align: "right" }, { header: "Overtime", align: "right" }, { header: "Working", align: "right" }],
+        rows: filteredSummary.map((r) => [
+          r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "",
+          String(r.present_days), String(r.absent_days), String(r.total_days),
+          hhmm(r.late_minutes), hhmm(r.ot_minutes), hhmm(r.working_minutes),
+        ]),
+      });
+    } else {
+      printTablePdf({
+        companyName: company, title: "Attendance — Daily Details", meta, landscape: true,
+        columns: ["Name", "Card", "ATDT", "Date", "Duty In", "Duty Out", "In Time", "Out Time"],
+        rows: filteredDetails.map((r) => [
+          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date,
+          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "",
+        ]),
+      });
+    }
+  }
+
   const count = mode === "summary" ? filteredSummary.length : filteredDetails.length;
 
   return (
@@ -181,9 +209,14 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
             placeholder="Filter name / code…" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         {count > 0 && (
-          <Button variant="secondary" size="sm" onClick={exportCsv} className="ml-auto">
-            <Download className="h-4 w-4 mr-1.5" /> CSV
-          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={exportCsv}>
+              <Download className="h-4 w-4 mr-1.5" /> CSV
+            </Button>
+            <Button variant="secondary" size="sm" onClick={exportPdf}>
+              <FileText className="h-4 w-4 mr-1.5" /> PDF
+            </Button>
+          </div>
         )}
       </div>
 
