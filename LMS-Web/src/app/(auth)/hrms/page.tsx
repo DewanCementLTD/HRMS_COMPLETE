@@ -52,10 +52,10 @@ import { AttendancePanel } from "./AttendancePanel";
 import {
   fetchDepartments, fetchDesignations,
   fetchBloodGroups, fetchCadre, fetchUnits, fetchReligions, fetchReportingOfficers,
-  fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
+  fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, fetchLocations,
   addDepartment, addBloodGroup, addCadre,
   type Department, type Designation, type BloodGroup, type Cadre, type Unit,
-  type Religion, type ReportingOfficer,
+  type Religion, type ReportingOfficer, type Location,
   type EmpStatus, type Bank, type BankBranch, type Qualification,
 } from "@/services/referenceService";
 
@@ -374,6 +374,7 @@ export default function HRMSPage() {
   const [refBanks,      setRefBanks]      = useState<Bank[]>([]);
   const [refBankBranches,setRefBankBranches]= useState<BankBranch[]>([]);
   const [refQuals,      setRefQuals]      = useState<Qualification[]>([]);
+  const [refLocations,  setRefLocations]  = useState<Location[]>([]);
 
   // Reference data — refetched when the selected company/branch changes so
   // employee-register/edit dropdowns only show options for the active scope.
@@ -386,7 +387,8 @@ export default function HRMSPage() {
       fetchBloodGroups(c, b), fetchCadre(c, b), fetchUnits(),
       fetchReligions(), fetchReportingOfficers(),
       fetchEmpStatuses(c), fetchBanks(c), fetchQualifications(c),
-    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql]) => {
+      fetchLocations(c),
+    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql, loc]) => {
       setRefDepts(d.items);
       setRefDesigs(des.items);
       setRefBG(bg.items);
@@ -397,6 +399,7 @@ export default function HRMSPage() {
       setRefEmpStatuses(est.items);
       setRefBanks(bk.items);
       setRefQuals(ql.items);
+      setRefLocations(loc.items);
     }).catch(console.error);
   }, [activeCompany, activeBranch]);
 
@@ -553,6 +556,7 @@ export default function HRMSPage() {
       email: e.email || "",
       address: e.address || "",
       unit_id: e.unit_id ?? 1,
+      location: e.location || "",
       status: e.status || "A",
       user_paswd: e.user_paswd || "",
       hr_admin: e.hr_admin || "N",
@@ -587,6 +591,12 @@ export default function HRMSPage() {
     e.preventDefault();
     ctrl.clearMessages();
     if (!form.name.trim()) return;
+    // Branch/Location is required — without it the employee won't appear under
+    // any branch (and won't be counted in that branch's attendance).
+    if (!form.location) {
+      alert("Please select the employee's Branch / Location before registering.");
+      return;
+    }
     const res = await ctrl.registerEmployee(form);
     if (res?.status === "success") {
       setForm({ ...EMPTY_FORM });
@@ -1440,6 +1450,13 @@ export default function HRMSPage() {
                 value={form.unit_id?.toString() || ""}
                 onChange={(v) => updateField("unit_id", v ? parseInt(v) : 1)}
                 options={refUnits.map((u) => ({ value: String(u.unit_id), label: u.unit_name }))}
+              />
+              <SearchableSelect
+                label="Branch / Location *"
+                value={form.location?.toString() || ""}
+                onChange={(v) => updateField("location", v)}
+                placeholder="Select branch…"
+                options={refLocations.map((l) => ({ value: l.lcode, label: l.descr }))}
               />
               <Input
                 label="Working Hours"
