@@ -40,6 +40,16 @@ def _now_hhmm() -> str:
     return datetime.now().strftime("%H:%M")
 
 
+def _btrunc(s, max_bytes: int):
+    """Truncate a string so its UTF-8 encoding fits in max_bytes. Oracle VARCHAR2
+    columns are sized in BYTES, so a character-count slice (e.g. addresses with
+    non-ASCII chars) can still overflow and raise ORA-12899."""
+    if s is None:
+        return None
+    b = str(s).encode("utf-8")[:max_bytes]
+    return b.decode("utf-8", "ignore")  # drop a trailing partial multibyte char
+
+
 def _time_spent_minutes(entry: str, exit_: str) -> int:
     """Calculate minutes between two HH:MI strings."""
     try:
@@ -274,8 +284,8 @@ def insert_check_in(card_no: str, empcode: str, *,
                 "latitude": str(latitude) if latitude else None,
                 "longitude": str(longitude) if longitude else None,
                 "accuracy": str(accuracy) if accuracy else None,
-                "address": str(address)[:100] if address else None,
-                "formatted_address": str(formatted_address)[:400] if formatted_address else None,
+                "address": _btrunc(address, 100) if address else None,
+                "formatted_address": _btrunc(formatted_address, 400) if formatted_address else None,
                 "ts": str(timestamp) if timestamp else None,
                 "device_id": str(device_id)[:400] if device_id else None,
                 "device_model": str(device_model)[:400] if device_model else None,
