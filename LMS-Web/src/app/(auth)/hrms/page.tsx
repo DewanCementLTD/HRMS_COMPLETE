@@ -504,7 +504,14 @@ export default function HRMSPage() {
   }
 
   function startRegister() {
-    setForm({ ...EMPTY_FORM });
+    // Default Company/Unit to the active company, and Branch to the active
+    // branch. When "All Branches" is selected (activeBranch empty), the branch
+    // is left blank so HR picks it from the LOV.
+    setForm({
+      ...EMPTY_FORM,
+      unit_id: activeCompany ? (parseInt(activeCompany) || 1) : 1,
+      location: activeBranch || "",
+    });
     ctrl.clearMessages();
     setView("register");
   }
