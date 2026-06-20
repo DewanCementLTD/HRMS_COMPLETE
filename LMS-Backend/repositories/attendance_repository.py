@@ -50,6 +50,32 @@ def _btrunc(s, max_bytes: int):
     return b.decode("utf-8", "ignore")  # drop a trailing partial multibyte char
 
 
+# Transient DB errors that should be retried rather than dropped: the MAX(PK)+1
+# id generation races (unique-violation) when several employees mark at the same
+# moment, plus deadlock/serialization. Retrying re-reads MAX and succeeds.
+_TRANSIENT_DB_ERRORS = ("ORA-00001", "ORA-00060", "ORA-08177")
+
+
+def _is_transient_db_error(exc) -> bool:
+    msg = str(exc)
+    return any(code in msg for code in _TRANSIENT_DB_ERRORS)
+
+
+def _run_with_retry(fn, attempts: int = 5, what: str = ""):
+    """Run fn(); on a transient DB error (e.g. PK collision from concurrent
+    check-ins) retry a few times with a small backoff. Re-raises on the last try
+    or on a non-transient error."""
+    import time
+    for i in range(attempts):
+        try:
+            return fn()
+        except Exception as e:
+            if not _is_transient_db_error(e) or i == attempts - 1:
+                raise
+            print(f"[ATTENDANCE] transient error{(' on ' + what) if what else ''}, retry {i + 1}/{attempts}: {e}")
+            time.sleep(0.05 * (i + 1))
+
+
 def _time_spent_minutes(entry: str, exit_: str) -> int:
     """Calculate minutes between two HH:MI strings."""
     try:
@@ -237,7 +263,7 @@ def insert_check_in(card_no: str, empcode: str, *,
 
             # MERGE matches on (ROSTER_DATE, CARD_NO) — same as DUTY_ROSTER_UK1.
             # Updates the pre-generated roster row if it exists; inserts otherwise.
-            cursor.execute("""
+            _run_with_retry(lambda: cursor.execute("""
                 MERGE INTO DUTY_ROSTER dr
                 USING (SELECT TRUNC(SYSDATE) AS rdate,
                               :card_num AS cno
@@ -267,7 +293,7 @@ def insert_check_in(card_no: str, empcode: str, *,
                 "roster_month": roster_month,
                 "compc": compc,
                 "brnch": brnch,
-            })
+            }), what="DUTY_ROSTER")
             print(f"[CHECK_IN] MERGE DUTY_ROSTER card={card_no} IN_TIME={now}")
         except Exception as dr_err:
             print(f"[DUTY_ROSTER] CHECK_IN failed (non-fatal): {dr_err}")
@@ -286,12 +312,12 @@ def insert_check_in(card_no: str, empcode: str, *,
                 "accuracy": str(accuracy) if accuracy else None,
                 "address": _btrunc(address, 100) if address else None,
                 "formatted_address": _btrunc(formatted_address, 400) if formatted_address else None,
-                "ts": str(timestamp) if timestamp else None,
-                "device_id": str(device_id)[:400] if device_id else None,
-                "device_model": str(device_model)[:400] if device_model else None,
-                "app_version": str(app_version)[:400] if app_version else None,
+                "ts": _btrunc(timestamp, 400) if timestamp else None,
+                "device_id": _btrunc(device_id, 400) if device_id else None,
+                "device_model": _btrunc(device_model, 400) if device_model else None,
+                "app_version": _btrunc(app_version, 400) if app_version else None,
             }
-            cursor.execute("""
+            _run_with_retry(lambda: cursor.execute("""
                 MERGE INTO ATTENDANCE_RECORDS ar
                 USING (SELECT :card_no AS cno, TRUNC(SYSDATE) AS adate FROM DUAL) src
                 ON (ar.CARD_NO = src.cno
@@ -325,7 +351,7 @@ def insert_check_in(card_no: str, empcode: str, *,
                         :ts, :device_id, :device_model,
                         :app_version
                     )
-            """, params)
+            """, params), what="ATTENDANCE_RECORDS")
         except Exception as ar_err:
             print(f"[ATTENDANCE_RECORDS] MERGE failed (non-fatal): {ar_err}")
 
@@ -374,19 +400,20 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
 
         # ---- 1. DUTY_ROSTER ----
         if source == "duty_roster":
-            cursor.execute("""
+            _run_with_retry(lambda: cursor.execute("""
                 UPDATE DUTY_ROSTER
                 SET OUT_TIME = :out_time,
                     W_HRS    = :w_hrs,
                     W_MNT    = :w_mnt
                 WHERE DUTY_ROSTER_PK = :rid
-            """, {"out_time": now, "w_hrs": w_hrs, "w_mnt": w_mnt, "rid": record_id})
+            """, {"out_time": now, "w_hrs": w_hrs, "w_mnt": w_mnt, "rid": record_id}),
+                what="DUTY_ROSTER checkout")
 
         # ---- 2. ATTENDANCE_RECORDS — update today's row ----
         if card_no:
             card_int = card_no.split(".")[0] if "." in card_no else card_no
             try:
-                cursor.execute("""
+                _run_with_retry(lambda: cursor.execute("""
                     UPDATE ATTENDANCE_RECORDS
                     SET EXIT_TIME   = :exit_time,
                         TIME_SPENT  = :time_spent
@@ -398,7 +425,7 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                     "time_spent": spent,
                     "card_no": card_no,
                     "card_int": card_int,
-                })
+                }), what="ATTENDANCE_RECORDS checkout")
             except Exception as ar_err:
                 print(f"[ATTENDANCE_RECORDS] UPDATE failed (non-fatal): {ar_err}")
 
@@ -406,7 +433,7 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
         if source == "attendance_records" and card_no:
             card_int = card_no.split(".")[0] if "." in card_no else card_no
             try:
-                cursor.execute("""
+                _run_with_retry(lambda: cursor.execute("""
                     UPDATE DUTY_ROSTER
                     SET OUT_TIME = :out_time,
                         W_HRS    = :w_hrs,
@@ -415,7 +442,8 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                       AND TRUNC(ROSTER_DATE) = TRUNC(SYSDATE)
                       AND OUT_TIME IS NULL
                 """, {"out_time": now, "w_hrs": w_hrs, "w_mnt": w_mnt,
-                      "card": card_no, "card_int": card_int})
+                      "card": card_no, "card_int": card_int}),
+                    what="DUTY_ROSTER checkout by card")
             except Exception as dr_err:
                 print(f"[DUTY_ROSTER] UPDATE by card_no failed (non-fatal): {dr_err}")
 
