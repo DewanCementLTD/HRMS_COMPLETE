@@ -50,6 +50,25 @@ def _btrunc(s, max_bytes: int):
     return b.decode("utf-8", "ignore")  # drop a trailing partial multibyte char
 
 
+def _hhmm_to_min(s):
+    """Minutes-since-midnight for an 'HH:MI' string, or None."""
+    try:
+        h, m = str(s).strip()[:5].split(":")
+        return int(h) * 60 + int(m)
+    except Exception:
+        return None
+
+
+def _later_hhmm(a, b):
+    """Return whichever of two 'HH:MI' strings is the later time of day."""
+    ma, mb = _hhmm_to_min(a), _hhmm_to_min(b)
+    if ma is None:
+        return b
+    if mb is None:
+        return a
+    return a if ma >= mb else b
+
+
 # Transient DB errors that should be retried rather than dropped: the MAX(PK)+1
 # id generation races (unique-violation) when several employees mark at the same
 # moment, plus deadlock/serialization. Retrying re-reads MAX and succeeds.
@@ -271,7 +290,11 @@ def insert_check_in(card_no: str, empcode: str, *,
                 ON (TRUNC(dr.ROSTER_DATE) = src.rdate
                     AND dr.CARD_NO = src.cno)
                 WHEN MATCHED THEN
-                    UPDATE SET dr.IN_TIME    = :in_time,
+                    -- Keep the EARLIEST mark as IN_TIME (never move it later).
+                    UPDATE SET dr.IN_TIME    = CASE
+                                   WHEN dr.IN_TIME IS NULL THEN :in_time
+                                   WHEN :in_time < dr.IN_TIME THEN :in_time
+                                   ELSE dr.IN_TIME END,
                                dr.STATUS     = 'Present',
                                dr.ATT_MRK_TM = :att_mrk
                 WHEN NOT MATCHED THEN
@@ -392,12 +415,16 @@ def insert_check_in(card_no: str, empcode: str, *,
 # ------------------------------------------------------------------
 
 def update_check_out(record_id: int, entry_time: str, card_no: str = None,
-                     source: str = "duty_roster"):
+                     source: str = "duty_roster", current_out: str = None):
     conn = get_connection()
     cursor = conn.cursor()
     try:
         now = _now_hhmm()
-        spent = _time_spent_minutes(entry_time, now)
+        # OUT_TIME = the LATEST mark of the day. If a checkout already exists,
+        # keep the later of the two so repeat / accidental marks only ever push
+        # OUT forward (and IN, set on the first mark, stays the earliest).
+        out_time = _later_hhmm(now, current_out)
+        spent = _time_spent_minutes(entry_time, out_time)
         w_hrs = spent // 60
         w_mnt = spent % 60
 
@@ -409,10 +436,10 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                     W_HRS    = :w_hrs,
                     W_MNT    = :w_mnt
                 WHERE DUTY_ROSTER_PK = :rid
-            """, {"out_time": now, "w_hrs": w_hrs, "w_mnt": w_mnt, "rid": record_id}),
+            """, {"out_time": out_time, "w_hrs": w_hrs, "w_mnt": w_mnt, "rid": record_id}),
                 what="DUTY_ROSTER checkout")
 
-        # ---- 2. ATTENDANCE_RECORDS — update today's row ----
+        # ---- 2. ATTENDANCE_RECORDS — extend today's row to the latest mark ----
         if card_no:
             card_int = card_no.split(".")[0] if "." in card_no else card_no
             try:
@@ -422,9 +449,8 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                         TIME_SPENT  = :time_spent
                     WHERE (CARD_NO = :card_no OR CARD_NO = :card_int)
                       AND TRUNC(ATTENDANCE_DATE) = TRUNC(SYSDATE)
-                      AND EXIT_TIME IS NULL
                 """, {
-                    "exit_time": now,
+                    "exit_time": out_time,
                     "time_spent": spent,
                     "card_no": card_no,
                     "card_int": card_int,
@@ -432,7 +458,7 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
             except Exception as ar_err:
                 print(f"[ATTENDANCE_RECORDS] UPDATE failed (non-fatal): {ar_err}")
 
-        # If record came from ATTENDANCE_RECORDS only, also try to update DUTY_ROSTER by card_no
+        # If record came from ATTENDANCE_RECORDS only, also update DUTY_ROSTER by card_no
         if source == "attendance_records" and card_no:
             card_int = card_no.split(".")[0] if "." in card_no else card_no
             try:
@@ -443,8 +469,7 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                         W_MNT    = :w_mnt
                     WHERE (TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int)
                       AND TRUNC(ROSTER_DATE) = TRUNC(SYSDATE)
-                      AND OUT_TIME IS NULL
-                """, {"out_time": now, "w_hrs": w_hrs, "w_mnt": w_mnt,
+                """, {"out_time": out_time, "w_hrs": w_hrs, "w_mnt": w_mnt,
                       "card": card_no, "card_int": card_int}),
                     what="DUTY_ROSTER checkout by card")
             except Exception as dr_err:
