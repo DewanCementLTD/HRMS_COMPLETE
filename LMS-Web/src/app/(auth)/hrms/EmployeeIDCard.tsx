@@ -2,19 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { QRCodeSVG } from "qrcode.react";
 import { X, Printer, RotateCw } from "lucide-react";
 import type { EmployeeCard } from "@/services/hrmsService";
 import { EmployeeAvatar } from "./EmployeeAvatar";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
-const SITE_URL = "https://hrms.sysnovix.com";
-
 function Row({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="flex items-start justify-between gap-2 py-[5px] border-b border-gray-100 last:border-0">
-      <span className="text-[9px] font-semibold uppercase tracking-wide text-gray-400 shrink-0 pt-px">{label}</span>
-      <span className="text-[11px] font-semibold text-gray-800 text-right leading-snug">{value || "—"}</span>
+    <div className="flex items-start justify-between gap-2 py-[6px] border-b border-gray-300 last:border-0">
+      <span className="text-[10px] font-bold uppercase tracking-wide text-black shrink-0 pt-px">{label}</span>
+      <span className="text-[12.5px] font-bold text-black text-right leading-snug">{value || "—"}</span>
     </div>
   );
 }
@@ -22,31 +19,30 @@ function Row({ label, value }: { label: string; value?: string }) {
 // ── Front face ──────────────────────────────────────────────
 export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: string }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
-      <div className="relative shrink-0 h-[176px] bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 flex flex-col items-center pt-3">
-        <CompanyLogo compc={c.compc} className="h-9 max-w-[120px] bg-white rounded px-1.5 py-0.5 mb-1 shadow-sm" />
-        <p className="text-white text-[12px] font-bold tracking-wide text-center px-3 leading-tight">
-          {c.company_name || "Company"}
-        </p>
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-[-38px]">
-          <div className="h-[76px] w-[76px] rounded-full bg-white p-1 shadow-lg ring-2 ring-white">
-            <div className="h-full w-full rounded-full overflow-hidden">
-              <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} />
-            </div>
-          </div>
-        </div>
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col px-4 pt-5 pb-4 text-center">
+      {/* Company logo (large, transparent) + name */}
+      <CompanyLogo compc={c.compc} className="h-[84px] max-w-[220px] mx-auto" />
+      <p className="text-black text-[15px] font-extrabold tracking-wide mt-2 leading-tight">
+        {c.company_name || "Company"}
+      </p>
+
+      <div className="border-t-2 border-black/80 my-3" />
+
+      {/* Employee photo (large) */}
+      <div className="mx-auto h-[140px] w-[140px] rounded-full overflow-hidden ring-4 ring-black/10 shadow-md">
+        <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} />
       </div>
-      <div className="flex-1 flex flex-col items-center px-4 pt-12 pb-4 text-center">
-        <p className="text-[16px] font-extrabold text-gray-900 leading-tight">{c.name || "—"}</p>
-        <p className="text-[11px] font-bold text-indigo-600 mt-1 uppercase tracking-wide">{c.designation || "—"}</p>
-        {c.department && <p className="text-[10px] text-gray-400 mt-0.5">{c.department}</p>}
-        <div className="mt-auto w-full">
-          <div className="bg-indigo-50 rounded-xl py-2 px-2 border border-indigo-100">
-            <p className="text-[8px] uppercase tracking-wider text-indigo-400 font-bold">Card No</p>
-            <p className="text-[15px] font-extrabold text-indigo-700 font-mono">{c.card_no || c.empcode}</p>
-          </div>
-          <p className="mt-2.5 text-[8px] uppercase tracking-[0.25em] text-gray-400 font-bold">Employee ID Card</p>
+
+      <p className="text-[22px] font-extrabold text-black leading-tight mt-3">{c.name || "—"}</p>
+      <p className="text-[14px] font-bold text-black mt-1 uppercase tracking-wide">{c.designation || "—"}</p>
+      {c.department && <p className="text-[12px] font-semibold text-black mt-0.5">{c.department}</p>}
+
+      <div className="mt-auto w-full">
+        <div className="rounded-xl py-2.5 px-2 border-2 border-black">
+          <p className="text-[9px] uppercase tracking-wider text-black font-bold">Card No</p>
+          <p className="text-[21px] font-extrabold text-black font-mono leading-tight">{c.card_no || c.empcode}</p>
         </div>
+        <p className="mt-2.5 text-[9px] uppercase tracking-[0.25em] text-black font-bold">Employee ID Card</p>
       </div>
     </div>
   );
@@ -55,37 +51,31 @@ export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: s
 // ── Back face ───────────────────────────────────────────────
 export function CardBack({ c }: { c: EmployeeCard }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-xl flex flex-col">
-      <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-3 text-center">
-        <p className="text-white text-[12px] font-bold uppercase tracking-[0.15em]">Employee Details</p>
-        <p className="text-indigo-100 text-[9px] mt-0.5 truncate">{c.company_name || ""}</p>
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col px-4 py-4">
+      <div className="text-center">
+        <p className="text-black text-[14px] font-extrabold uppercase tracking-[0.15em]">Employee Details</p>
+        <p className="text-black text-[10.5px] font-semibold mt-0.5 truncate">{c.company_name || ""}</p>
       </div>
 
-      <div className="flex-1 px-4 py-2.5 flex flex-col">
-        <div>
-          <Row label="Name" value={c.name} />
-          <Row label="Card No" value={c.card_no || c.empcode} />
-          <Row label="Designation" value={c.designation} />
-          <Row label="CNIC" value={c.nicno} />
-          <Row label="Phone" value={c.mobile} />
-          <Row label="Department" value={c.department} />
-          <Row label="Branch" value={c.branch_name} />
-          {c.bldgrp && <Row label="Blood Group" value={c.bldgrp} />}
-          {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
-        </div>
+      <div className="border-t-2 border-black/80 mt-2.5 mb-1" />
 
-        {/* QR — centered at the bottom middle */}
-        <div className="mt-auto flex flex-col items-center pt-3">
-          <div className="p-1.5 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <QRCodeSVG value={SITE_URL} size={68} level="M" />
-          </div>
-          <p className="text-[7px] text-gray-400 mt-1 text-center leading-tight">Scan to visit hrms.sysnovix.com</p>
-        </div>
+      <div className="flex-1">
+        <Row label="Name" value={c.name} />
+        <Row label="Card No" value={c.card_no || c.empcode} />
+        <Row label="Designation" value={c.designation} />
+        <Row label="CNIC" value={c.nicno} />
+        <Row label="Phone" value={c.mobile} />
+        <Row label="Department" value={c.department} />
+        <Row label="Branch" value={c.branch_name} />
+        {c.bldgrp && <Row label="Blood Group" value={c.bldgrp} />}
+        {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
       </div>
 
-      <div className="shrink-0 bg-gradient-to-r from-indigo-600 to-purple-600 py-1.5 text-center">
-        <p className="text-[9px] text-white/90">
-          Powered by <span className="font-bold">hrms.sysnovix.com</span>
+      {/* Company logo (large, transparent) instead of the QR */}
+      <div className="mt-auto flex flex-col items-center pt-3">
+        <CompanyLogo compc={c.compc} className="h-[72px] max-w-[200px]" />
+        <p className="text-[8.5px] text-black font-semibold mt-2 tracking-wide">
+          Powered by HRMS.sysnovix.com
         </p>
       </div>
     </div>
