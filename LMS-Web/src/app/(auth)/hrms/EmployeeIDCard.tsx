@@ -30,12 +30,14 @@ export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: s
       className="w-full h-full rounded-2xl overflow-hidden bg-white border border-indigo-200 shadow-xl flex flex-col text-center"
       style={PRINT_COLOR}
     >
-      {/* Gradient header — logo sits on a white chip so transparent logos stay visible */}
-      <div className="px-4 pt-4 pb-8" style={{ background: BRAND_GRADIENT, ...PRINT_COLOR }}>
+      {/* Gradient header — logo sits on a white chip so transparent logos stay visible.
+          Extra bottom padding leaves room for the company name to clear the
+          overlapping photo below. */}
+      <div className="px-4 pt-4 pb-16" style={{ background: BRAND_GRADIENT, ...PRINT_COLOR }}>
         <div className="mx-auto inline-flex items-center justify-center bg-white rounded-xl px-3 py-1.5 shadow-md">
           <CompanyLogo compc={c.compc} className="h-[52px] max-w-[170px]" />
         </div>
-        <p className="text-white text-[14px] font-extrabold tracking-wide mt-2 leading-tight">
+        <p className="text-white text-[15px] font-extrabold tracking-wide mt-2 leading-tight">
           {c.company_name || "Company"}
         </p>
       </div>
