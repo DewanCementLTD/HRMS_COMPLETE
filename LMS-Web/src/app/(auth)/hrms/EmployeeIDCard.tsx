@@ -3,15 +3,22 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Printer, RotateCw } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import type { EmployeeCard } from "@/services/hrmsService";
 import { EmployeeAvatar } from "./EmployeeAvatar";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
+// Sysnovix brand gradient — used for the headers and the card-no chip so the
+// card isn't a plain white sheet. printColorAdjust keeps it on paper too.
+const BRAND_GRADIENT = "linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #0ea5e9 100%)";
+const SYSNOVIX_URL = "https://sysnovix.com";
+const PRINT_COLOR = { printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" } as const;
+
 function Row({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="flex items-start justify-between gap-2 py-[6px] border-b border-gray-300 last:border-0">
-      <span className="text-[10px] font-bold uppercase tracking-wide text-black shrink-0 pt-px">{label}</span>
-      <span className="text-[12.5px] font-bold text-black text-right leading-snug">{value || "—"}</span>
+    <div className="flex items-start justify-between gap-2 py-[5px] border-b border-indigo-100 last:border-0">
+      <span className="text-[10px] font-bold uppercase tracking-wide text-indigo-500 shrink-0 pt-px">{label}</span>
+      <span className="text-[12.5px] font-bold text-slate-900 text-right leading-snug">{value || "—"}</span>
     </div>
   );
 }
@@ -19,30 +26,41 @@ function Row({ label, value }: { label: string; value?: string }) {
 // ── Front face ──────────────────────────────────────────────
 export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: string }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col px-4 pt-5 pb-4 text-center">
-      {/* Company logo (large, transparent) + name */}
-      <CompanyLogo compc={c.compc} className="h-[84px] max-w-[220px] mx-auto" />
-      <p className="text-black text-[15px] font-extrabold tracking-wide mt-2 leading-tight">
-        {c.company_name || "Company"}
-      </p>
-
-      <div className="border-t-2 border-black/80 my-3" />
-
-      {/* Employee photo (large) */}
-      <div className="mx-auto h-[140px] w-[140px] rounded-full overflow-hidden ring-4 ring-black/10 shadow-md">
-        <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} textClass="text-6xl" />
+    <div
+      className="w-full h-full rounded-2xl overflow-hidden bg-white border border-indigo-200 shadow-xl flex flex-col text-center"
+      style={PRINT_COLOR}
+    >
+      {/* Gradient header — logo sits on a white chip so transparent logos stay visible */}
+      <div className="px-4 pt-4 pb-8" style={{ background: BRAND_GRADIENT, ...PRINT_COLOR }}>
+        <div className="mx-auto inline-flex items-center justify-center bg-white rounded-xl px-3 py-1.5 shadow-md">
+          <CompanyLogo compc={c.compc} className="h-[52px] max-w-[170px]" />
+        </div>
+        <p className="text-white text-[14px] font-extrabold tracking-wide mt-2 leading-tight">
+          {c.company_name || "Company"}
+        </p>
       </div>
 
-      <p className="text-[22px] font-extrabold text-black leading-tight mt-3">{c.name || "—"}</p>
-      <p className="text-[14px] font-bold text-black mt-1 uppercase tracking-wide">{c.designation || "—"}</p>
-      {c.department && <p className="text-[12px] font-semibold text-black mt-0.5">{c.department}</p>}
-
-      <div className="mt-auto w-full">
-        <div className="rounded-xl py-2.5 px-2 border-2 border-black">
-          <p className="text-[9px] uppercase tracking-wider text-black font-bold">Card No</p>
-          <p className="text-[21px] font-extrabold text-black font-mono leading-tight">{c.card_no || c.empcode}</p>
+      {/* Body */}
+      <div className="flex-1 flex flex-col px-4 pb-4">
+        {/* Photo overlaps the header band */}
+        <div
+          className="mx-auto h-[128px] w-[128px] rounded-full overflow-hidden ring-4 ring-white bg-white -mt-12"
+          style={{ boxShadow: "0 8px 20px rgba(67,56,202,0.28)" }}
+        >
+          <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} textClass="text-5xl" />
         </div>
-        <p className="mt-2.5 text-[9px] uppercase tracking-[0.25em] text-black font-bold">Employee ID Card</p>
+
+        <p className="text-[21px] font-extrabold text-slate-900 leading-tight mt-3">{c.name || "—"}</p>
+        <p className="text-[13px] font-bold text-indigo-700 mt-1 uppercase tracking-wide">{c.designation || "—"}</p>
+        {c.department && <p className="text-[12px] font-semibold text-slate-600 mt-0.5">{c.department}</p>}
+
+        <div className="mt-auto w-full">
+          <div className="rounded-xl py-2.5 px-2 text-white shadow-md" style={{ background: BRAND_GRADIENT, ...PRINT_COLOR }}>
+            <p className="text-[9px] uppercase tracking-wider font-bold opacity-90">Card No</p>
+            <p className="text-[21px] font-extrabold font-mono leading-tight">{c.card_no || c.empcode}</p>
+          </div>
+          <p className="mt-2.5 text-[9px] uppercase tracking-[0.25em] text-indigo-400 font-bold">Employee ID Card</p>
+        </div>
       </div>
     </div>
   );
@@ -51,15 +69,17 @@ export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: s
 // ── Back face ───────────────────────────────────────────────
 export function CardBack({ c }: { c: EmployeeCard }) {
   return (
-    <div className="w-full h-full rounded-2xl overflow-hidden bg-white border border-gray-300 shadow-xl flex flex-col px-4 py-4">
-      <div className="text-center">
-        <p className="text-black text-[14px] font-extrabold uppercase tracking-[0.15em]">Employee Details</p>
-        <p className="text-black text-[10.5px] font-semibold mt-0.5 truncate">{c.company_name || ""}</p>
+    <div
+      className="w-full h-full rounded-2xl overflow-hidden bg-white border border-indigo-200 shadow-xl flex flex-col"
+      style={PRINT_COLOR}
+    >
+      {/* Gradient header */}
+      <div className="px-4 py-3 text-center" style={{ background: BRAND_GRADIENT, ...PRINT_COLOR }}>
+        <p className="text-white text-[14px] font-extrabold uppercase tracking-[0.15em]">Employee Details</p>
+        <p className="text-white/90 text-[10.5px] font-semibold mt-0.5 truncate">{c.company_name || ""}</p>
       </div>
 
-      <div className="border-t-2 border-black/80 mt-2.5 mb-1" />
-
-      <div className="flex-1">
+      <div className="flex-1 px-4 pt-2">
         <Row label="Name" value={c.name} />
         <Row label="Card No" value={c.card_no || c.empcode} />
         <Row label="Designation" value={c.designation} />
@@ -71,11 +91,20 @@ export function CardBack({ c }: { c: EmployeeCard }) {
         {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
       </div>
 
-      {/* Company logo (large, transparent) instead of the QR */}
-      <div className="mt-auto flex flex-col items-center pt-3">
-        <CompanyLogo compc={c.compc} className="h-[72px] max-w-[200px]" />
-        <p className="text-[8.5px] text-black font-semibold mt-2 tracking-wide">
-          Powered by HRMS.sysnovix.com
+      {/* QR to the Sysnovix website + company footer */}
+      <div className="mt-auto px-3 pb-3 pt-2">
+        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5" style={{ background: "#eef2ff", ...PRINT_COLOR }}>
+          <div className="bg-white p-1.5 rounded-lg shrink-0 shadow-sm">
+            <QRCodeSVG value={SYSNOVIX_URL} size={62} level="M" fgColor="#1e1b4b" bgColor="#ffffff" />
+          </div>
+          <div className="text-left leading-tight">
+            <p className="text-[13px] font-extrabold text-indigo-700">Sysnovix</p>
+            <p className="text-[9.5px] text-slate-600 font-semibold">ERP &amp; IT Solutions</p>
+            <p className="text-[9px] text-slate-500 mt-0.5">Scan to visit sysnovix.com</p>
+          </div>
+        </div>
+        <p className="text-center text-[7.5px] text-slate-500 font-medium leading-snug mt-2 px-1">
+          © 2026 Sysnovix | ERP &amp; IT Solutions | 📞 +92 370 3677800 | ✉️ info@sysnovix.com | 🌐 sysnovix.com
         </p>
       </div>
     </div>
@@ -154,6 +183,11 @@ export function EmployeeIDCard({ card, onClose, adminCardNo }: { card: EmployeeC
             transform-origin: top left;
           }
           .id-card-scale > div { box-shadow: none !important; }
+          /* Keep the brand gradient / colored panels on paper */
+          .id-card-print * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
         }
       `}</style>
     </div>
