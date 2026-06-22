@@ -304,11 +304,18 @@ def insert_check_in(card_no: str, empcode: str, *,
 # ------------------------------------------------------------------
 
 def update_check_out(record_id: int, entry_time: str, card_no: str = None,
-                     source: str = "attendance_records", current_out: str = None):
+                     source: str = "attendance_records", current_out: str = None,
+                     checkout_lat=None, checkout_long=None, checkout_address=None):
     """Extend today's ATTENDANCE_RECORDS row's EXIT_TIME to the LATEST mark.
     OUT_TIME = later(existing OUT, now); ENTRY_TIME (set on the first mark) stays
     the earliest. record_id is the ATTENDANCE_RECORDS.ID. DUTY_ROSTER is the
-    ERP's table and is never written here."""
+    ERP's table and is never written here.
+
+    The location sent with the check-out is stored in the dedicated columns
+    CHECKOUT_LATS / CHECKOUT_LONGS / CHECKOUT_ADDRESS (separate from the
+    check-in location in LATITUDE / LONGITUDE / ADDRESS), so each row keeps the
+    check-in spot AND the check-out spot. Only overwritten when the latest mark
+    actually carries a location."""
     conn = get_connection()
     cursor = conn.cursor()
     try:
@@ -316,12 +323,22 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
         out_time = _later_hhmm(now, current_out)
         spent = _time_spent_minutes(entry_time, out_time)
 
-        _run_with_retry(lambda: cursor.execute("""
+        params = {"exit_time": out_time, "time_spent": spent, "rid": record_id}
+        loc_set = ""
+        if checkout_lat is not None or checkout_long is not None or checkout_address is not None:
+            params["co_lat"] = str(checkout_lat) if checkout_lat is not None else None
+            params["co_long"] = str(checkout_long) if checkout_long is not None else None
+            params["co_addr"] = _btrunc(checkout_address, 400) if checkout_address else None
+            loc_set = (",\n                CHECKOUT_LATS    = :co_lat,"
+                       "\n                CHECKOUT_LONGS   = :co_long,"
+                       "\n                CHECKOUT_ADDRESS = :co_addr")
+
+        _run_with_retry(lambda: cursor.execute(f"""
             UPDATE ATTENDANCE_RECORDS
             SET EXIT_TIME  = :exit_time,
-                TIME_SPENT = :time_spent
+                TIME_SPENT = :time_spent{loc_set}
             WHERE ID = :rid
-        """, {"exit_time": out_time, "time_spent": spent, "rid": record_id}),
+        """, params),
             what="ATTENDANCE_RECORDS checkout")
 
         conn.commit()
