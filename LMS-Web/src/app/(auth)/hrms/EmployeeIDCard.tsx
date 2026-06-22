@@ -30,7 +30,7 @@ export function CardFront({ c, adminCardNo }: { c: EmployeeCard; adminCardNo?: s
 
       {/* Employee photo (large) */}
       <div className="mx-auto h-[140px] w-[140px] rounded-full overflow-hidden ring-4 ring-black/10 shadow-md">
-        <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} />
+        <EmployeeAvatar empcode={c.empcode} adminCardNo={adminCardNo} name={c.name} textClass="text-6xl" />
       </div>
 
       <p className="text-[22px] font-extrabold text-black leading-tight mt-3">{c.name || "—"}</p>
