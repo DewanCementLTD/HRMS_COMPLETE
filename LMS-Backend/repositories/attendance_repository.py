@@ -298,12 +298,15 @@ def insert_check_in(card_no: str, empcode: str, *,
                                dr.STATUS     = 'Present',
                                dr.ATT_MRK_TM = :att_mrk
                 WHEN NOT MATCHED THEN
-                    -- DUTY_ROSTER_PK is assigned by the BEFORE-INSERT trigger
-                    -- INSERT_PK_ROSTER; do not supply it here.
-                    INSERT (EMP_FK, CARD_NO, ROSTER_DATE,
+                    -- The INSERT_PK_ROSTER trigger queries DUTY_ROSTER to build
+                    -- the PK, which fails inside a MERGE (mutating table) and is
+                    -- swallowed — leaving the PK NULL. So we must supply it here.
+                    -- The MAX(PK)+1 race is covered by _run_with_retry (ORA-00001).
+                    INSERT (DUTY_ROSTER_PK, EMP_FK, CARD_NO, ROSTER_DATE,
                             IN_TIME, STATUS, DAY_NAME, ROSTER_MONTH,
                             ATT_MRK_TM, COMPC, BRNCH, ABSENT_DAYS)
                     VALUES (
+                        (SELECT NVL(MAX(DUTY_ROSTER_PK), 0) + 1 FROM DUTY_ROSTER),
                         :emp_fk, :card_num, TRUNC(SYSDATE),
                         :in_time, 'Present', :day_name, :roster_month,
                         :att_mrk, :compc, :brnch, 0
