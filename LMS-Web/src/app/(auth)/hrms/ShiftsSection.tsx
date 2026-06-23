@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, RefreshCw, Pencil, Trash2, X, Loader2, Check, Clock } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
@@ -89,6 +90,8 @@ function ShiftModal({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const isEdit = !!editing;
 
@@ -120,11 +123,11 @@ function ShiftModal({
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4" onClick={onClose}>
+  const modal = (
+    <div className="fixed inset-0 z-[1000] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto" onClick={onClose}>
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
       <div
-        className="relative w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+        className="relative w-full max-w-3xl my-auto max-h-[92vh] sm:max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -203,6 +206,9 @@ function ShiftModal({
       </div>
     </div>
   );
+
+  if (!mounted) return null;
+  return createPortal(modal, document.body);
 }
 
 // ─── Section (list + add/edit/delete) ────────────────────────
