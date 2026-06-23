@@ -381,17 +381,146 @@ def get_designations(grade_cd: str = None, compc=None, brnch=None) -> list:
         cursor.close(); conn.close()
 
 
+# SHIFT_HEAD columns. PK/COMPC/BRNCH are managed server-side; the rest are the
+# editable shift-timing fields exposed on the Setup → Shifts form.
+SHIFT_HEAD_COLS = [
+    "SHIFT_HEAD_PK", "SHIFT", "SHIFT_DESC", "TIME_FROM", "TIME_TO",
+    "OVERTIME_START_TIME", "ALLOW_IN_TIME", "LATE_START_TM",
+    "SAT_START_TM", "SAT_END_TIME", "SAT_ALLOW_IN_TM",
+    "HALF_DAY_TM", "SAT_HAF_DAY_TM", "LATE_SIT_TM", "LATE_SIT_ALLOW_TM",
+    "DUTY_HRS", "EARLY_OUT_LATE_START", "EARLY_OUT_LATE_END",
+    "EARLY_OUT_HDAY_START", "EARLY_OUT_HDAY_END",
+    "LATE_END_TM", "HALF_DAY_END_TM", "DAY_NAME", "COMPC", "BRNCH",
+]
+SHIFT_HEAD_FIELDS = [c for c in SHIFT_HEAD_COLS if c not in ("SHIFT_HEAD_PK", "COMPC", "BRNCH")]
+
+
 def get_shifts(compc=None, brnch=None) -> list:
+    """All SHIFT_HEAD rows for the company/branch, with every timing column."""
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        col_sql = ", ".join(SHIFT_HEAD_COLS)
         rows = _try_progressive(
             cursor,
-            "SELECT SHIFT, SHIFT_DESC, TIME_FROM, TIME_TO FROM SHIFT_HEAD WHERE 1=1 {filter} ORDER BY SHIFT",
+            f"SELECT {col_sql} FROM SHIFT_HEAD WHERE 1=1 {{filter}} ORDER BY SHIFT",
             compc, brnch,
         )
-        return [{"shift": r[0], "shift_desc": (r[1] or "").strip(),
-                 "time_from": r[2], "time_to": r[3]} for r in rows]
+        out = []
+        for r in rows:
+            d = {}
+            for i, c in enumerate(SHIFT_HEAD_COLS):
+                v = r[i]
+                d[c.lower()] = v.strip() if isinstance(v, str) else v
+            out.append(d)
+        return out
+    finally:
+        cursor.close(); conn.close()
+
+
+def get_shift_lov() -> list:
+    """The shift LOV (master list of shift codes) from HR_SHIFT — active only."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT SHIFT, DESCR FROM HR_SHIFT WHERE NVL(STATS, 'Y') = 'Y' ORDER BY SHIFT"
+        )
+        return [{"shift": (r[0] or "").strip(), "descr": (r[1] or "").strip()}
+                for r in cursor.fetchall()]
+    finally:
+        cursor.close(); conn.close()
+
+
+def _shift_field_value(col: str, fields: dict):
+    """Normalise one incoming SHIFT_HEAD field value for binding."""
+    raw = fields.get(col.lower())
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if s == "":
+        return None
+    if col == "SHIFT":
+        return s.upper()[:1]
+    if col == "DUTY_HRS":
+        try:
+            return float(s)
+        except ValueError:
+            return None
+    return s[:20]
+
+
+def add_shift_head(fields: dict, compc=1, brnch=1) -> dict:
+    """Insert a full shift configuration into SHIFT_HEAD for this company+branch."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        shift = (fields.get("shift") or "").strip().upper()[:1]
+        if not shift:
+            return {"status": "error", "message": "Shift code is required"}
+
+        # One configuration per shift code per company+branch.
+        cursor.execute(
+            "SELECT COUNT(*) FROM SHIFT_HEAD WHERE SHIFT = :s "
+            "AND NVL(COMPC, 0) = :c AND NVL(BRNCH, 0) = :b",
+            {"s": shift, "c": _coerce(compc), "b": _coerce(brnch)},
+        )
+        if cursor.fetchone()[0] > 0:
+            return {"status": "error",
+                    "message": f"Shift '{shift}' is already configured for this company/branch"}
+
+        cursor.execute("SELECT NVL(MAX(SHIFT_HEAD_PK), 0) + 1 FROM SHIFT_HEAD")
+        new_pk = cursor.fetchone()[0]
+
+        cols = ["SHIFT_HEAD_PK"] + SHIFT_HEAD_FIELDS + ["COMPC", "BRNCH"]
+        binds = {"SHIFT_HEAD_PK": new_pk, "COMPC": _coerce(compc), "BRNCH": _coerce(brnch)}
+        for c in SHIFT_HEAD_FIELDS:
+            binds[c] = _shift_field_value(c, fields)
+
+        placeholders = ", ".join(":" + c for c in cols)
+        cursor.execute(
+            f"INSERT INTO SHIFT_HEAD ({', '.join(cols)}) VALUES ({placeholders})", binds
+        )
+        conn.commit()
+        return {"status": "success", "shift": shift, "shift_head_pk": new_pk}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def update_shift_head(pk, fields: dict) -> dict:
+    """Update every editable timing column of a SHIFT_HEAD row by PK."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        set_parts, binds = [], {"pk": pk}
+        for c in SHIFT_HEAD_FIELDS:
+            set_parts.append(f"{c} = :{c}")
+            binds[c] = _shift_field_value(c, fields)
+        cursor.execute(
+            f"UPDATE SHIFT_HEAD SET {', '.join(set_parts)} WHERE SHIFT_HEAD_PK = :pk", binds
+        )
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
+    finally:
+        cursor.close(); conn.close()
+
+
+def delete_shift_head(pk) -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM SHIFT_HEAD WHERE SHIFT_HEAD_PK = :pk", {"pk": pk})
+        conn.commit()
+        return {"status": "success"}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
     finally:
         cursor.close(); conn.close()
 
@@ -525,25 +654,6 @@ def add_designation(grade_cd: str, desg_desc: str, compc=1, brnch=1) -> dict:
              {"g": grade_cd, "cd": new_cd, "desg_text": dd}),
         ])
         return {"status": "success", "grade_cd": grade_cd, "desg_cd": str(new_cd), "desg_desc": dd}
-    except Exception as e:
-        conn.rollback()
-        return {"status": "error", "message": str(e)}
-    finally:
-        cursor.close(); conn.close()
-
-
-def add_shift(shift: str, shift_desc: str, time_from: str = None, time_to: str = None, compc=1, brnch=1) -> dict:
-    conn = get_connection()
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT NVL(MAX(SHIFT_HEAD_PK), 0) + 1 FROM SHIFT_HEAD")
-        new_pk = cursor.fetchone()[0]
-        cursor.execute(
-            "INSERT INTO SHIFT_HEAD (SHIFT_HEAD_PK, SHIFT, SHIFT_DESC, TIME_FROM, TIME_TO, COMPC, BRNCH) VALUES (:pk, :shift, :shift_text, :tf, :tt, :compc, :brnch)",
-            {"pk": new_pk, "shift": shift.strip().upper(), "shift_text": shift_desc.strip(), "tf": time_from, "tt": time_to, "compc": compc, "brnch": brnch}
-        )
-        conn.commit()
-        return {"status": "success", "shift": shift.strip().upper(), "shift_desc": shift_desc.strip()}
     except Exception as e:
         conn.rollback()
         return {"status": "error", "message": str(e)}

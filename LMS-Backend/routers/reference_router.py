@@ -11,9 +11,10 @@ from core.dependencies import require_hr_admin
 from routers.hrms_router import _resolve_filter_lists
 from repositories.reference_repository import (
     get_departments, get_grades, get_designations, get_shifts,
+    get_shift_lov, add_shift_head, update_shift_head, delete_shift_head,
     get_blood_groups, get_cadre, get_units, get_religions, get_reporting_officers,
     get_locations, add_location, update_location,
-    add_department, add_grade, add_designation, add_shift,
+    add_department, add_grade, add_designation,
     add_blood_group, add_cadre, add_unit,
     get_emp_statuses, get_banks, get_bank_branches, get_qualifications,
     add_emp_status, delete_emp_status, add_bank, delete_bank,
@@ -69,6 +70,12 @@ def list_qualifications(compc: Optional[str] = Query(None)):
 @router.get("/shifts")
 def list_shifts(compc: Optional[str] = Query(None), brnch: Optional[str] = Query(None)):
     return {"items": get_shifts(compc, brnch)}
+
+
+@router.get("/shift-lov")
+def list_shift_lov():
+    """Master list of shift codes (HR_SHIFT) used to populate the Shift dropdown."""
+    return {"items": get_shift_lov()}
 
 
 @router.get("/blood-groups")
@@ -134,6 +141,23 @@ def _admin_compc_brnch(admin_card_no: str):
     return _first_int(final_c, 1), _first_int(final_b, 1)
 
 
+def _setup_company_branch(admin_card_no: str, compc: Optional[str], brnch: Optional[str]):
+    """Resolve (COMPC, BRNCH) a Setup add targets, honouring the selected company
+    and branch when they fall within the admin's rights, else the admin's first.
+    Used by per-company+branch tables like SHIFT_HEAD."""
+    final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
+
+    def _first_int(lst, default):
+        for v in (lst or []):
+            try:
+                return int(float(str(v).strip()))
+            except (ValueError, TypeError):
+                continue
+        return default
+
+    return _first_int(final_c, 1), _first_int(final_b, 1)
+
+
 def _setup_company(admin_card_no: str, compc: Optional[str]) -> int:
     """Resolve which company a Setup add/remove targets: the selected company
     (compc) when it's within the admin's rights, else the admin's first company."""
@@ -168,11 +192,31 @@ class AddDesignationRequest(BaseModel):
     grade_cd: str
     desg_desc: str
 
-class AddShiftRequest(BaseModel):
+class ShiftRequest(BaseModel):
+    """Full SHIFT_HEAD configuration. Only `shift` is required; every timing
+    field is optional and stored as-is (DUTY_HRS is coerced to a number)."""
     shift: str
-    shift_desc: str
+    shift_desc: Optional[str] = None
     time_from: Optional[str] = None
     time_to: Optional[str] = None
+    overtime_start_time: Optional[str] = None
+    allow_in_time: Optional[str] = None
+    late_start_tm: Optional[str] = None
+    late_end_tm: Optional[str] = None
+    half_day_tm: Optional[str] = None
+    half_day_end_tm: Optional[str] = None
+    sat_start_tm: Optional[str] = None
+    sat_end_time: Optional[str] = None
+    sat_allow_in_tm: Optional[str] = None
+    sat_haf_day_tm: Optional[str] = None
+    late_sit_tm: Optional[str] = None
+    late_sit_allow_tm: Optional[str] = None
+    early_out_late_start: Optional[str] = None
+    early_out_late_end: Optional[str] = None
+    early_out_hday_start: Optional[str] = None
+    early_out_hday_end: Optional[str] = None
+    duty_hrs: Optional[str] = None
+    day_name: Optional[str] = None
 
 class AddBloodGroupRequest(BaseModel):
     blood_group: str
@@ -218,12 +262,39 @@ def create_designation(req: AddDesignationRequest, admin_card_no: str = Query(..
 
 
 @router.post("/shifts")
-def create_shift(req: AddShiftRequest, admin_card_no: str = Query(...)):
+def create_shift(
+    req: ShiftRequest,
+    admin_card_no: str = Query(...),
+    compc: Optional[str] = Query(None),
+    brnch: Optional[str] = Query(None),
+):
+    """Add a shift configuration to the SELECTED company+branch (each company /
+    branch keeps its own shift set)."""
     require_hr_admin(admin_card_no)
-    if not req.shift.strip() or not req.shift_desc.strip():
-        raise HTTPException(status_code=400, detail="Shift code and description are required")
-    compc, brnch = _admin_compc_brnch(admin_card_no)
-    result = add_shift(req.shift, req.shift_desc, req.time_from, req.time_to, compc=compc, brnch=brnch)
+    if not (req.shift or "").strip():
+        raise HTTPException(status_code=400, detail="Shift code is required")
+    rc, rb = _setup_company_branch(admin_card_no, compc, brnch)
+    result = add_shift_head(req.dict(), compc=rc, brnch=rb)
+    if result["status"] == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+    return result
+
+
+@router.put("/shifts/{pk}")
+def edit_shift(pk: int, req: ShiftRequest, admin_card_no: str = Query(...)):
+    require_hr_admin(admin_card_no)
+    if not (req.shift or "").strip():
+        raise HTTPException(status_code=400, detail="Shift code is required")
+    result = update_shift_head(pk, req.dict())
+    if result["status"] == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+    return result
+
+
+@router.delete("/shifts/{pk}")
+def remove_shift(pk: int, admin_card_no: str = Query(...)):
+    require_hr_admin(admin_card_no)
+    result = delete_shift_head(pk)
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
     return result

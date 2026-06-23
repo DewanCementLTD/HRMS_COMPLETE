@@ -3,7 +3,41 @@ import { apiRequest } from "./api";
 export interface Department  { dept_no: number; dept_name: string }
 export interface Grade       { grade_cd: string; descr: string }
 export interface Designation { grade_cd: string; desg_cd: string; desg_desc: string }
-export interface Shift       { shift: string; shift_desc: string; time_from?: string; time_to?: string }
+export interface Shift {
+  shift_head_pk?: number;
+  shift: string;
+  shift_desc: string;
+  time_from?: string;
+  time_to?: string;
+  overtime_start_time?: string;
+  allow_in_time?: string;
+  late_start_tm?: string;
+  late_end_tm?: string;
+  half_day_tm?: string;
+  half_day_end_tm?: string;
+  sat_start_tm?: string;
+  sat_end_time?: string;
+  sat_allow_in_tm?: string;
+  sat_haf_day_tm?: string;
+  late_sit_tm?: string;
+  late_sit_allow_tm?: string;
+  early_out_late_start?: string;
+  early_out_late_end?: string;
+  early_out_hday_start?: string;
+  early_out_hday_end?: string;
+  duty_hrs?: number | string;
+  day_name?: string;
+  compc?: number;
+  brnch?: number;
+}
+// One shift's editable fields as sent to the API (all strings; duty_hrs coerced server-side).
+export type ShiftInput = { shift: string } & Partial<Record<
+  "shift_desc" | "time_from" | "time_to" | "overtime_start_time" | "allow_in_time"
+  | "late_start_tm" | "late_end_tm" | "half_day_tm" | "half_day_end_tm"
+  | "sat_start_tm" | "sat_end_time" | "sat_allow_in_tm" | "sat_haf_day_tm"
+  | "late_sit_tm" | "late_sit_allow_tm" | "early_out_late_start" | "early_out_late_end"
+  | "early_out_hday_start" | "early_out_hday_end" | "duty_hrs" | "day_name", string>>;
+export interface ShiftLov    { shift: string; descr: string }
 export interface BloodGroup  { pk: number; blood_group: string }
 export interface Cadre       { pk: number; cadre: string }
 export interface Unit            { unit_id: number; unit_name: string }
@@ -33,6 +67,8 @@ export const fetchDesignations = (grade_cd?: string, compc?: string, brnch?: str
   );
 export const fetchShifts       = (compc?: string, brnch?: string) =>
   apiRequest<{ items: Shift[] }>(`/reference/shifts${cbQuery(compc, brnch)}`);
+export const fetchShiftLov     = () =>
+  apiRequest<{ items: ShiftLov[] }>(`/reference/shift-lov`);
 export const fetchBloodGroups  = (compc?: string, brnch?: string) =>
   apiRequest<{ items: BloodGroup[] }>(`/reference/blood-groups${cbQuery(compc, brnch)}`);
 export const fetchCadre        = (compc?: string, brnch?: string) =>
@@ -66,8 +102,16 @@ export const addGrade       = (adminCardNo: string, grade_cd: string, descr: str
 export const addDesignation = (adminCardNo: string, grade_cd: string, desg_desc: string) =>
   apiRequest<Designation>(`/reference/designations${q(adminCardNo)}`, { method: "POST", body: { grade_cd, desg_desc } });
 
-export const addShift       = (adminCardNo: string, shift: string, shift_desc: string, time_from?: string, time_to?: string) =>
-  apiRequest<Shift>(`/reference/shifts${q(adminCardNo)}`, { method: "POST", body: { shift, shift_desc, time_from, time_to } });
+export const addShift       = (adminCardNo: string, fields: ShiftInput, compc?: string, brnch?: string) => {
+  const parts = [`admin_card_no=${encodeURIComponent(adminCardNo)}`];
+  if (compc) parts.push(`compc=${encodeURIComponent(compc)}`);
+  if (brnch) parts.push(`brnch=${encodeURIComponent(brnch)}`);
+  return apiRequest<{ status: string }>(`/reference/shifts?${parts.join("&")}`, { method: "POST", body: fields });
+};
+export const updateShift    = (adminCardNo: string, pk: number, fields: ShiftInput) =>
+  apiRequest<{ status: string }>(`/reference/shifts/${pk}${q(adminCardNo)}`, { method: "PUT", body: fields });
+export const deleteShift    = (adminCardNo: string, pk: number) =>
+  apiRequest<{ status: string }>(`/reference/shifts/${pk}${q(adminCardNo)}`, { method: "DELETE" });
 
 export const addBloodGroup  = (adminCardNo: string, blood_group: string) =>
   apiRequest<BloodGroup>(`/reference/blood-groups${q(adminCardNo)}`, { method: "POST", body: { blood_group } });

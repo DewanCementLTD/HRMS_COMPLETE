@@ -11,16 +11,17 @@ import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts,
+  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts, fetchShiftLov,
   fetchBloodGroups, fetchLocations,
-  addDepartment, addDesignation, addShift, addBloodGroup,
+  addDepartment, addDesignation, addBloodGroup,
   addLocation, updateLocation,
   fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
   addEmpStatus, deleteEmpStatus, addBank, deleteBank,
   addBankBranch, deleteBankBranch, addQualification, deleteQualification,
-  type Department, type Grade, type Designation, type Shift, type BloodGroup, type Location,
+  type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location,
   type EmpStatus, type Bank, type BankBranch, type Qualification,
 } from "@/services/referenceService";
+import { ShiftsSection } from "./ShiftsSection";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -484,6 +485,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [desigs, setDesigs] = useState<Designation[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
+  const [shiftLov, setShiftLov] = useState<ShiftLov[]>([]);
   const [bgs,    setBgs]    = useState<BloodGroup[]>([]);
   const [locs,   setLocs]   = useState<Location[]>([]);
   const [empStatuses, setEmpStatuses] = useState<EmpStatus[]>([]);
@@ -506,7 +508,13 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           ]);
           setDesigs(r.items); setGrades(g.items); break;
         }
-        case "shifts":       { const r = await fetchShifts(activeCompany, activeBranch);       setShifts(r.items); break; }
+        case "shifts":       {
+          const [r, l] = await Promise.all([
+            fetchShifts(activeCompany, activeBranch),
+            fetchShiftLov(),
+          ]);
+          setShifts(r.items); setShiftLov(l.items); break;
+        }
         case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch);  setBgs(r.items);    break; }
         case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
         case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
@@ -590,22 +598,16 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     </div>
   );
 
-  // ── Shifts ───────────────────────────────────────────────
+  // ── Shifts (per company + branch; LOV from HR_SHIFT, stored in SHIFT_HEAD) ──
   const shiftTable = (
-    <MasterTable
-      columns={["Shift Code", "Description", "From", "To"]}
-      rows={shifts.map((s) => [s.shift, s.shift_desc, s.time_from ?? "—", s.time_to ?? "—"])}
+    <ShiftsSection
+      shifts={shifts}
+      lov={shiftLov}
       loading={loading}
+      adminCardNo={adminCardNo}
+      compc={activeCompany}
+      brnch={activeBranch}
       onRefresh={() => load("shifts")}
-      addFields={[
-        { key: "shift",      label: "Shift Code",   placeholder: "e.g. A" },
-        { key: "shift_desc", label: "Description",  placeholder: "e.g. Morning Shift" },
-        { key: "time_from",  label: "Time From",    placeholder: "e.g. 09:00" },
-        { key: "time_to",    label: "Time To",      placeholder: "e.g. 17:00" },
-      ]}
-      onAdd={async (v) => {
-        await addShift(adminCardNo, v.shift, v.shift_desc, v.time_from, v.time_to);
-      }}
     />
   );
 
@@ -732,7 +734,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Settings className="h-5 w-5 text-indigo-500" />
-        <h2 className="text-lg font-semibold text-gray-900">Setup — Master Tables</h2>
+        <h2 className="text-lg font-semibold text-white-900">Setup — Master Tables</h2>
         <span className="text-xs text-gray-400 ml-2">HR Admin only</span>
       </div>
 
