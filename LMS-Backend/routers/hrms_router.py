@@ -291,3 +291,16 @@ def hrms_attendance_details(
     final_c, final_b = _resolve_filter_lists(admin_card_no, compc, brnch)
     items = get_attendance_details(from_date, to_date, final_c, final_b)
     return {"items": items, "from_date": from_date, "to_date": to_date}
+
+
+@router.get("/duty-roster/{card_no}")
+def employee_duty_roster(
+    card_no: str,
+    admin_card_no: str = Query(..., description="Card no of requesting HR admin"),
+    month: Optional[str] = Query(None, description="ROSTER_MONTH like 'MAY-26'; omit for latest"),
+):
+    """Read-only monthly duty roster for one employee, straight from the ERP's
+    DUTY_ROSTER table (shift per day, in/out, late / half-day / early-out flags)."""
+    require_hr_admin(admin_card_no)
+    from repositories.hrms_repository import get_employee_roster
+    return get_employee_roster(card_no, month)

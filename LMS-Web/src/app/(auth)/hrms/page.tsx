@@ -49,6 +49,7 @@ import { EmployeeDocuments } from "./EmployeeDocuments";
 import { EmployeePhoto } from "./EmployeePhoto";
 import { EmployeeIDCard } from "./EmployeeIDCard";
 import { AttendancePanel } from "./AttendancePanel";
+import { DutyRosterPanel, type RosterEmployee } from "./DutyRosterPanel";
 import {
   fetchDepartments, fetchDesignations,
   fetchBloodGroups, fetchCadre, fetchUnits, fetchReligions, fetchReportingOfficers,
@@ -63,7 +64,7 @@ import {
 // Types & constants
 // ──────────────────────────────────────────────
 
-type View = "list" | "register" | "edit" | "report";
+type View = "list" | "register" | "edit" | "report" | "roster";
 
 type StatusTab = "" | "A" | "I" | "L";
 
@@ -361,6 +362,7 @@ export default function HRMSPage() {
   const [reportRange, setReportRange] = useState<AttendanceDateRange>(getPreset("month"));
   const [empFilter, setEmpFilter] = useState<EmpFilter>({ dept: "", gender: "", status: "", location: "" });
   const [cardData, setCardData] = useState<EmployeeCard | null>(null);
+  const [rosterEmp, setRosterEmp] = useState<RosterEmployee | null>(null);
 
   // Reference data
   const [refDepts,  setRefDepts]  = useState<Department[]>([]);
@@ -539,6 +541,17 @@ export default function HRMSPage() {
       emp,
       ...(Object.values(getPreset("month")) as [string, string]),
     );
+  }
+
+  function startRoster(emp: HRMSSearchResult) {
+    setRosterEmp({
+      cardNo: emp.card_no || emp.atdtcard || emp.empcode,
+      name: emp.name,
+      designation: refDesigs.find((d) => String(d.desg_cd) === String(emp.desg_cd))?.desg_desc,
+      department: refDepts.find((d) => d.dept_no === Number(emp.dept_no))?.dept_name,
+      status: emp.status,
+    });
+    setView("roster");
   }
 
   // ---- Populate edit form when selectedEmployee is ready ----
@@ -883,6 +896,14 @@ export default function HRMSPage() {
                             <Button
                               variant="secondary"
                               size="sm"
+                              onClick={() => startRoster(emp)}
+                            >
+                              <Calendar className="h-3.5 w-3.5 mr-1" />
+                              Roster
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
                               onClick={() => openCard(emp.empcode)}
                             >
                               <IdCard className="h-3.5 w-3.5 mr-1" />
@@ -908,6 +929,17 @@ export default function HRMSPage() {
             )}
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // ════════════════════════════════════════════
+  // VIEW: MONTHLY DUTY ROSTER (read-only, from DUTY_ROSTER)
+  // ════════════════════════════════════════════
+  if (view === "roster" && rosterEmp) {
+    return (
+      <div className="animate-fade-in">
+        <DutyRosterPanel emp={rosterEmp} adminCardNo={user.card_no} onBack={goList} />
       </div>
     );
   }

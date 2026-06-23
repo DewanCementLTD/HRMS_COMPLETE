@@ -47,6 +47,38 @@ export async function getEmployeeCard(
   );
 }
 
+// ── Monthly duty roster (read-only, from the ERP's DUTY_ROSTER) ──
+export interface DutyRosterRow {
+  roster_date: string;
+  shift?: string;
+  day_name?: string;
+  time_in?: string | null;
+  time_out?: string | null;
+  fh_late?: string | null;
+  fh_half_day?: string | null;
+  sh_late?: string | null;
+  sh_half_day?: string | null;
+  early_out?: string | null;
+  remarks?: string | null;
+}
+export interface DutyRoster {
+  months: string[];
+  month: string | null;
+  rows: DutyRosterRow[];
+}
+
+export async function getEmployeeRoster(
+  cardNo: string,
+  adminCardNo: string,
+  month?: string
+): Promise<DutyRoster> {
+  const parts = [`admin_card_no=${encodeURIComponent(adminCardNo)}`];
+  if (month) parts.push(`month=${encodeURIComponent(month)}`);
+  return apiRequest<DutyRoster>(
+    `/hrms/duty-roster/${encodeURIComponent(cardNo)}?${parts.join("&")}`
+  );
+}
+
 export async function createHRMSEmployee(
   data: HRMSEmployeeCreate,
   adminCardNo: string

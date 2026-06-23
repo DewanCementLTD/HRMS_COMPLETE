@@ -1566,3 +1566,70 @@ def get_bulk_attendance_details(
     finally:
         cursor.close()
         conn.close()
+
+
+# ─────────────────────────────────────────────────────────────────
+# MONTHLY DUTY ROSTER — read-only view of the ERP-owned DUTY_ROSTER.
+# The ERP populates DUTY_ROSTER (shift per day, in/out, late/half-day/early-out
+# flags). This only READS it for the per-employee monthly roster screen; the
+# app never writes DUTY_ROSTER.
+# ─────────────────────────────────────────────────────────────────
+
+def get_employee_roster(card_no: str, month: str = None) -> dict:
+    """Return one employee's monthly duty roster from DUTY_ROSTER.
+
+    card_no: full company-qualified card (e.g. 100108.1).
+    month:   ROSTER_MONTH like 'MAY-26'. When omitted, the most recent month
+             that has roster rows is used.
+    Returns {"months": [...newest first], "month": selected, "rows": [...]}.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        card = str(card_no)
+        cint = card.split(".")[0] if "." in card else card
+
+        # Available months (newest first), by the latest roster date in each.
+        cursor.execute("""
+            SELECT ROSTER_MONTH
+            FROM DUTY_ROSTER
+            WHERE TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci
+            GROUP BY ROSTER_MONTH
+            ORDER BY MAX(ROSTER_DATE) DESC
+        """, {"c": card, "ci": cint})
+        months = [(r[0] or "").strip() for r in cursor.fetchall() if r[0]]
+
+        selected = month if (month and month in months) else (months[0] if months else None)
+
+        rows = []
+        if selected:
+            cursor.execute("""
+                SELECT
+                    TO_CHAR(ROSTER_DATE, 'DD-MON-YY')  AS roster_date,
+                    ROSTER_SHIFT                       AS shift,
+                    DAY_NAME                           AS day_name,
+                    IN_TIME                            AS time_in,
+                    OUT_TIME                           AS time_out,
+                    LATE_FLAG                          AS fh_late,
+                    HALF_DAY_LATE                      AS fh_half_day,
+                    LATE_FLAG_OUT                      AS sh_late,
+                    HALF_DAY_EARLY_GOING               AS sh_half_day,
+                    ABS_EARLY_OUT                      AS early_out,
+                    ROSTER_REMARKS                     AS remarks
+                FROM DUTY_ROSTER
+                WHERE (TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci)
+                  AND ROSTER_MONTH = :m
+                ORDER BY ROSTER_DATE
+            """, {"c": card, "ci": cint, "m": selected})
+            cols = [d[0].lower() for d in cursor.description]
+            for r in cursor.fetchall():
+                rec = {}
+                for i, k in enumerate(cols):
+                    v = r[i]
+                    rec[k] = v.strip() if isinstance(v, str) else v
+                rows.append(rec)
+
+        return {"months": months, "month": selected, "rows": rows}
+    finally:
+        cursor.close()
+        conn.close()
