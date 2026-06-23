@@ -875,8 +875,8 @@ export default function HRMSPage() {
                             )}
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2 flex-wrap">
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5">
                             <Button
                               variant="secondary"
                               size="sm"

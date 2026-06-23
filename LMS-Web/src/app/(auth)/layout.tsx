@@ -52,8 +52,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Content */}
       <div className="relative z-10">
         <Sidebar />
-        <main className="lg:pl-64 transition-all duration-300">
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto">
+        {/* min-w-0 + overflow-x-clip stop any over-wide child (long location rows,
+            action button groups, wide tables) from pushing the whole shell
+            sideways and misaligning the page. Tables keep their own
+            overflow-x-auto wrappers, so they still scroll internally. */}
+        <main className="lg:pl-64 transition-all duration-300 min-w-0 overflow-x-clip">
+          <div className="p-6 lg:p-8 max-w-7xl mx-auto min-w-0">
             {children}
           </div>
         </main>
