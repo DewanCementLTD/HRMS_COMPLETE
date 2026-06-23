@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange } from "lucide-react";
+import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -15,7 +15,7 @@ import { Payslip } from "./Payslip";
 
 const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
 
-export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
+export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: string; onViewPayRegister?: (period: number) => void }) {
   const { activeCompany, activeBranch } = useAuth();
   const compc = activeCompany || undefined;
   const brnch = activeBranch || undefined;
@@ -31,6 +31,7 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
   const [openPeriod, setOpenPeriod] = useState<SalaryOpenPeriod | null>(null);
   const [processing, setProcessing] = useState(false);
   const [processMsg, setProcessMsg] = useState<string | null>(null);
+  const [processedPeriod, setProcessedPeriod] = useState<number | null>(null);
 
   const loadPeriods = useCallback(async () => {
     try {
@@ -71,6 +72,7 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
     try {
       const r = await runSalaryProcess(adminCardNo, compc);
       setProcessMsg(`Salary processed for ${r.label} — ${r.processed} employee${r.processed === 1 ? "" : "s"}.`);
+      setProcessedPeriod(r.period);
       await loadPeriods();
       // Jump to the just-processed period so the sheet shows the new results.
       setPeriod(r.period);
@@ -103,7 +105,16 @@ export function SalaryPanel({ adminCardNo }: { adminCardNo: string }) {
     <div className="space-y-4">
       {slip && <Payslip data={slip} onClose={() => setSlip(null)} />}
       {error && <div className="p-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">{error}</div>}
-      {processMsg && <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-sm text-emerald-700">{processMsg}</div>}
+      {processMsg && (
+        <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-sm text-emerald-700 flex flex-wrap items-center justify-between gap-2">
+          <span>{processMsg}</span>
+          {onViewPayRegister && processedPeriod != null && (
+            <Button size="sm" variant="secondary" onClick={() => onViewPayRegister(processedPeriod)}>
+              <FileSpreadsheet className="h-3.5 w-3.5 mr-1.5" /> View Pay Register
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Salary process — runs the ERP procedure on the company's open period */}
       <Card>

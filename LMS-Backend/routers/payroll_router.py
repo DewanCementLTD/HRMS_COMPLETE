@@ -26,6 +26,9 @@ from repositories.salary_repository import (
     list_salary_periods, list_processed_salaries, get_payslip,
     get_open_period, run_salary_process,
 )
+from repositories.payroll_register_repository import (
+    get_pay_register, get_pay_register_periods,
+)
 
 router = APIRouter(prefix="/payroll", tags=["Payroll"])
 USR = "HR"
@@ -52,6 +55,28 @@ def _company(admin_card_no: str, compc: Optional[str]) -> int:
         if iv is not None:
             return iv
     return 1
+
+
+# ── Pay Register report (read-only, from HR_PAY_REG_V) ──────────────
+@router.get("/pay-register/periods")
+def pay_register_periods(admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
+    require_hr_admin(admin_card_no)
+    return {"items": get_pay_register_periods(_company(admin_card_no, compc))}
+
+
+@router.get("/pay-register")
+def pay_register(
+    admin_card_no: str = Query(...),
+    period: int = Query(...),
+    compc: Optional[str] = Query(None),
+    location: Optional[str] = Query(None),
+    dept_no: Optional[str] = Query(None),
+    desg_cd: Optional[str] = Query(None),
+    empcode: Optional[str] = Query(None),
+):
+    require_hr_admin(admin_card_no)
+    unit_id = _company(admin_card_no, compc)
+    return get_pay_register(unit_id, period, location, dept_no, desg_cd, empcode)
 
 
 def _checked(result: dict):

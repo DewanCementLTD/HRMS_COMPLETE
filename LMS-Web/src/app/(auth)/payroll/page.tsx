@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
   Wallet, CalendarRange, Percent, Banknote, FileText, HandCoins, Coins,
-  MinusCircle, CalendarX, Settings, ChevronRight,
+  MinusCircle, CalendarX, Settings, ChevronRight, FileSpreadsheet,
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PeriodOpeningPanel } from "./PeriodOpeningPanel";
@@ -15,8 +15,9 @@ import { LoanRecoveryPanel } from "./LoanRecoveryPanel";
 import { MonthlyAllowancePanel } from "./MonthlyAllowancePanel";
 import { MonthlyDeductionPanel } from "./MonthlyDeductionPanel";
 import { AbsentDaysPanel } from "./AbsentDaysPanel";
+import { PayRegisterPanel } from "./PayRegisterPanel";
 
-type Tab = "salary" | "periods" | "tax" | "loans" | "recovery" | "allowances" | "deductions" | "absent";
+type Tab = "salary" | "periods" | "tax" | "loans" | "recovery" | "allowances" | "deductions" | "absent" | "pay_register";
 
 interface TabDef { id: Tab; label: string; icon: React.ElementType }
 interface GroupDef { id: string; label: string; icon: React.ElementType; desc: string; tabs: TabDef[] }
@@ -54,6 +55,11 @@ const GROUPS: GroupDef[] = [
       { id: "tax", label: "Tax Slabs", icon: Percent },
     ],
   },
+  {
+    id: "reports", label: "Reports", icon: FileSpreadsheet,
+    desc: "Payroll reports — pay register for a processed period.",
+    tabs: [{ id: "pay_register", label: "Pay Register", icon: FileSpreadsheet }],
+  },
 ];
 
 const PANELS: Record<Tab, (card: string) => React.ReactNode> = {
@@ -65,12 +71,20 @@ const PANELS: Record<Tab, (card: string) => React.ReactNode> = {
   recovery: (c) => <LoanRecoveryPanel adminCardNo={c} />,
   periods: (c) => <PeriodOpeningPanel adminCardNo={c} />,
   tax: (c) => <TaxSlabPanel adminCardNo={c} />,
+  pay_register: (c) => <PayRegisterPanel adminCardNo={c} />,
 };
 
 export default function PayrollPage() {
   const { user } = useAuth();
   const [groupId, setGroupId] = useState<string>("salary");
   const [tab, setTab] = useState<Tab>("salary");
+  const [reportPeriod, setReportPeriod] = useState<number | null>(null);
+
+  function goToPayRegister(period: number) {
+    setReportPeriod(period);
+    setGroupId("reports");
+    setTab("pay_register");
+  }
 
   if (!user?.hr_admin) {
     return (
@@ -147,7 +161,13 @@ export default function PayrollPage() {
         <span className="text-xs text-gray-400 ml-auto hidden md:block">{group.desc}</span>
       </div>
 
-      {PANELS[activeTab.id](user.card_no)}
+      {activeTab.id === "salary" ? (
+        <SalaryPanel adminCardNo={user.card_no} onViewPayRegister={goToPayRegister} />
+      ) : activeTab.id === "pay_register" ? (
+        <PayRegisterPanel adminCardNo={user.card_no} initialPeriod={reportPeriod} />
+      ) : (
+        PANELS[activeTab.id](user.card_no)
+      )}
     </div>
   );
 }

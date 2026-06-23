@@ -117,3 +117,34 @@ export const fetchSalaryOpenPeriod = (adminCardNo: string, compc?: string) =>
 export const runSalaryProcess = (adminCardNo: string, compc?: string) =>
   apiRequest<{ status: string; period: number; label: string; processed: number }>(
     `/payroll/salary/process?${ac(adminCardNo, compc)}`, { method: "POST" });
+
+// ── Pay Register report (from HR_PAY_REG_V) ──
+export interface PayRegisterPeriod { period: number; label: string }
+export interface PayRegisterEmployee {
+  old_empcode: string; name: string;
+  location: string; department: string; designation: string;
+  w_day?: number; absent_days?: number;
+  actual_gross?: number; actual_basic?: number; earned_gross?: number; earned_basic?: number;
+  hold_sal?: string;
+  allows: Record<string, number>;
+  deds: Record<string, number>;
+  tot_all?: number; tot_ded?: number; net?: number;
+}
+export interface PayRegister {
+  unit_name: string; period: number; period_name: string;
+  allow_cols: string[]; ded_cols: string[];
+  employees: PayRegisterEmployee[];
+}
+export const fetchPayRegisterPeriods = (adminCardNo: string, compc?: string) =>
+  apiRequest<{ items: PayRegisterPeriod[] }>(`/payroll/pay-register/periods?${ac(adminCardNo, compc)}`);
+export const fetchPayRegister = (
+  adminCardNo: string, period: number, compc?: string,
+  opts?: { location?: string; dept_no?: string; desg_cd?: string; empcode?: string },
+) => {
+  let url = `/payroll/pay-register?${ac(adminCardNo, compc)}&period=${period}`;
+  if (opts?.location) url += `&location=${encodeURIComponent(opts.location)}`;
+  if (opts?.dept_no) url += `&dept_no=${encodeURIComponent(opts.dept_no)}`;
+  if (opts?.desg_cd) url += `&desg_cd=${encodeURIComponent(opts.desg_cd)}`;
+  if (opts?.empcode) url += `&empcode=${encodeURIComponent(opts.empcode)}`;
+  return apiRequest<PayRegister>(url);
+};
