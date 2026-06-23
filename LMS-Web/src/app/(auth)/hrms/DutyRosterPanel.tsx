@@ -48,7 +48,7 @@ export function DutyRosterPanel({
   const rows = data?.rows ?? [];
 
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm text-gray-900">
       {/* Toolbar (hidden when printing) */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 print:hidden">
         <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export function DutyRosterPanel({
       </div>
 
       {/* Employee header */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 rounded-2xl border border-gray-100 bg-gray-50/60 p-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
         <Field label="Employee No" value={emp.cardNo} mono />
         <Field label="Name" value={emp.name} />
         <Field label="Designation" value={emp.designation} />
@@ -83,8 +83,8 @@ export function DutyRosterPanel({
       </div>
 
       {/* Roster grid */}
-      <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
-        <table className="min-w-full text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white">
+        <table className="min-w-full text-sm bg-white">
           <thead>
             <tr className="bg-indigo-600 text-white">
               <th rowSpan={2} className="px-3 py-2 text-left font-semibold border-r border-indigo-500">Roster Date</th>
