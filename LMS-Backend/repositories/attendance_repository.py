@@ -18,6 +18,16 @@ Key columns:
     DEVICE_TYPE (VARCHAR2(100)), DEVICE_INFO (VARCHAR2(400)),
     APP_VERSION (VARCHAR2(400)), TIMESTAMP (VARCHAR2(400)),
     CLIENT_IP (VARCHAR2(100)), SCREENSHOT_FILENAME (VARCHAR2(200))
+    CHECKOUT_LATS / CHECKOUT_LONGS (VARCHAR2(50)), CHECKOUT_ADDRESS (VARCHAR2(400))
+        — the check-out location, kept separate from the check-in location above.
+
+Virtual (read-only, auto-derived) columns — do NOT insert/update them:
+    IN_DT, OUT_DT (VARCHAR2(30))  — ENTRY_TIME / EXIT_TIME combined with
+        ATTENDANCE_DATE, formatted 'DD-MON-YY HH24:MI' (OUT_DT rolls to next day
+        when EXIT_TIME < ENTRY_TIME, i.e. an overnight shift).
+    TOTAL_HOURS (VARCHAR2(20))    — TIME_SPENT shown as 'Xh Ym'.
+    These are computed from the columns above, so they always stay in sync and
+    require no write-path changes. See sql/2026-06-24_attendance_virtual_cols.sql.
 """
 
 from datetime import datetime
