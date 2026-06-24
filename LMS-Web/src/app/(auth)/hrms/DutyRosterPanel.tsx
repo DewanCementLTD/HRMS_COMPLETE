@@ -81,7 +81,12 @@ export function DutyRosterPanel({
   }
 
   return (
-    <div className="animate-fade-in rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm text-gray-900">
+    <div id="duty-roster-report" className="animate-fade-in rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm text-gray-900">
+      {/* Print-only title (the toolbar heading is hidden when printing) */}
+      <div className="hidden print:block mb-2 border-b-2 border-gray-300 pb-2">
+        <h2 className="text-lg font-bold text-gray-900">Monthly Duty Roster{month ? ` — ${month}` : ""}</h2>
+      </div>
+
       {/* Toolbar (hidden when printing) */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4 print:hidden">
         <div className="flex items-center gap-2">
@@ -226,6 +231,21 @@ export function DutyRosterPanel({
           </tbody>
         </table>
       </div>
+
+      {/* Print isolation: print only this report, like the Pay Register */}
+      <style>{`
+        @media print {
+          @page { size: A4 landscape; margin: 8mm; }
+          body * { visibility: hidden !important; }
+          #duty-roster-report, #duty-roster-report * { visibility: visible !important; }
+          #duty-roster-report {
+            position: absolute; left: 0; top: 0; width: 100%;
+            border: none !important; box-shadow: none !important; padding: 0 !important;
+          }
+          #duty-roster-report * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          #duty-roster-report table { font-size: 10px; }
+        }
+      `}</style>
     </div>
   );
 }
