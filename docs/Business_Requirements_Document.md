@@ -139,8 +139,9 @@ To provide a single, authoritative system for HR operations across all business 
 
 ### 6.5 Duty Roster (read-only)
 - Per-employee **Monthly Duty Roster** view mirroring the ERP form: Roster Date, Shift (e.g., G = General, R = Rest), Day Name, Time In/Out, First-Half (Late, Half-Day), Second-Half (Late, Half-Day), Absent/Early-Out, and Remarks.
-- **Month selector** (lists months available for the employee) and **Print**.
-- **BR:** Sourced **read-only** from the ERP-owned duty roster. The ERP computes shift assignment and the late/half-day/early-out flags; the HRMS displays whatever the ERP has populated and never writes the roster.
+- **Month selector** (lists months available for the employee), **Print**, and **inline editing** of the **Shift** (from the shift master LOV) and **Remarks** per day.
+- Each edit records **who updated it and when** (shown in an *Updated By* column).
+- **BR:** Sourced from the ERP-owned duty roster. The ERP computes shift assignment and the late/half-day/early-out flags. The HRMS may **amend the Shift and Remarks** of an existing roster day on explicit HR action (update by primary key only — never inserts), stamping the auditor; all other roster values (in/out, late/half-day/early-out, totals) remain ERP-computed and are displayed as-is.
 
 ### 6.6 Leave Management
 - Employee **leave balances**, **apply for leave**, and **leave status** tracking via self-service.
@@ -215,7 +216,7 @@ To provide a single, authoritative system for HR operations across all business 
 5. **Identity for attendance** is established by **1:1 face verification** of the logged-in employee; the system must not silently fall back to 1:N identification after login (to prevent mis-attribution).
 6. **Pay cycle:** 26th → 25th; payroll acts on the **open period**.
 7. **Salary re-processing replaces** the period's prior result.
-8. **ERP-computed values** (duty-roster shift/late/half-day/early-out; pay-register amounts) are displayed as-is and never overwritten by the app.
+8. **ERP-computed values** (duty-roster late/half-day/early-out and in/out; pay-register amounts) are displayed as-is. The one sanctioned exception is HR **editing a roster day's Shift and Remarks** from the Duty Roster screen — an audited update-by-PK, never an insert.
 9. **Branding** uses the **selected company's** name and logo on all outputs (directory exports, payslips, ID cards, Pay Register).
 10. **Shift definitions** are per company + branch; the code comes from the master LOV.
 
@@ -311,7 +312,7 @@ To provide a single, authoritative system for HR operations across all business 
 | Face embeddings | Biometric | HRMS / Face service |
 | Location tracks & settings | Operational | HRMS |
 | Reference / setup (departments, designations, shifts, banks, etc.) | Master | HRMS (per company/branch) |
-| Duty roster (shift, flags, roster in/out) | Computed schedule | **ERP (read-only)** |
+| Duty roster (shift, flags, roster in/out) | Computed schedule | **ERP-owned**; HR may amend Shift/Remarks (audited, by-PK) |
 | Payroll periods, inputs, loans, tax slabs | Operational | HRMS + ERP |
 | Processed salary & Pay Register | Computed payroll | **ERP (read-only to app)** |
 | Recruitment (jobs/applications/interviews/offers) | Operational | HRMS |

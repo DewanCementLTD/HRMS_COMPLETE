@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, Printer, CalendarDays, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, CalendarDays, Pencil, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
-import { getEmployeeRoster, type DutyRoster } from "@/services/hrmsService";
+import { getEmployeeRoster, updateRosterEntry, type DutyRoster } from "@/services/hrmsService";
+import { fetchShiftLov, type ShiftLov } from "@/services/referenceService";
 
 export interface RosterEmployee {
   cardNo: string;
@@ -15,6 +16,7 @@ export interface RosterEmployee {
 }
 
 const dash = (v?: string | null) => (v == null || v === "" ? "" : v);
+const COLS = 13; // total columns (for full-width rows)
 
 export function DutyRosterPanel({
   emp,
@@ -28,9 +30,16 @@ export function DutyRosterPanel({
   const [data, setData] = useState<DutyRoster | null>(null);
   const [month, setMonth] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
+  const [lov, setLov] = useState<ShiftLov[]>([]);
+
+  // inline edit state
+  const [editPk, setEditPk] = useState<number | null>(null);
+  const [editVals, setEditVals] = useState<{ shift: string; remarks: string }>({ shift: "", remarks: "" });
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async (m?: string) => {
     setLoading(true);
+    setEditPk(null);
     try {
       const r = await getEmployeeRoster(emp.cardNo, adminCardNo, m);
       setData(r);
@@ -44,8 +53,32 @@ export function DutyRosterPanel({
   }, [emp.cardNo, adminCardNo]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { fetchShiftLov().then((r) => setLov(r.items)).catch(() => setLov([])); }, []);
 
   const rows = data?.rows ?? [];
+
+  function startEdit(pk: number, shift?: string, remarks?: string | null) {
+    setEditPk(pk);
+    setEditVals({ shift: shift || "", remarks: remarks || "" });
+  }
+
+  async function save() {
+    if (editPk == null) return;
+    setSaving(true);
+    try {
+      const res = await updateRosterEntry(editPk, adminCardNo, { shift: editVals.shift, remarks: editVals.remarks });
+      setData((d) => d
+        ? { ...d, rows: d.rows.map((row) => row.pk === editPk
+            ? { ...row, shift: editVals.shift, remarks: editVals.remarks, updated_by: res.updated_by ?? row.updated_by }
+            : row) }
+        : d);
+      setEditPk(null);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to save roster row");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="animate-fade-in rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm text-gray-900">
@@ -95,7 +128,9 @@ export function DutyRosterPanel({
               <th colSpan={2} className="px-3 py-1.5 text-center font-semibold border-r border-indigo-500 border-b border-indigo-500">First Half</th>
               <th colSpan={2} className="px-3 py-1.5 text-center font-semibold border-r border-indigo-500 border-b border-indigo-500">Second Half</th>
               <th rowSpan={2} className="px-3 py-2 text-center font-semibold border-r border-indigo-500">Absent / Early Out</th>
-              <th rowSpan={2} className="px-3 py-2 text-left font-semibold">Remarks</th>
+              <th rowSpan={2} className="px-3 py-2 text-left font-semibold border-r border-indigo-500">Remarks</th>
+              <th rowSpan={2} className="px-3 py-2 text-left font-semibold border-r border-indigo-500">Updated By</th>
+              <th rowSpan={2} className="px-3 py-2 text-center font-semibold print:hidden">Action</th>
             </tr>
             <tr className="bg-indigo-600 text-white text-xs">
               <th className="px-2 py-1.5 text-center font-medium border-r border-indigo-500">Late</th>
@@ -106,23 +141,38 @@ export function DutyRosterPanel({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading && (
-              <tr><td colSpan={11} className="py-10 text-center"><Spinner /></td></tr>
+              <tr><td colSpan={COLS} className="py-10 text-center"><Spinner /></td></tr>
             )}
             {!loading && rows.length === 0 && (
-              <tr><td colSpan={11} className="py-10 text-center text-sm text-gray-400">No roster found for this employee.</td></tr>
+              <tr><td colSpan={COLS} className="py-10 text-center text-sm text-gray-400">No roster found for this employee.</td></tr>
             )}
             {!loading && rows.map((r, i) => {
               const isRest = (r.shift || "").toUpperCase() === "R";
               const isAbsent = (r.remarks || "").toLowerCase().includes("absent");
-              const rowCls = isAbsent ? "bg-red-50/70" : isRest ? "bg-sky-50/70" : "hover:bg-gray-50";
+              const editing = editPk != null && r.pk === editPk;
+              const rowCls = editing ? "bg-indigo-50" : isAbsent ? "bg-red-50/70" : isRest ? "bg-sky-50/70" : "hover:bg-gray-50";
               return (
-                <tr key={i} className={`${rowCls} transition-colors`}>
+                <tr key={r.pk ?? i} className={`${rowCls} transition-colors`}>
                   <td className="px-3 py-1.5 font-medium text-gray-800 border-r border-gray-100 whitespace-nowrap">{r.roster_date}</td>
+
+                  {/* Shift — editable */}
                   <td className="px-2 py-1.5 text-center border-r border-gray-100">
-                    <span className={`inline-flex items-center justify-center h-5 min-w-5 px-1 rounded text-xs font-bold ${isRest ? "bg-sky-200 text-sky-800" : "bg-emerald-100 text-emerald-700"}`}>
-                      {dash(r.shift) || "—"}
-                    </span>
+                    {editing ? (
+                      <select
+                        value={editVals.shift}
+                        onChange={(e) => setEditVals((v) => ({ ...v, shift: e.target.value }))}
+                        className="border border-indigo-300 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                      >
+                        <option value="">—</option>
+                        {lov.map((l) => <option key={l.shift} value={l.shift}>{l.shift} — {l.descr}</option>)}
+                      </select>
+                    ) : (
+                      <span className={`inline-flex items-center justify-center h-5 min-w-5 px-1 rounded text-xs font-bold ${isRest ? "bg-sky-200 text-sky-800" : "bg-emerald-100 text-emerald-700"}`}>
+                        {dash(r.shift) || "—"}
+                      </span>
+                    )}
                   </td>
+
                   <td className="px-3 py-1.5 text-gray-700 border-r border-gray-100 whitespace-nowrap">{dash(r.day_name)}</td>
                   <td className="px-3 py-1.5 text-center text-gray-700 border-r border-gray-100">{dash(r.time_in) || "—"}</td>
                   <td className="px-3 py-1.5 text-center text-gray-700 border-r border-gray-100">{dash(r.time_out) || "—"}</td>
@@ -131,7 +181,45 @@ export function DutyRosterPanel({
                   <td className="px-2 py-1.5 text-center text-gray-600 border-r border-gray-100">{dash(r.sh_late)}</td>
                   <td className="px-2 py-1.5 text-center text-gray-600 border-r border-gray-100">{dash(r.sh_half_day)}</td>
                   <td className="px-3 py-1.5 text-center text-gray-600 border-r border-gray-100">{dash(r.early_out)}</td>
-                  <td className={`px-3 py-1.5 ${isAbsent ? "text-red-600 font-medium" : "text-gray-500 italic"}`}>{dash(r.remarks)}</td>
+
+                  {/* Remarks — editable */}
+                  <td className={`px-3 py-1.5 border-r border-gray-100 ${isAbsent && !editing ? "text-red-600 font-medium" : "text-gray-500 italic"}`}>
+                    {editing ? (
+                      <input
+                        type="text"
+                        value={editVals.remarks}
+                        onChange={(e) => setEditVals((v) => ({ ...v, remarks: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === "Enter") save(); if (e.key === "Escape") setEditPk(null); }}
+                        placeholder="Remarks"
+                        className="w-full border border-indigo-300 rounded px-1.5 py-0.5 text-xs not-italic text-gray-800 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                      />
+                    ) : dash(r.remarks)}
+                  </td>
+
+                  {/* Updated By */}
+                  <td className="px-3 py-1.5 text-[11px] text-gray-400 border-r border-gray-100 whitespace-nowrap">{dash(r.updated_by)}</td>
+
+                  {/* Action */}
+                  <td className="px-3 py-1.5 text-center whitespace-nowrap print:hidden">
+                    {editing ? (
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button onClick={save} disabled={saving} className="text-emerald-600 hover:text-emerald-800 disabled:opacity-40" title="Save">
+                          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                        </button>
+                        <button onClick={() => setEditPk(null)} disabled={saving} className="text-gray-400 hover:text-gray-600" title="Cancel">
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => r.pk != null && startEdit(r.pk, r.shift, r.remarks)}
+                        disabled={r.pk == null || editPk != null}
+                        className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-30"
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </button>
+                    )}
+                  </td>
                 </tr>
               );
             })}

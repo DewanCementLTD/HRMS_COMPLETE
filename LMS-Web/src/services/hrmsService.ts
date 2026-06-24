@@ -49,6 +49,7 @@ export async function getEmployeeCard(
 
 // ── Monthly duty roster (read-only, from the ERP's DUTY_ROSTER) ──
 export interface DutyRosterRow {
+  pk?: number;
   roster_date: string;
   shift?: string;
   day_name?: string;
@@ -60,6 +61,7 @@ export interface DutyRosterRow {
   sh_half_day?: string | null;
   early_out?: string | null;
   remarks?: string | null;
+  updated_by?: string | null;
 }
 export interface DutyRoster {
   months: string[];
@@ -76,6 +78,17 @@ export async function getEmployeeRoster(
   if (month) parts.push(`month=${encodeURIComponent(month)}`);
   return apiRequest<DutyRoster>(
     `/hrms/duty-roster/${encodeURIComponent(cardNo)}?${parts.join("&")}`
+  );
+}
+
+export async function updateRosterEntry(
+  pk: number,
+  adminCardNo: string,
+  fields: { shift?: string; remarks?: string }
+): Promise<{ status: string; updated_by?: string }> {
+  return apiRequest<{ status: string; updated_by?: string }>(
+    `/hrms/duty-roster/entry/${pk}?admin_card_no=${encodeURIComponent(adminCardNo)}`,
+    { method: "PUT", body: fields }
   );
 }
 

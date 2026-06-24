@@ -1605,6 +1605,7 @@ def get_employee_roster(card_no: str, month: str = None) -> dict:
         if selected:
             cursor.execute("""
                 SELECT
+                    DUTY_ROSTER_PK                     AS pk,
                     TO_CHAR(ROSTER_DATE, 'DD-MON-YY')  AS roster_date,
                     ROSTER_SHIFT                       AS shift,
                     DAY_NAME                           AS day_name,
@@ -1615,7 +1616,8 @@ def get_employee_roster(card_no: str, month: str = None) -> dict:
                     LATE_FLAG_OUT                      AS sh_late,
                     HALF_DAY_EARLY_GOING               AS sh_half_day,
                     ABS_EARLY_OUT                      AS early_out,
-                    ROSTER_REMARKS                     AS remarks
+                    ROSTER_REMARKS                     AS remarks,
+                    UPDATED                            AS updated_by
                 FROM DUTY_ROSTER
                 WHERE (TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci)
                   AND ROSTER_MONTH = :m
@@ -1630,6 +1632,44 @@ def get_employee_roster(card_no: str, month: str = None) -> dict:
                 rows.append(rec)
 
         return {"months": months, "month": selected, "rows": rows}
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def update_roster_entry(pk, shift=None, remarks=None, updated_by=None) -> dict:
+    """Edit one DUTY_ROSTER row by PK: shift code and/or remarks, stamping who
+    updated it (UPDATED). Updates ONLY by primary key — never inserts — so the
+    BEFORE-INSERT PK trigger is never involved. (DUTY_ROSTER is ERP-owned; this
+    is the one place the app is allowed to amend it, on explicit HR action.)"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        sets = []
+        binds = {"pk": int(pk)}
+        if shift is not None:
+            s = (shift or "").strip().upper()[:1]
+            sets.append("ROSTER_SHIFT = :shift")
+            binds["shift"] = s or None
+        if remarks is not None:
+            r = (remarks or "").strip()[:200]
+            sets.append("ROSTER_REMARKS = :remarks")
+            binds["remarks"] = r or None
+        # Always stamp the auditor (who + when).
+        sets.append("UPDATED = :updated")
+        binds["updated"] = (updated_by or "")[:50] or None
+
+        cursor.execute(
+            f"UPDATE DUTY_ROSTER SET {', '.join(sets)} WHERE DUTY_ROSTER_PK = :pk", binds
+        )
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return {"status": "error", "message": "Roster row not found"}
+        conn.commit()
+        return {"status": "success", "updated_by": binds["updated"]}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "message": str(e)}
     finally:
         cursor.close()
         conn.close()

@@ -4,6 +4,7 @@ All endpoints require HR_ADMIN access (validated via admin_card_no query param).
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 from typing import Optional
 
 from core.database import get_connection
@@ -304,3 +305,22 @@ def employee_duty_roster(
     require_hr_admin(admin_card_no)
     from repositories.hrms_repository import get_employee_roster
     return get_employee_roster(card_no, month)
+
+
+class RosterEntryUpdate(BaseModel):
+    shift: Optional[str] = None
+    remarks: Optional[str] = None
+
+
+@router.put("/duty-roster/entry/{pk}")
+def update_duty_roster_entry(pk: int, req: RosterEntryUpdate, admin_card_no: str = Query(...)):
+    """Edit a single duty-roster row (shift / remarks). Stamps UPDATED with the
+    admin and time. Update-by-PK only — never inserts."""
+    require_hr_admin(admin_card_no)
+    from repositories.hrms_repository import update_roster_entry
+    from datetime import datetime
+    stamp = f"{admin_card_no} {datetime.now():%d-%b-%y %H:%M}"
+    result = update_roster_entry(pk, shift=req.shift, remarks=req.remarks, updated_by=stamp)
+    if result.get("status") == "error":
+        raise HTTPException(status_code=400, detail=result.get("message"))
+    return result
