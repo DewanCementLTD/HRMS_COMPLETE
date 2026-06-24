@@ -21,13 +21,16 @@ Key columns:
     CHECKOUT_LATS / CHECKOUT_LONGS (VARCHAR2(50)), CHECKOUT_ADDRESS (VARCHAR2(400))
         — the check-out location, kept separate from the check-in location above.
 
+    EXIT_DATE (DATE)              — the actual check-out instant; set on check-out
+        (update_check_out writes SYSDATE). OUT_DT is derived from this.
+
 Virtual (read-only, auto-derived) columns — do NOT insert/update them:
-    IN_DT, OUT_DT (VARCHAR2(30))  — ENTRY_TIME / EXIT_TIME combined with
-        ATTENDANCE_DATE, formatted 'DD-MON-YY HH24:MI' (OUT_DT rolls to next day
-        when EXIT_TIME < ENTRY_TIME, i.e. an overnight shift).
-    TOTAL_HOURS (VARCHAR2(20))    — TIME_SPENT shown as 'Xh Ym'.
+    IN_DT (VARCHAR2(30))   — ENTRY_TIME + ATTENDANCE_DATE, 'DD-MON-YY HH24:MI'.
+    OUT_DT (VARCHAR2(30))  — EXIT_DATE formatted 'DD-MON-YY HH24:MI'
+        (naturally rolls to the next day for overnight shifts).
+    TOTAL_HOURS (VARCHAR2(20)) — TIME_SPENT shown as HRS:MINS (zero-padded HH:MM).
     These are computed from the columns above, so they always stay in sync and
-    require no write-path changes. See sql/2026-06-24_attendance_virtual_cols.sql.
+    require no virtual-column write. See sql/2026-06-24_attendance_virtual_cols.sql.
 """
 
 from datetime import datetime
@@ -343,9 +346,13 @@ def update_check_out(record_id: int, entry_time: str, card_no: str = None,
                        "\n                CHECKOUT_LONGS   = :co_long,"
                        "\n                CHECKOUT_ADDRESS = :co_addr")
 
+        # EXIT_DATE = the actual check-out instant (full date-time). OUT_DT is a
+        # virtual column derived from it (formatted DD-MON-YY HH24:MI), so this
+        # is what drives the displayed check-out date-time.
         _run_with_retry(lambda: cursor.execute(f"""
             UPDATE ATTENDANCE_RECORDS
             SET EXIT_TIME  = :exit_time,
+                EXIT_DATE  = SYSDATE,
                 TIME_SPENT = :time_spent{loc_set}
             WHERE ID = :rid
         """, params),

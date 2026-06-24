@@ -34,27 +34,32 @@ ALTER TABLE ATTENDANCE_RECORDS ADD (
   ) VIRTUAL
 );
 
--- Check-out date-time: rolls to the next day for overnight shifts (EXIT < ENTRY).
+-- Check-out date-time comes from the EXIT_DATE column (a real DATE = the actual
+-- check-out instant; the app sets it on check-out and OUT_DT formats it).
+-- Backfill EXIT_DATE for existing completed rows from ATTENDANCE_DATE + EXIT_TIME,
+-- rolling to the next day for overnight shifts (EXIT_TIME < ENTRY_TIME).
+UPDATE ATTENDANCE_RECORDS
+   SET EXIT_DATE = TRUNC(ATTENDANCE_DATE)
+                 + TO_NUMBER(SUBSTR(EXIT_TIME, 1, 2)) / 24
+                 + TO_NUMBER(SUBSTR(EXIT_TIME, 4, 2)) / 1440
+                 + CASE WHEN EXIT_TIME < ENTRY_TIME THEN 1 ELSE 0 END
+ WHERE EXIT_DATE IS NULL
+   AND REGEXP_LIKE(EXIT_TIME, '^[0-9]{2}:[0-9]{2}$');
+COMMIT;
+
+-- OUT_DT is simply EXIT_DATE formatted DD-MON-YY HH24:MI.
 ALTER TABLE ATTENDANCE_RECORDS ADD (
   OUT_DT VARCHAR2(30) GENERATED ALWAYS AS (
-    CASE WHEN ATTENDANCE_DATE IS NOT NULL
-          AND REGEXP_LIKE(EXIT_TIME, '^[0-9]{2}:[0-9]{2}$')
-         THEN TO_CHAR(
-                TRUNC(ATTENDANCE_DATE)
-                + TO_NUMBER(SUBSTR(EXIT_TIME, 1, 2)) / 24
-                + TO_NUMBER(SUBSTR(EXIT_TIME, 4, 2)) / 1440
-                + CASE WHEN EXIT_TIME < ENTRY_TIME THEN 1 ELSE 0 END,
-                'DD-MON-YY HH24:MI', 'NLS_DATE_LANGUAGE=ENGLISH')
-    END
+    TO_CHAR(EXIT_DATE, 'DD-MON-YY HH24:MI', 'NLS_DATE_LANGUAGE=ENGLISH')
   ) VIRTUAL
 );
 
--- Total worked time as 'Xh Ym' from TIME_SPENT (minutes).
+-- Total worked time as HRS:MINS (zero-padded HH:MM) from TIME_SPENT (minutes).
 ALTER TABLE ATTENDANCE_RECORDS ADD (
   TOTAL_HOURS VARCHAR2(20) GENERATED ALWAYS AS (
     CASE WHEN TIME_SPENT IS NOT NULL
-         THEN TO_CHAR(FLOOR(TIME_SPENT / 60), 'FM999999') || 'h '
-              || TO_CHAR(MOD(TIME_SPENT, 60), 'FM99') || 'm'
+         THEN LPAD(TO_CHAR(FLOOR(TIME_SPENT / 60)), 2, '0') || ':'
+              || LPAD(TO_CHAR(MOD(TIME_SPENT, 60)), 2, '0')
     END
   ) VIRTUAL
 );
