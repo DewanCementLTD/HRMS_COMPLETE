@@ -29,7 +29,16 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: "Request failed" }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    // `detail` may be a string, an object (e.g. FORCE_UPDATE), or a list of
+    // validation errors (FastAPI 422). Always surface a readable string so the
+    // UI never shows "[object Object]".
+    const d = error?.detail;
+    let msg: string;
+    if (typeof d === "string") msg = d;
+    else if (Array.isArray(d)) msg = d.map((x) => x?.msg || (typeof x === "string" ? x : JSON.stringify(x))).join(", ");
+    else if (d && typeof d === "object") msg = d.message || d.msg || JSON.stringify(d);
+    else msg = `HTTP ${response.status}`;
+    throw new Error(msg || `HTTP ${response.status}`);
   }
 
   return response.json();

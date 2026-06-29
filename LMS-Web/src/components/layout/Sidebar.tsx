@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
+import { useSidebar } from "./sidebar-context";
 
 // Dashboard is shown to everyone who has either employee features OR hr_admin
 // (SEC_USERNAME-only admins see it as the HR dashboard).
@@ -127,7 +128,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, switchCompany, switchBranch } = useAuth();
   const { handleLogout } = useAuthController();
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useSidebar();
 
   const showEmployeeNav = !!user?.has_employee_features;
   const showDashboard = showEmployeeNav || !!user?.hr_admin;

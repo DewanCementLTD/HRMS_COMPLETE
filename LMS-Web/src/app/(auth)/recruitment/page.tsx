@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   Users, Briefcase, CalendarCheck, UserCheck, Plus, Search,
-  TrendingUp, Clock, CheckCircle, XCircle, BarChart2, ChevronRight,
+  TrendingUp, Clock, CheckCircle, XCircle, BarChart2,
   UserX, AlertCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -291,7 +291,6 @@ export default function RecruitmentPage() {
                     <div className={`h-10 w-10 rounded-xl ${bg} flex items-center justify-center`}>
                       <Icon className={`h-5 w-5 ${ic}`} />
                     </div>
-                    <ChevronRight className="h-4 w-4 text-gray-300" />
                   </div>
                   <p className="text-2xl font-extrabold text-gray-900 leading-tight">{value}</p>
                   <p className="text-sm font-medium text-gray-700 mt-0.5">{label}</p>

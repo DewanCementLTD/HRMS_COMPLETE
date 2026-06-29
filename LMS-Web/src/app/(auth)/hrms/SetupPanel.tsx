@@ -432,7 +432,7 @@ function CompanyLogoTab({ adminCardNo, compc, companyName }: { adminCardNo: stri
   }
 
   return (
-    <div className="max-w-xl space-y-4">
+    <div className="max-w-xl space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <p className="text-sm text-gray-500">
         Upload the logo for <span className="font-semibold text-gray-800">{companyName || `Company ${compc}`}</span>.
         It appears on employee ID cards and payslips. Saved as
@@ -570,11 +570,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const desigTable = (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <label className="text-sm text-gray-600">Filter by grade:</label>
+        <label className="text-sm font-medium text-gray-200">Filter by grade:</label>
         <select
           value={desigGradeFilter}
           onChange={(e) => setDesigGradeFilter(e.target.value)}
-          className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300"
         >
           <option value="">All Grades</option>
           {grades.map((g) => (
@@ -681,11 +681,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const bankBranchTable = (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <label className="text-sm text-gray-600">Bank:</label>
+        <label className="text-sm font-medium text-gray-200">Bank:</label>
         <select
           value={branchBank}
           onChange={(e) => setBranchBank(e.target.value)}
-          className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300"
         >
           <option value="">Select bank</option>
           {banks.map((b) => <option key={b.bnkcode} value={b.bnkcode}>{b.bnkname}</option>)}
@@ -734,7 +734,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Settings className="h-5 w-5 text-indigo-500" />
-        <h2 className="text-lg font-semibold text-white-900">Setup — Master Tables</h2>
+        <h2 className="text-lg font-semibold text-white">Setup — Master Tables</h2>
         <span className="text-xs text-gray-400 ml-2">HR Admin only</span>
       </div>
 
@@ -766,7 +766,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
 
       {/* Level 2 — master tables within the chosen area */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-gray-400 hidden sm:flex items-center gap-1">
+        <span className="text-xs text-gray-300 hidden sm:flex items-center gap-1">
           {group.label} <ChevronRight className="h-3 w-3" />
         </span>
         {group.tabs.length > 1 ? (
@@ -781,9 +781,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
             ))}
           </div>
         ) : (
-          <span className="text-sm font-medium text-gray-700">{TAB_LABEL[group.tabs[0]]}</span>
+          <span className="text-sm font-medium text-gray-100">{TAB_LABEL[group.tabs[0]]}</span>
         )}
-        <span className="text-xs text-gray-400 ml-auto hidden md:block">{group.desc}</span>
+        <span className="text-xs text-gray-300 ml-auto hidden md:block">{group.desc}</span>
       </div>
 
       {/* Content */}

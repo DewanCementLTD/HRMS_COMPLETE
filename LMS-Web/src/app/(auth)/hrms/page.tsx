@@ -639,6 +639,10 @@ export default function HRMSPage() {
   }
 
   function runReport() {
+    if (reportRange.from && reportRange.to && reportRange.to < reportRange.from) {
+      alert("“To Date” cannot be earlier than “From Date”.");
+      return;
+    }
     if (ctrl.reportEmployee) {
       ctrl.loadAttendanceReport(
         ctrl.reportEmployee,
@@ -901,24 +905,10 @@ export default function HRMSPage() {
                               <Calendar className="h-3.5 w-3.5 mr-1" />
                               Roster
                             </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => openCard(emp.empcode)}
-                            >
-                              <IdCard className="h-3.5 w-3.5 mr-1" />
-                              ID Card
-                            </Button>
-                            {(emp.card_no || emp.atdtcard) && (
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => viewLocation(emp.card_no || emp.atdtcard || "")}
-                              >
-                                <Navigation className="h-3.5 w-3.5 mr-1" />
-                                Location
-                              </Button>
-                            )}
+                            {/* "ID Card" and "Location" per-row actions removed (QA):
+                                ID cards have a dedicated page, and the per-row
+                                Location button only re-opened the shared Locations
+                                tab regardless of the employee. */}
                           </div>
                         </td>
                       </tr>
@@ -1001,8 +991,14 @@ export default function HRMSPage() {
                   label="From Date"
                   type="date"
                   value={reportRange.from}
+                  max={reportRange.to || undefined}
                   onChange={(e) =>
-                    setReportRange((r) => ({ ...r, from: e.target.value }))
+                    // Keep To >= From: if the new From is after To, push To along.
+                    setReportRange((r) => ({
+                      ...r,
+                      from: e.target.value,
+                      to: r.to && e.target.value > r.to ? e.target.value : r.to,
+                    }))
                   }
                 />
               </div>
@@ -1011,6 +1007,7 @@ export default function HRMSPage() {
                   label="To Date"
                   type="date"
                   value={reportRange.to}
+                  min={reportRange.from || undefined}
                   onChange={(e) =>
                     setReportRange((r) => ({ ...r, to: e.target.value }))
                   }
@@ -1363,21 +1360,20 @@ export default function HRMSPage() {
                 onChange={(e) => updateField("religion", e.target.value)}
                 options={[
                   { value: "", label: "Select religion" },
-                  ...refReligions.map((r) => ({ value: r.code, label: r.label })),
+                  // Drop junk reference rows whose label is just a number (e.g. "1", "11").
+                  ...refReligions
+                    .filter((r) => r.label && !/^\d+$/.test(r.label.trim()))
+                    .map((r) => ({ value: r.code, label: r.label })),
                 ]}
               />
-              <DynamicSelect
+              <Select
                 label="Blood Group"
                 value={form.bldgrp || ""}
-                onChange={(v) => updateField("bldgrp", v)}
-                options={refBG.map((b) => ({ value: b.blood_group, label: b.blood_group }))}
-                onAdd={async (val) => {
-                  const res = await addBloodGroup(user!.card_no, val);
-                  setRefBG((prev) => [...prev, res]);
-                  return { value: res.blood_group, label: res.blood_group };
-                }}
-                addLabel="Add blood group"
-                addPlaceholder="e.g. A+"
+                onChange={(e) => updateField("bldgrp", e.target.value)}
+                options={[
+                  { value: "", label: refBG.length ? "Select blood group" : "Add in Setup → Blood Groups" },
+                  ...refBG.map((b) => ({ value: b.blood_group, label: b.blood_group })),
+                ]}
               />
               <Input
                 label="Mobile Number"
@@ -1425,18 +1421,12 @@ export default function HRMSPage() {
                 value={form.dtofappt || ""}
                 onChange={(e) => updateField("dtofappt", e.target.value)}
               />
-              <DynamicSelect
+              <SearchableSelect
                 label="Department"
                 value={form.dept_no?.toString() || ""}
                 onChange={(v) => updateField("dept_no", v)}
+                placeholder="Search department…"
                 options={refDepts.map((d) => ({ value: String(d.dept_no), label: d.dept_name }))}
-                onAdd={async (val) => {
-                  const res = await addDepartment(user!.card_no, val);
-                  setRefDepts((prev) => [...prev, res]);
-                  return { value: String(res.dept_no), label: res.dept_name };
-                }}
-                addLabel="Add department"
-                addPlaceholder="e.g. IT Department"
               />
               <SearchableSelect
                 label="Designation"
@@ -1500,11 +1490,12 @@ export default function HRMSPage() {
               <Input
                 label="Working Hours"
                 type="number"
+                min={0}
                 value={form.w_hour?.toString() || ""}
                 onChange={(e) =>
                   updateField(
                     "w_hour",
-                    e.target.value ? parseFloat(e.target.value) : undefined,
+                    e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined,
                   )
                 }
               />
@@ -1526,14 +1517,16 @@ export default function HRMSPage() {
                   <Input
                     label="Basic Salary"
                     type="number"
+                    min={0}
                     value={form.basic?.toString() ?? ""}
-                    onChange={(e) => updateField("basic", e.target.value ? parseFloat(e.target.value) : undefined)}
+                    onChange={(e) => updateField("basic", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
                   />
                   <Input
                     label="Gross Salary"
                     type="number"
+                    min={0}
                     value={form.gross?.toString() ?? ""}
-                    onChange={(e) => updateField("gross", e.target.value ? parseFloat(e.target.value) : undefined)}
+                    onChange={(e) => updateField("gross", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
                   />
                 </>
               ) : (

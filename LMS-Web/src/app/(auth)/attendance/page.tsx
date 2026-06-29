@@ -180,6 +180,7 @@ export default function AttendancePage() {
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Out Time</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Working Hrs</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Late</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">OT</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
                   </tr>
                 </thead>
@@ -215,8 +216,20 @@ export default function AttendancePage() {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {((record.ot_hrs ?? 0) > 0 || (record.ot_mnt ?? 0) > 0) ? (
+                          <span className="text-indigo-600">{record.ot_hrs ?? 0}h {record.ot_mnt ?? 0}m</span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4">
-                        <Badge status={record.status || "-"} />
+                        {/* Show a meaningful status: an open check-in (in, no out)
+                            is Incomplete, no check-in is Absent, otherwise Present. */}
+                        <Badge status={
+                          !record.in_time ? "Absent"
+                          : (!record.out_time ? "Incomplete" : (record.status || "Present"))
+                        } />
                       </td>
                     </tr>
                   ))}

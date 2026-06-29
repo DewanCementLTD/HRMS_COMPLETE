@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { SidebarProvider, useSidebar } from "@/components/layout/sidebar-context";
 import { Spinner } from "@/components/ui/Spinner";
 
 // Pages that require an employee record in HR_EMP_MASTER.
@@ -41,6 +42,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   if (!user) return null;
 
   return (
+    <SidebarProvider>
+      <AuthShell>{children}</AuthShell>
+    </SidebarProvider>
+  );
+}
+
+function AuthShell({ children }: { children: React.ReactNode }) {
+  const { collapsed } = useSidebar();
+  return (
     <div className="min-h-screen relative">
       {/* Background image with dark overlay */}
       <div
@@ -55,8 +65,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* min-w-0 + overflow-x-clip stop any over-wide child (long location rows,
             action button groups, wide tables) from pushing the whole shell
             sideways and misaligning the page. Tables keep their own
-            overflow-x-auto wrappers, so they still scroll internally. */}
-        <main className="lg:pl-64 transition-all duration-300 min-w-0 overflow-x-clip">
+            overflow-x-auto wrappers, so they still scroll internally.
+            The left padding tracks the sidebar width so the content reclaims the
+            space when the sidebar is collapsed. */}
+        <main className={`transition-all duration-300 min-w-0 overflow-x-clip ${collapsed ? "lg:pl-20" : "lg:pl-64"}`}>
           <div className="p-6 lg:p-8 max-w-7xl mx-auto min-w-0">
             {children}
           </div>
