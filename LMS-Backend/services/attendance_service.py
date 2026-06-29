@@ -8,7 +8,15 @@ from repositories.attendance_repository import (
     get_attendance_report_range,
     get_attendance_summary,
     _get_empcode,
+    _now_hhmm,
+    _time_spent_minutes,
 )
+
+# Minimum minutes that must elapse after check-in before a mark counts as a
+# check-out. Earlier marks just keep the person checked in (the earliest mark
+# stays the check-in). Applied to ATTENDANCE_RECORDS here, and mirrored in the
+# ATTENDANCE_RECORDS -> MACHINEDATA trigger.
+MIN_CHECKOUT_GAP_MIN = 60
 
 
 def smart_mark_attendance(card_no: str, attendance_type: str = "check_in", **kwargs):
@@ -45,6 +53,23 @@ def smart_mark_attendance(card_no: str, attendance_type: str = "check_in", **kwa
     exit_ = record["exit_time"]    # "" when OUT_TIME is NULL in DB
 
     if entry:
+        # No check-out within 1 hour of check-in. A second/accidental mark soon
+        # after check-in is ignored for check-out — the person stays checked in
+        # and the earliest mark remains the check-in. (Once already checked out,
+        # later marks may still extend the OUT to the latest mark.)
+        if not exit_:
+            mins_since_in = _time_spent_minutes(entry, _now_hhmm())
+            if mins_since_in < MIN_CHECKOUT_GAP_MIN:
+                print(f"[ATTENDANCE] card={card_no} → mark {mins_since_in}min after check-in "
+                      f"(<{MIN_CHECKOUT_GAP_MIN}), keeping checked-in (no check-out yet)")
+                return {
+                    "status": "success",
+                    "action": "noop",
+                    "message": "Already checked in",
+                    "marked_at": entry,
+                    "location_verified": kwargs.get("latitude") is not None,
+                }
+
         # Already has an IN → this (later) mark becomes/extends the check-out.
         # update_check_out keeps the LATEST of the existing OUT and now, so a
         # second accidental tap and a real evening checkout both resolve to the
