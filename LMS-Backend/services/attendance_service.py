@@ -2,6 +2,7 @@
 
 from repositories.attendance_repository import (
     get_today_record,
+    get_open_overnight_record,
     insert_check_in,
     update_check_out,
     get_attendance_report,
@@ -45,6 +46,23 @@ def smart_mark_attendance(card_no: str, attendance_type: str = "check_in", **kwa
     )
 
     if record is None:
+        # No record for today. Before starting a fresh check-in, see whether this
+        # is a night-shift worker checking OUT after midnight — if so, close last
+        # night's still-open shift instead of opening a new day's record.
+        overnight = get_open_overnight_record(card_no)
+        if overnight is not None:
+            print(f"[ATTENDANCE] card={card_no} → overnight check-out, closing prior shift "
+                  f"(in {overnight['entry_time']})")
+            co_addr = kwargs.get("formatted_address") or kwargs.get("address")
+            return update_check_out(
+                overnight["id"], overnight["entry_time"],
+                card_no=overnight.get("card_no", card_no),
+                current_out=None,   # the current mark is the check-out
+                checkout_lat=kwargs.get("latitude"),
+                checkout_long=kwargs.get("longitude"),
+                checkout_address=co_addr,
+            )
+
         # No roster row at all → insert check-in
         print(f"[ATTENDANCE] card={card_no} → no record today, checking in")
         return insert_check_in(**_checkin_kwargs)

@@ -98,12 +98,15 @@ def _run_with_retry(fn, attempts: int = 5, what: str = ""):
 
 
 def _time_spent_minutes(entry: str, exit_: str) -> int:
-    """Calculate minutes between two HH:MI strings."""
+    """Minutes between two HH:MI strings. If exit is earlier than entry the
+    shift crossed midnight (e.g. 20:00 -> 04:00), so add a full day."""
     try:
         fmt = "%H:%M"
         t1 = datetime.strptime(entry.strip()[:5], fmt)
         t2 = datetime.strptime(exit_.strip()[:5], fmt)
         diff = (t2 - t1).total_seconds() / 60
+        if diff < 0:
+            diff += 1440   # overnight shift
         return max(int(diff), 0)
     except Exception:
         return 0
@@ -140,6 +143,78 @@ def get_today_record(card_no: str):
                 "card_no": (row[3] or card_no),
                 "source": "attendance_records",
             }
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_open_overnight_record(card_no: str, max_window_hours: int = 16):
+    """For a NIGHT-shift worker, return a still-open check-in from a PRIOR day
+    that the current (after-midnight) mark should close, or None.
+
+    Used when there is no record for *today*: a person on an overnight shift
+    (DUTY_ROSTER shift whose SHIFT_HEAD time_to is earlier than time_from, e.g.
+    20:00 -> 04:00) who checked in last night and is now marking their check-out
+    after midnight. We only do this when the open check-in is recent (within
+    max_window_hours) so a genuinely forgotten check-out becomes a fresh day,
+    not a 24-hour shift.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    card_int = _card_int(card_no)
+    try:
+        # Most recent OPEN check-in from a previous day, with hours since entry.
+        cursor.execute("""
+            SELECT ID, ENTRY_TIME, TO_CHAR(CARD_NO), EMPCODE,
+                   TO_CHAR(ATTENDANCE_DATE, 'YYYY-MM-DD'),
+                   (SYSDATE - (TRUNC(ATTENDANCE_DATE)
+                               + TO_NUMBER(SUBSTR(ENTRY_TIME,1,2))/24
+                               + TO_NUMBER(SUBSTR(ENTRY_TIME,4,2))/1440)) * 24 AS hrs_since_in
+            FROM ATTENDANCE_RECORDS
+            WHERE (TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int)
+              AND ENTRY_TIME IS NOT NULL AND EXIT_TIME IS NULL
+              AND TRUNC(ATTENDANCE_DATE) < TRUNC(SYSDATE)
+              AND REGEXP_LIKE(ENTRY_TIME, '^[0-9][0-9]:[0-9][0-9]$')
+            ORDER BY ID DESC
+            FETCH FIRST 1 ROWS ONLY
+        """, {"card": card_no, "card_int": card_int})
+        row = cursor.fetchone()
+        if not row:
+            return None
+        rid, entry, card_full, empcode, rdate, hrs = row
+        if hrs is None or hrs < 1 or hrs > max_window_hours:
+            return None  # <1h (handled elsewhere) or too old (forgotten checkout)
+
+        # Was that day's shift an OVERNIGHT one (time_to < time_from)?
+        cursor.execute("""
+            SELECT sh.TIME_FROM, sh.TIME_TO
+            FROM SHIFT_HEAD sh
+            WHERE sh.compc = (SELECT TO_NUMBER(MAX(UNIT_ID)) FROM HR_EMP_MASTER WHERE EMPCODE = :emp)
+              AND sh.shift = (
+                    SELECT MIN(ROSTER_SHIFT) FROM DUTY_ROSTER
+                     WHERE (TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int
+                            OR TO_CHAR(EMP_FK) = :card)
+                       AND TRUNC(ROSTER_DATE) = TO_DATE(:rdate, 'YYYY-MM-DD'))
+              AND ROWNUM = 1
+        """, {"emp": empcode, "card": card_no, "card_int": card_int, "rdate": rdate})
+        sh = cursor.fetchone()
+        if not sh:
+            return None
+        time_from, time_to = (sh[0] or "").strip(), (sh[1] or "").strip()
+        # Overnight only when the shift end is earlier in the clock than its start.
+        if not time_from or not time_to or time_to >= time_from:
+            return None
+
+        return {
+            "id": rid,
+            "entry_time": (entry or "").strip(),
+            "exit_time": "",
+            "card_no": (card_full or card_no),
+            "source": "attendance_records",
+        }
+    except Exception as e:
+        print(f"[OVERNIGHT] lookup failed for card={card_no}: {e}")
         return None
     finally:
         cursor.close()
