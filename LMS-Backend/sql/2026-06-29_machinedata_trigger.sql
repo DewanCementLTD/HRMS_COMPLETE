@@ -30,18 +30,32 @@ BEGIN
      WHERE EMPCODE = :NEW.EMPCODE AND ROWNUM = 1;
   EXCEPTION WHEN OTHERS THEN v_compc := NULL; v_brnch := NULL; END;
 
-  -- Shift for that company/branch from SHIFT_HEAD: prefer the exact branch,
-  -- then the General (G) shift, then anything configured for the company.
+  -- Shift code = the person's assigned shift for that date, taken from their
+  -- DUTY_ROSTER row (matched by card or EMP_FK). SHIFT_HEAD then provides that
+  -- shift's timings (used downstream for late / half-day / check-out windows).
   BEGIN
-    SELECT shift INTO v_shift FROM (
-      SELECT shift
-        FROM SHIFT_HEAD
-       WHERE compc = v_compc
-       ORDER BY CASE WHEN brnch = v_brnch THEN 0 ELSE 1 END,
-                CASE WHEN shift = 'G' THEN 0 ELSE 1 END,
-                shift
-    ) WHERE ROWNUM = 1;
+    SELECT MIN(ROSTER_SHIFT) INTO v_shift
+      FROM DUTY_ROSTER
+     WHERE ( TO_CHAR(CARD_NO) = TO_CHAR(:NEW.CARD_NO)
+          OR TO_CHAR(CARD_NO) = REGEXP_SUBSTR(TO_CHAR(:NEW.CARD_NO), '^[0-9]+')
+          OR TO_CHAR(EMP_FK)  = TO_CHAR(:NEW.CARD_NO) )
+       AND TRUNC(ROSTER_DATE) = TRUNC(:NEW.ATTENDANCE_DATE);
   EXCEPTION WHEN OTHERS THEN v_shift := NULL; END;
+
+  -- Fallback when the roster has no shift for that day: the company/branch
+  -- default from SHIFT_HEAD (prefer exact branch, then General 'G').
+  IF v_shift IS NULL THEN
+    BEGIN
+      SELECT shift INTO v_shift FROM (
+        SELECT shift
+          FROM SHIFT_HEAD
+         WHERE compc = v_compc
+         ORDER BY CASE WHEN brnch = v_brnch THEN 0 ELSE 1 END,
+                  CASE WHEN shift = 'G' THEN 0 ELSE 1 END,
+                  shift
+      ) WHERE ROWNUM = 1;
+    EXCEPTION WHEN OTHERS THEN v_shift := NULL; END;
+  END IF;
 
   IF INSERTING THEN
     -- Check-IN: the earliest mark (ATTENDANCE_RECORDS already keeps the min).
