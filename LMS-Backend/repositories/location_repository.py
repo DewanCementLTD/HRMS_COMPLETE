@@ -346,7 +346,7 @@ def _fetch_trail_rows(from_date, to_date, *, allowed_companies=None, allowed_bra
                        WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(h.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(h.UNIT_ID)),
                     TO_CHAR(h.DEPT_NO)) AS DEPT_NAME,
                 NVL((SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
-                       WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(h.DESG_CD,'0')),
+                       WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(h.DESG_CD,'0') AND TO_CHAR(dg.COMPC)=TO_CHAR(h.UNIT_ID)),
                     TO_CHAR(h.DESG_CD)) AS DESG_NAME,
                 TO_CHAR(lt.ATTENDANCE_DATE, 'YYYY-MM-DD')          AS ADATE,
                 TO_CHAR(lt.RECORDED_AT, 'YYYY-MM-DD HH24:MI:SS')   AS RECORDED_AT,

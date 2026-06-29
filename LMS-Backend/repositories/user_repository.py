@@ -720,12 +720,30 @@ def get_user_profile(card_no: str):
             'uic_card_no':   None,
         }
 
-        # Isolated name lookups
-        result['department'] = _safe_lookup_max(
-            cursor, "SELECT MAX(DEPT_NAME) FROM HR_DEPT WHERE DEPT_NO = :v",
-            dept_no, tag="profile.department"
-        ) or str(dept_no or '')
-        result['designation'] = str(desg_cd or '')
+        # Isolated name lookups — dept/designation codes are unique PER COMPANY,
+        # so they must be resolved with the employee's company (COMPC = UNIT_ID),
+        # otherwise the same code resolves to a different company's name.
+        _unit = raw.get('unit_id')
+
+        def _name_compc(sql, code, tag):
+            if code is None:
+                return None
+            try:
+                cursor.execute(sql, {"v": code, "c": _unit})
+                r = cursor.fetchone()
+                return r[0] if r and r[0] is not None else None
+            except Exception as e:
+                print(f"[PROFILE] {tag} lookup failed: {e}")
+                return None
+
+        result['department'] = _name_compc(
+            "SELECT MAX(DEPT_NAME) FROM HR_DEPT "
+            "WHERE LTRIM(DEPT_NO,'0')=LTRIM(:v,'0') AND TO_CHAR(COMPC)=TO_CHAR(:c)",
+            dept_no, "profile.department") or str(dept_no or '')
+        result['designation'] = _name_compc(
+            "SELECT MAX(DESG_DESC) FROM HR_DESG "
+            "WHERE LTRIM(DESG_CD,'0')=LTRIM(:v,'0') AND TO_CHAR(COMPC)=TO_CHAR(:c)",
+            desg_cd, "profile.designation") or str(desg_cd or '')
         result['compcnm'] = _safe_lookup_max(
             cursor, "SELECT MAX(DESCR) FROM COMPANY_INFO WHERE COMPC = :v",
             result.get('compc'), tag="profile.compcnm"

@@ -448,8 +448,8 @@ def list_loans(compc=None, empcode=None) -> list:
             FROM HR_LOAN_MST l
             LEFT JOIN HR_EMP_MASTER m ON (m.OLD_EMPCODE = l.OLD_EMPCODE OR m.EMPCODE = l.OLD_EMPCODE)
             LEFT JOIN HR_LOAN_TYPE t ON t.LOAN_CD = l.LOAN_CD
-            LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep
-                   ON dep.DEPT_NO = m.DEPT_NO
+            LEFT JOIN HR_DEPT dep
+                   ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(m.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(m.UNIT_ID)
             {where}
             ORDER BY l."DOC#" DESC
         """
@@ -461,7 +461,7 @@ def list_loans(compc=None, empcode=None) -> list:
                 raise
             sql2 = sql.replace("NVL(dep.DEPT_NAME, TO_CHAR(m.DEPT_NO)) AS DEPT_NAME", "TO_CHAR(m.DEPT_NO) AS DEPT_NAME")
             sql2 = sql2.replace(
-                "LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep\n                   ON dep.DEPT_NO = m.DEPT_NO", "")
+                "LEFT JOIN HR_DEPT dep\n                   ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(m.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(m.UNIT_ID)", "")
             cur.execute(sql2, params)
         rows = cur.fetchall()
         out = []

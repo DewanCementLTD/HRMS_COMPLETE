@@ -227,7 +227,7 @@ def _jobs_query(cursor, where: str, params: dict) -> list:
                 j.CREATED_BY,
                 TO_CHAR(j.CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT
             FROM RECRUITMENT_JOBS j
-            LEFT JOIN HR_DEPT d ON d.DEPT_NO = j.DEPT_NO
+            LEFT JOIN HR_DEPT d ON TO_CHAR(d.DEPT_NO) = TO_CHAR(j.DEPT_NO) AND TO_CHAR(d.COMPC) = TO_CHAR(j.COMPC)
             {where}
             ORDER BY j.JOB_ID DESC
     """, params)
@@ -264,7 +264,7 @@ def get_job(job_id: int) -> dict | None:
                 j.CREATED_BY,
                 TO_CHAR(j.CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT
             FROM RECRUITMENT_JOBS j
-            LEFT JOIN HR_DEPT d ON d.DEPT_NO = j.DEPT_NO
+            LEFT JOIN HR_DEPT d ON TO_CHAR(d.DEPT_NO) = TO_CHAR(j.DEPT_NO) AND TO_CHAR(d.COMPC) = TO_CHAR(j.COMPC)
             WHERE j.JOB_ID = :job_id
         """, {"job_id": job_id})
         row = cursor.fetchone()

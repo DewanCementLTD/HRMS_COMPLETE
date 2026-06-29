@@ -139,7 +139,9 @@ def get_payslip(compc, empcode, period) -> dict | None:
 
         cur.execute("""
             SELECT NAME, "ATDTCARD#", TO_CHAR(DTOFAPPT,'YYYY-MM-DD'), GRADE_CD,
-                   (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE dg.DESG_CD = HR_EMP_MASTER.DESG_CD),
+                   (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
+                      WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(HR_EMP_MASTER.DESG_CD,'0')
+                        AND TO_CHAR(dg.COMPC)=TO_CHAR(HR_EMP_MASTER.UNIT_ID)),
                    (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                       WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(HR_EMP_MASTER.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(HR_EMP_MASTER.UNIT_ID)),
                    (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(HR_EMP_MASTER.LOCATION)),

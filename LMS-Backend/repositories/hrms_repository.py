@@ -279,7 +279,8 @@ def get_employee_card(empcode: str) -> dict | None:
                     m.EMPCODE, m.NAME, m.FHNAME, m."ATDTCARD#", m.NICNO, m."MOBILE#",
                     m.EMAIL, m.SEX, m.BLDGRP, m.STATUS,
                     TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
-                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(m.DESG_CD,'0')) AS DESIGNATION,
+                    (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
+                       WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(m.DESG_CD,'0') AND TO_CHAR(dg.COMPC)=TO_CHAR(m.UNIT_ID)) AS DESIGNATION,
                     (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                        WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)) AS DEPARTMENT,
                     (SELECT u.UNIT_NAME FROM UNIT_MST u WHERE u.UNIT_ID = m.UNIT_ID) AS COMPANY_NAME,
@@ -742,8 +743,8 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
                     COUNT(*) AS total,
                     SUM(CASE WHEN d.IN_TIME IS NOT NULL OR ar.card_no IS NOT NULL THEN 1 ELSE 0 END) AS present
                 FROM HR_EMP_MASTER h
-                LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep
-                    ON dep.DEPT_NO = h.DEPT_NO
+                LEFT JOIN HR_DEPT dep
+                    ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
                 LEFT JOIN DUTY_ROSTER d
                     ON TO_CHAR(d.CARD_NO) = TO_CHAR(e.CARD_NO)
@@ -812,7 +813,7 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
                     MOD(TO_NUMBER(TO_CHAR(h.DTOFBRTH, 'DDD'))
                         - TO_NUMBER(TO_CHAR(SYSDATE, 'DDD')) + 365, 365) AS days_until
                 FROM HR_EMP_MASTER h
-                LEFT JOIN HR_DEPT dep ON dep.DEPT_NO = h.DEPT_NO
+                LEFT JOIN HR_DEPT dep ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)
                   AND h.DTOFBRTH IS NOT NULL
                   AND MOD(TO_NUMBER(TO_CHAR(h.DTOFBRTH, 'DDD'))
@@ -842,7 +843,7 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
                     MOD(TO_NUMBER(TO_CHAR(h.DTOFAPPT, 'DDD'))
                         - TO_NUMBER(TO_CHAR(SYSDATE, 'DDD')) + 365, 365) AS days_until
                 FROM HR_EMP_MASTER h
-                LEFT JOIN HR_DEPT dep ON dep.DEPT_NO = h.DEPT_NO
+                LEFT JOIN HR_DEPT dep ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)
                   AND h.DTOFAPPT IS NOT NULL
                   AND MOD(TO_NUMBER(TO_CHAR(h.DTOFAPPT, 'DDD'))
@@ -876,7 +877,7 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
                 FROM LEAVE_APPLICATION la
                 LEFT JOIN EMPLOYEE e ON TO_CHAR(e.CARD_NO) = TO_CHAR(la.EMP_FK)
                 LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
-                LEFT JOIN HR_DEPT dep ON dep.DEPT_NO = h.DEPT_NO
+                LEFT JOIN HR_DEPT dep ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE)
                   AND la.LEAVE_DATE_FROM <= TRUNC(SYSDATE) + 30
                 ORDER BY la.LEAVE_DATE_FROM
@@ -1245,8 +1246,8 @@ def get_bulk_attendance_summary(
                     ON  TO_CHAR(ar.CARD_NO) = TO_CHAR(e.CARD_NO)
                     AND TRUNC(ar.ATTENDANCE_DATE) BETWEEN
                         TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-                LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep
-                    ON dep.DEPT_NO = h.DEPT_NO
+                LEFT JOIN HR_DEPT dep
+                    ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 WHERE h.STATUS = 'A'{filter_sql}
                 GROUP BY
                     h.EMPCODE, h.NAME, h."ATDTCARD#", TO_CHAR(e.CARD_NO),
@@ -1285,8 +1286,8 @@ def get_bulk_attendance_summary(
                 0 AS ot_minutes,
                 0 AS working_minutes
             FROM HR_EMP_MASTER h
-            LEFT JOIN (SELECT DEPT_NO, MIN(DEPT_NAME) AS DEPT_NAME FROM HR_DEPT GROUP BY DEPT_NO) dep
-                ON dep.DEPT_NO = h.DEPT_NO
+            LEFT JOIN HR_DEPT dep
+                ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
             WHERE h.STATUS = 'A'{filter_sql}
             ORDER BY h.NAME
             FETCH FIRST 1000 ROWS ONLY

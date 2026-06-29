@@ -60,7 +60,8 @@ def _label(frm):
 _EMP_COLS = """
     (SELECT MAX(e.NAME) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = {alias}.OLD_EMPCODE OR e.EMPCODE = {alias}.OLD_EMPCODE),
     (SELECT MAX(e.EMPCODE) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = {alias}.OLD_EMPCODE OR e.EMPCODE = {alias}.OLD_EMPCODE),
-    (SELECT MIN(dg.DESG_DESC) FROM HR_EMP_MASTER e JOIN HR_DESG dg ON LTRIM(dg.DESG_CD,'0')=LTRIM(e.DESG_CD,'0')
+    (SELECT MIN(dg.DESG_DESC) FROM HR_EMP_MASTER e JOIN HR_DESG dg
+            ON LTRIM(dg.DESG_CD,'0')=LTRIM(e.DESG_CD,'0') AND TO_CHAR(dg.COMPC)=TO_CHAR(e.UNIT_ID)
        WHERE e.OLD_EMPCODE = {alias}.OLD_EMPCODE OR e.EMPCODE = {alias}.OLD_EMPCODE),
     (SELECT MIN(d.DEPT_NAME) FROM HR_EMP_MASTER e JOIN HR_DEPT d
             ON LTRIM(d.DEPT_NO,'0')=LTRIM(e.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(e.UNIT_ID)
@@ -404,9 +405,8 @@ def list_deduction_types(compc=None) -> list:
     try:
         cur.execute("""
             SELECT DED_CD, DED_DESC FROM HR_DEDUCTION
-            WHERE (:u IS NULL OR UNIT_ID = :u OR UNIT_ID IS NULL)
-            ORDER BY LPAD(DED_CD, 5)
-        """, {"u": _int(compc)})
+             ORDER BY LPAD(DED_CD, 5)
+        """, )
         return [{"deduction_id": (r[0] or "").strip(), "deduction_desc": (r[1] or "").strip()}
                 for r in cur.fetchall()]
     finally:
