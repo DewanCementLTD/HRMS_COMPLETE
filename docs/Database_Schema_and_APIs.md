@@ -223,121 +223,1050 @@
 
 ---
 
-## 6. API Reference
+## 6. API Reference — endpoints (parameters, body & response)
 
-Base URL: Core API on **:8001**, Face service on **:8002**. Most admin endpoints take `admin_card_no` (the requesting HR admin) and optional `compc` / `brnch` query params; HR‑admin endpoints are guarded by `require_hr_admin`.
+Conventions:
+- Most admin endpoints also accept `admin_card_no` (requesting HR admin) and optional `compc` / `brnch` query params; these are omitted below only where not present.
+- Where an endpoint declares no response model, the response is plain JSON — typically `{ "items": [...] }` for lists, `{ "body": {...} }` for self‑service reads, or the domain object/`{ "status", "message" }` for writes.
+- `req` = required, `opt` = optional. Types are from the OpenAPI schema.
 
-### 6.1 Authentication & Self‑Service — `/auth`
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/auth/login` | Log in (ERP security user or employee); returns rights, companies, branches |
-| GET | `/auth/dashboard/{card_no}` | Employee/HR dashboard summary |
-| GET | `/auth/profile/{card_no}` | Employee profile (resolved dept/designation/company per company) |
-| POST | `/auth/change-password/{card_no}` | Change password |
-| GET | `/auth/leave-balances/{card_no}` | Leave balances |
-| POST | `/auth/apply-leave/{card_no}` | Apply for leave |
-| GET | `/auth/leave-status/{card_no}` | Leave application status |
-| GET | `/auth/lookup/{phone}` | Look up an employee by phone (support flow) |
+### App Version
 
-### 6.2 Attendance — `/auth/attendance`
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/auth/attendance/face` | Mark attendance (smart in/out, face + GPS); writes `ATTENDANCE_RECORDS` |
-| POST | `/auth/attendance/{card_no}` | Mark attendance (simple, lat/long only) |
-| GET | `/auth/attendance/summary` | Self attendance summary for a range |
-| GET | `/auth/attendance/report-range/{card_no}` | Per‑day attendance for a date range |
-| GET | `/auth/attendance/report/{card_no}/{date_str}` | Single‑day attendance |
+#### `GET` /app/download/latest
+- **Response 200:** JSON
 
-### 6.3 Face Service — `/face` (port 8002)
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/face/register` | Enrol a face (stores embedding in `EMP_FACE_EMBEDDINGS`) |
-| POST | `/face/verify` | 1:1 verify a live face against the given card |
-| POST | `/face/identify` | 1:N identify (kiosk; not after login) |
-| GET | `/face/status/{card_no}` | Whether a card is enrolled |
-| DELETE | `/face/delete/{card_no}` | Remove a face enrolment |
+#### `GET` /app/version-check
+- **Query:** `platform` string (opt), `version` string (opt), `build` integer (opt)
+- **Response 200:** JSON
 
-### 6.4 HRMS (admin) — `/hrms`
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/hrms/employees` | Employee directory (company/branch scoped) |
-| POST | `/hrms/employees` | Register an employee |
-| GET/PUT | `/hrms/employees/{empcode}` | Get / update an employee |
-| GET | `/hrms/employees/{empcode}/card` | ID‑card data |
-| GET | `/hrms/employees/search` | Server‑side employee search |
-| GET | `/hrms/dashboard` · `/hrms/dashboard/analytics` | HR dashboard stats & analytics |
-| GET | `/hrms/attendance/bulk` | Per‑employee attendance summary for a range |
-| GET | `/hrms/attendance/details` | One row per employee per present day |
-| GET | `/hrms/duty-roster/{card_no}` | Monthly duty roster (read from `DUTY_ROSTER`) |
-| PUT | `/hrms/duty-roster/entry/{pk}` | Edit a roster day's shift / remarks (audited) |
-| GET | `/hr/employees/search` · POST `/hr/face/enroll` | HR search + face enrolment helper |
+### Attendance
 
-### 6.5 Reference / Setup — `/reference`
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST | `/reference/departments` | List / add departments (per company) |
-| GET/POST | `/reference/designations` | List / add designations |
-| GET/POST | `/reference/grades` | Grades |
-| GET/POST/DELETE | `/reference/emp-statuses` | Employee statuses |
-| GET/POST/DELETE | `/reference/qualifications` | Qualifications |
-| GET/POST | `/reference/blood-groups` | Blood groups |
-| GET/POST | `/reference/cadre` | Cadre |
-| GET/POST/DELETE | `/reference/banks` · `/reference/bank-branches` | Banks & branches |
-| GET/POST | `/reference/locations` · PUT `/reference/locations/{lcode}` | Branches/locations |
-| GET | `/reference/units` · `/reference/religions` · `/reference/reporting-officers` | Lookups |
-| GET | `/reference/shift-lov` | Shift codes (LOV from `HR_SHIFT`) |
-| GET/POST | `/reference/shifts` · PUT/DELETE `/reference/shifts/{pk}` | Per‑company+branch shift config (`SHIFT_HEAD`) |
+#### `POST` /auth/attendance/face
+- **Body** (FaceAttendanceRequest):
+    - `card_no` string (req)
+    - `attendance_type` string (req)
+    - `latitude` number (opt)
+    - `longitude` number (opt)
+    - `accuracy` number (opt)
+    - `address` string (opt)
+    - `formatted_address` string (opt)
+    - `timestamp` string (opt)
+    - `device_id` string (opt)
+    - `device_model` string (opt)
+    - `app_version` string (opt)
+    - `app_build` integer (opt)
+- **Response 200:** JSON
 
-### 6.6 Payroll — `/payroll`
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST/PUT/PATCH | `/payroll/financial-years` (+ `/{rule_id}`, `/status`) | Financial years |
-| GET/POST/PATCH | `/payroll/periods` (+ `/{period}/status`) | Period opening |
-| GET/POST/DELETE | `/payroll/tax-masters` (+ `/details`, `/status`) | Tax slabs |
-| GET/POST/PUT/DELETE | `/payroll/loan-types` · `/payroll/loans` (+ `/{doc}`) | Loans |
-| GET | `/payroll/salary/periods` · `/payroll/salary/sheet` · `/payroll/salary/payslip` | Processed salary & payslip |
-| GET | `/payroll/salary/open-period` · POST `/payroll/salary/process` | Open period + run salary process |
-| GET | `/payroll/pay-register` · `/payroll/pay-register/periods` | Pay Register report (`HR_PAY_REG_V`) |
+#### `GET` /auth/attendance/report-range/{card_no}
+- **Path:** `card_no` string
+- **Query:** `from_date` string (req), `to_date` string (req)
+- **Response 200:** JSON
 
-### 6.7 Payroll Inputs — `/payroll-entry`
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST/DELETE | `/payroll-entry/allowances` (+ `/allowance-types`) | Monthly allowances |
-| GET/POST/DELETE | `/payroll-entry/deductions` (+ `/deduction-types`) | Monthly deductions |
-| GET/POST/DELETE | `/payroll-entry/absent-days` (+ `/employee`) | Absent days |
-| GET/POST/DELETE | `/payroll-entry/loan-recoveries` (+ `/recovery-types`, `/loans`) | Loan recoveries |
-| GET | `/payroll-entry/open-periods` | Open periods for inputs |
+#### `GET` /auth/attendance/report/{card_no}/{date_str}
+- **Path:** `card_no` string, `date_str` string
+- **Response 200:** JSON
 
-### 6.8 Location Tracking — `/auth/location` & `/location-tracking`
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/auth/location/batch` | Upload a batch of GPS points |
-| GET | `/auth/location/history/{card_no}` · `/auth/location/summary` | History / summary |
-| GET | `/auth/location/report/summary` · `/report/trail` | Reports / trail |
-| GET | `/location-tracking/settings/{emp_code}` · POST `/settings/{emp_code}/update` | Per‑employee tracking settings |
-| GET | `/location-tracking/geofence/{emp_code}` · `/active-employees` · `/statistics` | Geofence, active list, stats |
+#### `GET` /auth/attendance/summary
+- **Query:** `emp_pk` string (req), `from_date` string (req), `to_date` string (req)
+- **Response 200:** JSON
 
-### 6.9 Documents — `/documents`
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST/DELETE | `/documents` (+ `/{doc_id}`, `/{doc_id}/download`) | Employee documents |
-| GET/POST | `/documents/employee-photo` · `/documents/my-photo` | Employee / self photo |
-| GET/POST | `/documents/company-logo` | Company logo |
+#### `POST` /auth/attendance/{card_no}
+- **Path:** `card_no` string
+- **Body** (AttendanceRequest):
+    - `latitude` number (opt)
+    - `longitude` number (opt)
+- **Response 200** (AttendanceResponse):
+    - `status` string (req)
+    - `message` string (req)
 
-### 6.10 Recruitment — `/recruitment`
-| Method | Path | Purpose |
-|---|---|---|
-| GET/POST/PUT | `/recruitment/jobs` (+ `/{job_id}`) | Job postings |
-| GET/POST/PATCH | `/recruitment/applications` (+ `/{app_id}`, `/status`) | Applications |
-| GET/POST/PATCH | `/recruitment/interviews` (+ `/{interview_id}`) | Interviews |
-| GET/POST/PATCH | `/recruitment/offers` (+ `/{offer_id}`) | Offers |
-| GET | `/recruitment/analytics` | Recruitment analytics |
+### Authentication
 
-### 6.11 Mobile App — `/app`
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/app/version-check` | Min‑version / forced‑update check |
-| GET | `/app/download/latest` | Latest APK |
+#### `POST` /auth/apply-leave/{card_no}
+- **Path:** `card_no` string
+- **Body** (LeaveApplyRequest):
+    - `type` string (opt)
+    - `leave_type_id` integer (opt)
+    - `from_date` string (req)
+    - `to_date` string (req)
+    - `reason` string (req)
+    - `half_day` boolean (opt)
+    - `compc` integer (opt)
+    - `brnch` integer (opt)
+    - `emp_name` string (opt)
+- **Response 200** (MessageResponse):
+    - `status` string (req)
+    - `message` string (req)
+
+#### `POST` /auth/change-password/{card_no}
+- **Path:** `card_no` string
+- **Body** (ChangePasswordRequest):
+    - `old_password` string (req)
+    - `new_password` string (req)
+- **Response 200** (MessageResponse):
+    - `status` string (req)
+    - `message` string (req)
+
+#### `GET` /auth/dashboard/{card_no}
+- **Path:** `card_no` string
+- **Response 200** (DashboardResponse):
+    - `emp_pk` number (opt)
+    - `card_no` string (req)
+    - `emp_no` string (opt)
+    - `emp_name` string (req)
+    - `date_of_join` string (opt)
+    - `nic_no` string (opt)
+    - `designation` string (opt)
+    - `department` string (opt)
+    - `compcnm` string (opt)
+    - `compc` number (opt)
+    - `branch` number (opt)
+    - `brnchnm` string (opt)
+    - `hod` number (opt)
+    - `hod_nm` string (opt)
+    - `balance` number (opt)
+
+#### `GET` /auth/leave-balances/{card_no}
+- **Path:** `card_no` string
+- **Response 200:** JSON
+
+#### `GET` /auth/leave-status/{card_no}
+- **Path:** `card_no` string
+- **Response 200:** JSON
+
+#### `POST` /auth/login
+- **Body** (LoginRequest):
+    - `username` string (req)
+    - `password` string (req)
+    - `app_version` string (opt)
+    - `app_build` integer (opt)
+    - `platform` string (opt)
+- **Response 200** (LoginResponse):
+    - `status` string (req)
+    - `card_no` string (req)
+    - `emp_name` string (opt)
+    - `face_registered` boolean (opt)
+    - `hr_admin` boolean (opt)
+    - `has_self_service` boolean (opt)
+    - `has_employee_features` boolean (opt)
+    - `allowed_companies` string[] (opt)
+    - `allowed_branches` string[] (opt)
+    - `company_list` CompanyItem[] (opt)
+    - `branch_list` BranchItem[] (opt)
+    - `can_edit_salary` boolean (opt)
+
+#### `GET` /auth/lookup/{phone}
+- **Path:** `phone` string
+- **Response 200:** JSON
+
+#### `GET` /auth/profile/{card_no}
+- **Path:** `card_no` string
+- **Response 200** (ProfileResponse):
+    - `emp_name` string (req)
+    - `department` string (req)
+    - `designation` string (req)
+    - `email_address` string (req)
+    - `mobile_no` string (req)
+    - `date_of_birth` string (req)
+    - `date_of_join` string (req)
+    - `father_name` string (req)
+    - `nic_no` string (req)
+
+### Employee Documents
+
+#### `GET` /documents
+- **Query:** `empcode` string (req), `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /documents
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /documents/company-logo
+- **Query:** `compc` string (req)
+- **Response 200:** JSON
+
+#### `POST` /documents/company-logo
+- **Query:** `admin_card_no` string (req), `compc` string (req)
+- **Response 200:** JSON
+
+#### `GET` /documents/employee-photo
+- **Query:** `admin_card_no` string (req), `empcode` string (req)
+- **Response 200:** JSON
+
+#### `POST` /documents/employee-photo
+- **Query:** `admin_card_no` string (req), `empcode` string (req)
+- **Response 200:** JSON
+
+#### `GET` /documents/my-photo
+- **Query:** `card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /documents/my-photo
+- **Query:** `card_no` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /documents/{doc_id}
+- **Path:** `doc_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /documents/{doc_id}/download
+- **Path:** `doc_id` integer
+- **Query:** `admin_card_no` string (req), `inline` boolean (opt)
+- **Response 200:** JSON
+
+### Face Authentication
+
+#### `DELETE` /face/delete/{card_no}
+- **Path:** `card_no` string
+- **Response 200:** JSON
+
+#### `POST` /face/identify
+- **Body** (FaceIdentifyRequest):
+    - `frames` string[] (req)
+- **Response 200:** JSON
+
+#### `POST` /face/register
+- **Body** (FaceRegisterRequest):
+    - `card_no` string (req)
+    - `frames` string[] (req)
+    - `created_at` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /face/status/{card_no}
+- **Path:** `card_no` string
+- **Response 200:** JSON
+
+#### `POST` /face/verify
+- **Body** (FaceVerifyRequest):
+    - `card_no` string (req)
+    - `frames` string[] (req)
+- **Response 200:** JSON
+
+### HR Admin
+
+#### `GET` /hr/employees/search
+- **Query:** `q` string (req), `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /hr/face/enroll
+- **Query:** `admin_card_no` string (req)
+- **Body** (HRFaceEnrollRequest):
+    - `card_no` string (req)
+    - `frames` string[] (req)
+    - `created_at` string (opt)
+- **Response 200:** JSON
+
+### HRMS
+
+#### `GET` /hrms/attendance/bulk
+- **Query:** `admin_card_no` string (req), `from_date` string (req), `to_date` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/attendance/details
+- **Query:** `admin_card_no` string (req), `from_date` string (req), `to_date` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/dashboard
+- **Query:** `admin_card_no` string (req), `date` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/dashboard/analytics
+- **Query:** `admin_card_no` string (req), `date` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `PUT` /hrms/duty-roster/entry/{pk}
+- **Path:** `pk` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (RosterEntryUpdate):
+    - `shift` string (opt)
+    - `remarks` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/duty-roster/{card_no}
+- **Path:** `card_no` string
+- **Query:** `admin_card_no` string (req), `month` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/employees
+- **Query:** `admin_card_no` string (req), `status` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /hrms/employees
+- **Query:** `admin_card_no` string (req)
+- **Body** (EmployeeCreateRequest):
+    - `name` string (req)
+    - `fhname` string (opt)
+    - `atdtcard` string (opt)
+    - `sex` string (opt)
+    - `dtofbrth` string (opt)
+    - `nicno` string (opt)
+    - `dtofappt` string (opt)
+    - `dept_no` string (opt)
+    - `desg_cd` string (opt)
+    - `mobile` string (opt)
+    - `email` string (opt)
+    - `address` string (opt)
+    - `unit_id` integer (opt)
+    - `status` string (opt)
+    - `user_paswd` string (opt)
+    - `hr_admin` string (opt)
+    - `rpt_officer` string (opt)
+    - `marstat` string (opt)
+    - `grade_cd` string (opt)
+    - `religion` string (opt)
+    - `hod1` integer (opt)
+    - `hod2` integer (opt)
+    - `hod3` integer (opt)
+    - `basic` number (opt)
+    - `gross` number (opt)
+    - `shift` string (opt)
+    - `w_hour` number (opt)
+    - `bldgrp` string (opt)
+    - `location` string (opt)
+    - `emp_status` string (opt)
+    - `ntn` string (opt)
+    - `bnkcode` string (opt)
+    - `brncode` string (opt)
+    - `bnkacct` string (opt)
+    - `qfication` string (opt)
+    - `qual_detail` string (opt)
+    - `dtofconfirm` string (opt)
+- **Response 200** (MessageResponse):
+    - `status` string (req)
+    - `message` string (req)
+    - `empcode` string (opt)
+
+#### `GET` /hrms/employees/search
+- **Query:** `q` string (req), `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /hrms/employees/{empcode}
+- **Path:** `empcode` string
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `PUT` /hrms/employees/{empcode}
+- **Path:** `empcode` string
+- **Query:** `admin_card_no` string (req)
+- **Body** (EmployeeUpdateRequest):
+    - `name` string (opt)
+    - `fhname` string (opt)
+    - `atdtcard` string (opt)
+    - `sex` string (opt)
+    - `dtofbrth` string (opt)
+    - `nicno` string (opt)
+    - `dtofappt` string (opt)
+    - `dept_no` string (opt)
+    - `desg_cd` string (opt)
+    - `mobile` string (opt)
+    - `email` string (opt)
+    - `address` string (opt)
+    - `unit_id` integer (opt)
+    - `status` string (opt)
+    - `user_paswd` string (opt)
+    - `hr_admin` string (opt)
+    - `rpt_officer` string (opt)
+    - `marstat` string (opt)
+    - `grade_cd` string (opt)
+    - `religion` string (opt)
+    - `hod1` integer (opt)
+    - `hod2` integer (opt)
+    - `hod3` integer (opt)
+    - `basic` number (opt)
+    - `gross` number (opt)
+    - `shift` string (opt)
+    - `w_hour` number (opt)
+    - `bldgrp` string (opt)
+    - `location` string (opt)
+    - `track_location` string (opt)
+    - `track_location_hr` integer (opt)
+    - `emp_status` string (opt)
+    - `ntn` string (opt)
+    - `bnkcode` string (opt)
+    - `brncode` string (opt)
+    - `bnkacct` string (opt)
+    - `qfication` string (opt)
+    - `qual_detail` string (opt)
+    - `dtofconfirm` string (opt)
+- **Response 200** (MessageResponse):
+    - `status` string (req)
+    - `message` string (req)
+    - `empcode` string (opt)
+
+#### `GET` /hrms/employees/{empcode}/card
+- **Path:** `empcode` string
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+### Location Tracking
+
+#### `POST` /auth/location/batch
+- **Body** (LocationBatchRequest):
+    - `card_no` string (req)
+    - `locations` LocationPoint[] (req)
+- **Response 200:** JSON
+
+#### `GET` /auth/location/history/{card_no}
+- **Path:** `card_no` string
+- **Query:** `date` string (req), `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /auth/location/report/summary
+- **Query:** `from_date` string (req), `to_date` string (req), `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `dept_no` string (opt), `desg_cd` string (opt), `empcodes` string (opt), `region` string (opt), `category` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /auth/location/report/trail
+- **Query:** `from_date` string (req), `to_date` string (req), `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `dept_no` string (opt), `desg_cd` string (opt), `empcodes` string (opt), `region` string (opt), `category` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /auth/location/summary
+- **Query:** `date` string (req), `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /location-tracking/active-employees
+- **Response 200:** JSON
+
+#### `GET` /location-tracking/geofence/{emp_code}
+- **Path:** `emp_code` string
+- **Response 200:** JSON
+
+#### `GET` /location-tracking/settings/{emp_code}
+- **Path:** `emp_code` string
+- **Response 200:** JSON
+
+#### `POST` /location-tracking/settings/{emp_code}/update
+- **Path:** `emp_code` string
+- **Query:** `track_location` string (req), `track_location_hr` integer (opt), `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /location-tracking/statistics
+- **Response 200:** JSON
+
+### Payroll
+
+#### `GET` /payroll/financial-years
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll/financial-years
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (FinancialYearRequest):
+    - `from_date` string (req)
+    - `to_date` string (req)
+    - `scode` string (opt)
+    - `descr` string (opt)
+    - `rate` number (opt)
+    - `intrst` number (opt)
+    - `filer` number (opt)
+    - `nonfiler` number (opt)
+    - `auto_periods` boolean (opt)
+- **Response 200:** JSON
+
+#### `PUT` /payroll/financial-years/{rule_id}
+- **Path:** `rule_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (FinancialYearRequest):
+    - `from_date` string (req)
+    - `to_date` string (req)
+    - `scode` string (opt)
+    - `descr` string (opt)
+    - `rate` number (opt)
+    - `intrst` number (opt)
+    - `filer` number (opt)
+    - `nonfiler` number (opt)
+    - `auto_periods` boolean (opt)
+- **Response 200:** JSON
+
+#### `PATCH` /payroll/financial-years/{rule_id}/status
+- **Path:** `rule_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (StatusRequest):
+    - `status` string (opt)
+    - `block` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/loan-types
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /payroll/loan-types
+- **Query:** `admin_card_no` string (req)
+- **Body** (LoanTypeRequest):
+    - `loan_desc` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll/loan-types/{loan_cd}
+- **Path:** `loan_cd` string
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /payroll/loans
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `empcode` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll/loans
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (LoanRequest):
+    - `empcode` string (opt)
+    - `loan_cd` string (opt)
+    - `loan_date` string (opt)
+    - `loan_amt` number (opt)
+    - `instalment_amt` number (opt)
+    - `nof_instalment` integer (opt)
+    - `start_dt` string (opt)
+    - `charge_int` string (opt)
+    - `int_rate` number (opt)
+    - `chq_no` string (opt)
+    - `chq_dt` string (opt)
+    - `remarks` string (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll/loans/{doc}
+- **Path:** `doc` integer
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `PUT` /payroll/loans/{doc}
+- **Path:** `doc` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (LoanRequest):
+    - `empcode` string (opt)
+    - `loan_cd` string (opt)
+    - `loan_date` string (opt)
+    - `loan_amt` number (opt)
+    - `instalment_amt` number (opt)
+    - `nof_instalment` integer (opt)
+    - `start_dt` string (opt)
+    - `charge_int` string (opt)
+    - `int_rate` number (opt)
+    - `chq_no` string (opt)
+    - `chq_dt` string (opt)
+    - `remarks` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/pay-register
+- **Query:** `admin_card_no` string (req), `period` integer (req), `compc` string (opt), `location` string (opt), `dept_no` string (opt), `desg_cd` string (opt), `empcode` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/pay-register/periods
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/periods
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `rule_id` integer (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll/periods
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (PeriodRequest):
+    - `rule_id` integer (opt)
+    - `period_frm` string (req)
+    - `period_to` string (req)
+    - `scode` string (opt)
+- **Response 200:** JSON
+
+#### `PATCH` /payroll/periods/{period}/status
+- **Path:** `period` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (StatusRequest):
+    - `status` string (opt)
+    - `block` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/salary/open-period
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/salary/payslip
+- **Query:** `admin_card_no` string (req), `empcode` string (req), `period` integer (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/salary/periods
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll/salary/process
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/salary/sheet
+- **Query:** `admin_card_no` string (req), `period` integer (req), `compc` string (opt), `brnch` string (opt), `q` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll/tax-masters
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /payroll/tax-masters
+- **Query:** `admin_card_no` string (req)
+- **Body** (TaxMasterRequest):
+    - `tax_desc` string (req)
+    - `fyear` string (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll/tax-masters/{tax_id}
+- **Path:** `tax_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `GET` /payroll/tax-masters/{tax_id}/details
+- **Path:** `tax_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `POST` /payroll/tax-masters/{tax_id}/details
+- **Path:** `tax_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (TaxDetailRequest):
+    - `slab_from` number (opt)
+    - `slab_to` number (opt)
+    - `slab_rate` number (opt)
+    - `date_from` string (opt)
+    - `date_to` string (opt)
+    - `slab_ded` number (opt)
+    - `fixed_tax` number (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll/tax-masters/{tax_id}/details/{srno}
+- **Path:** `tax_id` integer, `srno` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `PATCH` /payroll/tax-masters/{tax_id}/status
+- **Path:** `tax_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (StatusRequest):
+    - `status` string (opt)
+    - `block` string (opt)
+- **Response 200:** JSON
+
+### Payroll Entry
+
+#### `DELETE` /payroll-entry/absent-days
+- **Query:** `admin_card_no` string (req), `empcode` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/absent-days
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `empcode` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll-entry/absent-days
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (AbsentDaysRequest):
+    - `empcode` string (req)
+    - `absent_days` number (req)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/absent-days/employee
+- **Query:** `admin_card_no` string (req), `empcode` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/allowance-types
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll-entry/allowances
+- **Query:** `admin_card_no` string (req), `empcode` string (req), `allowance_id` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/allowances
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `empcode` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll-entry/allowances
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (MonthlyAllowanceRequest):
+    - `empcode` string (req)
+    - `allowance_id` string (req)
+    - `amount` number (req)
+    - `ot_hour` number (opt)
+    - `remarks` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/deduction-types
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll-entry/deductions
+- **Query:** `admin_card_no` string (req), `empcode` string (req), `deduction_id` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/deductions
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `empcode` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll-entry/deductions
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (MonthlyDeductionRequest):
+    - `empcode` string (req)
+    - `deduction_id` string (req)
+    - `amount` number (req)
+    - `remarks` string (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /payroll-entry/loan-recoveries
+- **Query:** `admin_card_no` string (req), `rowid` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/loan-recoveries
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `doc` integer (opt)
+- **Response 200:** JSON
+
+#### `POST` /payroll-entry/loan-recoveries
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (LoanRecoveryRequest):
+    - `doc` integer (req)
+    - `recovery_type` string (opt)
+    - `recovered_amt` number (req)
+    - `remarks` string (opt)
+    - `int_rate_rec` number (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/loans
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/open-periods
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /payroll-entry/recovery-types
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+### Recruitment
+
+#### `GET` /recruitment/analytics
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/applications
+- **Query:** `admin_card_no` string (req), `job_id` integer (opt), `status` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /recruitment/applications
+- **Query:** `admin_card_no` string (req)
+- **Body** (ApplicationCreateRequest):
+    - `job_id` integer (req)
+    - `candidate_name` string (req)
+    - `mobile` string (opt)
+    - `email` string (opt)
+    - `source` string (opt)
+    - `notes` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/applications/{app_id}
+- **Path:** `app_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `PATCH` /recruitment/applications/{app_id}/status
+- **Path:** `app_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (ApplicationStatusUpdate):
+    - `status` string (req)
+    - `notes` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/interviews
+- **Query:** `admin_card_no` string (req), `app_id` integer (opt), `status` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /recruitment/interviews
+- **Query:** `admin_card_no` string (req)
+- **Body** (InterviewCreateRequest):
+    - `app_id` integer (req)
+    - `interview_date` string (opt)
+    - `interview_type` string (opt)
+    - `interviewer` string (opt)
+- **Response 200:** JSON
+
+#### `PATCH` /recruitment/interviews/{interview_id}
+- **Path:** `interview_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (InterviewUpdateRequest):
+    - `status` string (opt)
+    - `feedback` string (opt)
+    - `interview_date` string (opt)
+    - `interview_type` string (opt)
+    - `interviewer` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/jobs
+- **Query:** `admin_card_no` string (req), `status` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /recruitment/jobs
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Body** (JobCreateRequest):
+    - `job_title` string (req)
+    - `dept_no` integer (opt)
+    - `open_positions` integer (opt)
+    - `job_desc` string (opt)
+    - `skills_req` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/jobs/{job_id}
+- **Path:** `job_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `PUT` /recruitment/jobs/{job_id}
+- **Path:** `job_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (JobUpdateRequest):
+    - `job_title` string (opt)
+    - `dept_no` integer (opt)
+    - `open_positions` integer (opt)
+    - `job_desc` string (opt)
+    - `skills_req` string (opt)
+    - `status` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /recruitment/offers
+- **Query:** `admin_card_no` string (req), `status` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /recruitment/offers
+- **Query:** `admin_card_no` string (req)
+- **Body** (OfferCreateRequest):
+    - `app_id` integer (req)
+    - `salary_offered` number (opt)
+    - `notes` string (opt)
+- **Response 200:** JSON
+
+#### `PATCH` /recruitment/offers/{offer_id}
+- **Path:** `offer_id` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (OfferUpdateRequest):
+    - `status` string (opt)
+    - `salary_offered` number (opt)
+    - `notes` string (opt)
+- **Response 200:** JSON
+
+### Reference Data
+
+#### `GET` /reference/bank-branches
+- **Query:** `bnkcode` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/bank-branches
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (AddBankBranchRequest):
+    - `bnkcode` string (req)
+    - `brnname` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/bank-branches/{bnkcode}/{brncode}
+- **Path:** `bnkcode` string, `brncode` string
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/banks
+- **Query:** `compc` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/banks
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (AddBankRequest):
+    - `bnkname` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/banks/{bnkcode}
+- **Path:** `bnkcode` string
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/blood-groups
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/blood-groups
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddBloodGroupRequest):
+    - `blood_group` string (req)
+- **Response 200:** JSON
+
+#### `GET` /reference/cadre
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/cadre
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddCadreRequest):
+    - `cadre` string (req)
+- **Response 200:** JSON
+
+#### `GET` /reference/departments
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/departments
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddDeptRequest):
+    - `dept_name` string (req)
+- **Response 200:** JSON
+
+#### `GET` /reference/designations
+- **Query:** `grade_cd` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/designations
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddDesignationRequest):
+    - `grade_cd` string (req)
+    - `desg_desc` string (req)
+- **Response 200:** JSON
+
+#### `GET` /reference/emp-statuses
+- **Query:** `compc` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/emp-statuses
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (AddEmpStatusRequest):
+    - `descr` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/emp-statuses/{emp_status}
+- **Path:** `emp_status` string
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/grades
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/grades
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddGradeRequest):
+    - `grade_cd` string (req)
+    - `descr` string (req)
+- **Response 200:** JSON
+
+#### `GET` /reference/locations
+- **Query:** `admin_card_no` string (opt), `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/locations
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (LocationRequest):
+    - `lcode` string (req)
+    - `descr` string (req)
+    - `sname` string (opt)
+    - `regioncode` string (opt)
+    - `city` string (opt)
+- **Response 200:** JSON
+
+#### `PUT` /reference/locations/{lcode}
+- **Path:** `lcode` string
+- **Query:** `admin_card_no` string (req)
+- **Body** (LocationRequest):
+    - `lcode` string (req)
+    - `descr` string (req)
+    - `sname` string (opt)
+    - `regioncode` string (opt)
+    - `city` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/qualifications
+- **Query:** `compc` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/qualifications
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Body** (AddQualificationRequest):
+    - `descr` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/qualifications/{descr}
+- **Path:** `descr` string
+- **Query:** `admin_card_no` string (req), `compc` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/religions
+- **Response 200:** JSON
+
+#### `GET` /reference/reporting-officers
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/shift-lov
+- **Response 200:** JSON
+
+#### `GET` /reference/shifts
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- **Response 200:** JSON
+
+#### `POST` /reference/shifts
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Body** (ShiftRequest):
+    - `shift` string (req)
+    - `shift_desc` string (opt)
+    - `time_from` string (opt)
+    - `time_to` string (opt)
+    - `overtime_start_time` string (opt)
+    - `allow_in_time` string (opt)
+    - `late_start_tm` string (opt)
+    - `late_end_tm` string (opt)
+    - `half_day_tm` string (opt)
+    - `half_day_end_tm` string (opt)
+    - `sat_start_tm` string (opt)
+    - `sat_end_time` string (opt)
+    - `sat_allow_in_tm` string (opt)
+    - `sat_haf_day_tm` string (opt)
+    - `late_sit_tm` string (opt)
+    - `late_sit_allow_tm` string (opt)
+    - `early_out_late_start` string (opt)
+    - `early_out_late_end` string (opt)
+    - `early_out_hday_start` string (opt)
+    - `early_out_hday_end` string (opt)
+    - `duty_hrs` string (opt)
+    - `day_name` string (opt)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/shifts/{pk}
+- **Path:** `pk` integer
+- **Query:** `admin_card_no` string (req)
+- **Response 200:** JSON
+
+#### `PUT` /reference/shifts/{pk}
+- **Path:** `pk` integer
+- **Query:** `admin_card_no` string (req)
+- **Body** (ShiftRequest):
+    - `shift` string (req)
+    - `shift_desc` string (opt)
+    - `time_from` string (opt)
+    - `time_to` string (opt)
+    - `overtime_start_time` string (opt)
+    - `allow_in_time` string (opt)
+    - `late_start_tm` string (opt)
+    - `late_end_tm` string (opt)
+    - `half_day_tm` string (opt)
+    - `half_day_end_tm` string (opt)
+    - `sat_start_tm` string (opt)
+    - `sat_end_time` string (opt)
+    - `sat_allow_in_tm` string (opt)
+    - `sat_haf_day_tm` string (opt)
+    - `late_sit_tm` string (opt)
+    - `late_sit_allow_tm` string (opt)
+    - `early_out_late_start` string (opt)
+    - `early_out_late_end` string (opt)
+    - `early_out_hday_start` string (opt)
+    - `early_out_hday_end` string (opt)
+    - `duty_hrs` string (opt)
+    - `day_name` string (opt)
+- **Response 200:** JSON
+
+#### `GET` /reference/units
+- **Response 200:** JSON
+
+#### `POST` /reference/units
+- **Query:** `admin_card_no` string (req)
+- **Body** (AddUnitRequest):
+    - `unit_name` string (req)
+- **Response 200:** JSON
 
 ---
 
