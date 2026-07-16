@@ -93,8 +93,8 @@ class LeaveApplyRequest(BaseModel):
     to_date: str
     reason: str
     half_day: Optional[bool] = False
-    compc: int = 0
-    brnch: int = 0
+    compc: int 
+    brnch: int 
     emp_name: str = ''
 
 

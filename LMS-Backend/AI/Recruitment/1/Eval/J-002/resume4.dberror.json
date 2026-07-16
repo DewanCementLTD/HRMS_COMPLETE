@@ -1,0 +1,10 @@
+{
+  "cv_file": "resume4.pdf",
+  "company_id": "1",
+  "job_id": 2,
+  "failed_at": "2026-07-08T19:45:58.585344+00:00",
+  "error": "Job 2 not found in RECRUITMENT_JOBS",
+  "archived_pdf": "C:\\Erp_Systems\\HRMS_LMS_APP\\GIT_NEW\\LMS-Backend\\AI\\Recruitment\\1\\CV_Archive\\J-002\\resume4.pdf",
+  "eval_json": "C:\\Erp_Systems\\HRMS_LMS_APP\\GIT_NEW\\LMS-Backend\\AI\\Recruitment\\1\\Eval\\J-002\\resume4.json",
+  "note": "Evaluation JSON + archived PDF are intact. Fix the DB issue and replay this record into RECRUITMENT_* tables."
+}

@@ -30,12 +30,15 @@ function fmtHM(h: number | undefined, m: number | undefined): string {
 }
 
 function getRowBg(rec: AttendanceRecord): string {
+  // Colour by the ERP roster status: late = yellow, absent = red, half day = orange.
+  const s = (rec.status || "").toUpperCase();
+  if (s === "LATE") return "#fff3b0";       // yellow
+  if (s === "HALF DAY") return "#ffe0b2";   // orange
+  if (s === "ABSENT") return "#ffcccc";     // red
   const day = (rec.day_name || "").toUpperCase();
   const isWeekend = day === "SATURDAY" || day === "SUNDAY";
   if (isWeekend && !rec.in_time) return "#e0e0e0";
-  if (!rec.in_time && !isWeekend) return "#ffcccc";
   if (rec.in_time && !rec.out_time) return "#ffff99";
-  if ((rec.late_hrs ?? 0) > 0 || (rec.late_mnt ?? 0) > 0) return "#ffe0b2";
   return "#ffffff";
 }
 
@@ -72,8 +75,8 @@ export function printTimesheetWindow(
   const rowsHtml = records.map((rec) => {
     const bg = getRowBg(rec);
     const isWeekend = ["SATURDAY", "SUNDAY"].includes((rec.day_name || "").toUpperCase());
-    const isLate    = (rec.late_hrs ?? 0) > 0 || (rec.late_mnt ?? 0) > 0;
-    const isIncomplete = rec.in_time && !rec.out_time;
+    const isLate    = !!rec.is_late;
+    const isHalf    = !!rec.is_half_day;
     const shiftBg  = isWeekend && !rec.in_time ? "#555555" : bg;
     const shiftColor = isWeekend && !rec.in_time ? "#ffffff" : "#000000";
 
@@ -82,13 +85,13 @@ export function printTimesheetWindow(
         <td style="font-weight:500">${fmtPrintDate(rec.roster_date)}</td>
         <td style="background:${shiftBg};color:${shiftColor};font-weight:bold;text-align:center">${rec.roster_shift || "G"}</td>
         <td style="text-align:left">${rec.day_name || "—"}</td>
-        <td style="color:${isLate ? "#cc0000" : "#000"};font-weight:${isLate ? "bold" : "normal"}">${rec.in_time || ""}</td>
+        <td style="color:${isLate ? "#b45309" : "#000"};font-weight:${isLate ? "bold" : "normal"}">${rec.in_time || ""}</td>
         <td>${rec.out_time || ""}</td>
         <td>${rec.in_time ? fmtHM(rec.w_hrs, rec.w_mnt) : ""}</td>
-        <td style="color:${isLate ? "#cc6600" : "#000"}">${isLate ? fmtHM(rec.late_hrs, rec.late_mnt) : ""}</td>
-        <td>${(rec.ot_hrs ?? 0) > 0 || (rec.ot_mnt ?? 0) > 0 ? fmtHM(rec.ot_hrs, rec.ot_mnt) : ""}</td>
+        <td style="color:#b45309;font-weight:${isLate ? "bold" : "normal"}">${isLate ? "Late" : ""}</td>
+        <td style="color:#c2410c;font-weight:${isHalf ? "bold" : "normal"}">${isHalf ? "Half Day" : ""}</td>
         <td>${rec.status || ""}</td>
-        <td style="text-align:left;font-style:italic;color:#555">${isIncomplete ? "WH Waiting" : (rec.roster_remarks || "")}</td>
+        <td style="text-align:left;font-style:italic;color:#555">${rec.roster_remarks || ""}</td>
       </tr>`;
   }).join("");
 
@@ -97,7 +100,7 @@ export function printTimesheetWindow(
       <thead>
         <tr>
           <th>Total Days</th><th>Present</th><th>Absent</th>
-          <th>Incomplete</th><th>Late (h:mm)</th><th>Overtime (h:mm)</th>
+          <th>Incomplete</th><th>Late</th><th>Half Day</th>
         </tr>
       </thead>
       <tbody>
@@ -106,8 +109,8 @@ export function printTimesheetWindow(
           <td style="color:#006400;font-weight:bold">${summary.present}</td>
           <td style="color:#cc0000;font-weight:bold">${summary.absent_days}</td>
           <td style="color:#996600">${summary.incomplete}</td>
-          <td style="color:#cc6600">${fmtHM(Math.floor(summary.late_minutes / 60), summary.late_minutes % 60)}</td>
-          <td style="color:#000080">${fmtHM(Math.floor(summary.overtime_minutes / 60), summary.overtime_minutes % 60)}</td>
+          <td style="color:#b45309;font-weight:bold">${summary.late_days ?? 0}</td>
+          <td style="color:#c2410c;font-weight:bold">${summary.half_days ?? 0}</td>
         </tr>
       </tbody>
     </table>` : "";
@@ -283,7 +286,7 @@ export function printTimesheetWindow(
       <tr>
         <th>Date</th><th>Shift</th><th>Day</th>
         <th>Time In</th><th>Time Out</th><th>Work Hours</th>
-        <th>Late Arrival</th><th>Overtime</th><th>Status</th><th>Remarks</th>
+        <th>Late Arrival</th><th>Half Day</th><th>Status</th><th>Remarks</th>
       </tr>
     </thead>
     <tbody>
@@ -294,9 +297,10 @@ export function printTimesheetWindow(
   ${summaryHtml}
 
   <div class="legend">
-    <div class="legend-item"><span class="legend-box" style="background:#ffe0b2"></span>Late Arrival</div>
-    <div class="legend-item"><span class="legend-box" style="background:#ffff99"></span>WH Waiting (Incomplete)</div>
+    <div class="legend-item"><span class="legend-box" style="background:#fff3b0"></span>Late</div>
+    <div class="legend-item"><span class="legend-box" style="background:#ffe0b2"></span>Half Day</div>
     <div class="legend-item"><span class="legend-box" style="background:#ffcccc"></span>Absent</div>
+    <div class="legend-item"><span class="legend-box" style="background:#ffff99"></span>Incomplete (no check-out)</div>
     <div class="legend-item"><span class="legend-box" style="background:#e0e0e0"></span>Rest Day</div>
   </div>
 

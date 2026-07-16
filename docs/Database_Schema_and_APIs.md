@@ -207,11 +207,29 @@
 **RECRUITMENT_APPLICATIONS** _( table, 10 cols )_  
 `APP_ID` NUMBER NN · `JOB_ID` NUMBER NN · `CANDIDATE_NAME` VARCHAR2(200) NN · `MOBILE` VARCHAR2(20) · `EMAIL` VARCHAR2(200) · `SOURCE` VARCHAR2(100) · `APP_DATE` DATE · `STATUS` VARCHAR2(20) · `NOTES` VARCHAR2(1000) · `CREATED_AT` DATE
 
-**RECRUITMENT_INTERVIEWS** _( table, 8 cols )_  
-`INTERVIEW_ID` NUMBER NN · `APP_ID` NUMBER NN · `INTERVIEW_DATE` DATE · `INTERVIEW_TYPE` VARCHAR2(50) · `INTERVIEWER` VARCHAR2(200) · `STATUS` VARCHAR2(20) · `FEEDBACK` VARCHAR2(2000) · `CREATED_AT` DATE
+**RECRUITMENT_INTERVIEWS** _( table, 10 cols )_  
+`INTERVIEW_ID` NUMBER NN · `APP_ID` NUMBER NN · `INTERVIEW_DATE` DATE · `INTERVIEW_TYPE` VARCHAR2(50) · `INTERVIEWER` VARCHAR2(200) · `LOCATION_OR_LINK` VARCHAR2(300) · `INTERVIEW_MODE` VARCHAR2(30) · `STATUS` VARCHAR2(20) · `FEEDBACK` VARCHAR2(2000) · `CREATED_AT` DATE
 
 **RECRUITMENT_OFFERS** _( table, 7 cols )_  
 `OFFER_ID` NUMBER NN · `APP_ID` NUMBER NN · `OFFER_DATE` DATE · `SALARY_OFFERED` NUMBER · `STATUS` VARCHAR2(20) · `NOTES` VARCHAR2(1000) · `CREATED_AT` DATE
+
+**INTERVIEW_PANEL_POOL** _( table, 7 cols — employees eligible to conduct interviews, per company+branch; soft-removed via IS_ACTIVE, never deleted. "All Branches" adds/removals fan out to one row per branch at action time; no BRNCH='ALL' rows )_  
+`PANEL_POOL_ID` NUMBER NN (PK, INTERVIEW_PANEL_POOL_SEQ) · `COMPC` NUMBER NN · `BRNCH` NUMBER NN · `EMPCODE` VARCHAR2(20) NN → HR_EMP_MASTER · `IS_ACTIVE` VARCHAR2(1) NN (Y/N) · `ADDED_BY` VARCHAR2(20) NN · `ADDED_ON` TIMESTAMP NN · UNIQUE (COMPC, BRNCH, EMPCODE)
+
+**INTERVIEW_ASSIGNMENTS** _( table, 12 cols — one row per interviewer per scheduled interview; names/emails resolved by joining HR_EMP_MASTER at read time. Saving also creates the linked RECRUITMENT_INTERVIEWS event row )_  
+`ASSIGNMENT_ID` NUMBER NN (PK, INTERVIEW_ASSIGNMENTS_SEQ) · `APP_ID` NUMBER NN → RECRUITMENT_APPLICATIONS · `INTERVIEW_ID` NUMBER → RECRUITMENT_INTERVIEWS · `EMPCODE` VARCHAR2(20) NN · `INTERVIEW_TYPE` VARCHAR2(50) NN · `INTERVIEW_DATE` DATE NN · `START_TIME` VARCHAR2(5) NN (HH:MM) · `END_TIME` VARCHAR2(5) NN · `ASSIGNED_BY` VARCHAR2(20) NN · `ASSIGNED_ON` TIMESTAMP NN · `STATUS` VARCHAR2(10) NN (PENDING/CONDUCTED) · `REMARKS` VARCHAR2(500)
+
+**INTERVIEW_TYPES** _( table, 5 cols — setup-master LOV for interview rounds; global seed rows (COMPC NULL: HR, Technical, Managerial, Final) shared by every company and not deletable per company )_  
+`TYPE_ID` NUMBER NN (PK, INTERVIEW_TYPES_SEQ) · `DESCR` VARCHAR2(50) NN · `COMPC` NUMBER · `BRNCH` NUMBER · `IS_ACTIVE` VARCHAR2(1) NN
+
+**NOTIFICATION_TEMPLATES** _( table, 12 cols — EMAIL/WHATSAPP message templates per recipient (INTERVIEWER/CANDIDATE) and event (Interview Scheduled / Shortlisted / Rejected / …). Bodies stored RAW with `{{placeholder}}` markers intact — resolution/delivery is a future phase. 8 rows seeded, incl. the 4 required Interview Scheduled combos )_  
+`TEMPLATE_ID` NUMBER NN (PK, NOTIFICATION_TEMPLATES_SEQ) · `TEMPLATE_NAME` VARCHAR2(100) NN · `NOTIFICATION_TYPE` VARCHAR2(10) NN · `RECIPIENT_TYPE` VARCHAR2(15) NN · `EVENT_TYPE` VARCHAR2(50) NN · `SUBJECT` VARCHAR2(200) (email only) · `MESSAGE_BODY` CLOB NN · `PLACEHOLDERS` CLOB (JSON array) · `IS_ACTIVE` VARCHAR2(1) NN · `CREATED_BY` VARCHAR2(20) NN · `CREATED_ON` TIMESTAMP NN · `UPDATED_ON` TIMESTAMP
+
+**APPLICATION_NOTIFICATION_SELECTIONS** _( table, 10 cols — one row per notification choice made in the dialog for an application. RESOLVED_BODY holds the UNRESOLVED template snapshot at selection time. CONTACT_INFO is auto-filled for CANDIDATE rows by trigger TRG_ANS_CANDIDATE_CONTACT (candidate profile → application row fallback; only fills NULLs) )_  
+`SELECTION_ID` NUMBER NN (PK, APP_NOTIF_SELECTIONS_SEQ) · `APP_ID` NUMBER NN → RECRUITMENT_APPLICATIONS · `TEMPLATE_ID` NUMBER NN → NOTIFICATION_TEMPLATES · `NOTIFICATION_TYPE` VARCHAR2(10) NN · `RECIPIENT_TYPE` VARCHAR2(15) NN · `CONTACT_INFO` VARCHAR2(150) · `RESOLVED_BODY` CLOB · `STATUS` VARCHAR2(15) NN (SELECTED) · `SELECTED_BY` VARCHAR2(20) NN · `SELECTED_ON` TIMESTAMP NN
+
+**APPLICATION_NOTIFICATION_INTERVIEWERS** _( table, 4 cols — one row per interviewer for INTERVIEWER selections (CANDIDATE rows have no children). CONTACT_INFO auto-filled by trigger TRG_ANI_CONTACT from HR_EMP_MASTER (EMAIL or MOBILE# per the parent's notification type; only fills NULLs) )_  
+`RECIPIENT_ID` NUMBER NN (PK, APP_NOTIF_INTERVIEWERS_SEQ) · `SELECTION_ID` NUMBER NN → APPLICATION_NOTIFICATION_SELECTIONS · `EMPCODE` VARCHAR2(20) NN → HR_EMP_MASTER · `CONTACT_INFO` VARCHAR2(150)
 
 ### Documents & App
 
@@ -993,6 +1011,69 @@ Conventions:
     - `interviewer` string (opt)
 - **Response 200:** JSON
 
+#### `GET` /recruitment/panel-pool
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt), `include_inactive` boolean (opt)
+- Pool members for the company (+branch when selected), joined to HR_EMP_MASTER for names.
+- **Response 200:** `{ items: [...], company_branches: [{lcode, descr}] }` — `company_branches` lets the UI show a member as "All Branches" when active in every one.
+
+#### `POST` /recruitment/panel-pool
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Body** (PanelPoolAddRequest): `empcodes` string[] (req)
+- Adds active employees to the pool. No `brnch` = "All Branches" view → one row per branch of the company (snapshot; later branches are NOT auto-included). Existing rows are reactivated, never duplicated; non-active/other-company empcodes are returned in `rejected`.
+- **Response 200:** `{ status, inserted, reactivated, branches, rejected }`
+
+#### `DELETE` /recruitment/panel-pool/{panel_pool_id}
+- **Path:** `panel_pool_id` integer — **Query:** `admin_card_no` string (req)
+- Soft-removes ONE pool row (IS_ACTIVE='N'); historical assignments keep resolving.
+- **Response 200:** JSON
+
+#### `POST` /recruitment/panel-pool/deactivate
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Body** (PanelPoolDeactivateRequest): `empcode` string (req)
+- Scope-aware soft removal: with a branch only that row; in "All Branches" view every branch of the company.
+- **Response 200:** `{ status, deactivated }`
+
+#### `GET` /recruitment/applications/{app_id}/interview-panel-options
+- **Path:** `app_id` integer — **Query:** `admin_card_no` string (req)
+- Active pool members eligible for this application (its job's company/branch; a company-wide job draws from every branch's pool). One entry per employee, branches merged.
+- **Response 200:** `{ status, compc, brnch, items: [{empcode, name, branches}] }`
+
+#### `POST` /recruitment/applications/{app_id}/interview-assignments
+- **Path:** `app_id` integer — **Query:** `admin_card_no` string (req)
+- **Body** (InterviewAssignmentCreateRequest):
+    - `empcodes` string[] (req) — one INTERVIEW_ASSIGNMENTS row per interviewer
+    - `interview_type` string (req — 400 if blank)
+    - `interview_date` string (req, YYYY-MM-DD)
+    - `start_time` string (req, HH:MM 24h)
+    - `end_time` string (opt — defaults to start + 1 hour)
+    - `remarks` string (opt)
+    - `location_or_link` string (opt) · `interview_mode` string (opt) — stored on the RECRUITMENT_INTERVIEWS event for the notification placeholders
+- Also creates the RECRUITMENT_INTERVIEWS event row (so the interview list / feedback flow shows it). Server-side validation: non-pool empcodes → 400; an interviewer with another PENDING assignment overlapping this date+time → 409 naming the clash.
+- **Response 200:** `{ status, interview_id, assignment_ids, interviewers }`
+
+#### `GET` /recruitment/applications/{app_id}/interview-assignments
+- **Path:** `app_id` integer — **Query:** `admin_card_no` string (req)
+- **Response 200:** `{ items: [...] }` — names joined from HR_EMP_MASTER at read time.
+
+#### `GET` /recruitment/notification-templates
+- **Query:** `admin_card_no` string (req), `event_type` string (opt), `notification_type` string (opt, EMAIL/WHATSAPP), `recipient_type` string (opt, INTERVIEWER/CANDIDATE)
+- Active templates, raw bodies with `{{placeholders}}` intact + parsed placeholder list.
+- **Response 200:** `{ items: [...] }`
+
+#### `POST` /recruitment/applications/{app_id}/notification-selections
+- **Path:** `app_id` integer — **Query:** `admin_card_no` string (req)
+- **Body** (NotificationSelectionsCreateRequest): `selections`: array of
+    - `template_id` integer (req) — must be active and match the row's types (400 otherwise)
+    - `notification_type` string (req, EMAIL/WHATSAPP)
+    - `recipient_type` string (req, INTERVIEWER/CANDIDATE)
+    - `empcodes` string[] (req when recipient_type=INTERVIEWER — one child row each)
+- Persists the dialog's choices; contact info auto-filled (candidate from profile/application, interviewers from HR_EMP_MASTER) via triggers with a Python fallback. All-or-nothing transaction.
+- **Response 200:** `{ status, created: [{selection_id, contact_info, recipients: [...]}] }`
+
+#### `GET` /recruitment/applications/{app_id}/notification-selections
+- **Path:** `app_id` integer — **Query:** `admin_card_no` string (req)
+- **Response 200:** `{ items: [...] }` — selections with template names, snapshot bodies, and per-interviewer recipients.
+
 #### `GET` /recruitment/jobs
 - **Query:** `admin_card_no` string (req), `status` string (opt), `compc` string (opt), `brnch` string (opt)
 - **Response 200:** JSON
@@ -1185,6 +1266,21 @@ Conventions:
 - **Query:** `admin_card_no` string (req), `compc` string (opt)
 - **Response 200:** JSON
 
+#### `GET` /reference/interview-types
+- **Query:** `compc` string (opt), `brnch` string (opt)
+- Active interview round types: the company's own + the global defaults (COMPC NULL).
+- **Response 200:** `{ items: [{type_id, descr, compc, brnch}] }`
+
+#### `POST` /reference/interview-types
+- **Query:** `admin_card_no` string (req), `compc` string (opt), `brnch` string (opt)
+- **Body** (AddInterviewTypeRequest): `descr` string (req)
+- **Response 200:** JSON
+
+#### `DELETE` /reference/interview-types/{type_id}
+- **Path:** `type_id` integer — **Query:** `admin_card_no` string (req), `compc` string (opt)
+- Soft delete; only company-scoped types can be removed (global seed rows are shared).
+- **Response 200:** JSON
+
 #### `GET` /reference/religions
 - **Response 200:** JSON
 
@@ -1212,7 +1308,6 @@ Conventions:
     - `late_end_tm` string (opt)
     - `half_day_tm` string (opt)
     - `half_day_end_tm` string (opt)
-    - `sat_start_tm` string (opt)
     - `sat_end_time` string (opt)
     - `sat_allow_in_tm` string (opt)
     - `sat_haf_day_tm` string (opt)
@@ -1245,7 +1340,6 @@ Conventions:
     - `late_end_tm` string (opt)
     - `half_day_tm` string (opt)
     - `half_day_end_tm` string (opt)
-    - `sat_start_tm` string (opt)
     - `sat_end_time` string (opt)
     - `sat_allow_in_tm` string (opt)
     - `sat_haf_day_tm` string (opt)

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { printTablePdf } from "@/lib/printTable";
+import { getStatusColor, getAttendanceRowTint } from "@/lib/utils";
 import {
   fetchBulkAttendance, fetchAttendanceDetails,
   type BulkAttendanceRow, type AttendanceDetailRow,
@@ -15,10 +16,6 @@ import {
 type Mode = "summary" | "details";
 
 function todayStr() { return new Date().toISOString().split("T")[0]; }
-function hhmm(min: number) {
-  const m = Math.max(0, Math.round(min || 0));
-  return `${Math.floor(m / 60)}h ${m % 60}m`;
-}
 function presetRange(p: string): { from: string; to: string } {
   const t = new Date();
   const iso = (d: Date) => d.toISOString().split("T")[0];
@@ -111,20 +108,20 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
   function exportCsv() {
     if (mode === "summary") {
       downloadCsv(
-        ["Empcode", "Name", "ATDT", "Department", "Present", "Absent", "Total Days", "Late", "Overtime", "Working"],
+        ["Empcode", "Name", "ATDT", "Department", "Present", "Absent", "Late", "Half Day", "Total Days"],
         filteredSummary.map((r) => [
           r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "",
-          String(r.present_days), String(r.absent_days), String(r.total_days),
-          hhmm(r.late_minutes), hhmm(r.ot_minutes), hhmm(r.working_minutes),
+          String(r.present_days), String(r.absent_days),
+          String(r.late_days), String(r.half_days), String(r.total_days),
         ]),
         `attendance-summary-${from}_to_${to}.csv`,
       );
     } else {
       downloadCsv(
-        ["Name", "Card", "ATDT", "Date", "Duty In", "Duty Out", "In Time", "Out Time"],
+        ["Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
         filteredDetails.map((r) => [
-          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date,
-          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "",
+          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
+          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
         ]),
         `attendance-details-${from}_to_${to}.csv`,
       );
@@ -138,21 +135,22 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
       printTablePdf({
         companyName: company, title: "Attendance Summary", meta, landscape: true,
         columns: ["Empcode", "Name", "ATDT", "Department",
-          { header: "Present", align: "right" }, { header: "Absent", align: "right" }, { header: "Total Days", align: "right" },
-          { header: "Late", align: "right" }, { header: "Overtime", align: "right" }, { header: "Working", align: "right" }],
+          { header: "Present", align: "right" }, { header: "Absent", align: "right" },
+          { header: "Late", align: "right" }, { header: "Half Day", align: "right" },
+          { header: "Total Days", align: "right" }],
         rows: filteredSummary.map((r) => [
           r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "",
-          String(r.present_days), String(r.absent_days), String(r.total_days),
-          hhmm(r.late_minutes), hhmm(r.ot_minutes), hhmm(r.working_minutes),
+          String(r.present_days), String(r.absent_days),
+          String(r.late_days), String(r.half_days), String(r.total_days),
         ]),
       });
     } else {
       printTablePdf({
         companyName: company, title: "Attendance — Daily Details", meta, landscape: true,
-        columns: ["Name", "Card", "ATDT", "Date", "Duty In", "Duty Out", "In Time", "Out Time"],
+        columns: ["Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
         rows: filteredDetails.map((r) => [
-          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date,
-          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "",
+          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
+          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
         ]),
       });
     }
@@ -239,10 +237,9 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <th className="px-3 py-2 text-left">Department</th>
                 <th className="px-3 py-2 text-right">Present</th>
                 <th className="px-3 py-2 text-right">Absent</th>
-                <th className="px-3 py-2 text-right">Days</th>
                 <th className="px-3 py-2 text-right">Late</th>
-                <th className="px-3 py-2 text-right">OT</th>
-                <th className="px-3 py-2 text-right">Working</th>
+                <th className="px-3 py-2 text-right">Half Day</th>
+                <th className="px-3 py-2 text-right">Days</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -253,10 +250,9 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                   <td className="px-3 py-2 text-gray-600">{r.dept_name || "—"}</td>
                   <td className="px-3 py-2 text-right font-semibold text-emerald-600">{r.present_days}</td>
                   <td className="px-3 py-2 text-right font-semibold text-red-500">{r.absent_days}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-yellow-600">{r.late_days}</td>
+                  <td className="px-3 py-2 text-right font-semibold text-orange-600">{r.half_days}</td>
                   <td className="px-3 py-2 text-right text-gray-700">{r.total_days}</td>
-                  <td className="px-3 py-2 text-right text-amber-600">{hhmm(r.late_minutes)}</td>
-                  <td className="px-3 py-2 text-right text-indigo-600">{hhmm(r.ot_minutes)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{hhmm(r.working_minutes)}</td>
                 </tr>
               ))}
             </tbody>
@@ -274,13 +270,16 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <th className="px-3 py-2 text-left">Duty Out</th>
                 <th className="px-3 py-2 text-left">Check In</th>
                 <th className="px-3 py-2 text-left">Check Out</th>
+                <th className="px-3 py-2 text-left">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredDetails.map((r, i) => {
                 const incomplete = r.in_time && !r.out_time;
+                const tint = getAttendanceRowTint(r.status);
                 return (
-                  <tr key={`${r.atdtcard || r.card_no}-${r.roster_date}-${i}`} className="hover:bg-gray-50">
+                  <tr key={`${r.atdtcard || r.card_no}-${r.roster_date}-${i}`}
+                      className={tint || "hover:bg-gray-50"}>
                     <td className="px-3 py-2 font-medium text-gray-900">{r.name || "—"}</td>
                     <td className="px-3 py-2 text-gray-500">{r.atdtcard || r.card_no || "—"}</td>
                     <td className="px-3 py-2 text-gray-600">{r.roster_date}</td>
@@ -289,6 +288,13 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                     <td className="px-3 py-2 font-semibold text-gray-800">{r.in_time || "—"}</td>
                     <td className="px-3 py-2 font-semibold">
                       {r.out_time || (incomplete ? <span className="text-amber-600">Waiting</span> : "—")}
+                    </td>
+                    <td className="px-3 py-2">
+                      {r.status && (
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(r.status)}`}>
+                          {r.status}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );

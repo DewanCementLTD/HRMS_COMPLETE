@@ -1,0 +1,97 @@
+{
+  "cv_file": "cv_resume0.pdf",
+  "company_id": "1",
+  "job_id": "J-001",
+  "processed_at": "2026-07-08T19:51:55.741467+00:00",
+  "pipeline": {
+    "total_seconds": 49.959,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.713,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1252,
+    "output_tokens": 562,
+    "total_tokens": 2929
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2944
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Saad Bin Khalid",
+      "email": "saadkhalid1604@gmail.com",
+      "phone": "+92 336 305 2865",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Beaconhouse School System",
+        "degree": "A-Levels, Computer Science",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "International Trading Company",
+        "role": "Office Assistant",
+        "duration": "2020 — Present",
+        "description": "Managed administrative tasks, client quotations, billing statements, and digital transaction records."
+      }
+    ],
+    "skills": [
+      "Python",
+      "JavaScript",
+      "TypeScript",
+      "C",
+      "C++",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Express",
+      "Tailwind CSS",
+      "REST API",
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Git",
+      "Docker"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 50,
+    "experience_match": 0,
+    "overall_score": 15,
+    "strengths": [
+      "Strong academic performance (Dean's List)",
+      "Proficiency in required tech stack (Python, PostgreSQL, React, Docker)",
+      "Practical project experience with full-stack and AI applications"
+    ],
+    "weaknesses": [
+      "Zero professional software engineering experience",
+      "Currently an undergraduate student",
+      "No experience in service ownership or mentoring juniors"
+    ],
+    "recommendation": "Reject for Senior role; potentially suitable for an internship or entry-level junior position.",
+    "summary": "The candidate is a high-achieving student with the correct technical skills but lacks the 3+ years of professional experience and seniority required for this role."
+  }
+}

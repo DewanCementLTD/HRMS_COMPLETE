@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getAttendanceRowTint } from "@/lib/utils";
 import { printTimesheetWindow } from "@/lib/printTimesheet";
 import { Clock, Search, RefreshCw, Timer, AlertTriangle, Printer, Download } from "lucide-react";
 
@@ -18,12 +18,10 @@ export default function AttendancePage() {
     useAttendanceController();
 
   function downloadCSV() {
-    const headers = ["Date", "Day", "In Time", "Out Time", "Working Hrs", "Late", "OT", "Status"];
+    const headers = ["Date", "Day", "In Time", "Out Time", "Working Hrs", "Status"];
     const rows = records.map((r) => [
       r.roster_date, r.day_name || "", r.in_time || "", r.out_time || "",
       `${r.w_hrs ?? 0}h ${r.w_mnt ?? 0}m`,
-      `${r.late_hrs ?? 0}h ${r.late_mnt ?? 0}m`,
-      `${r.ot_hrs ?? 0}h ${r.ot_mnt ?? 0}m`,
       r.status || "",
     ]);
     const csv = [headers, ...rows]
@@ -111,14 +109,14 @@ export default function AttendancePage() {
           </Card>
           <Card>
             <CardContent className="py-4 text-center">
-              <p className="text-xl font-bold text-orange-600">{Math.round(summary.late_minutes / 60)}h {summary.late_minutes % 60}m</p>
+              <p className="text-xl font-bold text-yellow-600">{summary.late_days ?? 0}</p>
               <p className="text-xs text-gray-500 mt-1">Late</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="py-4 text-center">
-              <p className="text-xl font-bold text-indigo-600">{Math.round(summary.overtime_minutes / 60)}h {summary.overtime_minutes % 60}m</p>
-              <p className="text-xs text-gray-500 mt-1">Overtime</p>
+              <p className="text-xl font-bold text-orange-600">{summary.half_days ?? 0}</p>
+              <p className="text-xs text-gray-500 mt-1">Half Day</p>
             </CardContent>
           </Card>
         </div>
@@ -180,13 +178,13 @@ export default function AttendancePage() {
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Out Time</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Working Hrs</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Late</th>
-                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">OT</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Half Day</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {records.map((record, i) => (
-                    <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={i} className={`${getAttendanceRowTint(record.status) || "hover:bg-gray-50/50"} transition-colors`}>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
                         {formatDate(record.roster_date)}
                       </td>
@@ -207,28 +205,28 @@ export default function AttendancePage() {
                         {record.w_hrs ?? 0}h {record.w_mnt ?? 0}m
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        {((record.late_hrs ?? 0) > 0 || (record.late_mnt ?? 0) > 0) ? (
-                          <span className="flex items-center gap-1 text-amber-600">
+                        {record.is_late ? (
+                          <span className="flex items-center gap-1 text-yellow-700 font-medium">
                             <AlertTriangle className="h-3.5 w-3.5" />
-                            {record.late_hrs ?? 0}h {record.late_mnt ?? 0}m
+                            Late
                           </span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {((record.ot_hrs ?? 0) > 0 || (record.ot_mnt ?? 0) > 0) ? (
-                          <span className="text-indigo-600">{record.ot_hrs ?? 0}h {record.ot_mnt ?? 0}m</span>
+                      <td className="px-6 py-4 text-sm">
+                        {record.is_half_day ? (
+                          <span className="text-orange-600 font-medium">Half Day</span>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        {/* Show a meaningful status: an open check-in (in, no out)
-                            is Incomplete, no check-in is Absent, otherwise Present. */}
+                        {/* Status comes from the ERP roster view (late / half-day /
+                            absent). Fall back to punch-derived status if absent. */}
                         <Badge status={
-                          !record.in_time ? "Absent"
-                          : (!record.out_time ? "Incomplete" : (record.status || "Present"))
+                          record.status
+                          || (record.in_time ? (record.out_time ? "Present" : "Incomplete") : "Absent")
                         } />
                       </td>
                     </tr>

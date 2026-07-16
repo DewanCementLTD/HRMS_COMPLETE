@@ -1,6 +1,7 @@
 """HRMS repository — CRUD on HR_EMP_MASTER + HR dashboard queries."""
 
 from core.database import get_connection
+from repositories.attendance_repository import _clean_hhmm, _roster_status
 
 
 def _to_int(v):
@@ -1220,9 +1221,10 @@ def get_bulk_attendance_summary(
 
         filter_sql = (" AND " + " AND ".join(filter_parts)) if filter_parts else ""
 
-        # Attempt 1: ATTENDANCE_RECORDS (the app's attendance store) + EMPLOYEE.
-        # Matched on the full company-qualified card (e.g. 100011.3). Late/OT/absent
-        # are an ERP/DUTY_ROSTER concept and are not computed here.
+        # Aggregate the ERP duty-roster view (TMS_DUTY_ROSTER_V) per employee.
+        # LEFT JOIN keeps every active employee even with no roster rows. Present =
+        # any punch on the day; Absent = flagged absent with no punch; Late /
+        # Half-Day are counted straight from the ERP flags.
         try:
             cursor.execute(f"""
                 SELECT
@@ -1234,17 +1236,26 @@ def get_bulk_attendance_summary(
                     h.UNIT_ID,
                     h.LOCATION,
                     h.STATUS                                          AS emp_status,
-                    COUNT(ar.ATTENDANCE_DATE)                         AS total_days,
-                    SUM(CASE WHEN ar.ENTRY_TIME IS NOT NULL THEN 1 ELSE 0 END)  AS present_days,
-                    0                                                 AS absent_days,
-                    0                                                 AS late_minutes,
-                    0                                                 AS ot_minutes,
-                    SUM(NVL(ar.TIME_SPENT, 0))                        AS working_minutes
+                    COUNT(v.ROSTER_DATE)                             AS total_days,
+                    SUM(CASE WHEN (v.IN_TIME  IS NOT NULL AND TRIM(v.IN_TIME)  <> ':')
+                               OR (v.OUT_TIME IS NOT NULL AND TRIM(v.OUT_TIME) <> ':')
+                             THEN 1 ELSE 0 END)                       AS present_days,
+                    SUM(CASE WHEN NVL(v.ABSENT, 0) = 1
+                              AND (v.IN_TIME  IS NULL OR TRIM(v.IN_TIME)  = ':')
+                              AND (v.OUT_TIME IS NULL OR TRIM(v.OUT_TIME) = ':')
+                             THEN 1 ELSE 0 END)                       AS absent_days,
+                    SUM(CASE WHEN UPPER(NVL(v.MORNING_LATE, ' ')) = 'Y'
+                               OR UPPER(NVL(v.EARLY_OUT_LATE, ' ')) = 'Y'
+                             THEN 1 ELSE 0 END)                       AS late_days,
+                    SUM(CASE WHEN NVL(v.MORNING_HALF_DAY, 0) > 0
+                               OR NVL(v.EAR_OUT_HALF_DAY, 0) > 0
+                             THEN 1 ELSE 0 END)                       AS half_days,
+                    0                                                 AS working_minutes
                 FROM HR_EMP_MASTER h
                 LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-                LEFT JOIN ATTENDANCE_RECORDS ar
-                    ON  TO_CHAR(ar.CARD_NO) = TO_CHAR(e.CARD_NO)
-                    AND TRUNC(ar.ATTENDANCE_DATE) BETWEEN
+                LEFT JOIN TMS_DUTY_ROSTER_V v
+                    ON  TO_CHAR(v.CARD_NO) = TO_CHAR(e.CARD_NO)
+                    AND TRUNC(v.ROSTER_DATE) BETWEEN
                         TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
                 LEFT JOIN HR_DEPT dep
                     ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
@@ -1253,7 +1264,7 @@ def get_bulk_attendance_summary(
                     h.EMPCODE, h.NAME, h."ATDTCARD#", TO_CHAR(e.CARD_NO),
                     dep.DEPT_NAME, h.DEPT_NO, h.UNIT_ID, h.LOCATION, h.STATUS
                 ORDER BY h.NAME
-                FETCH FIRST 1000 ROWS ONLY
+                FETCH FIRST 2000 ROWS ONLY
             """, params)
             rows = cursor.fetchall()
             columns = [c[0].lower() for c in cursor.description]
@@ -1264,8 +1275,8 @@ def get_bulk_attendance_summary(
             return result
         except Exception as e:
             err = str(e)
-            print(f"[BULK_ATT] ATTENDANCE_RECORDS attempt failed: {err}")
-            if "ORA-00942" not in err and "ORA-01427" not in err:
+            print(f"[BULK_ATT] TMS_DUTY_ROSTER_V attempt failed: {err}")
+            if "ORA-00942" not in err and "ORA-01427" not in err and "ORA-00904" not in err:
                 raise
 
         # Fallback: employee list only, zero attendance counts
@@ -1282,15 +1293,15 @@ def get_bulk_attendance_summary(
                 0 AS total_days,
                 0 AS present_days,
                 0 AS absent_days,
-                0 AS late_minutes,
-                0 AS ot_minutes,
+                0 AS late_days,
+                0 AS half_days,
                 0 AS working_minutes
             FROM HR_EMP_MASTER h
             LEFT JOIN HR_DEPT dep
                 ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
             WHERE h.STATUS = 'A'{filter_sql}
             ORDER BY h.NAME
-            FETCH FIRST 1000 ROWS ONLY
+            FETCH FIRST 2000 ROWS ONLY
         """, params)
         rows = cursor.fetchall()
         columns = [c[0].lower() for c in cursor.description]
@@ -1338,22 +1349,6 @@ def get_bulk_attendance_details(
 
         filter_sql = (" AND " + " AND ".join(filter_parts)) if filter_parts else ""
 
-        def _fmt_time(v):
-            if v is None:
-                return None
-            if hasattr(v, 'hour'):
-                return f"{v.hour}:{v.minute:02d}"
-            s = str(v).strip()
-            if not s:
-                return None
-            parts = s.split(":")
-            if len(parts) >= 2:
-                try:
-                    return f"{int(parts[0])}:{parts[1].zfill(2)[:2]}"
-                except ValueError:
-                    return s
-            return s
-
         def _fmt_date(v):
             if v is None:
                 return None
@@ -1362,207 +1357,60 @@ def get_bulk_attendance_details(
             s = str(v)
             return s[:10] if len(s) >= 10 else s
 
-        def _process(rows, cols):
-            result = []
-            for row in rows:
-                rec = dict(zip(cols, row))
-                rec["roster_date"] = _fmt_date(rec.get("roster_date"))
-                rec["in_time"]     = _fmt_time(rec.get("in_time"))
-                rec["out_time"]    = _fmt_time(rec.get("out_time"))
-                rec["duty_in"]     = _fmt_time(rec.get("duty_in"))
-                rec["duty_out"]    = _fmt_time(rec.get("duty_out"))
-                result.append(rec)
-            return result
-
-        # ── helper: run query; on handled Oracle errors OR 0 rows → return ([], None) ──
-        def _run(sql, bind, label, require_rows=True):
-            try:
-                cursor.execute(sql, bind)
-                r = cursor.fetchall()
-                c = [x[0].lower() for x in cursor.description]
-                if require_rows and not r:
-                    print(f"[BULK_DET] {label}: 0 rows, trying next")
-                    return [], None
-                return r, c
-            except Exception as exc:
-                msg = str(exc)
-                print(f"[BULK_DET] {label}: {msg}")
-                if any(x in msg for x in ("ORA-00904", "ORA-00942", "ORA-01427", "DPY-4008")):
-                    return [], None
-                raise
-
-        # ── Attempt 0: ATTENDANCE_RECORDS (the app's attendance store) + EMPLOYEE ──
-        # This is the primary source. Matched on the full company-qualified card
-        # (e.g. 100011.3). Shift/duty times are an ERP concept and stay NULL here.
-        rows, cols = _run(f"""
+        # Source: TMS_DUTY_ROSTER_V — the ERP duty-roster view, one row per
+        # employee per rostered day carrying the late / half-day / absent flags
+        # the app cannot derive itself. Joined EMPLOYEE (full card) → HR_EMP_MASTER
+        # (name / dept), so only active employees in the selected company/branch
+        # appear. Each row is tagged with a status + boolean flags so the report
+        # can colour late (yellow), half-day (orange) and absent (red).
+        cursor.execute(f"""
             SELECT
-                NVL(h."ATDTCARD#", TO_CHAR(e.CARD_NO))  AS atdtcard,
-                TO_CHAR(e.CARD_NO)                       AS card_no,
+                NVL(h."ATDTCARD#", TO_CHAR(v.CARD_NO))  AS atdtcard,
+                TO_CHAR(v.CARD_NO)                       AS card_no,
                 h.NAME                                   AS name,
-                ar.ATTENDANCE_DATE                       AS roster_date,
-                NULL                                     AS duty_in,
-                NULL                                     AS duty_out,
-                ar.ENTRY_TIME                            AS in_time,
-                ar.EXIT_TIME                             AS out_time
-            FROM HR_EMP_MASTER h
-            LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-            JOIN ATTENDANCE_RECORDS ar
-                ON  TO_CHAR(ar.CARD_NO) = TO_CHAR(e.CARD_NO)
-                AND TRUNC(ar.ATTENDANCE_DATE) BETWEEN
-                    TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-            WHERE h.STATUS = 'A'{filter_sql}
-            ORDER BY NVL(h."ATDTCARD#", TO_CHAR(ar.CARD_NO)), ar.ATTENDANCE_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 0 (ATTENDANCE_RECORDS + EMPLOYEE)")
-        if rows:
-            return _process(rows, cols)
-
-        # ── Attempt 1: full columns (SHIFT_START_TIME/SHIFT_END_TIME) + EMPLOYEE join ──
-        # Uses identical join as summary (TO_CHAR both sides). Falls through on
-        # ORA-00904 (columns missing) or 0 rows.
-        rows, cols = _run(f"""
-            SELECT
-                NVL(h."ATDTCARD#", TO_CHAR(e.CARD_NO))  AS atdtcard,
-                TO_CHAR(e.CARD_NO)                       AS card_no,
-                h.NAME                                   AS name,
-                d.ROSTER_DATE                            AS roster_date,
-                d.SHIFT_START_TIME                       AS duty_in,
-                d.SHIFT_END_TIME                         AS duty_out,
-                d.IN_TIME                                AS in_time,
-                d.OUT_TIME                               AS out_time
-            FROM HR_EMP_MASTER h
-            LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-            JOIN DUTY_ROSTER d
-                ON  TO_CHAR(d.CARD_NO) = TO_CHAR(e.CARD_NO)
-                AND TRUNC(d.ROSTER_DATE) BETWEEN
-                    TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-            WHERE h.STATUS = 'A'{filter_sql}
-            ORDER BY NVL(h."ATDTCARD#", TO_CHAR(d.CARD_NO)), d.ROSTER_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 1 (SHIFT_START/END + EMPLOYEE)")
-        if rows:
-            return _process(rows, cols)
-
-        # ── Attempt 2: no DUTY_IN/DUTY_OUT, still try SHIFT ─────────────────────
-        rows, cols = _run(f"""
-            SELECT
-                NVL(h."ATDTCARD#", TO_CHAR(e.CARD_NO))  AS atdtcard,
-                TO_CHAR(e.CARD_NO)                       AS card_no,
-                h.NAME                                   AS name,
-                d.ROSTER_DATE                            AS roster_date,
-                NULL                                     AS duty_in,
-                NULL                                     AS duty_out,
-                d.IN_TIME                                AS in_time,
-                d.OUT_TIME                               AS out_time
-            FROM HR_EMP_MASTER h
-            LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-            JOIN DUTY_ROSTER d
-                ON  TO_CHAR(d.CARD_NO) = TO_CHAR(e.CARD_NO)
-                AND TRUNC(d.ROSTER_DATE) BETWEEN
-                    TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-            WHERE h.STATUS = 'A'{filter_sql}
-            ORDER BY NVL(h."ATDTCARD#", TO_CHAR(d.CARD_NO)), d.ROSTER_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 2 (SHIFT + EMPLOYEE)")
-        if rows:
-            return _process(rows, cols)
-
-        # ── Attempt 3: safe DUTY_ROSTER columns, join via ATDTCARD# directly ──────
-        # Skips EMPLOYEE view entirely — joins DUTY_ROSTER to HR_EMP_MASTER on
-        # ATDTCARD# so names are populated even when EMPLOYEE view is missing rows.
-        rows, cols = _run(f"""
-            SELECT
-                TO_CHAR(d.CARD_NO)                       AS atdtcard,
-                TO_CHAR(d.CARD_NO)                       AS card_no,
-                h.NAME                                   AS name,
-                d.ROSTER_DATE                            AS roster_date,
-                NULL                                     AS duty_in,
-                NULL                                     AS duty_out,
-                d.IN_TIME                                AS in_time,
-                d.OUT_TIME                               AS out_time
-            FROM DUTY_ROSTER d
-            JOIN HR_EMP_MASTER h
-                ON  TO_CHAR(d.CARD_NO) = TO_CHAR(h."ATDTCARD#")
-            WHERE TRUNC(d.ROSTER_DATE) BETWEEN
-                    TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-                AND h.STATUS = 'A'{filter_sql}
-            ORDER BY TO_CHAR(d.CARD_NO), d.ROSTER_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 3 (DUTY_ROSTER INNER JOIN HR_EMP_MASTER via ATDTCARD#)")
-        if rows:
-            return _process(rows, cols)
-
-        # ── Attempt 4: INNER JOIN via ATDTCARD# — no EMPLOYEE view needed ────────
-        # Converts filter to INNER JOIN ON clause so NULL h rows don't slip past.
-        # Only carry date params — the f-suffix filter params must NOT be included
-        # here because the SQL uses j-suffix placeholders, and oracledb raises
-        # DPY-4008 if the bind dict contains keys that don't appear in the SQL text.
-        join_parts = []
-        join_params = {"from_d": from_date, "to_d": to_date}
-        if allowed_companies:
-            nums = [n for n in (_to_int(c) for c in allowed_companies) if n is not None]
-            if nums:
-                ph = ", ".join(f":cmpj{i}" for i in range(len(nums)))
-                join_parts.append(f"TO_NUMBER(h.UNIT_ID) IN ({ph})")
-                for i, n in enumerate(nums):
-                    join_params[f"cmpj{i}"] = n
-        if allowed_branches:
-            nums = [n for n in (_to_int(b) for b in allowed_branches) if n is not None]
-            if nums:
-                ph = ", ".join(f":brnj{i}" for i in range(len(nums)))
-                join_parts.append(f"TO_NUMBER(h.LOCATION) IN ({ph})")
-                for i, n in enumerate(nums):
-                    join_params[f"brnj{i}"] = n
-        join_on_extra = (" AND " + " AND ".join(join_parts)) if join_parts else ""
-
-        rows, cols = _run(f"""
-            SELECT
-                NVL(h."ATDTCARD#", TO_CHAR(d.CARD_NO))  AS atdtcard,
-                NVL(h."ATDTCARD#", TO_CHAR(d.CARD_NO))  AS card_no,
-                h.NAME                                   AS name,
-                d.ROSTER_DATE                            AS roster_date,
-                NULL                                     AS duty_in,
-                NULL                                     AS duty_out,
-                d.IN_TIME                                AS in_time,
-                d.OUT_TIME                               AS out_time
-            FROM DUTY_ROSTER d
-            JOIN HR_EMP_MASTER h
-                ON  TO_CHAR(d.CARD_NO) = TO_CHAR(h."ATDTCARD#"){join_on_extra}
-            WHERE TRUNC(d.ROSTER_DATE) BETWEEN
-                TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
-            ORDER BY d.CARD_NO, d.ROSTER_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, join_params, "Attempt 4 (ATDTCARD# INNER JOIN)")
-        if rows:
-            return _process(rows, cols)
-
-        # ── Attempt 5: DUTY_ROSTER INNER JOIN HR_EMP_MASTER with hard filter ────────
-        # Uses INNER JOIN so only employees that actually exist in HR_EMP_MASTER
-        # are returned, and the company/branch filter on h.UNIT_ID / h.LOCATION
-        # is unambiguously applied in a separate WHERE clause (not inside BETWEEN).
-        # This prevents NULL-h rows from slipping through the LEFT JOIN path.
-        date_filter = (
-            "TRUNC(d.ROSTER_DATE) >= TO_DATE(:from_d, 'YYYY-MM-DD') "
-            "AND TRUNC(d.ROSTER_DATE) <= TO_DATE(:to_d, 'YYYY-MM-DD')"
-        )
-        rows, cols = _run(f"""
-            SELECT
-                TO_CHAR(d.CARD_NO)  AS atdtcard,
-                TO_CHAR(d.CARD_NO)  AS card_no,
-                h.NAME              AS name,
-                d.ROSTER_DATE       AS roster_date,
-                NULL                AS duty_in,
-                NULL                AS duty_out,
-                d.IN_TIME           AS in_time,
-                d.OUT_TIME          AS out_time
-            FROM DUTY_ROSTER d
-            INNER JOIN HR_EMP_MASTER h
-                ON  TO_CHAR(d.CARD_NO) = TO_CHAR(h."ATDTCARD#")
-            WHERE {date_filter}{filter_sql}
-            ORDER BY d.CARD_NO, d.ROSTER_DATE
-            FETCH FIRST 10000 ROWS ONLY
-        """, params, "Attempt 5 (INNER JOIN + company filter)", require_rows=False)
-        return _process(rows, cols)
+                v.ROSTER_DATE                            AS roster_date,
+                v.DAY_NAME                               AS day_name,
+                v.SHIFT_START_TIME                       AS duty_in,
+                v.IN_TIME                                AS in_time,
+                v.OUT_TIME                               AS out_time,
+                v.ABSENT                                 AS absent,
+                v.MORNING_LATE                           AS morning_late,
+                v.EARLY_OUT_LATE                         AS early_out_late,
+                v.MORNING_HALF_DAY                       AS morning_half_day,
+                v.EAR_OUT_HALF_DAY                       AS ear_out_half_day
+            FROM TMS_DUTY_ROSTER_V v
+            JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
+            JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+            WHERE h.STATUS = 'A'
+              AND TRUNC(v.ROSTER_DATE) BETWEEN
+                  TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
+              {filter_sql}
+            ORDER BY h.NAME, v.ROSTER_DATE
+            FETCH FIRST 30000 ROWS ONLY
+        """, params)
+        cols = [c[0].lower() for c in cursor.description]
+        result = []
+        for row in cursor.fetchall():
+            rec = dict(zip(cols, row))
+            in_t  = _clean_hhmm(rec.get("in_time"))
+            out_t = _clean_hhmm(rec.get("out_time"))
+            half  = (rec.get("morning_half_day") or 0) + (rec.get("ear_out_half_day") or 0)
+            status = _roster_status(in_t, out_t, rec.get("absent"),
+                                    rec.get("morning_late"), rec.get("early_out_late"), half)
+            rec["roster_date"] = _fmt_date(rec.get("roster_date"))
+            rec["in_time"]     = in_t
+            rec["out_time"]    = out_t
+            rec["duty_in"]     = _clean_hhmm(rec.get("duty_in"))
+            rec["duty_out"]    = None
+            rec["status"]      = status
+            rec["is_late"]     = status == "Late"
+            rec["is_absent"]   = status == "Absent"
+            rec["is_half_day"] = status == "Half Day"
+            for k in ("absent", "morning_late", "early_out_late",
+                      "morning_half_day", "ear_out_half_day"):
+                rec.pop(k, None)
+            result.append(rec)
+        return result
 
     finally:
         cursor.close()

@@ -218,9 +218,9 @@ export default function DashboardPage() {
                     <p className="text-2xl font-bold text-red-600">{attendanceSummary.absent_days}</p>
                     <p className="text-xs text-gray-500 mt-1">Absent</p>
                   </div>
-                  <div className="bg-amber-50 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-amber-600">{Math.round(attendanceSummary.late_minutes / 60)}h</p>
-                    <p className="text-xs text-gray-500 mt-1">Late Hours</p>
+                  <div className="bg-yellow-50 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-yellow-600">{attendanceSummary.late_days ?? 0}</p>
+                    <p className="text-xs text-gray-500 mt-1">Late</p>
                   </div>
                   <div className="bg-indigo-50 rounded-xl p-4 text-center">
                     <p className="text-2xl font-bold text-indigo-600">{attendanceSummary.total_days}</p>

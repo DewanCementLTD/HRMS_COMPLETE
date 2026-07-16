@@ -1,0 +1,6 @@
+{
+  "cv_file": "resume4.pdf",
+  "failed_at": "2026-07-08T10:20:24.155435+00:00",
+  "error": "RuntimeError: LLM evaluation failed after 3 attempts",
+  "note": "PDF left in CV_Buffer. Fix the issue and restart the watcher to retry."
+}

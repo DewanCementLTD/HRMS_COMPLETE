@@ -1,0 +1,12 @@
+Senior Software Engineer
+
+We are hiring a Senior Software Engineer to build and scale backend services.
+
+Requirements:
+- 3+ years professional software engineering experience
+- Strong Python and REST API development (FastAPI or Flask)
+- Relational databases (Oracle or PostgreSQL), SQL, query tuning
+- Docker, CI/CD, Git
+- JavaScript / React for occasional full-stack work is a plus
+
+Responsibilities: design APIs, own services end to end, mentor juniors.

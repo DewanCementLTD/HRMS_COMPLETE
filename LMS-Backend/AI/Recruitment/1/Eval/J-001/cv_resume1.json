@@ -1,0 +1,103 @@
+{
+  "cv_file": "cv_resume1.pdf",
+  "company_id": "1",
+  "job_id": "J-001",
+  "processed_at": "2026-07-08T19:46:00.686090+00:00",
+  "pipeline": {
+    "total_seconds": 53.434,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 53.094,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1120,
+    "output_tokens": 596,
+    "total_tokens": 3011
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2338
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Affan Basit",
+      "email": "affan.basit@hotmail.com",
+      "phone": "+92 315 2979547",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Systems Programmer",
+    "education": [
+      {
+        "institution": "National University of Computer & Emerging Sciences",
+        "degree": "Bachelor of Science, Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Commecs College",
+        "degree": "Higher Secondary School Certificate, Pre-Engineering",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Internship",
+        "duration": "2 months",
+        "description": "Troubleshot the RAAST payment system and utilized SQL for cleaning and preparing financial datasets."
+      },
+      {
+        "company": "Dotinfiny Solutions",
+        "role": "Content Writer",
+        "duration": "3 years",
+        "description": "Implemented SEO strategies and researched and wrote high-quality articles."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "Python",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "CUDA",
+      "Bash",
+      "Git",
+      "Docker",
+      "PostgreSQL",
+      "MongoDB",
+      "MySQL",
+      "CMake"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 30,
+    "experience_match": 5,
+    "overall_score": 15,
+    "strengths": [
+      "Strong foundation in low-level programming (C/C++, CUDA)",
+      "Knowledge of PostgreSQL and Docker",
+      "Basic full-stack capabilities with React"
+    ],
+    "weaknesses": [
+      "Lacks professional software engineering experience",
+      "No experience with REST API frameworks like FastAPI or Flask",
+      "Currently a student, not qualified for a Senior-level role"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an undergraduate student focused on systems programming. They lack the professional experience, seniority, and specific backend API expertise required for this Senior Software Engineer position."
+  }
+}

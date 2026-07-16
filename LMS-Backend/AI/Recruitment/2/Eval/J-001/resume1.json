@@ -1,0 +1,102 @@
+{
+  "cv_file": "resume1.pdf",
+  "company_id": "2",
+  "job_id": "J-001",
+  "processed_at": "2026-07-08T10:42:44.844326+00:00",
+  "pipeline": {
+    "total_seconds": 49.32,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.248,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1050,
+    "output_tokens": 587,
+    "total_tokens": 2736
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2338
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Affan Basit",
+      "email": "affan.basit@hotmail.com",
+      "phone": "+92 315 2979547",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Systems Programmer",
+    "education": [
+      {
+        "institution": "National University of Computer & Emerging Sciences",
+        "degree": "Bachelor of Science, Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Commecs College",
+        "degree": "Higher Secondary School Certificate, Pre-Engineering",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Internship",
+        "duration": "2 months",
+        "description": "Troubleshot the RAAST payment system and utilized SQL for cleaning and preparing financial datasets."
+      },
+      {
+        "company": "Dotinfiny Solutions",
+        "role": "Content Writer",
+        "duration": "3 years",
+        "description": "Implemented SEO strategies and researched and wrote high-quality articles."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "Python",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "CUDA",
+      "Bash",
+      "Git",
+      "Docker",
+      "PostgreSQL",
+      "MongoDB",
+      "MySQL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 50,
+    "experience_match": 20,
+    "overall_score": 35,
+    "strengths": [
+      "Knowledge of React and PostgreSQL",
+      "Strong academic performance in Computer Science",
+      "Experience with SQL data handling"
+    ],
+    "weaknesses": [
+      "No mentioned experience with Node.js",
+      "Lack of professional full-stack development experience",
+      "Career objective is focused on systems programming rather than web development"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a strong CS student specializing in low-level systems programming. While they have some relevant web skills, they lack the required Node.js experience and professional full-stack background."
+  }
+}

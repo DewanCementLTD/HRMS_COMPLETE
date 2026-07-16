@@ -1,0 +1,458 @@
+{
+  "generated": "2026-06-15T12:08:07.699855",
+  "attendance_records": [
+    {
+      "id": 742,
+      "old_entry": "13:14",
+      "old_exit": ""
+    },
+    {
+      "id": 743,
+      "old_entry": "14:25",
+      "old_exit": ""
+    },
+    {
+      "id": 744,
+      "old_entry": "14:26",
+      "old_exit": ""
+    },
+    {
+      "id": 745,
+      "old_entry": "14:26",
+      "old_exit": ""
+    },
+    {
+      "id": 746,
+      "old_entry": "14:27",
+      "old_exit": ""
+    },
+    {
+      "id": 747,
+      "old_entry": "14:44",
+      "old_exit": ""
+    },
+    {
+      "id": 748,
+      "old_entry": "14:54",
+      "old_exit": ""
+    },
+    {
+      "id": 749,
+      "old_entry": "15:31",
+      "old_exit": ""
+    },
+    {
+      "id": 750,
+      "old_entry": "15:35",
+      "old_exit": ""
+    },
+    {
+      "id": 751,
+      "old_entry": "16:01",
+      "old_exit": ""
+    },
+    {
+      "id": 752,
+      "old_entry": "16:13",
+      "old_exit": ""
+    },
+    {
+      "id": 753,
+      "old_entry": "16:21",
+      "old_exit": ""
+    },
+    {
+      "id": 754,
+      "old_entry": "16:24",
+      "old_exit": ""
+    },
+    {
+      "id": 755,
+      "old_entry": "16:25",
+      "old_exit": "16:25"
+    },
+    {
+      "id": 756,
+      "old_entry": "16:26",
+      "old_exit": ""
+    },
+    {
+      "id": 757,
+      "old_entry": "16:26",
+      "old_exit": ""
+    },
+    {
+      "id": 758,
+      "old_entry": "16:26",
+      "old_exit": "16:44"
+    },
+    {
+      "id": 759,
+      "old_entry": "16:27",
+      "old_exit": ""
+    },
+    {
+      "id": 760,
+      "old_entry": "16:30",
+      "old_exit": ""
+    },
+    {
+      "id": 761,
+      "old_entry": "16:30",
+      "old_exit": ""
+    },
+    {
+      "id": 762,
+      "old_entry": "16:31",
+      "old_exit": ""
+    },
+    {
+      "id": 763,
+      "old_entry": "16:32",
+      "old_exit": ""
+    },
+    {
+      "id": 764,
+      "old_entry": "16:32",
+      "old_exit": ""
+    },
+    {
+      "id": 765,
+      "old_entry": "16:35",
+      "old_exit": ""
+    },
+    {
+      "id": 766,
+      "old_entry": "16:37",
+      "old_exit": ""
+    },
+    {
+      "id": 767,
+      "old_entry": "16:38",
+      "old_exit": ""
+    },
+    {
+      "id": 768,
+      "old_entry": "16:40",
+      "old_exit": ""
+    },
+    {
+      "id": 769,
+      "old_entry": "16:42",
+      "old_exit": ""
+    },
+    {
+      "id": 770,
+      "old_entry": "16:49",
+      "old_exit": ""
+    },
+    {
+      "id": 771,
+      "old_entry": "16:50",
+      "old_exit": ""
+    },
+    {
+      "id": 772,
+      "old_entry": "16:50",
+      "old_exit": ""
+    },
+    {
+      "id": 773,
+      "old_entry": "16:52",
+      "old_exit": ""
+    },
+    {
+      "id": 774,
+      "old_entry": "16:53",
+      "old_exit": ""
+    },
+    {
+      "id": 775,
+      "old_entry": "16:54",
+      "old_exit": ""
+    },
+    {
+      "id": 776,
+      "old_entry": "16:54",
+      "old_exit": ""
+    },
+    {
+      "id": 777,
+      "old_entry": "16:56",
+      "old_exit": ""
+    },
+    {
+      "id": 778,
+      "old_entry": "16:58",
+      "old_exit": ""
+    },
+    {
+      "id": 779,
+      "old_entry": "17:00",
+      "old_exit": ""
+    },
+    {
+      "id": 780,
+      "old_entry": "17:08",
+      "old_exit": ""
+    },
+    {
+      "id": 781,
+      "old_entry": "17:17",
+      "old_exit": ""
+    },
+    {
+      "id": 782,
+      "old_entry": "17:24",
+      "old_exit": ""
+    }
+  ],
+  "duty_roster": [
+    {
+      "pk": 312784,
+      "old_in": "13:14",
+      "old_out": "",
+      "old_att_mrk": "13:14"
+    },
+    {
+      "pk": 312785,
+      "old_in": "14:25",
+      "old_out": "",
+      "old_att_mrk": "14:25"
+    },
+    {
+      "pk": 312786,
+      "old_in": "14:26",
+      "old_out": "",
+      "old_att_mrk": "14:26"
+    },
+    {
+      "pk": 312787,
+      "old_in": "14:26",
+      "old_out": "",
+      "old_att_mrk": "14:26"
+    },
+    {
+      "pk": 312788,
+      "old_in": "14:27",
+      "old_out": "",
+      "old_att_mrk": "14:27"
+    },
+    {
+      "pk": 312789,
+      "old_in": "14:44",
+      "old_out": "",
+      "old_att_mrk": "14:44"
+    },
+    {
+      "pk": 312790,
+      "old_in": "14:54",
+      "old_out": "",
+      "old_att_mrk": "14:54"
+    },
+    {
+      "pk": 312791,
+      "old_in": "15:31",
+      "old_out": "",
+      "old_att_mrk": "15:31"
+    },
+    {
+      "pk": 312792,
+      "old_in": "15:35",
+      "old_out": "",
+      "old_att_mrk": "15:35"
+    },
+    {
+      "pk": 312793,
+      "old_in": "16:01",
+      "old_out": "",
+      "old_att_mrk": "16:01"
+    },
+    {
+      "pk": 312794,
+      "old_in": "16:13",
+      "old_out": "",
+      "old_att_mrk": "16:13"
+    },
+    {
+      "pk": 312795,
+      "old_in": "16:21",
+      "old_out": "",
+      "old_att_mrk": "16:21"
+    },
+    {
+      "pk": 312796,
+      "old_in": "16:24",
+      "old_out": "",
+      "old_att_mrk": "16:24"
+    },
+    {
+      "pk": 312797,
+      "old_in": "16:25",
+      "old_out": "16:25",
+      "old_att_mrk": "16:25"
+    },
+    {
+      "pk": 312798,
+      "old_in": "16:26",
+      "old_out": "",
+      "old_att_mrk": "16:26"
+    },
+    {
+      "pk": 312799,
+      "old_in": "16:26",
+      "old_out": "",
+      "old_att_mrk": "16:26"
+    },
+    {
+      "pk": 312800,
+      "old_in": "16:26",
+      "old_out": "16:44",
+      "old_att_mrk": "16:26"
+    },
+    {
+      "pk": 312801,
+      "old_in": "16:27",
+      "old_out": "",
+      "old_att_mrk": "16:27"
+    },
+    {
+      "pk": 312802,
+      "old_in": "16:30",
+      "old_out": "",
+      "old_att_mrk": "16:30"
+    },
+    {
+      "pk": 312803,
+      "old_in": "16:30",
+      "old_out": "",
+      "old_att_mrk": "16:30"
+    },
+    {
+      "pk": 312804,
+      "old_in": "16:31",
+      "old_out": "",
+      "old_att_mrk": "16:31"
+    },
+    {
+      "pk": 312805,
+      "old_in": "16:32",
+      "old_out": "",
+      "old_att_mrk": "16:32"
+    },
+    {
+      "pk": 312806,
+      "old_in": "16:32",
+      "old_out": "",
+      "old_att_mrk": "16:32"
+    },
+    {
+      "pk": 312807,
+      "old_in": "16:35",
+      "old_out": "",
+      "old_att_mrk": "16:35"
+    },
+    {
+      "pk": 312808,
+      "old_in": "16:37",
+      "old_out": "",
+      "old_att_mrk": "16:37"
+    },
+    {
+      "pk": 312809,
+      "old_in": "16:38",
+      "old_out": "",
+      "old_att_mrk": "16:38"
+    },
+    {
+      "pk": 312810,
+      "old_in": "16:40",
+      "old_out": "",
+      "old_att_mrk": "16:40"
+    },
+    {
+      "pk": 312811,
+      "old_in": "16:42",
+      "old_out": "",
+      "old_att_mrk": "16:42"
+    },
+    {
+      "pk": 312812,
+      "old_in": "16:49",
+      "old_out": "",
+      "old_att_mrk": "16:49"
+    },
+    {
+      "pk": 312813,
+      "old_in": "16:50",
+      "old_out": "",
+      "old_att_mrk": "16:50"
+    },
+    {
+      "pk": 312814,
+      "old_in": "16:50",
+      "old_out": "",
+      "old_att_mrk": "16:50"
+    },
+    {
+      "pk": 312815,
+      "old_in": "16:52",
+      "old_out": "",
+      "old_att_mrk": "16:52"
+    },
+    {
+      "pk": 312816,
+      "old_in": "16:53",
+      "old_out": "",
+      "old_att_mrk": "16:53"
+    },
+    {
+      "pk": 312817,
+      "old_in": "16:54",
+      "old_out": "",
+      "old_att_mrk": "16:54"
+    },
+    {
+      "pk": 312818,
+      "old_in": "16:54",
+      "old_out": "",
+      "old_att_mrk": "16:54"
+    },
+    {
+      "pk": 312819,
+      "old_in": "16:56",
+      "old_out": "",
+      "old_att_mrk": "16:56"
+    },
+    {
+      "pk": 312820,
+      "old_in": "16:58",
+      "old_out": "",
+      "old_att_mrk": "16:58"
+    },
+    {
+      "pk": 312821,
+      "old_in": "17:00",
+      "old_out": "",
+      "old_att_mrk": "17:00"
+    },
+    {
+      "pk": 312822,
+      "old_in": "17:08",
+      "old_out": "",
+      "old_att_mrk": "17:08"
+    },
+    {
+      "pk": 312823,
+      "old_in": "17:17",
+      "old_out": "",
+      "old_att_mrk": "17:17"
+    },
+    {
+      "pk": 312824,
+      "old_in": "17:24",
+      "old_out": "",
+      "old_att_mrk": "17:24"
+    }
+  ]
+}

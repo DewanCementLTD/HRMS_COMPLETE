@@ -43,8 +43,8 @@ export interface BulkAttendanceRow {
   total_days: number;
   present_days: number;
   absent_days: number;
-  late_minutes: number;
-  ot_minutes: number;
+  late_days: number;
+  half_days: number;
   working_minutes: number;
 }
 
@@ -53,10 +53,16 @@ export interface AttendanceDetailRow {
   card_no?: string;
   name?: string;
   roster_date: string;
+  day_name?: string | null;
   duty_in?: string | null;
   duty_out?: string | null;
   in_time?: string | null;
   out_time?: string | null;
+  // ERP status flags: late → yellow, absent → red, half day → orange
+  status?: string;
+  is_late?: boolean;
+  is_absent?: boolean;
+  is_half_day?: boolean;
 }
 
 function scopeQS(compc?: string, brnch?: string): string {

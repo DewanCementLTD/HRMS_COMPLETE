@@ -47,3 +47,12 @@ _submodule_git_backup/
 
 # Employee documents (sensitive — stored on disk, never in git)
 LMS-Backend/EMP_DOCS/
+
+LMS-Web.rar
+# ── Large archives — never in git (GitHub 100MB limit) ──
+*.rar
+*.7z
+
+# ── AI watcher runtime logs ──
+LMS-Backend/AI/_watcher_*.txt
+LMS-Backend/AI/pipeline.log

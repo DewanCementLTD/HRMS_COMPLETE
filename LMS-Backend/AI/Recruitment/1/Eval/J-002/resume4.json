@@ -1,0 +1,116 @@
+{
+  "cv_file": "resume4.pdf",
+  "company_id": "1",
+  "job_id": "J-002",
+  "processed_at": "2026-07-08T19:45:58.259347+00:00",
+  "pipeline": {
+    "total_seconds": 50.981,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.665,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2646,
+    "output_tokens": 835,
+    "total_tokens": 4421
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages"
+    ],
+    "text_chars": 9915
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "SOHAIL AZEEM",
+      "email": "yasohail@gmail.com",
+      "phone": "0301-1103903",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "DATA ANALYSTS / POWER BI DEVELOPERS",
+    "education": [
+      {
+        "institution": "Hochschule Bremerhaven",
+        "degree": "BSC (Process Engineering)",
+        "graduation_year": "2010"
+      },
+      {
+        "institution": "Goethe Institute Karachi",
+        "degree": "ZDaF (German language course)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Degree Science College Gulshan-e-Iqbal",
+        "degree": "HSC (Pre-Engineering)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Happy Home Secondary School",
+        "degree": "SSC (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Deputy Manager – IT Department",
+        "duration": "Feb 2024 – Present",
+        "description": "Developed Power BI dashboards and ETL processes using Oracle Database and DAX to monitor production and energy consumption."
+      },
+      {
+        "company": "K-Electric",
+        "role": "Assistant Manager – Key Accounts & Net Metering Department",
+        "duration": "Aug 2022 – Jan 2024",
+        "description": "Utilized SAP HANA and Power BI to create KPI scorecards and recovery reports for industrial customer billing."
+      },
+      {
+        "company": "Zong CMPak Ltd.",
+        "role": "Power BI Developer & Data Analyst – PMO Department",
+        "duration": "Dec 2015 – Apr 2022",
+        "description": "Analyzed telecom outage data using SQL Server and Power BI to monitor on-air tower performance."
+      },
+      {
+        "company": "Powertech Engineering Solutions",
+        "role": "Data Analyst – PMO Department",
+        "duration": "Jun 2012 – Jun 2015",
+        "description": "Implemented ETL workflows and data warehouse solutions using Azure SQL, Synapse Analytics, and Azure Data Factory."
+      }
+    ],
+    "skills": [
+      "Power BI",
+      "Microsoft Office",
+      "SQL Server",
+      "Oracle Database",
+      "Power Query",
+      "DAX",
+      "ETL Processes",
+      "Data Modeling",
+      "Row-Level Security (RLS)",
+      "Dashboard Development"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Expertise in Power BI and Data Analytics",
+      "Strong ETL and SQL database experience",
+      "Proven track record in business intelligence"
+    ],
+    "weaknesses": [
+      "No experience with C/C++",
+      "No experience with CUDA",
+      "No background in systems programming"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a professional Data Analyst and BI Developer. He possesses no skills or experience in C/C++, CUDA, or systems programming required for this role."
+  }
+}

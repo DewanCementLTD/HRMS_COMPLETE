@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload,
-  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight,
+  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
@@ -18,21 +18,24 @@ import {
   fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
   addEmpStatus, deleteEmpStatus, addBank, deleteBank,
   addBankBranch, deleteBankBranch, addQualification, deleteQualification,
+  fetchInterviewTypes, addInterviewType, deleteInterviewType,
   type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location,
-  type EmpStatus, type Bank, type BankBranch, type Qualification,
+  type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType,
 } from "@/services/referenceService";
 import { ShiftsSection } from "./ShiftsSection";
 
 // ─── Types ────────────────────────────────────────────────
 
 type Tab = "departments" | "designations" | "shifts" | "blood_groups" | "locations"
-  | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo";
+  | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo"
+  | "interview_types";
 
 const TAB_LABEL: Record<Tab, string> = {
   departments: "Departments", designations: "Designations",
   locations: "Locations", emp_statuses: "Employee Status",
   qualifications: "Qualifications", blood_groups: "Blood Groups", shifts: "Shifts",
   banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
+  interview_types: "Interview Types",
 };
 
 // Master tables grouped into a few areas so Setup reads as clear sections
@@ -54,6 +57,11 @@ const GROUPS: SetupGroup[] = [
     id: "banking", label: "Banking", icon: Landmark,
     desc: "Banks and their branches for salary accounts.",
     tabs: ["banks", "bank_branches"],
+  },
+  {
+    id: "interviews", label: "Interviews", icon: ClipboardList,
+    desc: "Interview round types used when scheduling recruitment interviews.",
+    tabs: ["interview_types"],
   },
   {
     id: "branding", label: "Branding", icon: ImageIcon,
@@ -492,6 +500,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [bankBranches, setBankBranches] = useState<BankBranch[]>([]);
   const [quals, setQuals] = useState<Qualification[]>([]);
+  const [ivTypes, setIvTypes] = useState<InterviewType[]>([]);
   const [branchBank, setBranchBank] = useState("");   // selected bank for Bank Branches tab
   const [loading, setLoading] = useState(false);
 
@@ -519,6 +528,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
         case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
         case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
+        case "interview_types": { const r = await fetchInterviewTypes(activeCompany, activeBranch); setIvTypes(r.items); break; }
         case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
         case "bank_branches": {
           const r = await fetchBanks(activeCompany); setBanks(r.items);
@@ -664,6 +674,19 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
+  // ── Interview Types (per company; global defaults are shared/read-only) ──
+  const ivTypeTable = (
+    <MasterTable
+      columns={["Interview Type", "Scope"]}
+      rows={ivTypes.map((t) => [t.descr, t.compc == null ? "Default (all companies)" : "This company"])}
+      loading={loading}
+      onRefresh={() => load("interview_types")}
+      addFields={[{ key: "descr", label: "Interview Type", placeholder: "e.g. Panel Discussion" }]}
+      onAdd={async (v) => { await addInterviewType(adminCardNo, v.descr, activeCompany); }}
+      onDelete={async (i) => { await deleteInterviewType(adminCardNo, ivTypes[i].type_id, activeCompany); }}
+    />
+  );
+
   // ── Banks (per company) ──────────────────────────────────
   const bankTable = (
     <MasterTable
@@ -715,6 +738,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     locations:    locationTable,
     emp_statuses: empStatusTable,
     qualifications: qualTable,
+    interview_types: ivTypeTable,
     banks:        bankTable,
     bank_branches: bankBranchTable,
     company_logo: (

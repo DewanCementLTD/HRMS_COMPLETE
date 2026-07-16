@@ -1,0 +1,100 @@
+{
+  "cv_file": "cv_resume3.pdf",
+  "company_id": "1",
+  "job_id": "J-001",
+  "processed_at": "2026-07-08T19:45:59.186096+00:00",
+  "pipeline": {
+    "total_seconds": 51.931,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.601,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1525,
+    "output_tokens": 736,
+    "total_tokens": 3331
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 4368
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD ZOHAIB FAROOQUI",
+      "email": "zohaibbabar22@gmail.com",
+      "phone": "+92 330 825 9265",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full Stack and Flutter Developer",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Software Engineer",
+        "duration": "November 2025 – Present",
+        "description": "Developed a full-stack AI Leave Management System using FastAPI, Oracle, and React.js. Implemented facial recognition pipelines and RBAC for 500+ employees."
+      },
+      {
+        "company": "Cropmentum",
+        "role": "Associate Software Engineer",
+        "duration": "June 2025 – November 2025",
+        "description": "Built cross-platform Flutter applications using Clean Architecture and BLoC. Integrated RAG pipelines with Qdrant and TensorFlow Lite for on-device ML."
+      },
+      {
+        "company": "360 Expert Solution",
+        "role": "Trainee React.js Developer",
+        "duration": "June 2024 – July 2024",
+        "description": "Developed responsive web interfaces and reusable UI components using React.js and JavaScript, integrating REST APIs within an Agile team."
+      }
+    ],
+    "skills": [
+      "Python",
+      "FastAPI",
+      "Oracle",
+      "PostgreSQL",
+      "MySQL",
+      "Docker",
+      "CI/CD",
+      "Git",
+      "React.js",
+      "Next.js",
+      "Flutter",
+      "Dart",
+      "FAISS",
+      "Qdrant",
+      "RAG"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 95,
+    "experience_match": 40,
+    "overall_score": 65,
+    "strengths": [
+      "Perfect alignment with the technical stack (Python, FastAPI, Oracle, PostgreSQL, React)",
+      "Experience with Docker, CI/CD, and Git",
+      "Advanced AI/ML integration skills (RAG, Vector DBs)"
+    ],
+    "weaknesses": [
+      "Does not meet the 3+ years professional experience requirement",
+      "Lacks evidence of mentoring juniors or senior-level leadership",
+      "Recent graduate profile"
+    ],
+    "recommendation": "Reject for Senior role; strongly recommend for Mid-level or Junior Software Engineer position.",
+    "summary": "The candidate is a technical powerhouse with an exact match for the required tools and languages. However, they lack the professional tenure and leadership experience necessary for a Senior designation."
+  }
+}

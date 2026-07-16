@@ -1,0 +1,109 @@
+{
+  "cv_file": "scanned_resume.pdf",
+  "company_id": "1",
+  "job_id": "J-002",
+  "processed_at": "2026-07-08T10:05:59.918863+00:00",
+  "pipeline": {
+    "total_seconds": 65.855,
+    "model": "gemini-2.5-flash-lite",
+    "llm_seconds": 63.605,
+    "prompt_tokens": 754,
+    "output_tokens": 769,
+    "total_tokens": 1523
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2352
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "SYED AFFAN BASIT",
+      "email": "affan.basit@hotmail.com",
+      "phone": "+92 315 2979547",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Systems Programmer",
+    "education": [
+      {
+        "institution": "National University of Computer & Emerging Sciences Karachi",
+        "degree": "Bachelor of Science, Computer Science",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Commecs College Karachi",
+        "degree": "Higher Secondary School Certificate, Pre-Engineering",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Internship",
+        "duration": "Jun 2025 - Jul 2025",
+        "description": "Collaborated with app-development team to troubleshoot RAAST payment system to ensure an error-free user experience. Handled and cleaned financial datasets using SQL to prepare them for analysis."
+      },
+      {
+        "company": "Dotinfiny Solutions",
+        "role": "Content Writer",
+        "duration": "Mar 2020 - Feb 2023",
+        "description": "Performed Search Engine Optimization (SEO) through keyword-oriented strategies to boost content ranking in search results. Researched a wide range of topics to create captivating articles. Corrected articles for grammatical errors, omissions, and language to ensure quality and consistency."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "Python",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "CUDA",
+      "Bash",
+      "VS Code",
+      "Git",
+      "LaTeX",
+      "Docker",
+      "Notion",
+      "CMake",
+      "PostgreSQL",
+      "MongoDB",
+      "MySQL",
+      "POSIX threads",
+      "SQL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 60,
+    "overall_score": 85,
+    "strengths": [
+      "Strong C/C++ and CUDA programming skills",
+      "Relevant projects demonstrating CUDA and threading experience",
+      "High CGPA",
+      "Clear objective aligning with the role"
+    ],
+    "weaknesses": [
+      "Limited professional experience in a systems programming role",
+      "Internship experience is not directly related to systems programming",
+      "Content writing experience is not relevant"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "The candidate is a highly motivated computer science student with excellent C/C++ and CUDA skills, directly aligning with the core technical requirements of the Systems Programmer role. Their projects, particularly the 'Tensor library using CUDA', showcase practical application of these skills. While their professional experience is limited and not directly in systems programming, their academic background and project work make them a very promising candidate. Further evaluation of their problem-solving abilities in a systems context would be beneficial."
+  }
+}

@@ -15,10 +15,8 @@ export interface Shift {
   late_end_tm?: string;
   half_day_tm?: string;
   half_day_end_tm?: string;
-  sat_start_tm?: string;
-  sat_end_time?: string;
-  sat_allow_in_tm?: string;
-  sat_haf_day_tm?: string;
+  
+ 
   late_sit_tm?: string;
   late_sit_allow_tm?: string;
   early_out_late_start?: string;
@@ -34,7 +32,6 @@ export interface Shift {
 export type ShiftInput = { shift: string } & Partial<Record<
   "shift_desc" | "time_from" | "time_to" | "overtime_start_time" | "allow_in_time"
   | "late_start_tm" | "late_end_tm" | "half_day_tm" | "half_day_end_tm"
-  | "sat_start_tm" | "sat_end_time" | "sat_allow_in_tm" | "sat_haf_day_tm"
   | "late_sit_tm" | "late_sit_allow_tm" | "early_out_late_start" | "early_out_late_end"
   | "early_out_hday_start" | "early_out_hday_end" | "duty_hrs" | "day_name", string>>;
 export interface ShiftLov    { shift: string; descr: string }
@@ -48,6 +45,7 @@ export interface EmpStatus   { emp_status: string; descr: string }
 export interface Bank        { bnkcode: string; bnkname: string }
 export interface BankBranch  { brncode: string; brnname: string }
 export interface Qualification { descr: string }
+export interface InterviewType { type_id: number; descr: string; compc: number | null; brnch: number | null }
 
 function cbQuery(compc?: string, brnch?: string, extra = ""): string {
   const parts: string[] = [];
@@ -151,3 +149,11 @@ export const addQualification = (adminCardNo: string, descr: string, compc?: str
   apiRequest<Qualification>(`/reference/qualifications${qc(adminCardNo, compc)}`, { method: "POST", body: { descr } });
 export const deleteQualification = (adminCardNo: string, descr: string, compc?: string) =>
   apiRequest(`/reference/qualifications/${encodeURIComponent(descr)}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+// Interview types (setup master, per company; global seed rows are read-only)
+export const fetchInterviewTypes = (compc?: string, brnch?: string) =>
+  apiRequest<{ items: InterviewType[] }>(`/reference/interview-types${cbQuery(compc, brnch)}`);
+export const addInterviewType = (adminCardNo: string, descr: string, compc?: string) =>
+  apiRequest<InterviewType>(`/reference/interview-types${qc(adminCardNo, compc)}`, { method: "POST", body: { descr } });
+export const deleteInterviewType = (adminCardNo: string, typeId: number, compc?: string) =>
+  apiRequest(`/reference/interview-types/${typeId}${qc(adminCardNo, compc)}`, { method: "DELETE" });

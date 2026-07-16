@@ -52,6 +52,12 @@ def list_emp_statuses(compc: Optional[str] = Query(None)):
     return {"items": get_emp_statuses(compc)}
 
 
+@router.get("/interview-types")
+def list_interview_types_ep(compc: Optional[str] = Query(None), brnch: Optional[str] = Query(None)):
+    from repositories.interview_panel_repository import list_interview_types
+    return {"items": list_interview_types(compc, brnch)}
+
+
 @router.get("/banks")
 def list_banks(compc: Optional[str] = Query(None)):
     return {"items": get_banks(compc)}
@@ -205,10 +211,8 @@ class ShiftRequest(BaseModel):
     late_end_tm: Optional[str] = None
     half_day_tm: Optional[str] = None
     half_day_end_tm: Optional[str] = None
-    sat_start_tm: Optional[str] = None
-    sat_end_time: Optional[str] = None
+    
     sat_allow_in_tm: Optional[str] = None
-    sat_haf_day_tm: Optional[str] = None
     late_sit_tm: Optional[str] = None
     late_sit_allow_tm: Optional[str] = None
     early_out_late_start: Optional[str] = None
@@ -389,6 +393,9 @@ class AddBankBranchRequest(BaseModel):
 class AddQualificationRequest(BaseModel):
     descr: str
 
+class AddInterviewTypeRequest(BaseModel):
+    descr: str
+
 
 def _checked(result: dict):
     if result.get("status") == "error":
@@ -402,6 +409,24 @@ def create_emp_status(req: AddEmpStatusRequest, admin_card_no: str = Query(...),
     if not req.descr.strip():
         raise HTTPException(status_code=400, detail="Description is required")
     return _checked(add_emp_status(req.descr, compc=_setup_company(admin_card_no, compc)))
+
+
+@router.post("/interview-types")
+def create_interview_type(req: AddInterviewTypeRequest, admin_card_no: str = Query(...),
+                          compc: Optional[str] = Query(None), brnch: Optional[str] = Query(None)):
+    from repositories.interview_panel_repository import add_interview_type
+    require_hr_admin(admin_card_no)
+    if not req.descr.strip():
+        raise HTTPException(status_code=400, detail="Description is required")
+    return _checked(add_interview_type(req.descr, compc=_setup_company(admin_card_no, compc), brnch=brnch))
+
+
+@router.delete("/interview-types/{type_id}")
+def remove_interview_type_ep(type_id: int, admin_card_no: str = Query(...),
+                             compc: Optional[str] = Query(None)):
+    from repositories.interview_panel_repository import remove_interview_type
+    require_hr_admin(admin_card_no)
+    return _checked(remove_interview_type(type_id, compc=_setup_company(admin_card_no, compc)))
 
 
 @router.delete("/emp-statuses/{emp_status}")

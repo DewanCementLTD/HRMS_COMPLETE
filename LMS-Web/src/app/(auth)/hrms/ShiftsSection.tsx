@@ -32,10 +32,10 @@ const GROUPS: { title: string; fields: FieldDef[] }[] = [
   {
     title: "Saturday",
     fields: [
-      { key: "sat_start_tm", label: "Sat Start", type: "time" },
-      { key: "sat_end_time", label: "Sat End", type: "time" },
-      { key: "sat_allow_in_tm", label: "Sat Allow-In", type: "time" },
-      { key: "sat_haf_day_tm", label: "Sat Half-Day", type: "time" },
+      // { key: "sat_start_tm", label: "Sat Start", type: "time" },
+      // { key: "sat_end_time", label: "Sat End", type: "time" },
+      // { key: "sat_allow_in_tm", label: "Sat Allow-In", type: "time" },
+      // { key: "sat_haf_day_tm", label: "Sat Half-Day", type: "time" },
     ],
   },
   {
