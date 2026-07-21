@@ -56,3 +56,6 @@ LMS-Web.rar
 # ── AI watcher runtime logs ──
 LMS-Backend/AI/_watcher_*.txt
 LMS-Backend/AI/pipeline.log
+
+# ── Backend runtime logs ──
+LMS-Backend/logs/
