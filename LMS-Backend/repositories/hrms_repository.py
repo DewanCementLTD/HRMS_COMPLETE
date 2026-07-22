@@ -1368,6 +1368,14 @@ def get_bulk_attendance_details(
                 NVL(h."ATDTCARD#", TO_CHAR(v.CARD_NO))  AS atdtcard,
                 TO_CHAR(v.CARD_NO)                       AS card_no,
                 h.NAME                                   AS name,
+                TRIM(h.LOCATION)                         AS branch_code,
+                -- COM_LOCATION.LCODE is globally unique, so no COMPC scoping needed
+                -- here (unlike HR_DEPT below, whose codes repeat per company).
+                (SELECT MIN(l.DESCR) FROM COM_LOCATION l
+                   WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))         AS branch_name,
+                (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                   WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
+                     AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))    AS dept_name,
                 v.ROSTER_DATE                            AS roster_date,
                 v.DAY_NAME                               AS day_name,
                 v.SHIFT_START_TIME                       AS duty_in,
@@ -1385,7 +1393,7 @@ def get_bulk_attendance_details(
               AND TRUNC(v.ROSTER_DATE) BETWEEN
                   TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
               {filter_sql}
-            ORDER BY h.NAME, v.ROSTER_DATE
+            ORDER BY branch_name NULLS LAST, h.NAME, v.ROSTER_DATE
             FETCH FIRST 30000 ROWS ONLY
         """, params)
         cols = [c[0].lower() for c in cursor.description]

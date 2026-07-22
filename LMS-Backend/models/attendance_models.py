@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 
 class AttendanceRequest(BaseModel):
@@ -25,3 +25,8 @@ class FaceAttendanceRequest(BaseModel):
     device_model: Optional[str] = None
     app_version: Optional[str] = None
     app_build: Optional[int] = None       # monotonic build number (for version checks)
+    # Base64 JPEG frames of the face being marked (same frames the app captures for
+    # /face/identify). When present, the server re-verifies them against card_no via
+    # the 8002 face service before marking, so a wrong card can never be marked for
+    # someone else's face. Optional for backward compatibility with older app builds.
+    frames: Optional[List[str]] = None

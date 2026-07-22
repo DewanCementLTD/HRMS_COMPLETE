@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     DB_PASSWORD: str
     DB_DSN: str
 
+    # Base URL of the face-recognition service (api:app on port 8002). Used by the
+    # attendance endpoint to re-verify a submitted face against the card being
+    # marked. Defaults to localhost so no .env change is required; override in .env
+    # if the face service moves to another host/port.
+    FACE_SERVICE_URL: str = "http://127.0.0.1:8002"
+
     class Config:
         env_file = str(_ENV_FILE)
         # Ignore unrelated environment variables. The CV pipeline (AI/config.py)

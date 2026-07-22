@@ -34,6 +34,7 @@ from services.recruitment_service import (
     svc_get_analytics,
     svc_create_candidate, svc_list_candidates, svc_get_candidate, svc_update_candidate,
     svc_set_candidate_cv, svc_get_candidate_cv_path, svc_apply_candidate,
+    svc_apply_candidate_to_job,
     svc_candidate_in_scope, svc_candidate_cv_target,
     svc_get_application_evaluation, svc_match_candidates_for_job, svc_get_job_scope,
     svc_rank_job_applicants, svc_job_cv_dirs, svc_pool_cv_dirs, svc_cv_status_in_dirs,

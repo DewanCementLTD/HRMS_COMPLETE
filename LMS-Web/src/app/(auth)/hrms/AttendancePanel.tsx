@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, Fragment } from "react";
 import { Clock, Search, RefreshCw, Download, Calendar, Users, FileText } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +14,25 @@ import {
 } from "@/services/attendanceService";
 
 type Mode = "summary" | "details";
+/** Daily-details status filter. "present" groups Present + Late + Half Day —
+ *  i.e. everyone who actually turned up — while "late"/"absent" narrow further. */
+type StatusTab = "all" | "present" | "late" | "absent";
+
+const STATUS_TABS: { key: StatusTab; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "present", label: "Present" },
+  { key: "late", label: "Late" },
+  { key: "absent", label: "Absent" },
+];
+
+function matchesStatusTab(r: AttendanceDetailRow, tab: StatusTab): boolean {
+  if (tab === "all") return true;
+  if (tab === "late") return !!r.is_late;
+  if (tab === "absent") return !!r.is_absent;
+  // "present" = turned up in any form (Present / Late / Half Day), i.e. not absent
+  // and has an actual punch. Rows with only a check-out still count as attended.
+  return !r.is_absent && (!!r.in_time || !!r.out_time);
+}
 
 function todayStr() { return new Date().toISOString().split("T")[0]; }
 function presetRange(p: string): { from: string; to: string } {
@@ -59,6 +78,8 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<BulkAttendanceRow[]>([]);
   const [details, setDetails] = useState<AttendanceDetailRow[]>([]);
+  const [statusTab, setStatusTab] = useState<StatusTab>("all");
+  const [groupByBranch, setGroupByBranch] = useState(true);
 
   const load = useCallback(async (m: Mode, f: string, t: string) => {
     setLoading(true);
@@ -98,12 +119,38 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
   }, [summary, query]);
 
   const filteredDetails = useMemo(() => {
-    if (!query.trim()) return details;
-    const q = query.toLowerCase();
-    return details.filter((r) =>
-      r.name?.toLowerCase().includes(q) || r.atdtcard?.toLowerCase().includes(q) ||
-      r.card_no?.toLowerCase().includes(q));
-  }, [details, query]);
+    const q = query.trim().toLowerCase();
+    return details.filter((r) => {
+      if (!matchesStatusTab(r, statusTab)) return false;
+      if (!q) return true;
+      return (
+        r.name?.toLowerCase().includes(q) || r.atdtcard?.toLowerCase().includes(q) ||
+        r.card_no?.toLowerCase().includes(q) || r.branch_name?.toLowerCase().includes(q) ||
+        r.dept_name?.toLowerCase().includes(q)
+      );
+    });
+  }, [details, query, statusTab]);
+
+  /** Counts for the status tabs — always over the whole loaded set (not the
+   *  current tab), so the tab labels act as an at-a-glance daily headcount. */
+  const statusCounts = useMemo(() => ({
+    all: details.length,
+    present: details.filter((r) => matchesStatusTab(r, "present")).length,
+    late: details.filter((r) => matchesStatusTab(r, "late")).length,
+    absent: details.filter((r) => matchesStatusTab(r, "absent")).length,
+  }), [details]);
+
+  /** Rows grouped by branch, preserving the backend's branch-ordered sort. */
+  const detailGroups = useMemo(() => {
+    if (!groupByBranch) return [["", filteredDetails]] as [string, AttendanceDetailRow[]][];
+    const map = new Map<string, AttendanceDetailRow[]>();
+    for (const r of filteredDetails) {
+      const key = r.branch_name || "— No branch —";
+      const list = map.get(key);
+      if (list) list.push(r); else map.set(key, [r]);
+    }
+    return [...map.entries()];
+  }, [filteredDetails, groupByBranch]);
 
   function exportCsv() {
     if (mode === "summary") {
@@ -118,12 +165,13 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
       );
     } else {
       downloadCsv(
-        ["Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
+        ["Branch", "Department", "Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
         filteredDetails.map((r) => [
+          r.branch_name ?? "", r.dept_name ?? "",
           r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
           r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
         ]),
-        `attendance-details-${from}_to_${to}.csv`,
+        `attendance-${statusTab}-${from}_to_${to}.csv`,
       );
     }
   }
@@ -145,12 +193,15 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
         ]),
       });
     } else {
+      const tabLabel = STATUS_TABS.find((t) => t.key === statusTab)?.label ?? "All";
       printTablePdf({
-        companyName: company, title: "Attendance — Daily Details", meta, landscape: true,
-        columns: ["Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
+        companyName: company,
+        title: `Attendance — ${tabLabel}${statusTab === "all" ? " (Daily Details)" : ""}`,
+        meta, landscape: true,
+        columns: ["Branch", "Department", "Name", "ATDT", "Date", "Duty In", "In Time", "Out Time", "Status"],
         rows: filteredDetails.map((r) => [
-          r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
-          r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
+          r.branch_name ?? "", r.dept_name ?? "", r.name ?? "", r.atdtcard || r.card_no || "",
+          r.roster_date, r.duty_in ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
         ]),
       });
     }
@@ -218,6 +269,32 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
         )}
       </div>
 
+      {/* Present / Late / Absent tabs + branch grouping — daily details only */}
+      {mode === "details" && (
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl text-sm">
+            {STATUS_TABS.map((t) => (
+              <button key={t.key} onClick={() => setStatusTab(t.key)}
+                className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                  statusTab === t.key ? "bg-white text-indigo-700 shadow-sm" : "text-gray-500 hover:text-gray-800"}`}>
+                {t.label}
+                <span className={`ml-1.5 text-xs font-semibold ${
+                  t.key === "absent" ? "text-red-500"
+                  : t.key === "late" ? "text-yellow-600"
+                  : t.key === "present" ? "text-emerald-600" : "text-gray-400"}`}>
+                  {statusCounts[t.key]}
+                </span>
+              </button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+            <input type="checkbox" checked={groupByBranch} onChange={(e) => setGroupByBranch(e.target.checked)}
+              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-400" />
+            Group by branch
+          </label>
+        </div>
+      )}
+
       {error && <div className="mb-3 p-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">{error}</div>}
 
       {loading ? (
@@ -263,42 +340,64 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
               <tr>
+                {!groupByBranch && <th className="px-3 py-2 text-left">Branch</th>}
                 <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Department</th>
                 <th className="px-3 py-2 text-left">Card / ATDT</th>
                 <th className="px-3 py-2 text-left">Date</th>
                 <th className="px-3 py-2 text-left">Duty In</th>
-                <th className="px-3 py-2 text-left">Duty Out</th>
                 <th className="px-3 py-2 text-left">Check In</th>
                 <th className="px-3 py-2 text-left">Check Out</th>
                 <th className="px-3 py-2 text-left">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredDetails.map((r, i) => {
-                const incomplete = r.in_time && !r.out_time;
-                const tint = getAttendanceRowTint(r.status);
-                return (
-                  <tr key={`${r.atdtcard || r.card_no}-${r.roster_date}-${i}`}
-                      className={tint || "hover:bg-gray-50"}>
-                    <td className="px-3 py-2 font-medium text-gray-900">{r.name || "—"}</td>
-                    <td className="px-3 py-2 text-gray-500">{r.atdtcard || r.card_no || "—"}</td>
-                    <td className="px-3 py-2 text-gray-600">{r.roster_date}</td>
-                    <td className="px-3 py-2 text-gray-400">{r.duty_in || "—"}</td>
-                    <td className="px-3 py-2 text-gray-400">{r.duty_out || "—"}</td>
-                    <td className="px-3 py-2 font-semibold text-gray-800">{r.in_time || "—"}</td>
-                    <td className="px-3 py-2 font-semibold">
-                      {r.out_time || (incomplete ? <span className="text-amber-600">Waiting</span> : "—")}
-                    </td>
-                    <td className="px-3 py-2">
-                      {r.status && (
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(r.status)}`}>
-                          {r.status}
+              {detailGroups.map(([branch, rows]) => (
+                <Fragment key={branch || "__all__"}>
+                  {groupByBranch && (
+                    <tr className="bg-indigo-50/70">
+                      <td colSpan={8} className="px-3 py-1.5 text-xs font-semibold text-indigo-800 uppercase tracking-wide">
+                        {branch}
+                        <span className="ml-2 font-normal normal-case text-indigo-500">
+                          {rows.length} employee{rows.length > 1 ? "s" : ""}
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  )}
+                  {rows.map((r, i) => {
+                    const incomplete = r.in_time && !r.out_time;
+                    const tint = getAttendanceRowTint(r.status);
+                    return (
+                      <tr key={`${r.atdtcard || r.card_no}-${r.roster_date}-${i}`}
+                          className={tint || "hover:bg-gray-50"}>
+                        {!groupByBranch && (
+                          <td className="px-3 py-2 text-gray-600">{r.branch_name || "—"}</td>
+                        )}
+                        <td className="px-3 py-2 font-medium text-gray-900">{r.name || "—"}</td>
+                        <td className="px-3 py-2 text-gray-600">{r.dept_name || "—"}</td>
+                        <td className="px-3 py-2 text-gray-500">{r.atdtcard || r.card_no || "—"}</td>
+                        <td className="px-3 py-2 text-gray-600">{r.roster_date}</td>
+                        <td className="px-3 py-2 text-gray-400">{r.duty_in || "—"}</td>
+                        <td className="px-3 py-2 font-semibold text-gray-800">
+                          {r.in_time || (r.out_time
+                            ? <span className="text-gray-400 font-normal italic">no check-in</span>
+                            : "—")}
+                        </td>
+                        <td className="px-3 py-2 font-semibold">
+                          {r.out_time || (incomplete ? <span className="text-amber-600">Waiting</span> : "—")}
+                        </td>
+                        <td className="px-3 py-2">
+                          {r.status && (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(r.status)}`}>
+                              {r.status}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </Fragment>
+              ))}
             </tbody>
           </table>
         </div>

@@ -52,6 +52,9 @@ export interface AttendanceDetailRow {
   atdtcard?: string;
   card_no?: string;
   name?: string;
+  branch_code?: string | null;
+  branch_name?: string | null;
+  dept_name?: string | null;
   roster_date: string;
   day_name?: string | null;
   duty_in?: string | null;
