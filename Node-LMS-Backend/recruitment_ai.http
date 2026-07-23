@@ -1,0 +1,103 @@
+@localUrl=http://localhost:8000
+@liveUrl=https://hrms.sysnovix.com/api
+
+@admin_card=100001.1
+@compc=1
+@brnch=1
+
+### ============================================================================
+### RECRUITMENT MODULE (PART B: AI CV SCREENING & EVALUATION)
+### ============================================================================
+
+#* [x]
+### 1. Upload CV to Talent Pool (No job_id)
+# 🔍 CHECK: Python watcher should process the PDF in EMP_DOCS/1/1/RECRUITMENT_CVS/pool
+# 🔍 CHECK DB: RECRUITMENT_CANDIDATES table for a new entry (metrics extracted by AI).
+POST {{localUrl}}/recruitment/candidates/upload-cvs?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="resume.pdf"
+Content-Type: application/pdf
+
+< ./resume.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### 2. Check CV Status  #* [x]
+# 🔍 CHECK: This returns the current processing state (queued, processed)
+GET {{localUrl}}/recruitment/candidates/cv-status?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}&files=john_doe_pool.pdf
+
+
+### 3. Direct CV File Upload for an Existing Candidate #* [x]
+# 🔍 CHECK: PDF is queued in AI dropzone (pool or job_id dir) with _scope.json sidecar.
+# 🔍 CHECK: Python watcher picks up file and auto-updates AI metrics & profile details.
+@candidateId = 36
+POST {{localUrl}}/recruitment/candidates/{{candidateId}}/cv?admin_card_no={{admin_card}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="existing_cand.pdf"
+Content-Type: application/pdf
+
+< ./resume.pdf
+--boundary--
+
+
+
+### 4. Download Candidate CV
+# 🔍 CHECK: The PDF file should be downloaded successfully #* [X] 
+# Needs to follow proper folder struture to inserd pdf (works only here due to luck and manuel organization)
+GET {{localUrl}}/recruitment/candidates/{{candidateId}}/cv?admin_card_no={{admin_card}}&inline=true
+
+###  #* [x]
+GET {{liveUrl}}/recruitment/candidates/{{candidateId}}/cv?admin_card_no={{admin_card}}&inline=true
+
+
+### 5. Apply Pool Candidate to a Job   #* [x]
+# 🔍 CHECK: RECRUITMENT_APPLICATIONS for new APP_ID. 
+# 🔍 CHECK: Background task triggers; RECRUITMENT_AI_EVALUATIONS should get a new row.
+@jobId = 105
+POST {{localUrl}}/recruitment/candidates/{{candidateId}}/apply?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{
+    "job_id": {{jobId}},
+    "source": "Internal Talent Pool"
+}
+
+
+### 6. Get Application AI Evaluation #* [x]
+# 🔍 CHECK: Returns JSON of the AI evaluation (compatibility, score, strengths, weaknesses)
+# Requires a valid appId that has been evaluated.
+@appId = 71
+GET {{localUrl}}/recruitment/applications/{{appId}}/evaluation?admin_card_no={{admin_card}}
+
+### [x]
+GET {{liveUrl}}/recruitment/applications/{{appId}}/evaluation?admin_card_no={{admin_card}}
+
+
+### 7. Upload CV Directly for a Job #* [x]
+# 🔍 CHECK: EMP_DOCS/1/1/RECRUITMENT_CVS/105 should get the PDF
+# Watcher will parse AND score it against the job, creating a candidate & application automatically. 
+POST {{localUrl}}/recruitment/candidates/upload-cvs?admin_card_no={{admin_card}}&job_id={{jobId}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="files"; filename="jane_smith_job.pdf"
+Content-Type: application/pdf
+
+< ./resume.pdf
+--boundary--
+
+
+### 8. Match Candidates Deep #* [x]
+# 🔍 CHECK: Triggers AI evaluation for ALL candidates in pool against this job
+POST {{localUrl}}/recruitment/jobs/{{jobId}}/match?admin_card_no={{admin_card}}&deep=true&top=5
+
+
+### 9. Top Candidates Shortlist #* [x]
+# 🔍 CHECK: Returns candidates ranked by their AI_SCORE
+GET {{localUrl}}/recruitment/jobs/{{jobId}}/top-candidates?admin_card_no={{admin_card}}&top_k=5
+
+### 9. Top Candidates Shortlist (Live) #* [x]
+GET {{liveUrl}}/recruitment/jobs/{{jobId}}/top-candidates?admin_card_no={{admin_card}}&top_k=5

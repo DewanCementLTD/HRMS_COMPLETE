@@ -23,10 +23,14 @@ for /f "tokens=1" %%a in ('wmic process where "CommandLine like '%%serve.py%%' a
 
 :: -- Step 2: Kill anything holding ports 3000, 8001, 8002 -----
 
-echo [2/5] Stopping existing processes on ports 3000, 8001, 8002...
+echo [2/5] Stopping existing processes on ports 3000, 8001, 8002, 8003...
 
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":3000 " ^| findstr "LISTENING"') do (
     echo     Killing PID %%a on port 3000
+    taskkill /F /PID %%a >nul 2>&1
+)
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":8003 " ^| findstr "LISTENING"') do (
+    echo     Killing PID %%a on port 8003
     taskkill /F /PID %%a >nul 2>&1
 )
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr ":8001 " ^| findstr "LISTENING"') do (
@@ -80,6 +84,14 @@ echo.
 echo Starting LMS Backend on port 8001...
 start "LMS Backend" cmd /k "cd /d C:\Erp_Systems\HRMS_LMS_APP\GIT_NEW\LMS-Backend && call C:\Erp_Systems\HRMS_LMS_APP\GIT_NEW\LMS-Backend\run_8001.bat"
 
+:: -- Node LMS Backend (Express, port 8003) --------------------
+:: This is the backend the web app actually talks to now: LMS-Web's
+:: next.config.ts rewrites send /api/* here. The FastAPI server above stays up
+:: because it still serves /payroll* and /payroll-entry* (46 endpoints not yet
+:: ported) — see the two payroll rewrite rules in next.config.ts.
+echo Starting Node LMS Backend on port 8003...
+start "Node Backend" cmd /k "cd /d C:\Erp_Systems\HRMS_LMS_APP\GIT_NEW\Node-LMS-Backend && npm start"
+
 :: -- CV Recruitment Watcher (AI pipeline, no port) ------------
 :: Watches AI\Recruitment\<company>\CV_Buffer\<job>\ for dropped CV PDFs,
 :: extracts + LLM-evaluates each one and persists it to the recruitment DB
@@ -108,7 +120,8 @@ echo  NOTE: the Frontend window builds first (~15-30s) before it serves.
 echo  Wait for "Build OK - starting" in that window before opening the app,
 echo  then hard-refresh the browser (Ctrl+Shift+R) to drop any cached chunks.
 echo.
-echo  Backend:    http://localhost:8001
+echo  Node API:   http://localhost:8003 - serves the web app (all but payroll)
+echo  FastAPI:    http://localhost:8001 - payroll + mobile clients
 echo  Face API:   http://localhost:8002
 echo  Frontend:   http://localhost:3000
 echo  CV Watcher: (no port) - AI CV screening, see the "CV Watcher" window
