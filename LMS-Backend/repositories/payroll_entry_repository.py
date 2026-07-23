@@ -49,6 +49,13 @@ def _s(v):
     return str(v).strip()
 
 
+def _t(v):
+    """Row value -> trimmed string ("" when NULL). Coerces first, so NUMBER
+    columns (EMPCODE, LOCATION, ...) don't raise "'int' object has no attribute
+    'strip'" when a query returns them as ints."""
+    return "" if v is None else str(v).strip()
+
+
 def _label(frm):
     if not frm or len(frm) < 7:
         return ""
@@ -166,16 +173,16 @@ def list_recoverable_loans(compc, brnch=None) -> list:
         b = _s(brnch)
         out = []
         for r in cur.fetchall():
-            loc = (r[11] or "").strip() if r[11] else ""
+            loc = _t(r[11])   # LOCATION is NUMBER -> _t avoids the int.strip() crash
             if b and loc != b:
                 continue
             amt = float(r[4] or 0); outstanding = amt - float(r[5] or 0) - float(r[6] or 0)
             out.append({
-                "doc": int(r[0]), "old_empcode": (r[1] or "").strip(),
-                "loan_desc": (r[2] or "").strip() or (r[3] or "").strip(),
+                "doc": int(r[0]), "old_empcode": _t(r[1]),
+                "loan_desc": _t(r[2]) or _t(r[3]),
                 "loan_amt": amt, "balance": outstanding,
-                "name": (r[7] or "").strip(), "empcode": (r[8] or r[1] or "").strip(),
-                "designation": (r[9] or "").strip(), "department": (r[10] or "").strip(),
+                "name": _t(r[7]), "empcode": _t(r[8]) or _t(r[1]),
+                "designation": _t(r[9]), "department": _t(r[10]),
             })
         return out
     finally:
@@ -204,20 +211,20 @@ def list_loan_recoveries(compc, doc=None, brnch=None) -> list:
         b = _s(brnch)
         out = []
         for r in cur.fetchall():
-            loc = (r[12] or "").strip() if r[12] else ""
+            loc = _t(r[12])   # LOCATION is NUMBER -> _t avoids the int.strip() crash
             if b and loc != b:
                 continue
-            rt = (r[4] or "").strip()
+            rt = _t(r[4])
             out.append({
                 "rowid": str(r[0]), "doc": int(r[1]) if r[1] is not None else None,
                 "period": int(r[2]) if r[2] is not None else None,
                 "recovered_amt": float(r[3] or 0), "recovery_type": rt,
                 "recovery_type_label": _RECOVERY_LABELS.get(rt, rt),
-                "balance_amt": float(r[5] or 0), "remarks": (r[6] or "").strip(),
-                "old_empcode": (r[7] or "").strip(), "name": (r[8] or "").strip(),
-                "empcode": (r[9] or r[7] or "").strip(), "designation": (r[10] or "").strip(),
-                "department": (r[11] or "").strip(), "loan_amt": float(r[13] or 0),
-                "loan_desc": (r[14] or "").strip(),
+                "balance_amt": float(r[5] or 0), "remarks": _t(r[6]),
+                "old_empcode": _t(r[7]), "name": _t(r[8]),
+                "empcode": _t(r[9]) or _t(r[7]), "designation": _t(r[10]),
+                "department": _t(r[11]), "loan_amt": float(r[13] or 0),
+                "loan_desc": _t(r[14]),
             })
         return out
     finally:
@@ -321,15 +328,15 @@ def list_monthly_allowances(compc, period=None, empcode=None, brnch=None) -> lis
         b = _s(brnch)
         out = []
         for r in cur.fetchall():
-            loc = (r[10] or "").strip() if r[10] else ""
+            loc = _t(r[10])   # LOCATION is NUMBER -> _t avoids the int.strip() crash
             if b and loc != b:
                 continue
             out.append({
-                "old_empcode": (r[0] or "").strip(), "allowance_id": (r[1] or "").strip(),
-                "amount": float(r[2] or 0), "ot_hour": r[3], "remarks": (r[4] or "").strip(),
-                "allowance_desc": (r[5] or "").strip(), "name": (r[6] or "").strip(),
-                "empcode": (r[7] or r[0] or "").strip(), "designation": (r[8] or "").strip(),
-                "department": (r[9] or "").strip(),
+                "old_empcode": _t(r[0]), "allowance_id": _t(r[1]),
+                "amount": float(r[2] or 0), "ot_hour": r[3], "remarks": _t(r[4]),
+                "allowance_desc": _t(r[5]), "name": _t(r[6]),
+                "empcode": _t(r[7]) or _t(r[0]), "designation": _t(r[8]),
+                "department": _t(r[9]),
             })
         return out
     finally:
@@ -440,15 +447,15 @@ def list_monthly_deductions(compc, period=None, empcode=None, brnch=None) -> lis
         b = _s(brnch)
         out = []
         for r in cur.fetchall():
-            loc = (r[9] or "").strip() if r[9] else ""
+            loc = _t(r[9])   # LOCATION is NUMBER -> _t avoids the int.strip() crash
             if b and loc != b:
                 continue
             out.append({
-                "old_empcode": (r[0] or "").strip(), "deduction_id": (r[1] or "").strip(),
-                "amount": float(r[2] or 0), "remarks": (r[3] or "").strip(),
-                "deduction_desc": (r[4] or "").strip(), "name": (r[5] or "").strip(),
-                "empcode": (r[6] or r[0] or "").strip(), "designation": (r[7] or "").strip(),
-                "department": (r[8] or "").strip(),
+                "old_empcode": _t(r[0]), "deduction_id": _t(r[1]),
+                "amount": float(r[2] or 0), "remarks": _t(r[3]),
+                "deduction_desc": _t(r[4]), "name": _t(r[5]),
+                "empcode": _t(r[6]) or _t(r[0]), "designation": _t(r[7]),
+                "department": _t(r[8]),
             })
         return out
     finally:
@@ -540,13 +547,13 @@ def list_absent_days(compc, period=None, empcode=None, brnch=None) -> list:
         b = _s(brnch)
         out = []
         for r in cur.fetchall():
-            loc = (r[6] or "").strip() if r[6] else ""
+            loc = _t(r[6])   # LOCATION is NUMBER -> _t avoids the int.strip() crash
             if b and loc != b:
                 continue
             out.append({
-                "old_empcode": (r[0] or "").strip(), "absent_days": float(r[1] or 0),
-                "name": (r[2] or "").strip(), "empcode": (r[3] or r[0] or "").strip(),
-                "designation": (r[4] or "").strip(), "department": (r[5] or "").strip(),
+                "old_empcode": _t(r[0]), "absent_days": float(r[1] or 0),
+                "name": _t(r[2]), "empcode": _t(r[3]) or _t(r[0]),
+                "designation": _t(r[4]), "department": _t(r[5]),
             })
         return out
     finally:
