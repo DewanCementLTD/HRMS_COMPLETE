@@ -12,6 +12,7 @@
  */
 
 import { getDirectConnection } from "../config/database.js";
+import { pyStrDatetime } from "../utils/conversionHelpers.js";
 
 import { logger } from '../utils/logger.js';
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
@@ -33,7 +34,9 @@ export const isFaceRegistered = async (cardNo) => {
     );
     const row = result.rows?.[0];
     if (!row) return { is_registered: false, registered_at: null };
-    return { is_registered: true, registered_at: row[1] ? String(row[1]) : null };
+    // FastAPI does str(row[1]) on a datetime → "YYYY-MM-DD HH:MM:SS.ffffff".
+    // Plain String(jsDate) would emit "Mon Jun 29 2026 ... GMT+0500 (...)".
+    return { is_registered: true, registered_at: pyStrDatetime(row[1]) };
   } catch (err) {
     logger.info("FACE REG CHECK ERROR:", err.message);
     return { is_registered: false, registered_at: null };

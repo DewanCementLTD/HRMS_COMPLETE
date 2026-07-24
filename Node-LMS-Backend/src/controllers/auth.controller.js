@@ -17,7 +17,7 @@ export const login = async (req, res, next) => {
 
     const result = await authenticateUser(username, password);
     if (!result)
-      return res.status(401).json({ detail: 'Invalid username or password.' });
+      return res.status(401).json({ detail: 'Invalid credentials' }); // exact FastAPI wording — the app shows it verbatim
     res.json(result);
   } catch (err) {
     next(err);
@@ -29,7 +29,7 @@ export const profile = async (req, res, next) => {
     const { card_no } = res.locals.validated.params;
     const data = await getProfile(card_no);
     if (!data)
-      return res.status(404).json({ detail: 'Employee not found.' });
+      return res.status(404).json({ detail: 'User not found' }); // exact FastAPI wording
     res.json(data);
   } catch (err) {
     next(err);
@@ -41,7 +41,7 @@ export const lookup = async (req, res, next) => {
     const { phone } = res.locals.validated.params;
     const data = await lookupByPhone(phone);
     if (!data)
-      return res.status(404).json({ detail: 'No employee found for this number.' });
+      return res.status(404).json({ detail: 'Employee not found' }); // exact FastAPI wording
     res.json(data);
   } catch (err) {
     next(err);
@@ -52,10 +52,12 @@ export const updatePassword = async (req, res, next) => {
   try {
     const { card_no } = res.locals.validated.params;
     const { old_password, new_password } = res.locals.validated.body;
-    logger.info(`Attempting to change password for card_no: ${card_no}, old_password: ${old_password}, new_password: ${new_password}`); // Debugging line
+    // NOTE: never log the passwords themselves — this used to interpolate both
+    // into the message, writing them in plaintext to logs/auth.log.
+    logger.info(`Password change requested for card_no=${card_no}`);
     const result = await changePassword(card_no, old_password, new_password);
     if (!result.success)
-      return res.status(400).json({ detail: 'Current password is incorrect.' });
+      return res.status(400).json({ detail: 'Invalid old password' }); // exact FastAPI wording
     res.json({ status: 'SUCCESS', message: 'Password updated successfully.' });
   } catch (err) {
     next(err);

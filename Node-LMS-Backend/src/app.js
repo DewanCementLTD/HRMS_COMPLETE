@@ -7,7 +7,14 @@ const app = express();
 
 // 1. Security & Parsing Middleware
 app.use(cors()); // Allow frontend to talk to this API
-app.use(express.json()); // Parse JSON body payloads
+
+// Parse JSON body payloads.
+// express.json() defaults to a 100 KB limit; FastAPI/Starlette imposes none. The
+// mobile app posts base64 JPEG face frames to /auth/attendance/face and
+// /face/register — a single face-mark measured ~675 KB — so the default silently
+// turned every face request into a 413 that the live backend accepts. Keep a
+// generous bound rather than no bound at all; override with JSON_BODY_LIMIT.
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '50mb' }));
 
 
 // 2. Mount all routes

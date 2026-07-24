@@ -107,7 +107,25 @@ export const getDashboardData = async (card_no) => {
       logger.info(`[DASHBOARD] balance lookup failed for ${card_no}: ${e.message ?? e}`);
     }
 
-    return { ...row, balance: balance ?? 0 };
+    // FastAPI returns this through response_model=DashboardResponse, which
+    // declares emp_pk/compc/branch/hod/balance as Optional[float] and therefore
+    // COERCES them. EMPCODE is a VARCHAR in Oracle, so without this emp_pk goes
+    // out as the string "100660.1" where the live backend sends the number
+    // 100660.1 — a strongly-typed client (the Flutter app) throws on the cast.
+    const toFloat = (v) => {
+      if (v === null || v === undefined || v === '') return null;
+      const n = Number(v);
+      return Number.isNaN(n) ? null : n;
+    };
+
+    return {
+      ...row,
+      emp_pk: toFloat(row.emp_pk),
+      compc: toFloat(row.compc),
+      branch: toFloat(row.branch),
+      hod: toFloat(row.hod),
+      balance: toFloat(balance) ?? 0,
+    };
   } finally {
     await connection?.close();
   }

@@ -1,19 +1,26 @@
 import { z } from 'zod';
+import { pyInt, pyFloat } from '../utils/pydanticTypes.js';
 
+// Mirrors FastAPI's FaceAttendanceRequest (models/attendance_models.py).
 export const faceAttendanceSchema = z.object({
   body: z.object({
     card_no: z.string().min(1),
     attendance_type: z.string().min(1),
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
-    accuracy: z.number().optional(),
+    latitude: pyFloat().optional(),
+    longitude: pyFloat().optional(),
+    accuracy: pyFloat().optional(),
     address: z.string().optional(),
     formatted_address: z.string().optional(),
     timestamp: z.string().optional(),
     device_id: z.string().optional(),
     device_model: z.string().optional(),
     app_version: z.string().optional(),
-    app_build: z.number().int().optional(),
+    app_build: pyInt().optional(),
+    // Base64 JPEG frames of the face being marked. This field was missing from
+    // the schema, and Zod strips unknown keys — so frames sent by the app were
+    // silently discarded before the controller could ever see them, defeating
+    // the face-identity guard.
+    frames: z.array(z.string()).optional().nullable(),
   }),
 });
 
@@ -22,8 +29,8 @@ export const manualAttendanceSchema = z.object({
     card_no: z.string().min(1),
   }),
   body: z.object({
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
+    latitude: pyFloat().optional(),
+    longitude: pyFloat().optional(),
   }),
 });
 

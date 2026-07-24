@@ -26,7 +26,7 @@ export const hrFaceEnrollSchema = z.object({
   }),
   body: z.object({
     card_no: z.string().min(1, "card_no is required"),
-    frames: z.array(z.string()).min(1, "frames is required"),
+    frames: z.array(z.string()),
     created_at: z.string().optional(),
   }),
 });

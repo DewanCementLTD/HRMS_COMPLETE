@@ -1,17 +1,26 @@
 import { z } from 'zod';
+import { pyFloat } from '../utils/pydanticTypes.js';
 
+// Mirrors FastAPI's LocationPoint (models/location_models.py) exactly:
+//   latitude: float          (required)
+//   longitude: float         (required)
+//   accuracy: float = 0.0    (optional, DEFAULTS to 0.0 — not undefined)
+//   recorded_at: str         (REQUIRED — was optional here)
+// Pydantic coerces numeric strings, which the GPS batch sender relies on.
 const LocationPointSchema = z.object({
-  latitude: z.number(),
-  longitude: z.number(),
-  accuracy: z.number().optional(),
-  recorded_at: z.string().optional(),
+  latitude: pyFloat(),
+  longitude: pyFloat(),
+  accuracy: pyFloat().optional().default(0.0),
+  recorded_at: z.string(),
   attendance_date: z.string().optional(),
 });
 
 export const locationBatchSchema = z.object({
   body: z.object({
     card_no: z.string().min(1),
-    locations: z.array(LocationPointSchema).min(1, 'At least one location is required'),
+    // FastAPI puts no minimum on this list; an empty batch is a valid no-op
+    // there, so a .min(1) here would 422 a request the live backend accepts.
+    locations: z.array(LocationPointSchema),
   }),
 });
 
