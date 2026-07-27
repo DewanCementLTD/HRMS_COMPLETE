@@ -15,7 +15,7 @@ import {
   Users, UserCheck, UserX, TreePalm, Clock, Zap, Timer, UserPlus,
   TrendingUp, TrendingDown, AlertTriangle, Activity,
   CalendarDays, BarChart2, FileText, ClipboardList, Download,
-  Brain, ToggleRight, ChevronRight, UserMinus, Info,
+  Brain, ToggleRight, UserMinus, Info,
   ClipboardCheck, UserCog, AlarmClock, FileDown,
 } from "lucide-react";
 
@@ -174,12 +174,12 @@ function buildInsights(stats: HRDashboardStats, kpis: HRAnalytics["kpis"]) {
 
 // ─── Quick Actions ─────────────────────────────────────────
 const QUICK = [
-  { label: "Mark Attendance\nManually",    Icon: ClipboardCheck, bg: "bg-indigo-50",  ic: "text-indigo-600",  href: "/hrms" },
-  { label: "Apply Leave\nfor Employee",    Icon: UserCog,        bg: "bg-emerald-50", ic: "text-emerald-600", href: "/leave" },
-  { label: "Regularization\nRequest",     Icon: ClipboardList,  bg: "bg-purple-50",  ic: "text-purple-600",  href: "/hrms" },
-  { label: "Attendance\nReport",           Icon: BarChart2,      bg: "bg-blue-50",    ic: "text-blue-600",    href: "/hrms" },
-  { label: "Absence\nReport",             Icon: UserMinus,      bg: "bg-amber-50",   ic: "text-amber-600",   href: "/hrms" },
-  { label: "Overtime\nReport",            Icon: AlarmClock,     bg: "bg-violet-50",  ic: "text-violet-600",  href: "/hrms" },
+  { label: "Mark Attendance\nManually",    Icon: ClipboardCheck, bg: "bg-indigo-50",  ic: "text-indigo-600",  href: "/hrms?section=attendance" },
+  { label: "Apply Leave\nfor Employee",    Icon: UserCog,        bg: "bg-emerald-50", ic: "text-emerald-600", href: "/leave/apply" },
+  { label: "Regularization\nRequest",     Icon: ClipboardList,  bg: "bg-purple-50",  ic: "text-purple-600",  href: "/hrms?section=attendance" },
+  { label: "Attendance\nReport",           Icon: BarChart2,      bg: "bg-blue-50",    ic: "text-blue-600",    href: "/hrms?section=attendance" },
+  { label: "Absence\nReport",             Icon: UserMinus,      bg: "bg-amber-50",   ic: "text-amber-600",   href: "/hrms?section=attendance" },
+  { label: "Overtime\nReport",            Icon: AlarmClock,     bg: "bg-violet-50",  ic: "text-violet-600",  href: "/hrms?section=attendance" },
   { label: "Export\nData",               Icon: FileDown,       bg: "bg-teal-50",    ic: "text-teal-600",    href: "/hrms" },
 ];
 
@@ -508,9 +508,6 @@ export function HRDashboard({
                 })
               )}
             </div>
-            <button className="mt-3 flex items-center gap-1 text-[10px] text-indigo-600 font-semibold hover:underline">
-              View All Alerts <ChevronRight className="h-3 w-3" />
-            </button>
           </CardContent>
         </Card>
       </div>
@@ -629,9 +626,6 @@ export function HRDashboard({
                 ))}
               </div>
             )}
-            <button className="mt-2 flex items-center gap-1 text-[10px] text-indigo-600 font-semibold hover:underline">
-              View All <ChevronRight className="h-3 w-3" />
-            </button>
           </CardContent>
         </Card>
       </div>
@@ -707,9 +701,6 @@ export function HRDashboard({
                 </div>
               </>
             )}
-            <button className="mt-2 flex items-center gap-1 text-[10px] text-indigo-600 font-semibold hover:underline">
-              View All Requests <ChevronRight className="h-3 w-3" />
-            </button>
           </CardContent>
         </Card>
 
@@ -735,9 +726,6 @@ export function HRDashboard({
                 ))}
               </div>
             )}
-            <button className="mt-2 flex items-center gap-1 text-[10px] text-indigo-600 font-semibold hover:underline">
-              View All <ChevronRight className="h-3 w-3" />
-            </button>
           </CardContent>
         </Card>
       </div>

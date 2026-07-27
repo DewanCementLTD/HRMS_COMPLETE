@@ -12,7 +12,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { CalendarPlus } from "lucide-react";
 
 export default function ApplyLeavePage() {
-  const { leaveBalances, loading, submitting, error, success, submitLeave, clearMessages } =
+  const { leaveTypes, loading, submitting, error, success, submitLeave, clearMessages } =
     useLeaveController();
 
   const [fromDate, setFromDate] = useState("");
@@ -24,11 +24,10 @@ export default function ApplyLeavePage() {
     e.preventDefault();
     clearMessages();
     if (!fromDate || !toDate || !leaveType || !reason.trim()) return;
-    const numericType = parseInt(leaveType);
     submitLeave({
       from_date: fromDate,
       to_date: toDate,
-      leave_type_id: isNaN(numericType) ? 0 : numericType,
+      type: leaveType,
       reason: reason.trim(),
     });
   }
@@ -43,12 +42,15 @@ export default function ApplyLeavePage() {
 
   if (loading) return <Spinner />;
 
-  // Only show leave types with positive balance — negative means 0 available
-  const leaveOptions = leaveBalances
-    .filter((lb) => lb.balance > 0)
-    .map((lb) => ({
-      value: lb.leave_type,
-      label: `${lb.leave_desc || `Type ${lb.leave_type}`} (Balance: ${Math.max(0, lb.balance)})`,
+  // OD types are unlimited (no balance restriction); other types only show
+  // when they actually have balance available.
+  const leaveOptions = leaveTypes
+    .filter((lt) => lt.is_od || lt.balance > 0)
+    .map((lt) => ({
+      value: lt.leave_type,
+      label: lt.is_od
+        ? `${lt.leave_desc || lt.leave_type} (No limit)`
+        : `${lt.leave_desc || lt.leave_type} (Balance: ${Math.max(0, lt.balance)})`,
     }));
 
   return (

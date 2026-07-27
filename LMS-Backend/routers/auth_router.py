@@ -17,6 +17,7 @@ from models.auth_models import (
 from services.auth_service import (
     login_user,
     fetch_dashboard,
+    fetch_leave_types,
     fetch_leave_balances,
     fetch_profile,
     apply_leave_service,
@@ -88,6 +89,19 @@ def dashboard(card_no: str):
 
 
 # ===================================
+# LEAVE TYPES (apply-leave dropdown/LOV)
+# ===================================
+
+@router.get("/leave-types/{card_no}")
+def leave_types(card_no: str):
+    try:
+        items = fetch_leave_types(card_no)
+        return {"items": items}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ===================================
 # LEAVE BALANCES
 # ===================================
 
@@ -108,15 +122,28 @@ def leave_balances(card_no: str):
              response_model=MessageResponse)
 def apply_leave(card_no: str, request: LeaveApplyRequest):
 
+    # String-first rule: leave type identifiers are codes (e.g. 'ML', 'CL'), not
+    # numbers. Never re-introduce an int() cast here — leave_type_id is only a
+    # backward-compat fallback for older clients that don't send `type`.
+    effective_type = (request.type or "").strip() or (
+        str(request.leave_type_id) if request.leave_type_id is not None else ""
+    )
+    if not effective_type:
+        raise HTTPException(status_code=400, detail="Leave type is required")
+
     result = apply_leave_service(
         card_no,
-        request.leave_type_id or 0,
+        effective_type,
         request.from_date,
         request.to_date,
         request.reason,
         request.compc,
         request.brnch,
         request.emp_name,
+        request.half_day,
+        request.half_day_session,
+        request.from_time,
+        request.to_time,
     )
 
     if result["status"] == "error":

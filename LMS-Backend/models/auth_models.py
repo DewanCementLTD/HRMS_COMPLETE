@@ -85,16 +85,21 @@ class LeaveBalanceResponse(BaseModel):
 
 
 class LeaveApplyRequest(BaseModel):
-    # Flutter sends: type (leave code), from_date, to_date, reason, half_day
+    # Flutter/Web send: type (leave code/PK/desc string) — the primary field.
+    # leave_type_id is kept only as a backward-compat numeric fallback; never
+    # int()-cast `type` anywhere downstream.
     # card_no comes from the URL path parameter
-    type: Optional[str] = None          # Flutter field name
-    leave_type_id: Optional[int] = None  # numeric FK (if known)
+    type: Optional[str] = None
+    leave_type_id: Optional[int] = None
     from_date: str
     to_date: str
     reason: str
     half_day: Optional[bool] = False
-    compc: int 
-    brnch: int 
+    half_day_session: Optional[str] = None  # "first" | "second"
+    from_time: Optional[str] = None         # explicit HH:MM for half-day
+    to_time: Optional[str] = None
+    compc: Optional[int] = None   # filled server-side from employee's row if omitted
+    brnch: Optional[int] = None   # filled server-side from employee's row if omitted
     emp_name: str = ''
 
 
