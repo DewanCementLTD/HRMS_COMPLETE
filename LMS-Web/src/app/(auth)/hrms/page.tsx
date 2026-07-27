@@ -354,6 +354,17 @@ export default function HRMSPage() {
   const ctrl = useHRMSController();
 
   const [section, setSection] = useState<"employees" | "locations" | "setup" | "attendance">("employees");
+
+  // Honor a ?section= query param (e.g. from the HR dashboard's Quick Actions)
+  // so links can land directly on the right tab instead of always the employee list.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const s = new URLSearchParams(window.location.search).get("section");
+    if (s === "attendance" || s === "locations" || s === "setup" || s === "employees") {
+      setSection(s);
+    }
+  }, []);
+
   const [locationFocusCard, setLocationFocusCard] = useState<string | undefined>();
   const [view, setView] = useState<View>("list");
   const [activeTab, setActiveTab] = useState<StatusTab>("");

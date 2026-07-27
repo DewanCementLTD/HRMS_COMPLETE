@@ -2,6 +2,7 @@ from repositories.user_repository import (
     authenticate_user,
     get_user_by_login,
     get_dashboard,
+    get_leave_types,
     get_leave_balances,
     get_user_profile,
     apply_leave,
@@ -48,6 +49,14 @@ def fetch_dashboard(card_no: str):
 
 
 # =====================================
+# LEAVE TYPES (apply-leave dropdown/LOV)
+# =====================================
+
+def fetch_leave_types(card_no: str):
+    return get_leave_types(card_no)
+
+
+# =====================================
 # LEAVE BALANCES
 # =====================================
 
@@ -68,23 +77,31 @@ def fetch_profile(card_no: str):
 # =====================================
 
 def apply_leave_service(card_no: str,
-                        leave_type_id: int,
+                        leave_type: str,
                         from_date: str,
                         to_date: str,
                         reason: str,
-                        compc: int,
-                        brnch: int,
-                        emp_name: str):
+                        compc,
+                        brnch,
+                        emp_name: str,
+                        half_day: bool = False,
+                        half_day_session: str = None,
+                        from_time: str = None,
+                        to_time: str = None):
 
     return apply_leave(
         card_no,
-        leave_type_id,
+        leave_type,
         from_date,
         to_date,
         reason,
         compc,
         brnch,
-        emp_name
+        emp_name,
+        half_day,
+        half_day_session,
+        from_time,
+        to_time,
     )
 
 

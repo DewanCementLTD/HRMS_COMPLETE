@@ -648,6 +648,48 @@ def _roster_card_filter(compc, brnch, params_out, prefix="rc"):
     )
 
 
+def _leave_card_filter(compc, brnch, params_out, emp_fk_expr, prefix="lc"):
+    """Build ' AND <emp_fk_expr> IN (subquery)' restricting LEAVE_APPLICATION /
+    LEAVE_APPLICATION_APPLY rows to employees in the given company/branch.
+    Unlike DUTY_ROSTER/ATTENDANCE_RECORDS, these tables' EMP_FK always stores the
+    employee's CARD_NO directly (no truncated-integer variant), so a single
+    TO_CHAR(EMPLOYEE.CARD_NO) match is enough. Returns '' when unfiltered.
+    """
+    def _to_list(v):
+        if not v:
+            return []
+        return v if isinstance(v, list) else [v]
+
+    comp_list = _to_list(compc)
+    brnch_list = _to_list(brnch)
+
+    conds = []
+    if comp_list:
+        nums = [n for n in (_to_int(c) for c in comp_list) if n is not None]
+        if nums:
+            ph = ", ".join(f":{prefix}c{i}" for i in range(len(nums)))
+            conds.append(f"TO_NUMBER(h.UNIT_ID) IN ({ph})")
+            for i, n in enumerate(nums):
+                params_out[f"{prefix}c{i}"] = n
+    if brnch_list:
+        nums = [n for n in (_to_int(b) for b in brnch_list) if n is not None]
+        if nums:
+            ph = ", ".join(f":{prefix}b{i}" for i in range(len(nums)))
+            conds.append(f"TO_NUMBER(h.LOCATION) IN ({ph})")
+            for i, n in enumerate(nums):
+                params_out[f"{prefix}b{i}"] = n
+
+    if not conds:
+        return ""
+
+    where_inner = " AND ".join(conds)
+    return (
+        f' AND TO_CHAR({emp_fk_expr}) IN ('
+        f'SELECT TO_CHAR(e.CARD_NO) FROM HR_EMP_MASTER h '
+        f'JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE WHERE {where_inner})'
+    )
+
+
 def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
     """Get aggregated stats for the HR dashboard overview. qdate format: YYYY-MM-DD."""
     import re
@@ -865,25 +907,35 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
         except Exception as e:
             print(f"[HR_DASHBOARD] Anniversaries failed: {e}")
 
-        # Upcoming leave requests (next 30 days)
+        # Upcoming leave requests (next 30 days) — union of the legacy
+        # LEAVE_APPLICATION (bulk-imported) and LEAVE_APPLICATION_APPLY (online
+        # self-service submissions) tables, restricted to the selected company/branch.
         upcoming_leaves = []
         try:
-            cursor.execute("""
+            up_params = {}
+            up_filter = _leave_card_filter(compc, brnch, up_params, "la.EMP_FK", prefix="ul")
+            cursor.execute(f"""
                 SELECT h.NAME,
                     la.LEAVE_DATE_FROM, la.LEAVE_DATE_TO,
                     la.LEAVE_TYPE_FK,
                     NVL(la.APPROVAL_STATUS, 'PENDING') AS status,
                     la.LEAVE_DAYS,
                     NVL(dep.DEPT_NAME, 'N/A') AS dept
-                FROM LEAVE_APPLICATION la
+                FROM (
+                    SELECT LEAVE_DATE_FROM, LEAVE_DATE_TO, LEAVE_TYPE_FK, APPROVAL_STATUS, LEAVE_DAYS, EMP_FK
+                    FROM LEAVE_APPLICATION
+                    UNION ALL
+                    SELECT LEAVE_DATE_FROM, LEAVE_DATE_TO, LEAVE_TYPE_FK, APPROVAL_STATUS, LEAVE_DAYS, EMP_FK
+                    FROM LEAVE_APPLICATION_APPLY
+                ) la
                 LEFT JOIN EMPLOYEE e ON TO_CHAR(e.CARD_NO) = TO_CHAR(la.EMP_FK)
                 LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
                 LEFT JOIN HR_DEPT dep ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
                 WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE)
-                  AND la.LEAVE_DATE_FROM <= TRUNC(SYSDATE) + 30
+                  AND la.LEAVE_DATE_FROM <= TRUNC(SYSDATE) + 30{up_filter}
                 ORDER BY la.LEAVE_DATE_FROM
                 FETCH FIRST 10 ROWS ONLY
-            """)
+            """, up_params)
             for r in cursor.fetchall():
                 from_d = r[1]
                 to_d = r[2]
@@ -925,19 +977,25 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
         except Exception as e:
             print(f"[HR_DASHBOARD] Shift-wise failed: {e}")
 
-        # Top absence/leave reasons this year
+        # Top absence/leave reasons this year — same union + company/branch scoping
         top_reasons = []
         try:
-            cursor.execute("""
+            tr_params = {}
+            tr_filter = _leave_card_filter(compc, brnch, tr_params, "la.EMP_FK", prefix="tr")
+            cursor.execute(f"""
                 SELECT NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK)) AS reason,
                     COUNT(*) AS cnt
-                FROM LEAVE_APPLICATION la
+                FROM (
+                    SELECT LEAVE_DATE_FROM, LEAVE_TYPE_FK, EMP_FK FROM LEAVE_APPLICATION
+                    UNION ALL
+                    SELECT LEAVE_DATE_FROM, LEAVE_TYPE_FK, EMP_FK FROM LEAVE_APPLICATION_APPLY
+                ) la
                 LEFT JOIN LEAVE_TYPES lt ON lt.LEAVE_TYPE_PK = la.LEAVE_TYPE_FK
-                WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE, 'YYYY')
+                WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE, 'YYYY'){tr_filter}
                 GROUP BY NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK))
                 ORDER BY cnt DESC
                 FETCH FIRST 5 ROWS ONLY
-            """)
+            """, tr_params)
             for r in cursor.fetchall():
                 top_reasons.append({
                     "reason": r[0] or "Other",
@@ -946,12 +1004,16 @@ def get_hr_dashboard_stats(qdate: str = None, compc=None, brnch=None) -> dict:
         except Exception as e:
             print(f"[HR_DASHBOARD] Top reasons failed: {e}")
 
-        # Inactive count for turnover computation
+        # Inactive count for turnover computation — scoped like total_employees so
+        # the ratio isn't skewed by mixing a company-filtered numerator with an
+        # org-wide denominator.
         inactive_count = 0
         try:
-            cursor.execute("""
-                SELECT COUNT(*) FROM HR_EMP_MASTER WHERE STATUS IN ('I', 'D')
-            """)
+            _execute_with_emp_filter(
+                cursor,
+                "SELECT COUNT(*) FROM HR_EMP_MASTER h WHERE h.STATUS IN ('I', 'D'){filter}",
+                compc, brnch,
+            )
             inactive_count = int(cursor.fetchone()[0] or 0)
         except Exception:
             pass
@@ -1040,13 +1102,22 @@ def get_hr_analytics(qdate: str = None, compc=None, brnch=None) -> dict:
             print(f"[HR_ANALYTICS] KPI query failed: {e}")
 
         try:
-            cursor.execute("""
-                SELECT COUNT(*) FROM LEAVE_APPLICATION
-                WHERE STATUS IS NULL OR UPPER(STATUS) IN ('PENDING', 'P', '0')
-            """)
+            # NOTE: this table has no STATUS column — the approval column is
+            # APPROVAL_STATUS. Querying STATUS threw ORA-00904 on every call and
+            # was silently swallowed, so this KPI was permanently stuck at 0.
+            unappr_params = {}
+            unappr_filter = _leave_card_filter(compc, brnch, unappr_params, "la.EMP_FK", prefix="ua")
+            cursor.execute(f"""
+                SELECT COUNT(*) FROM (
+                    SELECT EMP_FK, APPROVAL_STATUS FROM LEAVE_APPLICATION
+                    UNION ALL
+                    SELECT EMP_FK, APPROVAL_STATUS FROM LEAVE_APPLICATION_APPLY
+                ) la
+                WHERE (la.APPROVAL_STATUS IS NULL OR UPPER(la.APPROVAL_STATUS) IN ('PENDING', 'WAITING', 'P', '0')){unappr_filter}
+            """, unappr_params)
             unapproved_leaves = int(cursor.fetchone()[0] or 0)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[HR_ANALYTICS] Unapproved leaves query failed: {e}")
 
         try:
             cursor.execute(

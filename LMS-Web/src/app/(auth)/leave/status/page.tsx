@@ -21,6 +21,10 @@ export default function LeaveStatusPage() {
           (l) => l.status?.toUpperCase() === statusFilter
         );
 
+  // Display-only summary: only positive, non-OD balances (ML/CL/EL-style) —
+  // OD and zero-balance/contract-bucket rows are noise here.
+  const summaryBalances = leaveBalances.filter((lb) => !lb.is_od && lb.balance > 0);
+
   if (loading) return <Spinner />;
 
   return (
@@ -38,7 +42,7 @@ export default function LeaveStatusPage() {
 
       {/* Leave Balance Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {leaveBalances.map((lb, i) => (
+        {summaryBalances.map((lb, i) => (
           <Card key={i}>
             <CardContent className="py-4 text-center">
               <p className="text-2xl font-bold text-indigo-600">{lb.balance}</p>

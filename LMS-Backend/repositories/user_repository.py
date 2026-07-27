@@ -1,4 +1,6 @@
 import hashlib
+import re
+import time
 
 from core.database import get_connection
 from datetime import datetime
@@ -772,27 +774,211 @@ def get_user_profile(card_no: str):
 # LEAVE BALANCES
 # ===============================
 
+# ===============================
+# LEAVE — SHARED HELPERS
+# ===============================
+
+_OD_PATTERN = re.compile(
+    r'(^OD$|\bOD\b|-\s*OD\b|\bON\s*DUTY\b|\bOFFICIAL\s*DUTY\b|\bOUT\s*DOOR\b|\bOUTDOOR\b)',
+    re.IGNORECASE,
+)
+
+
+def _is_od_type(code, desc) -> bool:
+    text = f"{code or ''} {desc or ''}"
+    return bool(_OD_PATTERN.search(text))
+
+
+def _card_int_str(card_no: str) -> str:
+    """Numeric prefix of a possibly dotted/company-qualified card string."""
+    s = (card_no or "").strip()
+    return s.split(".")[0] if "." in s else s
+
+
+def _resolve_leave_employee(card_no: str):
+    """Resolve employee identity for leave purposes from EMPLOYEE (unique per
+    person via CARD_NO) — never via HR_EMP_MASTER.EMPCODE, which collides across
+    units. Falls back to the numeric prefix of a dotted card if no exact match.
+    Returns None if nothing resolves — callers must not guess further.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        row = None
+        try:
+            cursor.execute("""
+                SELECT TO_CHAR(CARD_NO), EMP_PK, EMP_NAME, COMPC, BRNCH, HOD1, HOD2, HOD3
+                FROM EMPLOYEE
+                WHERE TO_CHAR(CARD_NO) = :card
+                FETCH FIRST 1 ROWS ONLY
+            """, {"card": card_no})
+            row = cursor.fetchone()
+        except Exception as e:
+            print(f"[LEAVE] Employee lookup by card_no failed for {card_no}: {e}")
+
+        if not row:
+            card_int = _card_int_str(card_no)
+            if card_int and card_int.lstrip("-").isdigit():
+                try:
+                    cursor.execute("""
+                        SELECT TO_CHAR(CARD_NO), EMP_PK, EMP_NAME, COMPC, BRNCH, HOD1, HOD2, HOD3
+                        FROM EMPLOYEE
+                        WHERE CARD_NO = TO_NUMBER(:card_int)
+                        FETCH FIRST 1 ROWS ONLY
+                    """, {"card_int": card_int})
+                    row = cursor.fetchone()
+                except Exception as e:
+                    print(f"[LEAVE] Employee lookup by numeric prefix failed for {card_no}: {e}")
+
+        if not row:
+            return None
+
+        emp_pk = row[1]
+        try:
+            emp_pk = float(emp_pk) if emp_pk is not None else None
+        except (TypeError, ValueError):
+            pass
+
+        return {
+            "card_no": row[0],
+            "emp_pk": emp_pk,
+            "emp_name": (row[2] or "").strip(),
+            "compc": row[3],
+            "brnch": row[4],
+            "hod1": row[5],
+            "hod2": row[6],
+            "hod3": row[7],
+        }
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def _load_leave_types_meta(cursor):
+    """LEAVE_TYPES is the LOV source of truth for 'apply leave'. It carries a
+    single global row set (not filtered by COMPC/BRNCH) — the columns on it are
+    metadata, not a per-company partition. PK duplicates exist (e.g. 'CL' twice),
+    so callers must key on PK for FK inserts, not on code alone.
+    """
+    cursor.execute("""
+        SELECT LEAVE_TYPE_PK, LEAVE_TYPE, LEAVE_DESC, ENTITLEMENT, ALLOWED
+        FROM LEAVE_TYPES
+        ORDER BY LEAVE_TYPE_PK
+    """)
+    out = []
+    for pk, code, desc, entitlement, allowed in cursor.fetchall():
+        code = (code or "").strip()
+        desc = (desc or "").strip()
+        fallback_days = entitlement if entitlement is not None else allowed
+        out.append({
+            "pk": pk,
+            "code": code,
+            "desc": desc,
+            "entitlement": float(fallback_days) if fallback_days is not None else 0.0,
+            "is_od": _is_od_type(code, desc),
+        })
+    return out
+
+
+def _match_leave_type(raw, types_meta):
+    """Resolve a client-supplied leave type identifier (code, PK, or description —
+    never int()-cast) against LEAVE_TYPES metadata."""
+    if raw is None:
+        return None
+    key = str(raw).strip().upper()
+    if not key:
+        return None
+    for t in types_meta:
+        if (t["code"] and t["code"].upper() == key) or (t["desc"] and t["desc"].upper() == key):
+            return t
+    for t in types_meta:
+        if str(t["pk"]) == key:
+            return t
+    return None
+
+
+def _fetch_balance_rows(cursor, resolved_card_no):
+    """Raw ALL_LEAVE_BAL_V rows for an employee, resolved via numeric card."""
+    try:
+        cursor.execute("""
+            SELECT LEAVE_TYPE_PK, LEAVE_TYPE, LEAVE_DESC, BALANCE
+            FROM ALL_LEAVE_BAL_V
+            WHERE CARD_NO = TO_NUMBER(:card)
+        """, {"card": resolved_card_no})
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"[LEAVE] ALL_LEAVE_BAL_V lookup failed for card={resolved_card_no}: {e}")
+        return []
+
+
+def _match_balance_row(bal_rows, candidates):
+    """Match a balance row by either its code OR its description against a
+    candidate set — the client's identifier sometimes only lines up via
+    description, not code."""
+    for pk, code, desc, bal in bal_rows:
+        row_candidates = {str(pk), (code or "").strip().upper(), (desc or "").strip().upper()}
+        if candidates & row_candidates:
+            return float(bal) if bal is not None else 0.0
+    return None
+
+
+# ===============================
+# GET LEAVE TYPES (apply-leave dropdown / LOV)
+# ===============================
+
+def get_leave_types(card_no: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        types_meta = _load_leave_types_meta(cursor)
+
+        emp = _resolve_leave_employee(card_no)
+        bal_rows = _fetch_balance_rows(cursor, emp["card_no"]) if emp else []
+
+        results = []
+        for t in types_meta:
+            candidates = {c for c in (t["code"].upper(), t["desc"].upper(), str(t["pk"])) if c}
+            balance = _match_balance_row(bal_rows, candidates)
+            if balance is None:
+                balance = t["entitlement"]
+
+            results.append({
+                "leave_type": t["code"] or str(t["pk"]),
+                "leave_type_pk": t["pk"],
+                "leave_desc": t["desc"],
+                "balance": 999.0 if t["is_od"] else balance,
+                "is_od": t["is_od"],
+            })
+
+        return results
+    finally:
+        cursor.close()
+        conn.close()
+
+
+# ===============================
+# GET LEAVE BALANCES (dashboard / status display feed)
+# ===============================
+
 def get_leave_balances(card_no: str):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
-            SELECT leave_type, leave_desc, balance
-            FROM ALL_LEAVE_BAL_V
-            WHERE card_no = :card
-        """, {"card": card_no})
+        emp = _resolve_leave_employee(card_no)
+        resolved_card = emp["card_no"] if emp else _card_int_str(card_no)
 
-        rows = cursor.fetchall()
+        rows = _fetch_balance_rows(cursor, resolved_card)
 
         return [
             {
-                "leave_type": r[0],
-                "leave_desc": r[1],
-                "balance": r[2]
+                "leave_type": (code or "").strip() or str(pk),
+                "leave_type_pk": pk,
+                "leave_desc": (desc or "").strip(),
+                "balance": float(bal) if bal is not None else 0.0,
+                "is_od": _is_od_type(code, desc),
             }
-            for r in rows
+            for pk, code, desc, bal in rows
         ]
-
     finally:
         cursor.close()
         conn.close()
@@ -803,92 +989,140 @@ def get_leave_balances(card_no: str):
 # ===============================
 
 def apply_leave(card_no: str,
-                leave_type_id: int,
+                leave_type_raw: str,
                 from_date: str,
                 to_date: str,
                 reason: str,
-                compc: int,
-                brnch: int,
-                emp_name: str):
+                compc,
+                brnch,
+                emp_name: str,
+                half_day: bool = False,
+                half_day_session: str = None,
+                from_time: str = None,
+                to_time: str = None):
 
     conn = get_connection()
     cursor = conn.cursor()
-
-    d1 = datetime.strptime(from_date, "%Y-%m-%d")
-    d2 = datetime.strptime(to_date, "%Y-%m-%d")
-    leave_days = (d2 - d1).days + 1
-
-    # Validate leave balance before inserting
     try:
-        cursor.execute("""
-            SELECT balance FROM ALL_LEAVE_BAL_V
-            WHERE card_no = :card AND leave_type = :lt
-        """, {"card": card_no, "lt": leave_type_id})
-        bal_row = cursor.fetchone()
-        current_balance = float(bal_row[0]) if bal_row else 0
-        if current_balance <= 0:
-            cursor.close()
-            conn.close()
-            return {"status": "error", "message": "No remaining balance for this leave type."}
-        if leave_days > current_balance:
-            cursor.close()
-            conn.close()
-            return {
-                "status": "error",
-                "message": f"Insufficient balance. Available: {current_balance}, Requested: {leave_days}",
-            }
-    except Exception as e:
-        print(f"[LEAVE] Balance check warning: {e}")
-        # Continue if view doesn't exist — let insert proceed
+        # ---- Half-day handling ----
+        if half_day:
+            to_date = from_date
+            leave_days = 0.5
+            hrs = 4
+            if from_time and to_time:
+                reason = f"{reason} [Half Day: {from_time}-{to_time}]"
+            elif (half_day_session or "").strip().lower() == "second":
+                reason = f"{reason} [Second Half: 13:00-18:00]"
+            else:
+                reason = f"{reason} [First Half: 09:30-13:00]"
+        else:
+            d1 = datetime.strptime(from_date, "%Y-%m-%d")
+            d2 = datetime.strptime(to_date, "%Y-%m-%d")
+            leave_days = (d2 - d1).days + 1
+            hrs = 0
 
-    try:
-        cursor.execute("""
-            INSERT INTO LEAVE_APPLICATION (
-                LEAVE_DATE_FROM,
-                LEAVE_DATE_TO,
-                LEAVE_DAYS,
-                EMP_FK,
-                HRS,
-                LEAVE_TYPE_FK,
-                REASON,
-                APPROVAL_STATUS,
-                ENTRY_DATE,
-                ENTRY_BY,
-                COMPC,
-                BRNCH
+        # ---- Resolve leave type: code, PK, or description — never int()-cast ----
+        types_meta = _load_leave_types_meta(cursor)
+        resolved_type = _match_leave_type(leave_type_raw, types_meta)
+        if not resolved_type:
+            return {"status": "error", "message": f"Unknown leave type: {leave_type_raw}"}
+
+        try:
+            leave_type_fk = int(resolved_type["pk"])
+        except (TypeError, ValueError):
+            return {"status": "error", "message": f"Unknown leave type: {leave_type_raw}"}
+
+        is_od = resolved_type["is_od"]
+
+        # ---- Resolve employee (never guess if this fails) ----
+        emp = _resolve_leave_employee(card_no)
+        if not emp or emp.get("emp_pk") is None:
+            return {"status": "error", "message": f"Employee not found for card {card_no}"}
+
+        emp_fk = emp["emp_pk"]
+        resolved_name = emp_name or emp.get("emp_name") or ""
+        resolved_compc = compc if compc is not None else emp.get("compc")
+        resolved_brnch = brnch if brnch is not None else emp.get("brnch")
+
+        # ---- Balance validation (skipped entirely for OD types) ----
+        previous_balance = None
+        if not is_od:
+            bal_rows = _fetch_balance_rows(cursor, emp["card_no"])
+
+            candidates = {c for c in (
+                str(leave_type_raw or "").strip().upper(),
+                resolved_type["code"].upper(),
+                resolved_type["desc"].upper(),
+                str(resolved_type["pk"]),
+            ) if c}
+
+            current_balance = _match_balance_row(bal_rows, candidates)
+            if current_balance is None:
+                print(f"[LEAVE] No balance row matched for card={card_no}, type={leave_type_raw}; treating as 0")
+                current_balance = 0.0
+
+            previous_balance = current_balance
+
+            if current_balance <= 0:
+                return {"status": "error", "message": "No remaining balance for this leave type."}
+            if leave_days > current_balance:
+                return {
+                    "status": "error",
+                    "message": f"Insufficient balance. Available: {current_balance}, Requested: {leave_days}",
+                }
+
+        # ---- Insert into LEAVE_APPLICATION_APPLY ----
+        # LEAVE_APPLICATION_PK has no identity/default — the DB trigger INSERT_LEAVE_PK
+        # computes NVL(MAX(...),0)+1 on every insert, which races under concurrent
+        # submissions (ORA-00001 on PK_LEAVE) — retry a few times on that specific error.
+        year = int(from_date.split("-")[0])
+        insert_sql = """
+            INSERT INTO LEAVE_APPLICATION_APPLY (
+                EMP_FK, LEAVE_TYPE_FK, LEAVE_DATE_FROM, LEAVE_DATE_TO,
+                LEAVE_DAYS, HRS, REASON, APPROVAL_STATUS,
+                ENTRY_DATE, ENTRY_BY, PREVIOUS_BALANCE, YEAR,
+                COMPC, BRNCH, TR_TYPE, HOD1_MNO, HOD2_MNO, HOD3_MNO
+            ) VALUES (
+                :emp_fk, :leave_type_fk, TO_DATE(:from_date, 'YYYY-MM-DD'), TO_DATE(:to_date, 'YYYY-MM-DD'),
+                :leave_days, :hrs, :reason, 'Waiting',
+                TO_CHAR(SYSDATE, 'DD-MON-RR HH24:MI', 'NLS_DATE_LANGUAGE=AMERICAN'), :entry_by,
+                :previous_balance, :year, :compc, :brnch, 'Online',
+                :hod1, :hod2, :hod3
             )
-            VALUES (
-                TO_DATE(:from_date, 'YYYY-MM-DD'),
-                TO_DATE(:to_date, 'YYYY-MM-DD'),
-                :leave_days,
-                :emp_fk,
-                0,
-                :leave_type_id,
-                :reason,
-                'PENDING',
-                SYSDATE,
-                :emp_name,
-                :compc,
-                :brnch
-            )
-        """, {
+        """
+        binds = {
+            "emp_fk": emp_fk,
+            "leave_type_fk": leave_type_fk,
             "from_date": from_date,
             "to_date": to_date,
             "leave_days": leave_days,
-            "emp_fk": card_no,
-            "leave_type_id": leave_type_id,
+            "hrs": hrs,
             "reason": reason,
-            "emp_name": emp_name,
-            "compc": compc,
-            "brnch": brnch
-        })
+            "entry_by": resolved_name,
+            "previous_balance": previous_balance,
+            "year": year,
+            "compc": resolved_compc,
+            "brnch": resolved_brnch,
+            "hod1": str(emp["hod1"]) if emp.get("hod1") is not None else None,
+            "hod2": str(emp["hod2"]) if emp.get("hod2") is not None else None,
+            "hod3": str(emp["hod3"]) if emp.get("hod3") is not None else None,
+        }
 
-        conn.commit()
-        return {"status": "success"}
+        last_error = None
+        for attempt in range(3):
+            try:
+                cursor.execute(insert_sql, binds)
+                conn.commit()
+                return {"status": "success"}
+            except Exception as e:
+                conn.rollback()
+                last_error = e
+                if "ORA-00001" in str(e) and attempt < 2:
+                    time.sleep(0.2 * (attempt + 1))
+                    continue
+                break
 
-    except Exception as e:
-        conn.rollback()
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": str(last_error)}
 
     finally:
         cursor.close()
@@ -906,27 +1140,78 @@ def get_leave_status(card_no: str):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("""
+        types_meta = _load_leave_types_meta(cursor)
+        types_by_pk = {str(t["pk"]): t for t in types_meta}
+
+        emp = _resolve_leave_employee(card_no)
+
+        # Match broadly: EMP_FK has been populated inconsistently across entry
+        # paths, so try the raw card, its numeric base, the resolved EMPCODE, and
+        # the resolved EMP_PK — use whichever the column actually holds.
+        candidates = set()
+        card_int = _card_int_str(card_no)
+        if card_int and card_int.lstrip("-").isdigit():
+            candidates.add(card_int)
+        if card_no and card_no.strip():
+            candidates.add(card_no.strip())
+        if emp:
+            if emp.get("card_no"):
+                candidates.add(str(emp["card_no"]))
+            if emp.get("emp_pk") is not None:
+                candidates.add(str(emp["emp_pk"]))
+
+        try:
+            cursor.execute("""
+                SELECT EMPCODE FROM HR_EMP_MASTER
+                WHERE "ATDTCARD#" = :c OR EMPCODE = :c
+                FETCH FIRST 1 ROWS ONLY
+            """, {"c": card_no})
+            r = cursor.fetchone()
+            if r and r[0]:
+                candidates.add(str(r[0]).strip())
+        except Exception as e:
+            print(f"[LEAVE] HR_EMP_MASTER EMPCODE lookup failed for status, card={card_no}: {e}")
+
+        numeric_candidates = []
+        for c in candidates:
+            try:
+                numeric_candidates.append(float(c))
+            except (TypeError, ValueError):
+                continue
+
+        if not numeric_candidates:
+            return []
+
+        placeholders = ", ".join(f":c{i}" for i in range(len(numeric_candidates)))
+        binds = {f"c{i}": v for i, v in enumerate(numeric_candidates)}
+
+        cursor.execute(f"""
             SELECT
-                ENTRY_DATE      AS entry_date,
-                LEAVE_TYPE_FK   AS leave_type,
-                LEAVE_DATE_FROM AS from_date,
-                LEAVE_DATE_TO   AS to_date,
-                APPROVAL_STATUS AS status
-            FROM LEAVE_APPLICATION
-            WHERE EMP_FK = :card
-            ORDER BY ENTRY_DATE DESC
-        """, {"card": card_no})
+                LEAVE_APPLICATION_PK, ENTRY_DATE, LEAVE_TYPE_FK,
+                LEAVE_DATE_FROM, LEAVE_DATE_TO, LEAVE_DAYS,
+                REASON, APPROVAL_STATUS
+            FROM LEAVE_APPLICATION_APPLY
+            WHERE EMP_FK IN ({placeholders})
+            ORDER BY LEAVE_DATE_FROM DESC, LEAVE_APPLICATION_PK DESC
+        """, binds)
 
-        rows = cursor.fetchall()
-        columns = [col[0].lower() for col in cursor.description]
-        result = [dict(zip(columns, r)) for r in rows]
-
-        # Serialize Oracle date objects to ISO string
-        for row in result:
-            for key in ('from_date', 'to_date', 'entry_date'):
-                if row.get(key) and hasattr(row[key], 'strftime'):
-                    row[key] = row[key].strftime('%Y-%m-%d')
+        result = []
+        for pk, entry_date, leave_type_fk, dfrom, dto, days, reason_, status_ in cursor.fetchall():
+            t = types_by_pk.get(str(leave_type_fk)) if leave_type_fk is not None else None
+            leave_code = (t["code"] if t and t["code"] else None) or (
+                str(leave_type_fk) if leave_type_fk is not None else ""
+            )
+            result.append({
+                "leave_application_pk": pk,
+                "entry_date": entry_date,
+                "leave_type": str(leave_code),
+                "leave_desc": t["desc"] if t else None,
+                "from_date": dfrom.strftime("%Y-%m-%d") if hasattr(dfrom, "strftime") else dfrom,
+                "to_date": dto.strftime("%Y-%m-%d") if hasattr(dto, "strftime") else dto,
+                "leave_days": float(days) if days is not None else None,
+                "reason": reason_,
+                "status": status_,
+            })
 
         return result
 
