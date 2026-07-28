@@ -24,9 +24,9 @@ import {
 // GET /payroll/pay-register/periods
 export const payRegisterPeriods = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
+    const { admin_card_no, compc, rule_id } = res.locals.validated.query;
     const unitId = await resolveCompany(admin_card_no, compc);
-    res.json({ items: await getPayRegisterPeriods(unitId) });
+    res.json({ items: await getPayRegisterPeriods(unitId, rule_id) });
   } catch (err) {
     next(err);
   }

@@ -119,7 +119,7 @@ export const runSalaryProcess = (adminCardNo: string, compc?: string) =>
     `/payroll/salary/process?${ac(adminCardNo, compc)}`, { method: "POST" });
 
 // ── Pay Register report (from HR_PAY_REG_V) ──
-export interface PayRegisterPeriod { period: number; label: string }
+export interface PayRegisterPeriod { period: number; label: string; rule_id?: number | null }
 export interface PayRegisterEmployee {
   old_empcode: string; name: string;
   location: string; department: string; designation: string;
@@ -135,8 +135,10 @@ export interface PayRegister {
   allow_cols: string[]; ded_cols: string[];
   employees: PayRegisterEmployee[];
 }
-export const fetchPayRegisterPeriods = (adminCardNo: string, compc?: string) =>
-  apiRequest<{ items: PayRegisterPeriod[] }>(`/payroll/pay-register/periods?${ac(adminCardNo, compc)}`);
+export const fetchPayRegisterPeriods = (adminCardNo: string, compc?: string, ruleId?: number) =>
+  apiRequest<{ items: PayRegisterPeriod[] }>(
+    `/payroll/pay-register/periods?${ac(adminCardNo, compc)}${ruleId != null ? `&rule_id=${ruleId}` : ""}`
+  );
 export const fetchPayRegister = (
   adminCardNo: string, period: number, compc?: string,
   opts?: { location?: string; dept_no?: string; desg_cd?: string; empcode?: string },

@@ -50,9 +50,9 @@ export const loanRecoveriesSchema = z.object({
 const loanRecoveryBody = {
   doc: z.coerce.number().int(),
   recovery_type: z.string().optional().default("C"),
-  recovered_amt: z.number(),
+  recovered_amt: z.coerce.number(),
   remarks: z.string().optional(),
-  int_rate_rec: z.number().optional(),
+  int_rate_rec: z.coerce.number().optional(),
 };
 
 export const createLoanRecoverySchema = z.object({
@@ -75,8 +75,8 @@ export const monthlyAllowancesSchema = z.object({
 const monthlyAllowanceBody = {
   empcode: z.string().min(1, "empcode is required"),
   allowance_id: z.string().min(1, "allowance_id is required"),
-  amount: z.number(),
-  ot_hour: z.number().optional(),
+  amount: z.coerce.number(),
+  ot_hour: z.coerce.number().optional(),
   remarks: z.string().optional(),
 };
 
@@ -105,7 +105,7 @@ export const monthlyDeductionsSchema = z.object({
 const monthlyDeductionBody = {
   empcode: z.string().min(1, "empcode is required"),
   deduction_id: z.string().min(1, "deduction_id is required"),
-  amount: z.number(),
+  amount: z.coerce.number(),
   remarks: z.string().optional(),
 };
 
@@ -139,7 +139,7 @@ export const employeeAbsentDaysSchema = z.object({
 
 const absentDaysBody = {
   empcode: z.string().min(1, "empcode is required"),
-  absent_days: z.number(),
+  absent_days: z.coerce.number(),
 };
 
 export const createAbsentDaysSchema = z.object({

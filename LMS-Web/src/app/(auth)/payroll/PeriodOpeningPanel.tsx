@@ -1,14 +1,12 @@
-"use client";
-
 import { useState, useEffect, useCallback } from "react";
-import { Plus, RefreshCw, Calendar, Lock, Unlock, Loader2 } from "lucide-react";
+import { Plus, RefreshCw, Calendar, Lock, Unlock, Loader2, Edit2, Check, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import {
-  fetchFinancialYears, createFinancialYear, setFinancialYearStatus,
+  fetchFinancialYears, createFinancialYear, updateFinancialYear, setFinancialYearStatus,
   fetchPeriods, createPeriod, setPeriodStatus,
   type FinancialYear, type PayrollPeriod,
 } from "@/services/payrollService";
@@ -33,6 +31,8 @@ export function PeriodOpeningPanel({ adminCardNo }: { adminCardNo: string }) {
   const [pLoading, setPLoading] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ from_date: "", to_date: "", scode: "", descr: "", auto: true });
+  const [editingYearId, setEditingYearId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ from_date: "", to_date: "", scode: "", descr: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -75,6 +75,33 @@ export function PeriodOpeningPanel({ adminCardNo }: { adminCardNo: string }) {
       await loadYears();
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to save"); }
     finally { setSaving(false); }
+  }
+
+  function startEditYear(y: FinancialYear, e: React.MouseEvent) {
+    e.stopPropagation();
+    setEditingYearId(y.rule_id);
+    setEditForm({
+      from_date: y.from_date || "",
+      to_date: y.to_date || "",
+      scode: y.scode || "",
+      descr: y.descr || "",
+    });
+  }
+
+  async function saveEditYear(ruleId: number, e: React.MouseEvent) {
+    e.stopPropagation();
+    setError(null);
+    if (!editForm.from_date || !editForm.to_date) { setError("From and To dates are required"); return; }
+    setBusy(`edit${ruleId}`);
+    try {
+      await updateFinancialYear(adminCardNo, ruleId, editForm);
+      setEditingYearId(null);
+      await loadYears();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update financial year");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function toggleYear(y: FinancialYear) {
@@ -142,21 +169,57 @@ export function PeriodOpeningPanel({ adminCardNo }: { adminCardNo: string }) {
                 <tbody className="divide-y divide-gray-100">
                   {years.length === 0 ? (
                     <tr><td colSpan={6} className="py-6 text-center text-gray-400">No financial years yet.</td></tr>
-                  ) : years.map((y) => (
-                    <tr key={y.rule_id} className={`hover:bg-gray-50 cursor-pointer ${selectedYear === y.rule_id ? "bg-indigo-50/60" : ""}`} onClick={() => setSelectedYear(y.rule_id)}>
-                      <td className="px-3 py-2 font-medium text-gray-900">{y.scode || y.rule_id}</td>
-                      <td className="px-3 py-2 text-gray-600">{y.from_date}</td>
-                      <td className="px-3 py-2 text-gray-600">{y.to_date}</td>
-                      <td className="px-3 py-2 text-gray-500">{y.descr || "—"}</td>
-                      <td className="px-3 py-2"><StatusPill s={y.status} /></td>
-                      <td className="px-3 py-2 text-right">
-                        <button onClick={(e) => { e.stopPropagation(); toggleYear(y); }} disabled={busy === `y${y.rule_id}`}
-                          className="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1">
-                          {y.status === "O" ? <><Lock className="h-3.5 w-3.5" /> Close</> : <><Unlock className="h-3.5 w-3.5" /> Open</>}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  ) : years.map((y) => {
+                    const isEditing = editingYearId === y.rule_id;
+                    return (
+                      <tr key={y.rule_id} className={`hover:bg-gray-50 cursor-pointer ${selectedYear === y.rule_id ? "bg-indigo-50/60" : ""}`} onClick={() => setSelectedYear(y.rule_id)}>
+                        <td className="px-3 py-2 font-medium text-gray-900">
+                          {isEditing ? (
+                            <input value={editForm.scode} onChange={(e) => setEditForm((f) => ({ ...f, scode: e.target.value }))} onClick={(e) => e.stopPropagation()} className="w-24 px-2 py-1 border rounded text-xs" />
+                          ) : (y.scode || y.rule_id)}
+                        </td>
+                        <td className="px-3 py-2 text-gray-600">
+                          {isEditing ? (
+                            <input type="date" value={editForm.from_date} onChange={(e) => setEditForm((f) => ({ ...f, from_date: e.target.value }))} onClick={(e) => e.stopPropagation()} className="px-2 py-1 border rounded text-xs" />
+                          ) : y.from_date}
+                        </td>
+                        <td className="px-3 py-2 text-gray-600">
+                          {isEditing ? (
+                            <input type="date" value={editForm.to_date} onChange={(e) => setEditForm((f) => ({ ...f, to_date: e.target.value }))} onClick={(e) => e.stopPropagation()} className="px-2 py-1 border rounded text-xs" />
+                          ) : y.to_date}
+                        </td>
+                        <td className="px-3 py-2 text-gray-500">
+                          {isEditing ? (
+                            <input value={editForm.descr} onChange={(e) => setEditForm((f) => ({ ...f, descr: e.target.value }))} onClick={(e) => e.stopPropagation()} className="w-full px-2 py-1 border rounded text-xs" />
+                          ) : (y.descr || "—")}
+                        </td>
+                        <td className="px-3 py-2"><StatusPill s={y.status} /></td>
+                        <td className="px-3 py-2 text-right">
+                          <div className="inline-flex items-center gap-3">
+                            {isEditing ? (
+                              <>
+                                <button onClick={(e) => saveEditYear(y.rule_id, e)} disabled={busy === `edit${y.rule_id}`} className="text-xs text-emerald-600 hover:text-emerald-800 font-medium inline-flex items-center gap-1">
+                                  {busy === `edit${y.rule_id}` ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Save
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); setEditingYearId(null); }} className="text-xs text-gray-500 hover:text-gray-700 font-medium inline-flex items-center gap-1">
+                                  <X className="h-3.5 w-3.5" /> Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button onClick={(e) => startEditYear(y, e)} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1">
+                                  <Edit2 className="h-3.5 w-3.5" /> Edit
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); toggleYear(y); }} disabled={busy === `y${y.rule_id}`} className="text-xs text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center gap-1">
+                                  {y.status === "O" ? <><Lock className="h-3.5 w-3.5" /> Close</> : <><Unlock className="h-3.5 w-3.5" /> Open</>}
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -218,3 +281,4 @@ export function PeriodOpeningPanel({ adminCardNo }: { adminCardNo: string }) {
     </div>
   );
 }
+

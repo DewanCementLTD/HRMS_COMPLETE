@@ -1099,20 +1099,45 @@ export const runSalaryProcess = async (compc) => {
 // MODULE 5 — PAY REGISTER (read-only, from HR_PAY_REG_V)
 // ════════════════════════════════════════════════════════════════
 
-export const getPayRegisterPeriods = async (unitId) => {
+export const getPayRegisterPeriods = async (unitId, ruleId = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
+    const u = toInt(unitId);
+    const rId = toInt(ruleId);
+    const binds = { u };
+    let pRuleFilter = "";
+    if (rId !== null) {
+      pRuleFilter = " AND p.RULE_ID = :rId";
+      binds.rId = rId;
+    }
     const result = await connection.execute(
-      `SELECT period#, codename('PERIOD#', period#, unit_id) AS period_name
-       FROM HR_PAY_REG_V
-       WHERE unit_id = :u AND NVL(amont, 0) <> 0
-       GROUP BY period#, codename('PERIOD#', period#, unit_id)
-       ORDER BY period# DESC`,
-      { u: toInt(unitId) },
+      `SELECT period_no, MIN(period_frm) AS pfrm, MAX(period_name) AS pname, MAX(rule_id) AS rule_id
+       FROM (
+         SELECT p."PERIOD#" AS period_no, TO_CHAR(p.PERIOD_FRM, 'YYYY-MM-DD') AS period_frm,
+                p.SCODE AS period_name, p.RULE_ID AS rule_id
+         FROM HR_ATTND_PERIOD p
+         WHERE (:u IS NULL OR p.UNIT_ID = :u) ${pRuleFilter}
+         UNION ALL
+         SELECT v.period# AS period_no, NULL AS period_frm,
+                codename('PERIOD#', v.period#, v.unit_id) AS period_name,
+                NULL AS rule_id
+         FROM HR_PAY_REG_V v
+         WHERE (:u IS NULL OR v.unit_id = :u) AND NVL(v.amont, 0) <> 0
+       )
+       GROUP BY period_no
+       ORDER BY period_no DESC`,
+      binds,
       { outFormat: OUT_ARRAY }
     );
-    return (result.rows ?? []).map((r) => ({ period: Number(r[0]), label: trimOrEmpty(r[1]) }));
+    return (result.rows ?? []).map((r) => {
+      const pno = Number(r[0]);
+      const pfrm = r[1];
+      const pname = trimOrEmpty(r[2]);
+      const rid = r[3] != null ? Number(r[3]) : null;
+      const l = label(pfrm) || pname || `Period ${pno}`;
+      return { period: pno, label: l, rule_id: rid };
+    });
   } finally {
     await connection?.close();
   }
@@ -1205,6 +1230,18 @@ export const getPayRegister = async (unitId, period, location = null, deptNo = n
         e.deds[descr] = (e.deds[descr] || 0) + amt;
         if (!dedCols.has(descr)) dedCols.set(descr, tid);
       }
+    }
+
+    if (!periodName) {
+      try {
+        const pNameRes = await connection.execute(
+          `SELECT NVL(NULLIF(TRIM(codename('PERIOD#', :p, :u)), ''), NVL(TRIM(SCODE), TO_CHAR(PERIOD_FRM, 'MON - YYYY')))
+             FROM HR_ATTND_PERIOD WHERE "PERIOD#" = :p AND (:u IS NULL OR UNIT_ID = :u)`,
+          { p: toInt(period), u: toInt(unitId) },
+          { outFormat: OUT_ARRAY }
+        );
+        if (pNameRes.rows?.[0]?.[0]) periodName = String(pNameRes.rows[0][0]).trim();
+      } catch { /* ignore fallback error */ }
     }
 
     const orderCols = (m) =>

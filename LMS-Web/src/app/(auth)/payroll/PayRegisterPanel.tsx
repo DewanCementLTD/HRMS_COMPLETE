@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { RefreshCw, Printer, Search, Loader2, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -7,8 +5,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import {
-  fetchPayRegister, fetchPayRegisterPeriods,
-  type PayRegister, type PayRegisterEmployee, type PayRegisterPeriod,
+  fetchPayRegister, fetchPayRegisterPeriods, fetchFinancialYears,
+  type PayRegister, type PayRegisterEmployee, type PayRegisterPeriod, type FinancialYear,
 } from "@/services/payrollService";
 
 // Employee cells: blank when empty/zero (matches the ERP form). Totals: always numeric.
@@ -45,6 +43,8 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
   const compc = activeCompany || undefined;
   const companyName = user?.selected_company?.name || "";
 
+  const [years, setYears] = useState<FinancialYear[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [periods, setPeriods] = useState<PayRegisterPeriod[]>([]);
   const [period, setPeriod] = useState<number | null>(initialPeriod ?? null);
   const [data, setData] = useState<PayRegister | null>(null);
@@ -52,11 +52,25 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const loadPeriods = useCallback(async () => {
+  const loadYears = useCallback(async () => {
     try {
-      const r = await fetchPayRegisterPeriods(adminCardNo, compc);
-      setPeriods(r.items || []);
-      setPeriod((cur) => (cur != null && r.items?.some((p) => p.period === cur) ? cur : (r.items?.[0]?.period ?? null)));
+      const r = await fetchFinancialYears(adminCardNo, compc);
+      const items = r.items || [];
+      setYears(items);
+      if (items.length && selectedYear == null) {
+        setSelectedYear(items[0].rule_id);
+      }
+    } catch (e) {
+      console.error("Failed to load financial years", e);
+    }
+  }, [adminCardNo, compc, selectedYear]);
+
+  const loadPeriods = useCallback(async (ruleId: number | null) => {
+    try {
+      const r = await fetchPayRegisterPeriods(adminCardNo, compc, ruleId ?? undefined);
+      const items = r.items || [];
+      setPeriods(items);
+      setPeriod((cur) => (cur != null && items.some((p) => p.period === cur) ? cur : (items[0]?.period ?? null)));
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to load periods"); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCardNo, compc]);
@@ -69,7 +83,8 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCardNo, compc]);
 
-  useEffect(() => { loadPeriods(); }, [loadPeriods]);
+  useEffect(() => { loadYears(); }, [loadYears]);
+  useEffect(() => { loadPeriods(selectedYear); }, [selectedYear, loadPeriods]);
   useEffect(() => { if (period != null) load(period); }, [period, load]);
 
   const allow = data?.allow_cols ?? [];
@@ -130,14 +145,37 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
           <FileSpreadsheet className="h-4 w-4 text-indigo-600" /> Pay Register
         </h3>
-        <select
-          value={period ?? ""}
-          onChange={(e) => setPeriod(Number(e.target.value))}
-          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-        >
-          {periods.length === 0 && <option value="">No periods</option>}
-          {periods.map((p) => <option key={p.period} value={p.period}>{p.label}</option>)}
-        </select>
+
+        {/* Financial Year Selector */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold text-gray-500">Financial Year:</span>
+          <select
+            value={selectedYear ?? ""}
+            onChange={(e) => setSelectedYear(e.target.value ? Number(e.target.value) : null)}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white font-medium"
+          >
+            {years.length === 0 && <option value="">All Years</option>}
+            {years.map((y) => (
+              <option key={y.rule_id} value={y.rule_id}>
+                {y.from_date && y.to_date ? `${y.from_date.slice(0, 4)} - ${y.to_date.slice(0, 4)}${y.scode ? ` (${y.scode})` : ""}` : (y.scode || `FY ${y.rule_id}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Monthly Period Selector */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-semibold text-gray-500">Period:</span>
+          <select
+            value={period ?? ""}
+            onChange={(e) => setPeriod(Number(e.target.value))}
+            className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white font-medium"
+          >
+            {periods.length === 0 && <option value="">No periods</option>}
+            {periods.map((p) => <option key={p.period} value={p.period}>{p.label}</option>)}
+          </select>
+        </div>
+
         <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 w-56">
           <Search className="h-4 w-4 text-gray-400" />
           <input className="bg-transparent text-sm outline-none w-full" placeholder="Filter name / code / dept…" value={query} onChange={(e) => setQuery(e.target.value)} />

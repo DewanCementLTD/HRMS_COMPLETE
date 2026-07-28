@@ -18,7 +18,11 @@ const adminQuery = { admin_card_no: z.string().min(1, "admin_card_no is required
 // ── Pay Register ──
 
 export const payRegisterPeriodsSchema = z.object({
-  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  query: z.object({
+    ...adminQuery,
+    compc: z.string().optional(),
+    rule_id: z.coerce.number().int().optional(),
+  }),
 });
 
 export const payRegisterSchema = z.object({
@@ -44,10 +48,10 @@ const financialYearBody = {
   to_date: z.string().min(1, "to_date is required"),
   scode: z.string().optional(),
   descr: z.string().optional(),
-  rate: z.number().optional(),
-  intrst: z.number().optional(),
-  filer: z.number().optional(),
-  nonfiler: z.number().optional(),
+  rate: z.coerce.number().optional(),
+  intrst: z.coerce.number().optional(),
+  filer: z.coerce.number().optional(),
+  nonfiler: z.coerce.number().optional(),
   auto_periods: z.boolean().optional().default(true),
 };
 
@@ -130,13 +134,13 @@ export const listTaxDetailsSchema = z.object({
 });
 
 const taxDetailBody = {
-  slab_from: z.number().optional(),
-  slab_to: z.number().optional(),
-  slab_rate: z.number().optional(),
+  slab_from: z.coerce.number().optional(),
+  slab_to: z.coerce.number().optional(),
+  slab_rate: z.coerce.number().optional(),
   date_from: z.string().optional(),
   date_to: z.string().optional(),
-  slab_ded: z.number().optional(),
-  fixed_tax: z.number().optional(),
+  slab_ded: z.coerce.number().optional(),
+  fixed_tax: z.coerce.number().optional(),
 };
 
 export const addTaxDetailSchema = z.object({
@@ -174,12 +178,12 @@ const loanBody = {
   empcode: z.string().optional(),
   loan_cd: z.string().optional(),
   loan_date: z.string().optional(),
-  loan_amt: z.number().optional(),
-  instalment_amt: z.number().optional(),
+  loan_amt: z.coerce.number().optional(),
+  instalment_amt: z.coerce.number().optional(),
   nof_instalment: z.coerce.number().int().optional(),
   start_dt: z.string().optional(),
   charge_int: z.string().optional(),
-  int_rate: z.number().optional(),
+  int_rate: z.coerce.number().optional(),
   chq_no: z.string().optional(),
   chq_dt: z.string().optional(),
   remarks: z.string().optional(),
