@@ -1,0 +1,133 @@
+@localUrl=http://localhost:8000
+@liveUrl=https://hrms.sysnovix.com/api
+
+@admin_card=100001.1
+@compc=1
+@brnch=1
+@empcode=100001
+
+### ============================================================================
+### PAYROLL ENTRY MODULE (/payroll-entry/*) — 18 endpoints
+### Manual verification checklist. Flip #* [ ] to #* [x] once confirmed against
+### a running Node server. Every mutating endpoint here is keyed off the
+### company's currently OPEN period — open one via payroll.http #9 first.
+###
+### NOTE: 5 DELETEs below (loan-recoveries, allowances, deductions x2, absent-days)
+### take their target key as QUERY params, not a :id path param — this is a
+### deliberate 1:1-parity deviation from every other DELETE route in this repo,
+### not an oversight. Do not "fix" them to use a path param.
+### ============================================================================
+
+### --- Open periods / LOVs ---
+
+### 1. List open periods  #* [ ]
+# 🔍 CHECK: {items:[{period, rule_id, period_frm, period_to, p_days, label}]}
+GET {{localUrl}}/payroll-entry/open-periods?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 2. Recovery types (static LOV, no DB call)  #* [ ]
+# 🔍 CHECK: {items:[{value:"C",label:"Cash Recovery"},{value:"S",...},{value:"A",...}]}
+GET {{localUrl}}/payroll-entry/recovery-types?admin_card_no={{admin_card}}
+
+### 3. Allowance types (WHERE INCL_GROSS='N')  #* [ ]
+GET {{localUrl}}/payroll-entry/allowance-types?admin_card_no={{admin_card}}
+
+### 4. Deduction types  #* [ ]
+# 🔍 CHECK: KNOWN BUG (preserved faithfully): compc is accepted but IGNORED — this
+#   list is the same regardless of the compc value passed. Do not "fix" this.
+GET {{localUrl}}/payroll-entry/deduction-types?admin_card_no={{admin_card}}&compc={{compc}}
+
+### --- Loan recovery ---
+
+### 5. List recoverable loans  #* [ ]
+# 🔍 CHECK: brnch filtering happens in JS post-fetch, not SQL — outstanding =
+#   loan_amt - loan_recover - sum(manual recoveries)
+GET {{localUrl}}/payroll-entry/loans?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}
+
+### 6. List loan recoveries  #* [ ]
+# 🔍 CHECK: each item has "rowid" (Oracle ROWID pseudo-column as a string)
+GET {{localUrl}}/payroll-entry/loan-recoveries?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}
+
+### 7. Record a loan recovery  #* [ ]
+# 🔍 CHECK DB: new HR_LOAN_RECOVERY row. Does NOT update HR_LOAN_MST.LOAN_RECOVER —
+#   balance is computed dynamically by summing the ledger.
+# 🔍 CHECK: amount exceeding outstanding balance must return 400 with a message like
+#   "Recovery (X) exceeds the outstanding balance (Y)"
+# 🔍 CHECK: no open period must return 400 {detail:"No open period for this company. Open a period first."}
+@recoveryDoc=1
+POST {{localUrl}}/payroll-entry/loan-recoveries?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "doc": {{recoveryDoc}},
+  "recovery_type": "C",
+  "recovered_amt": 1000,
+  "remarks": "Test recovery"
+}
+
+### 8. Delete a loan recovery — QUERY PARAM ONLY, no path segment  #* [ ]
+@recoveryRowid=AAAbcdAAAAAAAAAAAA
+DELETE {{localUrl}}/payroll-entry/loan-recoveries?admin_card_no={{admin_card}}&compc={{compc}}&rowid={{recoveryRowid}}
+
+### --- Monthly allowances ---
+
+### 9. List monthly allowances (current open period)  #* [ ]
+GET {{localUrl}}/payroll-entry/allowances?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}&empcode={{empcode}}
+
+### 10. Upsert monthly allowance  #* [ ]
+# 🔍 CHECK DB: MERGE INTO HR_MONTHLY_ALLOW keyed on (OLD_EMPCODE, ALLOWANCE_ID, PERIOD#, UNIT_ID, RULE_ID)
+@allowanceId=1
+POST {{localUrl}}/payroll-entry/allowances?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "empcode": "{{empcode}}",
+  "allowance_id": "{{allowanceId}}",
+  "amount": 2000,
+  "ot_hour": 0,
+  "remarks": "Test allowance"
+}
+
+### 11. Delete monthly allowance — QUERY PARAM ONLY, no path segment  #* [ ]
+DELETE {{localUrl}}/payroll-entry/allowances?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}&allowance_id={{allowanceId}}
+
+### --- Monthly deductions ---
+
+### 12. List monthly deductions (current open period)  #* [ ]
+GET {{localUrl}}/payroll-entry/deductions?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}&empcode={{empcode}}
+
+### 13. Upsert monthly deduction  #* [ ]
+# 🔍 CHECK DB: MERGE INTO HR_MONTHLY_DED keyed on (OLD_EMPCODE, DEDUCTION_ID, PERIOD#, UNIT_ID)
+#   — note NO RULE_ID in this key, unlike monthly allowances (#10).
+@deductionId=1
+POST {{localUrl}}/payroll-entry/deductions?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "empcode": "{{empcode}}",
+  "deduction_id": "{{deductionId}}",
+  "amount": 500,
+  "remarks": "Test deduction"
+}
+
+### 14. Delete monthly deduction — QUERY PARAM ONLY, no path segment  #* [ ]
+DELETE {{localUrl}}/payroll-entry/deductions?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}&deduction_id={{deductionId}}
+
+### --- Absent days ---
+
+### 15. List absent days (current open period)  #* [ ]
+GET {{localUrl}}/payroll-entry/absent-days?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}&empcode={{empcode}}
+
+### 16. Get one employee's absent days  #* [ ]
+# 🔍 CHECK: raw {absent_days, period} — NOT wrapped in {items}. No open period returns
+#   {absent_days:0, period:null} with 200, NOT an error (GET convenience).
+GET {{localUrl}}/payroll-entry/absent-days/employee?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}
+
+### 17. Set absent days  #* [ ]
+# 🔍 CHECK DB: MERGE INTO HR_ABSENT_DAYS keyed on (OLD_EMPCODE, UNIT_ID, PERIOD#)
+POST {{localUrl}}/payroll-entry/absent-days?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "empcode": "{{empcode}}", "absent_days": 2 }
+
+### 18. Delete absent days — QUERY PARAM ONLY, no path segment  #* [ ]
+DELETE {{localUrl}}/payroll-entry/absent-days?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}

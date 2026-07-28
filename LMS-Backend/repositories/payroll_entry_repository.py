@@ -410,10 +410,15 @@ def delete_monthly_allowance(compc, empcode, allowance_id, period=None) -> dict:
 def list_deduction_types(compc=None) -> list:
     conn = get_connection(); cur = conn.cursor()
     try:
-        cur.execute("""
-            SELECT DED_CD, DED_DESC FROM HR_DEDUCTION
+        params = {}
+        where = ""
+        c = _int(compc)
+        if c is not None:
+            where = "WHERE UNIT_ID = :u"; params["u"] = c
+        cur.execute(f"""
+            SELECT DED_CD, DED_DESC FROM HR_DEDUCTION {where}
              ORDER BY LPAD(DED_CD, 5)
-        """, )
+        """, params)
         return [{"deduction_id": (r[0] or "").strip(), "deduction_desc": (r[1] or "").strip()}
                 for r in cur.fetchall()]
     finally:

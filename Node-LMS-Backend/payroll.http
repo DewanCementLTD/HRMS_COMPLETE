@@ -1,0 +1,193 @@
+@localUrl=http://localhost:8000
+@liveUrl=https://hrms.sysnovix.com/api
+
+@admin_card=100001.1
+@compc=1
+@brnch=1
+
+### ============================================================================
+### PAYROLL MODULE (/payroll/*) — 28 endpoints
+### Manual verification checklist. Flip #* [ ] to #* [x] once confirmed against
+### a running Node server. Response shapes noted below deliberately deviate from
+### the usual {items:[...]} envelope in a few places — see comments; this is
+### 1:1 parity with FastAPI, not an inconsistency to "fix".
+### ============================================================================
+
+### 1. Pay Register — periods  #* [ ]
+# 🔍 CHECK: {items:[{period, label}]}
+GET {{localUrl}}/payroll/pay-register/periods?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 2. Pay Register — pivoted report  #* [ ]
+# 🔍 CHECK: raw dict (unit_name, period, period_name, allow_cols, ded_cols, employees) — NOT wrapped in {items}
+@payRegisterPeriod=1
+GET {{localUrl}}/payroll/pay-register?admin_card_no={{admin_card}}&compc={{compc}}&period={{payRegisterPeriod}}
+
+### --- Period Opening ---
+
+### 3. List financial years  #* [ ]
+# 🔍 CHECK: {items:[{rule_id, from_date, to_date, status, scode, descr, rate, intrst, filer, nonfiler, unit_id}]}
+GET {{localUrl}}/payroll/financial-years?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 4. Create financial year (auto-generates periods)  #* [ ]
+# 🔍 CHECK DB: new row in HR_FINANCIAL_YEAR; if auto_periods=true, one HR_ATTND_PERIOD row per
+#   calendar month in range, STATUS='C' (closed).
+# 🔍 CHECK: response {status:"success", rule_id, periods_created}
+POST {{localUrl}}/payroll/financial-years?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "from_date": "2026-01-01",
+  "to_date": "2026-03-31",
+  "scode": "TESTFY",
+  "descr": "Test Financial Year",
+  "auto_periods": true
+}
+
+### 5. Update financial year (dead in LMS-Web UI — still must be 1:1 ported)  #* [ ]
+# 🔍 CHECK DB: HR_FINANCIAL_YEAR row updated for the fields sent.
+@financialYearRuleId=1
+PUT {{localUrl}}/payroll/financial-years/{{financialYearRuleId}}?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{
+  "from_date": "2026-01-01",
+  "to_date": "2026-03-31",
+  "descr": "Updated description"
+}
+
+### 6. Set financial year status  #* [ ]
+# 🔍 CHECK: response {status:"success", new_status: "O"|"C"}
+PATCH {{localUrl}}/payroll/financial-years/{{financialYearRuleId}}/status?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "status": "O" }
+
+### 7. List periods  #* [ ]
+# 🔍 CHECK: {items:[{period, rule_id, period_frm, period_to, status, block_flag, p_days, scode, unit_id}]}
+GET {{localUrl}}/payroll/periods?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 8. Create period (dead in LMS-Web UI — still must be 1:1 ported)  #* [ ]
+# 🔍 CHECK DB: new HR_ATTND_PERIOD row, STATUS='O' (open), BLOCK_FLAG='N'.
+POST {{localUrl}}/payroll/periods?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "period_frm": "2026-04-01",
+  "period_to": "2026-04-30"
+}
+
+### 9. Set period status (open/close/lock) — GATES payroll-entry writes  #* [ ]
+# 🔍 CHECK: response {status:"success"}; HR_ATTND_PERIOD.STATUS/BLOCK_FLAG updated.
+@openPeriod=1
+PATCH {{localUrl}}/payroll/periods/{{openPeriod}}/status?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "status": "O", "block": "N" }
+
+### --- Tax Slabs (global — no company scoping) ---
+
+### 10. List tax masters  #* [ ]
+# 🔍 CHECK: {items:[{tax_id, tax_desc, fyear, status, slabs}]}
+GET {{localUrl}}/payroll/tax-masters?admin_card_no={{admin_card}}
+
+### 11. Create tax master  #* [ ]
+# 🔍 CHECK: empty tax_desc ("" or whitespace) must return 400 {detail:"Description is required"}
+#   (a plain 400 raised in the FastAPI router body, not a 422 — Zod must NOT reject it first)
+POST {{localUrl}}/payroll/tax-masters?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "tax_desc": "Test Tax Slab", "fyear": "2026" }
+
+### 12. Set tax master status  #* [ ]
+@taxId=1
+PATCH {{localUrl}}/payroll/tax-masters/{{taxId}}/status?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "status": "O" }
+
+### 13. Delete tax master (also deletes HR_TAX_DTL children, same transaction)  #* [ ]
+DELETE {{localUrl}}/payroll/tax-masters/{{taxId}}?admin_card_no={{admin_card}}
+
+### 14. List tax details (slab brackets)  #* [ ]
+# 🔍 CHECK: {items:[{tax_id, srno, slab_from, slab_to, slab_rate, date_from, date_to, slab_ded, fixed_tax}]}
+GET {{localUrl}}/payroll/tax-masters/{{taxId}}/details?admin_card_no={{admin_card}}
+
+### 15. Add tax detail (slab bracket)  #* [ ]
+# 🔍 CHECK DB: SRNO is MAX+1 GLOBAL across ALL tax masters, not scoped per tax_id — confirm this.
+POST {{localUrl}}/payroll/tax-masters/{{taxId}}/details?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "slab_from": 0, "slab_to": 600000, "slab_rate": 0 }
+
+### 16. Delete tax detail  #* [ ]
+@taxSrno=1
+DELETE {{localUrl}}/payroll/tax-masters/{{taxId}}/details/{{taxSrno}}?admin_card_no={{admin_card}}
+
+### --- Loans ---
+
+### 17. List loan types  #* [ ]
+GET {{localUrl}}/payroll/loan-types?admin_card_no={{admin_card}}
+
+### 18. Create loan type  #* [ ]
+# 🔍 CHECK: empty loan_desc must return 400 {detail:"Description is required"} (same as #11)
+POST {{localUrl}}/payroll/loan-types?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "loan_desc": "Test Loan Type" }
+
+### 19. Delete loan type  #* [ ]
+@loanCd=1
+DELETE {{localUrl}}/payroll/loan-types/{{loanCd}}?admin_card_no={{admin_card}}
+
+### 20. List loans  #* [ ]
+# 🔍 CHECK: each row has computed balance = loan_amt - loan_recover
+GET {{localUrl}}/payroll/loans?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 21. Create loan  #* [ ]
+# 🔍 CHECK: missing empcode must return 400 {detail:"Employee is required"}
+@loanEmpcode=100001
+POST {{localUrl}}/payroll/loans?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{
+  "empcode": "{{loanEmpcode}}",
+  "loan_cd": "1",
+  "loan_amt": 50000,
+  "instalment_amt": 5000,
+  "nof_instalment": 10
+}
+
+### 22. Update loan (does NOT touch LOAN_RECOVER)  #* [ ]
+@loanDoc=1
+PUT {{localUrl}}/payroll/loans/{{loanDoc}}?admin_card_no={{admin_card}}
+Content-Type: application/json
+
+{ "remarks": "Updated remarks" }
+
+### 23. Delete loan  #* [ ]
+DELETE {{localUrl}}/payroll/loans/{{loanDoc}}?admin_card_no={{admin_card}}&compc={{compc}}
+
+### --- Salary / Payslips (read-only) ---
+
+### 24. List salary periods  #* [ ]
+GET {{localUrl}}/payroll/salary/periods?admin_card_no={{admin_card}}&compc={{compc}}&brnch={{brnch}}
+
+### 25. Salary sheet (processed salaries for a period)  #* [ ]
+GET {{localUrl}}/payroll/salary/sheet?admin_card_no={{admin_card}}&compc={{compc}}&period={{payRegisterPeriod}}
+
+### 26. Salary payslip for one employee  #* [ ]
+# 🔍 CHECK: raw payslip dict {header, earnings, deductions, master, totals, loans} — NOT wrapped
+# 🔍 CHECK: no processed salary for the employee/period must return 404 {detail:"No processed salary for this employee/period"}
+GET {{localUrl}}/payroll/salary/payslip?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{loanEmpcode}}&period={{payRegisterPeriod}}
+
+### 27. Get open period (what "Run Salary Process" will act on)  #* [ ]
+# 🔍 CHECK: {open_period: {...} | null}
+GET {{localUrl}}/payroll/salary/open-period?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 28. Run salary process — HIGHEST RISK: calls Oracle proc HR_SALARY_PROCES_PRO  #* [ ]
+# ⚠️ Only run against a period/company that is safe to reprocess — this rebuilds
+#   HR_SALARY_PROCESS / HR_SALARY_PROCESS_MASTER for the company's open period.
+# 🔍 CHECK: response {status:"success", period, label, processed}
+# 🔍 CHECK DB: HR_SALARY_PROCESS_MASTER row count for the period matches `processed`.
+# 🔍 CHECK: no open period must return 400 {detail:"No open period for this company. Open a period first."}
+POST {{localUrl}}/payroll/salary/process?admin_card_no={{admin_card}}&compc={{compc}}

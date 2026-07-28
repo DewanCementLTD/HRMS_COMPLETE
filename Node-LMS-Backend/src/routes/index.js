@@ -11,6 +11,8 @@ import referenceRoutes from './reference.routes.js';
 import locationTrackingRoutes from './locationTracking.routes.js';
 import faceRoutes from './face.routes.js';
 import recruitmentRoutes from './recruitment.routes.js';
+import payrollRoutes from './payroll.routes.js';
+import payrollEntryRoutes from './payrollEntry.routes.js';
 
 const router = Router();
 
@@ -43,5 +45,7 @@ router.use('/reference', reqLogger('reference'), referenceRoutes);
 router.use('/location-tracking', reqLogger('location-tracking'), locationTrackingRoutes);
 router.use('/face', reqLogger('face'), faceRoutes);
 router.use('/recruitment', reqLogger('recruitment'), recruitmentRoutes);
+router.use('/payroll', reqLogger('payroll'), payrollRoutes);
+router.use('/payroll-entry', reqLogger('payroll-entry'), payrollEntryRoutes);
 
 export default router;
