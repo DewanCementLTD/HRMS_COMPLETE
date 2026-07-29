@@ -22,6 +22,7 @@ import {
   ChevronDown,
   IdCard,
   Wallet,
+  FileText,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
@@ -43,6 +44,7 @@ const hrNavItems = [
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
   { href: "/payroll", label: "Payroll", icon: Wallet },
   { href: "/id-cards", label: "ID Cards", icon: IdCard },
+  { href: "/reports", label: "Reports", icon: FileText },
 ];
 
 function SwitcherDropdown<T extends { code: string; name: string }>({

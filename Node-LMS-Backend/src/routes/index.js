@@ -13,6 +13,7 @@ import faceRoutes from './face.routes.js';
 import recruitmentRoutes from './recruitment.routes.js';
 import payrollRoutes from './payroll.routes.js';
 import payrollEntryRoutes from './payrollEntry.routes.js';
+import reportsRoutes from './reports.routes.js';
 
 const router = Router();
 
@@ -47,5 +48,6 @@ router.use('/face', reqLogger('face'), faceRoutes);
 router.use('/recruitment', reqLogger('recruitment'), recruitmentRoutes);
 router.use('/payroll', reqLogger('payroll'), payrollRoutes);
 router.use('/payroll-entry', reqLogger('payroll-entry'), payrollEntryRoutes);
+router.use('/reports', reqLogger('reports'), reportsRoutes);
 
 export default router;
