@@ -13,6 +13,7 @@ import {
   executeWithEmpFilter,
   empFilterAttempts,
   rosterCardFilter,
+  leaveCardFilter,
   empDirectFilter,
 } from "../utils/hrmsFilters.js";
 import { cleanHHMM, rosterStatus } from "../utils/rosterStatus.js";
@@ -681,9 +682,13 @@ export const getHrDashboardStats = async (qdate = null, compc = null, brnch = nu
       }
     } catch (e) { logger.info(`[HR_DASHBOARD] Anniversaries failed: ${e.message}`); }
 
-    // Upcoming leave requests (next 30 days)
+    // Upcoming leave requests (next 30 days) — union of the legacy
+    // LEAVE_APPLICATION (bulk-imported) and LEAVE_APPLICATION_APPLY (online
+    // self-service submissions) tables, restricted to the selected company/branch.
     const upcomingLeaves = [];
     try {
+      const upParams = {};
+      const upFilter = leaveCardFilter(compc, brnch, upParams, "la.EMP_FK", "ul");
       const r = await connection.execute(`
         SELECT h.NAME,
             la.LEAVE_DATE_FROM, la.LEAVE_DATE_TO,
@@ -691,14 +696,20 @@ export const getHrDashboardStats = async (qdate = null, compc = null, brnch = nu
             NVL(la.APPROVAL_STATUS, 'PENDING') AS status,
             la.LEAVE_DAYS,
             NVL(dep.DEPT_NAME, 'N/A') AS dept
-        FROM LEAVE_APPLICATION la
+        FROM (
+            SELECT LEAVE_DATE_FROM, LEAVE_DATE_TO, LEAVE_TYPE_FK, APPROVAL_STATUS, LEAVE_DAYS, EMP_FK
+            FROM LEAVE_APPLICATION
+            UNION ALL
+            SELECT LEAVE_DATE_FROM, LEAVE_DATE_TO, LEAVE_TYPE_FK, APPROVAL_STATUS, LEAVE_DAYS, EMP_FK
+            FROM LEAVE_APPLICATION_APPLY
+        ) la
         LEFT JOIN EMPLOYEE e ON TO_CHAR(e.CARD_NO) = TO_CHAR(la.EMP_FK)
         LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
         LEFT JOIN HR_DEPT dep ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
         WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE)
-          AND la.LEAVE_DATE_FROM <= TRUNC(SYSDATE) + 30
+          AND la.LEAVE_DATE_FROM <= TRUNC(SYSDATE) + 30${upFilter}
         ORDER BY la.LEAVE_DATE_FROM
-        FETCH FIRST 10 ROWS ONLY`, {}, { outFormat: OUT_ARRAY });
+        FETCH FIRST 10 ROWS ONLY`, upParams, { outFormat: OUT_ARRAY });
       for (const row of r.rows ?? []) {
         upcomingLeaves.push({
           name: row[0] || "Unknown",
@@ -732,25 +743,37 @@ export const getHrDashboardStats = async (qdate = null, compc = null, brnch = nu
       }
     } catch (e) { logger.info(`[HR_DASHBOARD] Shift-wise failed: ${e.message}`); }
 
-    // Top absence/leave reasons this year
+    // Top absence/leave reasons this year — same union + company/branch scoping
     const topReasons = [];
     try {
+      const trParams = {};
+      const trFilter = leaveCardFilter(compc, brnch, trParams, "la.EMP_FK", "tr");
       const r = await connection.execute(`
         SELECT NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK)) AS reason,
             COUNT(*) AS cnt
-        FROM LEAVE_APPLICATION la
+        FROM (
+            SELECT LEAVE_DATE_FROM, LEAVE_TYPE_FK, EMP_FK FROM LEAVE_APPLICATION
+            UNION ALL
+            SELECT LEAVE_DATE_FROM, LEAVE_TYPE_FK, EMP_FK FROM LEAVE_APPLICATION_APPLY
+        ) la
         LEFT JOIN LEAVE_TYPES lt ON lt.LEAVE_TYPE_PK = la.LEAVE_TYPE_FK
-        WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE, 'YYYY')
+        WHERE la.LEAVE_DATE_FROM >= TRUNC(SYSDATE, 'YYYY')${trFilter}
         GROUP BY NVL(lt.LEAVE_DESC, 'Type ' || TO_CHAR(la.LEAVE_TYPE_FK))
         ORDER BY cnt DESC
-        FETCH FIRST 5 ROWS ONLY`, {}, { outFormat: OUT_ARRAY });
+        FETCH FIRST 5 ROWS ONLY`, trParams, { outFormat: OUT_ARRAY });
       for (const row of r.rows ?? []) topReasons.push({ reason: row[0] || "Other", count: parseInt(row[1] || 0, 10) });
     } catch (e) { logger.info(`[HR_DASHBOARD] Top reasons failed: ${e.message}`); }
 
-    // Inactive count for turnover computation
+    // Inactive count for turnover computation — scoped like totalEmployees so
+    // the ratio isn't skewed by mixing a company-filtered numerator with an
+    // org-wide denominator.
     let inactiveCount = 0;
     try {
-      const r = await connection.execute(`SELECT COUNT(*) FROM HR_EMP_MASTER WHERE STATUS IN ('I', 'D')`, {}, { outFormat: OUT_ARRAY });
+      const r = await executeWithEmpFilter(
+        connection,
+        "SELECT COUNT(*) FROM HR_EMP_MASTER h WHERE h.STATUS IN ('I', 'D'){filter}",
+        compc, brnch, { options: { outFormat: OUT_ARRAY } }
+      );
       inactiveCount = parseInt(r.rows?.[0]?.[0] || 0, 10);
     } catch { /* ignore */ }
 
@@ -827,11 +850,21 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
     } catch (e) { logger.info(`[HR_ANALYTICS] KPI query failed: ${e.message}`); }
 
     try {
+      // NOTE: this table has no STATUS column — the approval column is
+      // APPROVAL_STATUS. Querying STATUS threw ORA-00904 on every call and was
+      // silently swallowed, so this KPI was permanently stuck at 0.
+      const unapprParams = {};
+      const unapprFilter = leaveCardFilter(compc, brnch, unapprParams, "la.EMP_FK", "ua");
       const r = await connection.execute(`
-        SELECT COUNT(*) FROM LEAVE_APPLICATION
-        WHERE STATUS IS NULL OR UPPER(STATUS) IN ('PENDING', 'P', '0')`, {}, { outFormat: OUT_ARRAY });
+        SELECT COUNT(*) FROM (
+            SELECT EMP_FK, APPROVAL_STATUS FROM LEAVE_APPLICATION
+            UNION ALL
+            SELECT EMP_FK, APPROVAL_STATUS FROM LEAVE_APPLICATION_APPLY
+        ) la
+        WHERE (la.APPROVAL_STATUS IS NULL OR UPPER(la.APPROVAL_STATUS) IN ('PENDING', 'WAITING', 'P', '0'))${unapprFilter}`,
+        unapprParams, { outFormat: OUT_ARRAY });
       unapprovedLeaves = parseInt(r.rows?.[0]?.[0] || 0, 10);
-    } catch { /* ignore */ }
+    } catch (e) { logger.info(`[HR_ANALYTICS] Unapproved leaves query failed: ${e.message}`); }
 
     try {
       const rt = await connection.execute(

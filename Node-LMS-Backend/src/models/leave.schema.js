@@ -17,9 +17,13 @@ export const applyLeaveSchema = z.object({
     // FastAPI declares `reason: str` — required, but an empty string is valid.
     reason: z.string(),
     half_day: pyBool().optional(),
-    // FastAPI declares plain `compc: int` / `brnch: int`, with no lower bound.
-    compc: pyInt(),
-    brnch: pyInt(),
+    half_day_session: z.string().optional(), // "first" | "second"
+    from_time: z.string().optional(),        // explicit HH:MM for half-day
+    to_time: z.string().optional(),
+    // compc/brnch are optional — filled server-side from the employee's row
+    // when omitted (mirrors FastAPI's LeaveApplyRequest).
+    compc: pyInt().optional(),
+    brnch: pyInt().optional(),
     emp_name: z.string().optional().default(''),
   }),
 });

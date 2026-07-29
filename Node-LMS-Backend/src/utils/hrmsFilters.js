@@ -134,6 +134,40 @@ export const rosterCardFilter = (compc, brnch, paramsOut, prefix = "rc") => {
   );
 };
 
+/**
+ * Build a ' AND <empFkExpr> IN (subquery)' fragment restricting
+ * LEAVE_APPLICATION / LEAVE_APPLICATION_APPLY rows to employees in the given
+ * company/branch. Unlike DUTY_ROSTER/ATTENDANCE_RECORDS, these tables' EMP_FK
+ * always stores the employee's CARD_NO directly (no truncated-integer
+ * variant), so a single TO_CHAR(EMPLOYEE.CARD_NO) match is enough. Returns ''
+ * when unfiltered.
+ */
+export const leaveCardFilter = (compc, brnch, paramsOut, empFkExpr, prefix = "lc") => {
+  const compList = normNums(compc);
+  const brnList = normNums(brnch);
+
+  const conds = [];
+  if (compList.length) {
+    const ph = compList.map((_, i) => `:${prefix}c${i}`).join(", ");
+    conds.push(`TO_NUMBER(h.UNIT_ID) IN (${ph})`);
+    compList.forEach((n, i) => { paramsOut[`${prefix}c${i}`] = n; });
+  }
+  if (brnList.length) {
+    const ph = brnList.map((_, i) => `:${prefix}b${i}`).join(", ");
+    conds.push(`TO_NUMBER(h.LOCATION) IN (${ph})`);
+    brnList.forEach((n, i) => { paramsOut[`${prefix}b${i}`] = n; });
+  }
+
+  if (!conds.length) return "";
+
+  const whereInner = conds.join(" AND ");
+  return (
+    ` AND TO_CHAR(${empFkExpr}) IN (` +
+    `SELECT TO_CHAR(e.CARD_NO) FROM HR_EMP_MASTER h ` +
+    `JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE WHERE ${whereInner})`
+  );
+};
+
 // Build the "AND TO_NUMBER(h.UNIT_ID/LOCATION) IN (...)" fragment used by the
 // list/search employee queries (mirrors the inline filter blocks in
 // search_employees_hrms / list_employees_hrms / get_bulk_attendance_*).
