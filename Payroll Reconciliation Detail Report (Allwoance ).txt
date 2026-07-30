@@ -1,0 +1,50 @@
+SELECT OLD_EMPCODE,
+       UNIT_ID,
+       TRANS_ID,
+       SUM(F_AMOUNT) F_AMOUNT,
+       SUM(T_AMOUNT) T_AMOUNT,
+       SUM(F_AMOUNT) - SUM(T_AMOUNT) DIFF
+  FROM ( SELECT A.OLD_EMPCODE,
+               A.UNIT_ID,
+               TRANS_ID,
+               ROUND(NVL(TRANS_AMOUNT, 0)) F_AMOUNT,
+               0 T_AMOUNT
+          FROM HR_SALARY_PROCESS_final        A,
+               HR_ALLOWANCE                   B,
+               HR_SALARY_PROCESS_MASTER_final C,
+               HR_LOCATION                    D
+         WHERE A.PERIOD# = :mpf
+           AND A.UNIT_ID = NVL(:munit, A.UNIT_ID)
+           AND A.TRANS_TYPE = 'A'
+           --------AND A.TRANS_TYPE || B.ALLOWANCE_ID not in ('A21','A23','A24','A28')
+           AND B.USE_ALLOWANCE <> 'F'
+           AND A.TRANS_ID = B.ALLOWANCE_ID
+           AND A.PERIOD# = C.PERIOD#
+           AND A.UNIT_ID = C.UNIT_ID
+           AND A.OLD_EMPCODE = C.OLD_EMPCODE
+           AND C.LOCATION = D.LOC_ID
+           AND A.OLD_EMPCODE = NVL(:memp, A.OLD_EMPCODE)
+        UNION ALL
+        SELECT A.OLD_EMPCODE,
+               A.UNIT_ID,
+               TRANS_ID,
+               0 FROM_AMOUNT,
+               ROUND(NVL(TRANS_AMOUNT, 0)) T_AMOUNT
+          FROM HR_SALARY_PROCESS        A,
+               HR_ALLOWANCE                   B,
+               HR_SALARY_PROCESS_MASTER C,
+               HR_LOCATION                    D
+         WHERE A.PERIOD# = :mpt
+           AND A.UNIT_ID = NVL(:munit, A.UNIT_ID)
+           AND A.TRANS_TYPE = 'A'
+           AND B.USE_ALLOWANCE <> 'F'
+          ----------- AND A.TRANS_TYPE || B.ALLOWANCE_ID not in ('A21','A23','A24','A28')
+           AND A.TRANS_ID = B.ALLOWANCE_ID
+           AND A.PERIOD# = C.PERIOD#
+           AND A.UNIT_ID = C.UNIT_ID
+           AND A.OLD_EMPCODE = C.OLD_EMPCODE
+           AND C.LOCATION = D.LOC_ID
+           AND A.OLD_EMPCODE = NVL(:memp, A.OLD_EMPCODE))
+ GROUP BY OLD_EMPCODE, UNIT_ID, TRANS_ID
+HAVING        (SUM(F_AMOUNT) != 0 or 
+       SUM(T_AMOUNT) != 0  )

@@ -1,0 +1,70 @@
+query 1
+
+select a.old_empcode empcode, A.UNIT_ID  UNITID,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.allowance_id all_id,
+       b.allowance_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process_final a, hr_allowance b, hr_emp_master c
+ where a.trans_id = b.allowance_id
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.use_allowance = 'M'
+   and a.trans_type = 'A'
+   and a.period# between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+and :mrtypr = 'P'
+ group by a.old_empcode,A.UNIT_ID,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.allowance_id,
+          b.allowance_desc
+--order by 3,1
+
+union all 
+select a.old_empcode empcode,  A.UNIT_ID UNITID,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.allowance_id all_id,
+       b.allowance_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process a, hr_allowance b, hr_emp_master c
+ where a.trans_id = b.allowance_id
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.use_allowance = 'M'
+   and a.trans_type = 'A'
+   and a.period# = :p_period1  ----between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+   and :mrtypr = 'C'
+ group by a.old_empcode,A.UNIT_ID ,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.allowance_id,
+          b.allowance_desc
+order by 3,1
+
+query 2
+   select  codename('ORG',null,null) org_name ,
+               codename('COPYR', 'COPYR', NULL) COPYR,
+                DECODE(:mlocatin, 
+                 null, 
+                 'ALL Locations',
+                  CODENAme('LOC_ID', :mlocatin, null)) Locnm,
+                  DECODE(:munitid, 
+                 null, 
+                 'ALL Units',
+                  CODENAme('UNIT_ID', :munitid, null)) Unit_Name,
+                  DECODE(:mempcd, 
+                 null, 
+                 'ALL Employee',
+                  CODENAme('UNIT_ID', :mempcd, null)) Emp_Name,
+          'Employee Allowances Detail Report' Head,
+          'For the Month of ' || codename('PERIOD#',:p_period1,null) || ' to ' || codename('PERIOD#',:p_period2,null) head1 , 
+'Dewan Cement Limited.' compnm
+     FROM DUAL

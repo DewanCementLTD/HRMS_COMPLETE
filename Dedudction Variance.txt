@@ -1,0 +1,36 @@
+ SELECT OLD_EMPCODE,
+       UNIT_ID,
+       TRANS_ID,
+       ded_desc ,
+       SUM(FROM_AMOUNT) F_AMOUNT,
+       SUM(T_AMOUNT) T_AMOUNT,
+       SUM(FROM_AMOUNT) - SUM(T_AMOUNT) DIFF
+  FROM (SELECT A.OLD_EMPCODE,
+               A.UNIT_ID,
+               TRANS_ID,
+               b.ded_desc ,
+              NVL(TRANS_AMOUNT, 0) FROM_AMOUNT,
+               0 T_AMOUNT
+          FROM HR_SALARY_PROCESS_FINAL A, hr_deduction B
+         WHERE A.PERIOD# = :mpf
+           AND A.UNIT_ID = NVL(:munit, A.UNIT_ID)
+           --AND B.USE_ALLOWANCE <> 'F'
+           AND A.TRANS_TYPE = 'D' 
+           AND A.TRANS_ID = B.DED_CD
+           AND A.OLD_EMPCODE = NVL(:memp, A.OLD_EMPCODE)
+        UNION ALL
+        SELECT A.OLD_EMPCODE,
+               A.UNIT_ID,
+               TRANS_ID,
+               b.ded_desc ,
+               0 f_AMOUNT,
+               NVL(TRANS_AMOUNT, 0) T_AMOUNT
+          FROM HR_SALARY_PROCESS A, hr_deduction B
+         WHERE A.PERIOD# = :mpt
+           AND A.UNIT_ID = NVL(:munit, A.UNIT_ID)
+           --AND B.USE_ALLOWANCE <> 'F'
+           AND A.TRANS_TYPE = 'D' 
+           AND A.TRANS_ID = B.DED_CD
+           AND A.OLD_EMPCODE = NVL(:memp, A.OLD_EMPCODE) )
+ GROUP BY OLD_EMPCODE, UNIT_ID, TRANS_ID,ded_desc
+---HAVING SUM(FROM_AMOUNT) - SUM(T_AMOUNT) <> 0 

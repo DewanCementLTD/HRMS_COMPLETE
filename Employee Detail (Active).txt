@@ -1,0 +1,145 @@
+query 1
+
+select a.UNIT_NAME,a.LOC_NAME,a.EMP_type,
+       a.OLD_EMPCODE, 
+       a.NAME,
+       a.FHNAME,
+       a.ADDRESS,
+       a.SEX,
+       to_char(a.DTOFBRTH, 'dd-Mon-yyyy') Datofb,
+       to_char(a.DTOFAPPT, 'dd-Mon-yyyy') Datofapt,
+to_char(a.dtofconfirm, 'dd-Mon-yyyy') DatofCnfrm,
+
+       a.DESG_DESC,
+       a.GRADE_CD,
+       a.DEPT_NAME,sec_nm,
+       a.LOC_NAME,
+       substr(NVL(PHONE#,'Nill'),1,13) PHONE#,
+       --a.BNKname,
+     --  a.BRNname,
+       nvl(a.BNKACCT,'Nill') BNKACCT,
+       a.NICNO,
+       nvl(a.NTN,'Nill') NTN,qfication_nm,
+       a.GROSS,
+       a.BASIC,
+       nvl(a.REBATE,0) REBATE,
+       a.STATUS
+  from hr_emp_master_view a
+ where a.OLD_EMPCODE = nvl(:empcode, a.OLD_EMPCODE)
+    and  a.status = 'Active'
+    AND :MRTYPE = 'C'
+   AND A.LOCATION = nvl(:MLOC,a.LOCATION)
+   AND a.dtofconfirm is NOT null
+  and a.confirm_status = 'Y'
+  and a.emp_status = nvl(:mstats,emp_status)
+   and a.GROSS between nvl(:g1,0) and nvl(:g2,999999)
+   and a.UNIT_ID = nvl(:munit, a.UNIT_ID)
+   and a.DESG_CD = nvl(:mdesg1,a.DESG_CD)
+   and a.DEPT_NO = nvl(:mdeptno, a.DEPT_NO)
+   and a.DESG_GRP = nvl(:mdesg, a.DESG_GRP)
+  and a.GRADE_CD = nvl(:mgradde,a.GRADE_CD)
+---order by a.LOC_NAME,  a.DEPT_NAME,  a.OLD_EMPCODE
+UNION ALL 
+select a.UNIT_NAME,a.LOC_NAME,a.EMP_type,
+       a.OLD_EMPCODE,
+       a.NAME,
+       a.FHNAME,
+       a.ADDRESS,
+       a.SEX,
+       to_char(a.DTOFBRTH, 'dd-Mon-yyyy') Datofb,
+       to_char(a.DTOFAPPT, 'dd-Mon-yyyy') Datofapt,
+to_char(a.dtofconfirm, 'dd-Mon-yyyy') DatofCnfrm,
+
+       a.DESG_DESC,
+       a.GRADE_CD,
+       a.DEPT_NAME,sec_nm,
+       a.LOC_NAME,
+       substr(NVL(PHONE#,'Nill'),1,13) PHONE#,
+       --a.BNKname,
+     --  a.BRNname,
+       nvl(a.BNKACCT,'Nill') BNKACCT,
+       a.NICNO,
+       nvl(a.NTN,'Nill') NTN,qfication_nm,
+       a.GROSS,
+       a.BASIC,
+       nvl(a.REBATE,0) REBATE,
+       a.STATUS
+  from hr_emp_master_view a
+ where a.OLD_EMPCODE = nvl(:empcode, a.OLD_EMPCODE)
+    and  a.status = 'Active'
+    AND :MRTYPE = 'U'
+   AND A.LOCATION = nvl(:MLOC,a.LOCATION)
+ --  AND a.dtofconfirm is null
+  and nvl(a.confirm_status,'N') = 'N'
+and a.emp_status = nvl(:mstats,emp_status)
+   and a.GROSS between nvl(:g1,0) and nvl(:g2,999999)
+   and a.UNIT_ID = nvl(:munit, a.UNIT_ID)
+   and a.DESG_CD = nvl(:mdesg1,a.DESG_CD)
+   and a.DEPT_NO = nvl(:mdeptno, a.DEPT_NO)
+   and a.DESG_GRP = nvl(:mdesg, a.DESG_GRP)
+     and a.GRADE_CD = nvl(:mgradde,a.GRADE_CD)
+----order by a.LOC_NAME,  a.DEPT_NAME,  a.OLD_EMPCODE
+UNION ALL 
+select a.UNIT_NAME,a.LOC_NAME,a.EMP_type,
+       a.OLD_EMPCODE,
+       a.NAME,
+       a.FHNAME,
+       a.ADDRESS,
+       a.SEX,
+       to_char(a.DTOFBRTH, 'dd-Mon-yyyy') Datofb,
+       to_char(a.DTOFAPPT, 'dd-Mon-yyyy') Datofapt,
+to_char(a.dtofconfirm, 'dd-Mon-yyyy') DatofCnfrm,
+       a.DESG_DESC,
+       a.GRADE_CD,
+       a.DEPT_NAME,sec_nm,
+       a.LOC_NAME,
+       substr(NVL(PHONE#,'Nill'),1,13) PHONE#,
+       --a.BNKname,
+     --  a.BRNname,
+       nvl(a.BNKACCT,'Nill') BNKACCT,
+       a.NICNO,
+       nvl(a.NTN,'Nill') NTN,qfication_nm,
+       a.GROSS,
+       a.BASIC,
+       nvl(a.REBATE,0) REBATE,
+       a.STATUS
+  from hr_emp_master_view a
+ where a.OLD_EMPCODE = nvl(:empcode, a.OLD_EMPCODE)
+    and  a.status = 'Active'
+    AND :MRTYPE = 'A'
+and a.emp_status = nvl(:mstats,emp_status)
+   and a.GROSS between nvl(:g1,0) and nvl(:g2,999999) 
+   AND A.LOCATION = nvl(:MLOC,a.LOCATION)
+   and a.UNIT_ID = nvl(:munit, a.UNIT_ID)
+   and a.DEPT_NO = nvl(:mdeptno, a.DEPT_NO)
+   and a.DESG_CD = nvl(:mdesg1,a.DESG_CD)
+   and a.DESG_GRP = nvl(:mdesg, a.DESG_GRP)
+  and a.GRADE_CD = nvl(:mgradde,a.GRADE_CD)
+order by 1,2,13,12,4
+
+-------------------==================
+query 2
+
+
+   select  codename('ORG',null,null) org_name ,
+               CODENAme('LOC_ID', :mloc, null)  lc_Name ,
+               codename('COPYR', 'COPYR', NULL) COPYR,
+                DECODE(:mdeptno, 
+                 null, 
+                 'ALL Department',
+                  CODENAme('DEPT', :mdeptno, null)) Locnm,
+                  DECODE(:munit, 
+                 null, 
+                 'ALL Units',
+                  CODENAme('UNIT_ID', :munit, null)) Unit_Name,
+                  
+DECODE(:MDESg, 
+                 null, 
+                 'ALL Designations ',
+                  CODENAme('DESG', :MDESg, null)) Desg_Name,
+
+                  decode(:mrtype ,'A' , 'ALL Active Employee Detail Report' ,'U','Un-Confirmed Employee Detail Report','C','Confirmed Employee Detail Report')      rep_nm,
+   
+'Dewan Cement Limited.' compnm
+     FROM DUAL
+

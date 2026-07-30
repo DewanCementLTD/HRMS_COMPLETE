@@ -1,0 +1,57 @@
+query 1
+
+SELECT b.unit_id,
+       B.PERIOD# ,
+       CODENAME('PERIOD#',B.PERIOD#,NULL) MNTH,
+       b.old_empcode empcode,
+       D.ACTUAL_GROSS,
+       D.EARNED_GROSS,
+       D.ACTUAL_BASIC,
+       D.EARNED_BASIC,
+       sum(decode(b.trans_id,'12',B.TRANS_AMOUNT,0))  amount
+  FROM HR_SALARY_PROCESS_FINAL        B,
+       HR_DEDUCTION                   C,
+       HR_SALARY_PROCESS_MASTER_FINAL D
+ WHERE B.TRANS_ID = C.DED_Cd
+   AND B.OLD_EMPCODE = D.OLD_EMPCODE
+   AND B.UNIT_ID = D.UNIT_ID
+   AND B.PERIOD# = D.PERIOD#
+   AND b.trans_type = 'D'
+   AND b.unit_id = NVL(:MUNIt,B.UNIT_ID)
+   and b.old_empcode = upper(:MEMp )
+
+group by  b.unit_id,
+       B.PERIOD# ,
+       b.old_empcode ,
+       D.ACTUAL_GROSS,
+       D.EARNED_GROSS,
+       D.ACTUAL_BASIC,
+       D.EARNED_BASIC   
+UNION ALL 
+SELECT b.unit_id,
+       B.PERIOD# ,
+       CODENAME('PERIOD#',B.PERIOD#,NULL) MNTH,
+       b.old_empcode empcode,
+       0 ACTUAL_GROSS,
+       0 EARNED_GROSS,
+       0 ACTUAL_BASIC,
+       0 EARNED_BASIC,
+       sum(PF_BAL)  amount
+  FROM HR_PF_BALANCES B,
+       HR_DEDUCTION  C
+ WHERE B.DED_CD = C.DED_Cd
+   AND b.unit_id = NVL(:MUNIT,B.UNIT_ID)
+   and b.old_empcode = upper(:MEMP )
+
+group by  b.unit_id,
+       B.PERIOD# ,
+       b.old_empcode 
+                
+    ORDER BY 2 
+--------------------------=================================
+query 2
+
+SELECT L.LOAN_AMT , L.START_DT FROM HR_LOAN_MST L
+WHERE L.OLD_EMPCODE = :empcode
+   AND L.unit_id = NVL(:MUNIT,L.UNIT_ID)
+AND L.LOAN_CD = 16;

@@ -1,0 +1,39 @@
+query 1
+
+select a.unit_id,
+       a.location,
+       a.old_empcode,
+       ' ' || a.name name,
+       c.ded_desc,
+       b.period#,
+       d.period_frm,
+       b.trans_amount
+  from hr_emp_master           a,
+       hr_salary_process_final b,
+       hr_deduction            c,
+       hr_attnd_period         d
+ where a.OLD_EMPCODE = b.old_empcode
+   and a.UNIT_ID = b.unit_id
+   and b.trans_id = c.ded_cd
+   and b.trans_type = 'D'
+   and b.period# = d.period#
+   and b.unit_id = d.unit_id
+and b.trans_id = :md_cd
+   and a.OLD_EMPCODE = nvl(:empcd, a.OLD_EMPCODE)
+   and a.DEPT_NO = nvl(:mdept, a.DEPT_NO)
+   and a.LOCATION = nvl(:mloc, a.LOCATION)
+   and a.UNIT_ID = nvl(:munit, a.UNIT_ID)
+   and b.period# between :mdt1 and :mdt2
+ order by 1, 6, 3
+--===============
+query 2
+
+
+SELECT CODENAME('ORG', NULL, NULL) ORG_NM,
+       'Month Wise Deduction Report ' rep_nm,
+       ('From ' || codename('MONTH', :mdt1, null)|| ' to ' || codename('MONTH', :mdt2, null)) head,
+       initcap(decode(:mdept, null, 'A L L', codename('DEPT_NO', :mdept, null)) )Dept_nm,
+       initcap(decode(:mLOC, null, 'A L L', codename('LOC_ID', :mloc, null)) )LOC_nm,
+       initcap(decode(:mUNIT, null, 'A L L', codename('UNIT_ID', :munit, null)) )Unit_nm,
+       initcap(codename('DED', :md_cd, null))||'  (Recovery)  ' d_nm
+  FROM DUAL;

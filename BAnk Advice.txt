@@ -1,0 +1,117 @@
+--query 1
+
+SELECT A.OLD_EMPCODE,
+       ' ' || A.NAME NAME,
+       A.LOCATION,
+       E.LOC_NAME,
+       A.BNKCODE,
+       B.BNKNAME,
+       A.BRNCODE,
+       C.BRNNAME,
+       A.BNKACCT,
+       A.GROSS GROSS,
+       round(SUM(DECODE(D.TRANS_TYPE, 'A', NVL(D.TRANS_AMOUNT, 0)))) T_ALL,
+       round(SUM(DECODE(D.TRANS_TYPE, 'D', NVL(D.TRANS_AMOUNT, 0))) )T_DED
+--D.TOTAL_EARNING
+  FROM HR_EMP_MASTER     A,
+       HR_BANK           B,
+       HR_BRANCH         C,
+       HR_SALARY_PROCESS D,
+       HR_LOCATION       E,
+       hr_desg           f
+ WHERE A.BNKCODE = B.BNKCODE
+   AND D.TRANS_TYPE || D.TRANS_ID = NVL(:MAID1, D.TRANS_TYPE || D.TRANS_ID)
+   AND A.BRNCODE = C.BRNCODE
+   AND A.BNKCODE = C.BNKCODE
+   AND B.BNKCODE = C.BNKCODE
+   AND A.OLD_EMPCODE = D.OLD_EMPCODE
+   AND A.UNIT_ID = D.UNIT_ID
+   AND A.DESG_CD = F.DESG_CD
+   AND F.Desg_GRP = NVL(:MDESH_ORD, F.Desg_GRP)
+   AND D.PERIOD# = :MPERIOD
+   AND A.UNIT_ID = :MUNIT
+   AND A.STATUS = 'A'
+   AND NVL(A.HOLD_SAL, 'N') = 'N'
+   AND A.LOCATION = NVL(:MLOCATION, A.LOCATION)
+   AND A.LOCATION = E.LOC_ID
+   AND :MRTYPE = 'IN'
+ GROUP BY A.OLD_EMPCODE,
+          A.NAME,
+          A.LOCATION,
+          E.LOC_NAME,
+          A.BNKCODE,
+          B.BNKNAME,
+          A.BRNCODE,
+          C.BRNNAME,
+          A.BNKACCT,
+          A.GROSS
+HAVING SUM(DECODE(D.TRANS_TYPE, 'A', NVL(D.TRANS_AMOUNT, 0))) > 1
+UNION ALL 
+SELECT A.OLD_EMPCODE,
+       ' ' || A.NAME NAME,
+       A.LOCATION,
+       E.LOC_NAME,
+       A.BNKCODE,
+       B.BNKNAME,
+       A.BRNCODE,
+       C.BRNNAME,
+       A.BNKACCT,
+       A.GROSS GROSS,
+       round(SUM(DECODE(D.TRANS_TYPE, 'A', NVL(D.TRANS_AMOUNT, 0))) )T_ALL,
+       round(SUM(DECODE(D.TRANS_TYPE, 'D', NVL(D.TRANS_AMOUNT, 0)))) T_DED
+--D.TOTAL_EARNING
+  FROM HR_EMP_MASTER     A,
+       HR_BANK           B,
+       HR_BRANCH         C,
+       HR_SALARY_PROCESS D,
+       HR_LOCATION       E,
+       hr_desg           f
+ WHERE A.BNKCODE = B.BNKCODE
+   AND D.TRANS_TYPE || D.TRANS_ID != NVL(:MAID1, D.TRANS_TYPE || D.TRANS_ID)
+   AND A.BRNCODE = C.BRNCODE
+   AND A.BNKCODE = C.BNKCODE
+   AND B.BNKCODE = C.BNKCODE
+   AND A.OLD_EMPCODE = D.OLD_EMPCODE
+   AND A.UNIT_ID = D.UNIT_ID
+   AND A.DESG_CD = F.DESG_CD
+   AND F.Desg_GRP = NVL(:MDESH_ORD, F.Desg_GRP)
+   AND D.PERIOD# = :MPERIOD
+   AND A.UNIT_ID = :MUNIT
+   AND A.STATUS = 'A'
+   AND NVL(A.HOLD_SAL, 'N') = 'N'
+   AND A.LOCATION = NVL(:MLOCATION, A.LOCATION)
+   AND A.LOCATION = E.LOC_ID
+   AND :MRTYPE = 'OT'
+ GROUP BY A.OLD_EMPCODE,
+          A.NAME,
+          A.LOCATION,
+          E.LOC_NAME,
+          A.BNKCODE,
+          B.BNKNAME,
+          A.BRNCODE,
+          C.BRNNAME,
+          A.BNKACCT,
+          A.GROSS
+HAVING SUM(DECODE(D.TRANS_TYPE, 'A', NVL(D.TRANS_AMOUNT, 0))) > 1
+ ORDER BY 8
+-------------=============================
+--query 2
+   select  codename('ORG',null,null) org_name ,
+               codename('COPYR', 'COPYR', NULL) COPYR,
+                DECODE(:mlocation, 
+                 null, 
+                 'ALL Locations',
+                  CODENAme('LOC_ID', :mlocation, null)) Locnm,
+                  DECODE(:munit, 
+                 null, 
+                 'ALL Units',
+                  CODENAme('UNIT_ID', :munit, null)) Unit_Name,
+DECODE(:MDESH_ORD, 
+                 null, 
+                 'ALL Designations ',
+                  CODENAme('DESG_GRP', :MDESH_ORD, null)) grp_Name,
+
+                  'Bank Advice' Head,
+          'For the Month of ' || codename('PERIOD#',:Mperiod,null) head1 , 
+'Dewan Cement Limited.' compnm
+     FROM DUAL

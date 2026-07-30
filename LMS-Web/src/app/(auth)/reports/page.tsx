@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { FileText, Search, Printer, DollarSign, Users, CheckSquare, Square, Filter } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
+import { FileText, Printer, DollarSign, Users, CheckSquare, Square, Search } from "lucide-react";
+import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import * as reportService from "@/services/reportService";
 import { ReportPrintSheet, ReportType } from "./ReportPrintSheet";
+import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable } from "./ReportFilterBar";
 
 interface ReportMeta {
   id: ReportType;
@@ -18,176 +19,208 @@ interface ReportMeta {
 }
 
 const REPORT_CATALOG: ReportMeta[] = [
-  // Payroll Reports (Money related)
-  { id: "allowance-detail", title: "Employee Allowances Detail Report", category: "payroll", description: "Monthly allowances breakdown (Expenses, LFA, Medical, Overtime) per employee" },
-  { id: "allowance-recon", title: "Payroll Reconciliation Detail Report (Allowance)", category: "payroll", description: "Comparative reconciliation of allowances between two periods" },
-  { id: "deduction-detail", title: "Employee Deduction Detail Report", category: "payroll", description: "Monthly deductions breakdown (Loans, Advance Salary, Cable, Cell, Electric)" },
-  { id: "deduction-recon", title: "Payroll Reconciliation Detail Report (Deduction)", category: "payroll", description: "Comparative reconciliation of deductions between two periods" },
-  { id: "month-wise-deduction", title: "Month Wise Deduction Report", category: "payroll", description: "Multi-month deduction tracking across custom date ranges" },
-  { id: "bank-advice", title: "Bank Advice Report", category: "payroll", description: "Bank disbursement schedule grouped by Bank & Branch with account details" },
-  { id: "pf-detail", title: "P.F Detail Report", category: "payroll", description: "Provident Fund monthly ledger, employer matching, and loan/withdrawal account statement" },
+  // Payroll (monetary)
+  { id: "allowance-detail", title: "Employee Allowances Detail Report", category: "payroll", description: "Monthly allowance breakdown per employee, one column per allowance type" },
+  { id: "allowance-recon", title: "Payroll Reconciliation Detail Report (Allowance)", category: "payroll", description: "Allowance variance between two periods, grouped by allowance" },
+  { id: "deduction-detail", title: "Employee Deduction Detail Report", category: "payroll", description: "Monthly deduction breakdown per employee, one column per deduction type" },
+  { id: "deduction-recon", title: "Payroll Reconciliation Detail Report (Deduction)", category: "payroll", description: "Deduction variance between two periods, grouped by deduction" },
+  { id: "month-wise-deduction", title: "Month Wise Deduction Report", category: "payroll", description: "One deduction tracked across a range of months" },
+  { id: "bank-advice", title: "Bank Advice Report", category: "payroll", description: "Disbursement schedule grouped by bank and branch with account details" },
+  { id: "pf-detail", title: "P.F Detail Report", category: "payroll", description: "Provident Fund ledger, employer matching and account statement for one employee" },
 
-  // General Reports (Non-monetary)
-  { id: "absent-supp", title: "Employee Absent and Supplementary Days Report", category: "general", description: "Monthly absent days and supplementary days summary per employee" },
-  { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Complete roster of active employees with grade, designation, department, qualification & joining dates" },
+  // General (non-monetary)
+  { id: "absent-supp", title: "Employee Absent and Supplimentary Days Report", category: "general", description: "Absent days and supplementary days per employee for a period" },
+  { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Active employee roster with grade, designation, department and joining dates" },
 ];
+
+const CATEGORIES = [
+  { id: "payroll" as const, label: "Payroll Reports", icon: DollarSign, desc: "Monetary reports built from the salary process." },
+  { id: "general" as const, label: "General Reports", icon: Users, desc: "Non-monetary HR and attendance reports." },
+];
+
+// Table container + cell classes shared with the rest of the app so these
+// tables read the same as DutyRosterPanel / SetupPanel.
+const TABLE_WRAP = "overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white";
+const TH = "px-3 py-2.5 text-left font-bold text-gray-700 whitespace-nowrap";
+const TD = "px-3 py-2 whitespace-nowrap";
+
+// The checkbox and identifier columns stay pinned while the wide reports scroll
+// sideways. They need DIFFERENT left offsets — both at left-0 would stack on
+// top of each other — so the checkbox column is given a fixed 3rem width and
+// the identifier column starts exactly there.
+const STICKY_CHECK = "sticky left-0 z-20 bg-inherit w-12 min-w-[3rem] max-w-[3rem]";
+const STICKY_ID = "sticky left-12 z-20 bg-inherit border-r border-gray-200";
+
+const money = (v?: number | null) => (v == null || v === 0 ? "—" : Math.round(v).toLocaleString());
 
 export default function ReportsPage() {
   const { user, activeCompany, activeBranch } = useAuth();
-  
-  // Tab state
+
   const [activeCategory, setActiveCategory] = useState<"payroll" | "general">("payroll");
   const [selectedReportId, setSelectedReportId] = useState<ReportType>("allowance-detail");
-  
-  // Data & loading state
-  const [reportData, setReportData] = useState<any>(null);
+
+  const [reportData, setReportData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  
-  // Selection state (Row IDs / Employee codes selected)
+
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
-  
-  // Print Overlay State
   const [showPrintSheet, setShowPrintSheet] = useState(false);
 
-  // Filters state
-  const [period, setPeriod] = useState<number>(202607);
-  const [subCategory, setSubCategory] = useState<string>("L.F.A");
+  const [filters, setFilters] = useState<ReportFilters>(emptyFilters());
+  // Bumped by Apply; reports only refetch when this changes, not on every keystroke.
+  const [runToken, setRunToken] = useState(0);
 
-  // Filter available reports based on active top-level category
-  const categoryReports = useMemo(() => {
-    return REPORT_CATALOG.filter((r) => r.category === activeCategory);
-  }, [activeCategory]);
+  const categoryReports = useMemo(
+    () => REPORT_CATALOG.filter((r) => r.category === activeCategory),
+    [activeCategory]
+  );
 
-  // Ensure selectedReportId stays valid when category changes
   useEffect(() => {
     if (!categoryReports.some((r) => r.id === selectedReportId)) {
       setSelectedReportId(categoryReports[0].id);
     }
   }, [activeCategory, categoryReports, selectedReportId]);
 
-  const activeReportMeta = useMemo(() => {
-    return REPORT_CATALOG.find((r) => r.id === selectedReportId) || REPORT_CATALOG[0];
-  }, [selectedReportId]);
+  const activeReportMeta = useMemo(
+    () => REPORT_CATALOG.find((r) => r.id === selectedReportId) || REPORT_CATALOG[0],
+    [selectedReportId]
+  );
 
-  // Fetch report data from API
+  const cardNo = user?.card_no;
+
   const loadReport = useCallback(async () => {
-    if (!user?.hr_admin) return;
+    if (!cardNo || !user?.hr_admin) return;
+    if (!isRunnable(selectedReportId, filters)) { setReportData(null); return; }
+
     setLoading(true);
+    setError(null);
     setReportData(null);
     setSelectedKeys(new Set());
     try {
+      // Company/branch ride along from the sidebar; the backend re-resolves them
+      // against this admin's rights before they reach any bind.
       const params = {
         compc: activeCompany || undefined,
         brnch: activeBranch || undefined,
-        period: period,
+        ...toParams(selectedReportId, filters),
       };
 
-      let res: any;
-      switch (selectedReportId) {
-        case "absent-supp":
-          res = await reportService.fetchAbsentSuppReport(user.card_no, params);
-          break;
-        case "allowance-detail":
-          res = await reportService.fetchAllowanceDetailReport(user.card_no, params);
-          break;
-        case "allowance-recon":
-          res = await reportService.fetchAllowanceReconReport(user.card_no, params);
-          break;
-        case "deduction-detail":
-          res = await reportService.fetchDeductionDetailReport(user.card_no, params);
-          break;
-        case "deduction-recon":
-          res = await reportService.fetchDeductionReconReport(user.card_no, params);
-          break;
-        case "month-wise-deduction":
-          res = await reportService.fetchMonthWiseDeductionReport(user.card_no, params);
-          break;
-        case "bank-advice":
-          res = await reportService.fetchBankAdviceReport(user.card_no, params);
-          break;
-        case "active-employees":
-          res = await reportService.fetchActiveEmployeesReport(user.card_no, params);
-          break;
-        case "pf-detail":
-          res = await reportService.fetchPfDetailReport(user.card_no, params);
-          break;
-      }
-      setReportData(res?.data || null);
+      const fetchers: Record<ReportType, () => Promise<{ data: unknown }>> = {
+        "absent-supp": () => reportService.fetchAbsentSuppReport(cardNo, params),
+        "allowance-detail": () => reportService.fetchAllowanceDetailReport(cardNo, params),
+        "allowance-recon": () => reportService.fetchAllowanceReconReport(cardNo, params),
+        "deduction-detail": () => reportService.fetchDeductionDetailReport(cardNo, params),
+        "deduction-recon": () => reportService.fetchDeductionReconReport(cardNo, params),
+        "month-wise-deduction": () => reportService.fetchMonthWiseDeductionReport(cardNo, params),
+        "bank-advice": () => reportService.fetchBankAdviceReport(cardNo, params),
+        "active-employees": () => reportService.fetchActiveEmployeesReport(cardNo, params),
+        "pf-detail": () => reportService.fetchPfDetailReport(cardNo, params),
+      };
+
+      const res = await fetchers[selectedReportId]();
+      setReportData(res?.data ?? null);
     } catch (err) {
       console.error("Failed to load report", err);
+      setError(err instanceof Error ? err.message : "Failed to load report");
     } finally {
       setLoading(false);
     }
-  }, [user?.card_no, user?.hr_admin, selectedReportId, activeCompany, activeBranch, period]);
+    // `filters` is read through the Apply token so typing doesn't refetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardNo, user?.hr_admin, selectedReportId, activeCompany, activeBranch, runToken]);
 
-  useEffect(() => {
-    loadReport();
-  }, [loadReport]);
+  // Switching company/branch/report reruns automatically; filter edits need Apply.
+  useEffect(() => { loadReport(); }, [loadReport]);
 
-  // Rows extraction
-  const rawRows: any[] = useMemo(() => {
-    if (!reportData) return [];
-    if (Array.isArray(reportData)) return reportData;
-    if (reportData.ledger) return reportData.ledger;
-    return [];
+  // Reset filters when moving to a report with a different filter set.
+  useEffect(() => { setFilters(emptyFilters()); }, [selectedReportId]);
+
+  // ── Row extraction (shape differs per report family) ──
+
+  const { columns, rows, hasOtHours } = useMemo(() => {
+    const d = reportData as Record<string, unknown> | null;
+    const none = { columns: [] as string[], rows: [] as Record<string, unknown>[], hasOtHours: false };
+    if (!d) return none;
+    if (Array.isArray(d.rows)) {
+      return {
+        columns: (d.columns as string[]) ?? [],
+        rows: d.rows as Record<string, unknown>[],
+        hasOtHours: Boolean(d.has_ot_hours),
+      };
+    }
+    if (Array.isArray(d.ledger)) return { ...none, rows: d.ledger as Record<string, unknown>[] };
+    if (Array.isArray(d.groups)) {
+      // Flatten grouped reports for the on-screen list, tagging the group name.
+      const flat: Record<string, unknown>[] = [];
+      for (const g of d.groups as Record<string, unknown>[]) {
+        for (const r of (g.rows as Record<string, unknown>[]) ?? []) {
+          flat.push({ ...r, __group: g.descr ?? `${g.bank_name} — ${g.branch_name}` });
+        }
+      }
+      return { ...none, rows: flat };
+    }
+    return none;
   }, [reportData]);
 
-  // Filtered rows by search query
   const filteredRows = useMemo(() => {
-    if (!query.trim()) return rawRows;
+    if (!query.trim()) return rows;
     const q = query.toLowerCase();
-    return rawRows.filter((r) => {
-      const code = String(r.code || r.sr_no || "").toLowerCase();
-      const name = String(r.employee_name || r.month_year || "").toLowerCase();
-      return code.includes(q) || name.includes(q);
-    });
-  }, [rawRows, query]);
+    return rows.filter((r) =>
+      String(r.code ?? "").toLowerCase().includes(q) ||
+      String(r.employee_name ?? r.month_year ?? "").toLowerCase().includes(q)
+    );
+  }, [rows, query]);
 
-  // Selection handlers
-  const getRowKey = (r: any, idx: number) => String(r.code || r.sr_no || idx);
+  const getRowKey = (r: Record<string, unknown>, idx: number) =>
+    String(r.code ?? r.period ?? r.sr_no ?? idx);
 
-  const toggleSelectRow = (key: string) => {
+  const toggleSelectRow = (key: string) =>
     setSelectedKeys((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
+      if (next.has(key)) next.delete(key); else next.add(key);
       return next;
     });
-  };
 
-  const allFilteredSelected = useMemo(() => {
-    return filteredRows.length > 0 && filteredRows.every((r, idx) => selectedKeys.has(getRowKey(r, idx)));
-  }, [filteredRows, selectedKeys]);
+  const allFilteredSelected =
+    filteredRows.length > 0 && filteredRows.every((r, i) => selectedKeys.has(getRowKey(r, i)));
 
-  const toggleSelectAll = () => {
+  const toggleSelectAll = () =>
     setSelectedKeys((prev) => {
       const next = new Set(prev);
-      if (allFilteredSelected) {
-        filteredRows.forEach((r, idx) => next.delete(getRowKey(r, idx)));
-      } else {
-        filteredRows.forEach((r, idx) => next.add(getRowKey(r, idx)));
-      }
+      filteredRows.forEach((r, i) => {
+        const k = getRowKey(r, i);
+        if (allFilteredSelected) next.delete(k); else next.add(k);
+      });
       return next;
     });
-  };
 
-  // Selected dataset for report generation
+  /**
+   * What the print sheet renders. With no selection the whole report goes to
+   * print; otherwise rows are narrowed while the report's shape (groups,
+   * ledger, totals, meta) is preserved so the PDF layout stays intact.
+   */
   const printableData = useMemo(() => {
-    if (selectedKeys.size === 0) return reportData; // If none selected, generate all
-    if (Array.isArray(reportData)) {
-      return reportData.filter((r, idx) => selectedKeys.has(getRowKey(r, idx)));
-    }
-    if (reportData?.ledger) {
-      return {
-        ...reportData,
-        ledger: reportData.ledger.filter((r: any, idx: number) => selectedKeys.has(getRowKey(r, idx))),
-      };
+    const d = reportData as Record<string, unknown> | null;
+    if (!d || selectedKeys.size === 0) return reportData;
+    const keep = (r: Record<string, unknown>, i: number) => selectedKeys.has(getRowKey(r, i));
+
+    if (Array.isArray(d.rows)) return { ...d, rows: (d.rows as Record<string, unknown>[]).filter(keep) };
+    if (Array.isArray(d.ledger)) return { ...d, ledger: (d.ledger as Record<string, unknown>[]).filter(keep) };
+    if (Array.isArray(d.groups)) {
+      // Row keys are assigned over the flattened list, so re-flatten to match.
+      let i = 0;
+      const groups = (d.groups as Record<string, unknown>[])
+        .map((g) => {
+          const rows = ((g.rows as Record<string, unknown>[]) ?? []).filter((r) => keep(r, i++));
+          return { ...g, rows };
+        })
+        .filter((g) => (g.rows as unknown[]).length > 0);
+      return { ...d, groups };
     }
     return reportData;
   }, [reportData, selectedKeys]);
 
-  // Guard for HR access
   if (!user?.hr_admin) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -201,49 +234,58 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="animate-fade-in space-y-6 pb-12">
-      {/* Printable Report PDF Overlay Sheet */}
+    <div className="animate-fade-in space-y-4 pb-12">
       {showPrintSheet && (
         <ReportPrintSheet
           reportType={selectedReportId}
           reportTitle={activeReportMeta.title}
           data={printableData}
-          subCategory={subCategory}
+          companyName={user?.selected_company?.name || ""}
+          compc={activeCompany || undefined}
           onClose={() => setShowPrintSheet(false)}
         />
       )}
 
       <PageHeader
         title="HR & Payroll Reports"
-        subtitle="Consolidated monetary and general administrative reports with pixel-perfect PDF export"
+        subtitle="Company- and branch-scoped reports with print-ready output"
       />
 
-      {/* Primary Category Tabs: Payroll Reports vs General Reports */}
-      <div className="flex items-center gap-4 border-b border-gray-200 pb-1">
-        <button
-          onClick={() => setActiveCategory("payroll")}
-          className={`flex items-center gap-2 px-4 py-2.5 font-medium text-sm rounded-t-lg transition-all ${
-            activeCategory === "payroll"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          }`}
-        >
-          <DollarSign className="h-4 w-4" /> Payroll Reports (Monetary)
-        </button>
-        <button
-          onClick={() => setActiveCategory("general")}
-          className={`flex items-center gap-2 px-4 py-2.5 font-medium text-sm rounded-t-lg transition-all ${
-            activeCategory === "general"
-              ? "bg-indigo-600 text-white shadow-sm"
-              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          }`}
-        >
-          <Users className="h-4 w-4" /> General Reports (Non-Monetary)
-        </button>
+      {/* Level 1 — report areas */}
+      <div className="grid grid-cols-2 gap-3 print:hidden">
+        {CATEGORIES.map((c) => {
+          const Icon = c.icon;
+          const active = c.id === activeCategory;
+          return (
+            <button
+              key={c.id}
+              onClick={() => setActiveCategory(c.id)}
+              className={`text-left rounded-2xl border p-3.5 transition-all ${
+                active
+                  ? "border-indigo-300 bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200"
+                  : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  active ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"
+                }`}>
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className={`text-sm font-semibold leading-tight ${active ? "text-indigo-700" : "text-gray-800"}`}>
+                    {c.label}
+                  </p>
+                  <p className="text-[11px] text-gray-400">{c.desc}</p>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Secondary Report Selector (Pills) */}
-      <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200">
+      {/* Level 2 — individual report */}
+      <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200 print:hidden">
         {categoryReports.map((r) => (
           <button
             key={r.id}
@@ -259,104 +301,48 @@ export default function ReportsPage() {
         ))}
       </div>
 
-      {/* Active Report Header Card & Filter Options */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardContent className="p-5 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-4">
-            <div>
-              <h3 className="text-base font-bold text-gray-900">{activeReportMeta.title}</h3>
-              <p className="text-xs text-gray-500 mt-0.5">{activeReportMeta.description}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                onClick={() => setShowPrintSheet(true)}
-                disabled={loading || !reportData}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
-              >
-                <Printer className="h-4 w-4" /> Generate Report ({selectedKeys.size > 0 ? selectedKeys.size : "All"})
-              </Button>
-            </div>
-          </div>
+      {/* Sits directly on the dark page background, so it follows PageHeader's
+          light-on-dark treatment rather than the card text colours. */}
+      <div className="flex flex-wrap items-start justify-between gap-3 print:hidden">
+        <div>
+          <h3 className="text-base font-bold text-white">{activeReportMeta.title}</h3>
+          <p className="text-xs text-gray-300 mt-0.5">{activeReportMeta.description}</p>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => setShowPrintSheet(true)}
+          disabled={loading || !reportData}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+        >
+          <Printer className="h-4 w-4" /> Generate Report ({selectedKeys.size > 0 ? selectedKeys.size : "All"})
+        </Button>
+      </div>
 
-          {/* Dynamic Filter Controls Bar */}
-          <div className="flex flex-wrap items-center gap-4 pt-1 bg-gray-50/80 p-3 rounded-lg border border-gray-100 text-xs">
-            <div className="flex items-center gap-1.5 text-gray-700 font-medium">
-              <Filter className="h-3.5 w-3.5 text-indigo-600" /> Filters:
-            </div>
+      <ReportFilterBar
+        reportId={selectedReportId}
+        adminCardNo={cardNo!}
+        filters={filters}
+        onChange={setFilters}
+        onApply={() => setRunToken((t) => t + 1)}
+        loading={loading}
+      />
 
-            {/* Period Selector */}
-            <div className="flex items-center gap-1.5">
-              <label className="text-gray-500">Period:</label>
-              <select
-                className="bg-white border border-gray-300 rounded px-2 py-1 outline-none text-xs font-medium"
-                value={period}
-                onChange={(e) => setPeriod(Number(e.target.value))}
-              >
-                <option value={202607}>Jul-2026</option>
-                <option value={202606}>Jun-2026</option>
-                <option value={202605}>May-2026</option>
-                <option value={202604}>Apr-2026</option>
-              </select>
-            </div>
+      {error && (
+        <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-700 print:hidden">
+          {error}
+        </div>
+      )}
 
-            {/* Sub-Category / Allowance / Deduction Selector */}
-            {(selectedReportId === "allowance-recon" || selectedReportId === "deduction-recon") && (
-              <div className="flex items-center gap-1.5">
-                <label className="text-gray-500">Type:</label>
-                <select
-                  className="bg-white border border-gray-300 rounded px-2 py-1 outline-none text-xs font-medium"
-                  value={subCategory}
-                  onChange={(e) => setSubCategory(e.target.value)}
-                >
-                  {selectedReportId === "allowance-recon" ? (
-                    <>
-                      <option value="L.F.A">L.F.A</option>
-                      <option value="MEDICAL">MEDICAL</option>
-                      <option value="EXPENSES REIMBURS">EXPENSES REIMBURS</option>
-                      <option value="OVER TIME">OVER TIME</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="ADVANCE LOAN">ADVANCE LOAN</option>
-                      <option value="ADVANCE SALARY">ADVANCE SALARY</option>
-                      <option value="CABLE CHARGES">CABLE CHARGES</option>
-                      <option value="CELL PHONE">CELL PHONE</option>
-                      <option value="ELECTRIC CHARGES">ELECTRIC CHARGES</option>
-                    </>
-                  )}
-                </select>
-              </div>
-            )}
-
-            {/* Quick Search Input */}
-            <div className="ml-auto flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-2.5 py-1 w-full max-w-xs">
-              <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-              <input
-                className="bg-transparent text-xs outline-none w-full placeholder:text-gray-400"
-                placeholder="Search code or name..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Main Interactive Table Card */}
-      <Card className="border border-gray-200 shadow-sm overflow-hidden">
-        {/* Table Action Bar (Select All / Action Buttons) */}
-        <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex items-center justify-between text-xs">
+      <Card className="border border-gray-200 shadow-sm overflow-hidden print:hidden">
+        <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
             <button
               onClick={toggleSelectAll}
               className="flex items-center gap-1.5 font-medium text-gray-700 hover:text-indigo-700 transition-colors"
             >
-              {allFilteredSelected ? (
-                <CheckSquare className="h-4 w-4 text-indigo-600" />
-              ) : (
-                <Square className="h-4 w-4 text-gray-400" />
-              )}
+              {allFilteredSelected
+                ? <CheckSquare className="h-4 w-4 text-indigo-600" />
+                : <Square className="h-4 w-4 text-gray-400" />}
               Select All Visible ({filteredRows.length})
             </button>
             {selectedKeys.size > 0 && (
@@ -365,9 +351,17 @@ export default function ReportsPage() {
               </span>
             )}
           </div>
+          <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-2.5 py-1 w-full max-w-xs">
+            <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+            <input
+              className="bg-transparent text-xs outline-none w-full placeholder:text-gray-400"
+              placeholder="Search code or name..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
         </div>
 
-        {/* Table Content */}
         {loading ? (
           <div className="flex items-center justify-center p-12 text-gray-500 gap-3">
             <Spinner className="h-5 w-5 text-indigo-600" />
@@ -376,14 +370,14 @@ export default function ReportsPage() {
         ) : filteredRows.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <FileText className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-sm font-medium">No records found matching your filters.</p>
+            <p className="text-sm font-medium">No records found for these filters.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
+          <div className={TABLE_WRAP}>
+            <table className="min-w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-gray-100/80 text-gray-700 font-bold border-b border-gray-200">
-                  <th className="p-3 w-10 text-center">
+                <tr className="bg-gray-100 border-b border-gray-200">
+                  <th className={`${TH} text-center ${STICKY_CHECK}`}>
                     <input
                       type="checkbox"
                       checked={allFilteredSelected}
@@ -391,116 +385,22 @@ export default function ReportsPage() {
                       className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
                   </th>
-                  {/* Dynamic Column Headers depending on selected report */}
-                  {selectedReportId === "absent-supp" && (
-                    <>
-                      <th className="p-3 w-16">Sr.#</th>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3">Designation</th>
-                      <th className="p-3 text-center">Absent Days</th>
-                      <th className="p-3 text-center">S.Days</th>
-                    </>
-                  )}
-                  {selectedReportId === "allowance-detail" && (
-                    <>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3 text-center">OT Hours</th>
-                      <th className="p-3 text-right">Expenses Reimburs</th>
-                      <th className="p-3 text-right">L.F.A</th>
-                      <th className="p-3 text-right">Medical</th>
-                      <th className="p-3 text-right">Over Time</th>
-                      <th className="p-3 text-right font-extrabold text-indigo-900">Total</th>
-                    </>
-                  )}
-                  {selectedReportId === "allowance-recon" && (
-                    <>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3 text-right">Month 1 (Jun)</th>
-                      <th className="p-3 text-right">Month 2 (Jul)</th>
-                      <th className="p-3 text-right font-bold">Variance</th>
-                    </>
-                  )}
-                  {selectedReportId === "deduction-detail" && (
-                    <>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3 text-right">Advance Loan</th>
-                      <th className="p-3 text-right">Advance Salary</th>
-                      <th className="p-3 text-right">Cable Charges</th>
-                      <th className="p-3 text-right">Cell Phone</th>
-                      <th className="p-3 text-right">Electric Charges</th>
-                      <th className="p-3 text-right font-extrabold text-indigo-900">Total</th>
-                    </>
-                  )}
-                  {selectedReportId === "deduction-recon" && (
-                    <>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3 text-right">Month 1 (Jun)</th>
-                      <th className="p-3 text-right">Month 2 (Jul)</th>
-                      <th className="p-3 text-right font-bold">Variance</th>
-                    </>
-                  )}
-                  {selectedReportId === "month-wise-deduction" && (
-                    <>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3 text-right">Apr-2026</th>
-                      <th className="p-3 text-right">May-2026</th>
-                      <th className="p-3 text-right">Jun-2026</th>
-                      <th className="p-3 text-right font-bold">Total</th>
-                    </>
-                  )}
-                  {selectedReportId === "bank-advice" && (
-                    <>
-                      <th className="p-3 w-16 text-center">SR.#</th>
-                      <th className="p-3 w-24">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3">Account Number</th>
-                      <th className="p-3 text-right font-bold">Salary Payable</th>
-                    </>
-                  )}
-                  {selectedReportId === "active-employees" && (
-                    <>
-                      <th className="p-3 w-12 text-center">S.#</th>
-                      <th className="p-3 w-20">Code</th>
-                      <th className="p-3">Employee Name</th>
-                      <th className="p-3">Grade</th>
-                      <th className="p-3">Designation</th>
-                      <th className="p-3">Department</th>
-                      <th className="p-3">Type</th>
-                      <th className="p-3 text-right font-bold">Gross</th>
-                    </>
-                  )}
-                  {selectedReportId === "pf-detail" && (
-                    <>
-                      <th className="p-3 w-16 text-center">S.No</th>
-                      <th className="p-3">Month / Year</th>
-                      <th className="p-3 text-right">Actual Basic</th>
-                      <th className="p-3 text-right">Earned Basic</th>
-                      <th className="p-3 text-right">Earned Gross</th>
-                      <th className="p-3 text-right">P.F Contribution</th>
-                      <th className="p-3 text-right font-bold">Balance</th>
-                    </>
-                  )}
+                  <ReportHead reportId={selectedReportId} columns={columns} hasOtHours={hasOtHours} />
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredRows.map((r: any, idx: number) => {
+                {filteredRows.map((r, idx) => {
                   const key = getRowKey(r, idx);
                   const isChecked = selectedKeys.has(key);
                   return (
                     <tr
-                      key={key}
+                      key={`${key}-${idx}`}
                       onClick={() => toggleSelectRow(key)}
                       className={`cursor-pointer transition-colors ${
-                        isChecked ? "bg-indigo-50/70" : "hover:bg-gray-50"
+                        isChecked ? "bg-indigo-50" : "bg-white hover:bg-gray-50"
                       }`}
                     >
-                      <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td className={`${TD} text-center ${STICKY_CHECK}`} onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={isChecked}
@@ -508,109 +408,7 @@ export default function ReportsPage() {
                           className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                       </td>
-
-                      {selectedReportId === "absent-supp" && (
-                        <>
-                          <td className="p-3 font-mono">{r.sr_no || idx + 1}</td>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-gray-600">{r.designation}</td>
-                          <td className="p-3 text-center font-mono">{r.absent}</td>
-                          <td className="p-3 text-center font-mono">{r.s_days}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "allowance-detail" && (
-                        <>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-center font-mono bg-amber-50/50">{r.ot_hours || 0}</td>
-                          <td className="p-3 text-right font-mono">{r.expenses_reimburs != null ? r.expenses_reimburs.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.lfa != null ? r.lfa.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.medical != null ? r.medical.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.over_time != null ? r.over_time.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold text-indigo-900 bg-indigo-50/30">{r.total != null ? r.total.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "allowance-recon" && (
-                        <>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-right font-mono">{r.month1_amount != null ? r.month1_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.month2_amount != null ? r.month2_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold">{r.variance != null ? r.variance.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "deduction-detail" && (
-                        <>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-right font-mono">{r.advance_loan != null ? r.advance_loan.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.advance_salary != null ? r.advance_salary.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.cable_charges != null ? r.cable_charges.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.cell_phone != null ? r.cell_phone.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.electric_charges != null ? r.electric_charges.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold text-indigo-900 bg-indigo-50/30">{r.total != null ? r.total.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "deduction-recon" && (
-                        <>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-right font-mono">{r.month1_amount != null ? r.month1_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.month2_amount != null ? r.month2_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold">{r.variance != null ? r.variance.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "month-wise-deduction" && (
-                        <>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-right font-mono">{r.month1_amount != null ? r.month1_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.month2_amount != null ? r.month2_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.month3_amount != null ? r.month3_amount.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold">{r.total != null ? r.total.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "bank-advice" && (
-                        <>
-                          <td className="p-3 text-center font-mono">{r.sr_no || idx + 1}</td>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 font-mono">{r.account_number}</td>
-                          <td className="p-3 text-right font-mono font-bold text-emerald-700">{r.salary_payable != null ? r.salary_payable.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "active-employees" && (
-                        <>
-                          <td className="p-3 text-center font-mono">{r.sr_no || idx + 1}</td>
-                          <td className="p-3 font-mono font-bold text-gray-900">{r.code}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.employee_name}</td>
-                          <td className="p-3 text-gray-600">{r.grade}</td>
-                          <td className="p-3 text-gray-600">{r.designation}</td>
-                          <td className="p-3 text-gray-600">{r.department}</td>
-                          <td className="p-3 text-gray-600">{r.type}</td>
-                          <td className="p-3 text-right font-mono font-bold">{r.gross != null ? r.gross.toLocaleString() : "-"}</td>
-                        </>
-                      )}
-
-                      {selectedReportId === "pf-detail" && (
-                        <>
-                          <td className="p-3 text-center font-mono">{r.sr_no || idx + 1}</td>
-                          <td className="p-3 font-medium text-gray-900">{r.month_year}</td>
-                          <td className="p-3 text-right font-mono">{r.actual_basic?.toLocaleString() || "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.earned_basic?.toLocaleString() || "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.earned_gross?.toLocaleString() || "-"}</td>
-                          <td className="p-3 text-right font-mono">{r.pf_contribution ? r.pf_contribution.toLocaleString() : "-"}</td>
-                          <td className="p-3 text-right font-mono font-bold">{r.balance ? r.balance.toLocaleString() : "-"}</td>
-                        </>
-                      )}
+                      <ReportRow reportId={selectedReportId} columns={columns} row={r} idx={idx} hasOtHours={hasOtHours} />
                     </tr>
                   );
                 })}
@@ -621,4 +419,189 @@ export default function ReportsPage() {
       </Card>
     </div>
   );
+}
+
+// ── Per-report table head / body ──────────────────────────────────
+// Pivot reports build their columns from the response, so the allowance and
+// deduction sets are whatever the period actually contains.
+
+function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; columns: string[]; hasOtHours: boolean }) {
+  switch (reportId) {
+    case "absent-supp":
+      return (
+        <>
+          <th className={`${TH} w-14`}>Sr.#</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Employee Name</th>
+          <th className={TH}>Designation</th>
+          <th className={TH}>Department</th>
+          <th className={`${TH} text-center`}>Absent</th>
+          <th className={`${TH} text-center`}>S.Days</th>
+        </>
+      );
+    case "allowance-detail":
+    case "deduction-detail":
+    case "month-wise-deduction":
+      return (
+        <>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Employee Name</th>
+          {hasOtHours && <th className={`${TH} text-center`}>OT Hours</th>}
+          {columns.map((c) => <th key={c} className={`${TH} text-right`}>{c}</th>)}
+          <th className={`${TH} text-right text-indigo-900`}>Total</th>
+        </>
+      );
+    case "allowance-recon":
+    case "deduction-recon":
+      return (
+        <>
+          <th className={TH}>Type</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Employee Name</th>
+          <th className={`${TH} text-right`}>From Period</th>
+          <th className={`${TH} text-right`}>To Period</th>
+          <th className={`${TH} text-right`}>Variance</th>
+        </>
+      );
+    case "bank-advice":
+      return (
+        <>
+          <th className={TH}>Bank / Branch</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Employee Name</th>
+          <th className={TH}>Account Number</th>
+          <th className={`${TH} text-right`}>Salary Payable</th>
+        </>
+      );
+    case "active-employees":
+      return (
+        <>
+          <th className={`${TH} w-12`}>S.#</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Employee Name</th>
+          <th className={TH}>Unit</th>
+          <th className={TH}>Location</th>
+          <th className={TH}>Grade</th>
+          <th className={TH}>Designation</th>
+          <th className={TH}>Department</th>
+          <th className={TH}>Section</th>
+          <th className={TH}>Qualification</th>
+          <th className={TH}>Type</th>
+          <th className={TH}>Date Of Birth</th>
+          <th className={TH}>Date Of Joining</th>
+          <th className={TH}>Date Of Confirm</th>
+          <th className={`${TH} text-right`}>Gross</th>
+        </>
+      );
+    case "pf-detail":
+      return (
+        <>
+          <th className={`${TH} w-14`}>S.No</th>
+          <th className={`${TH} ${STICKY_ID}`}>Month / Year</th>
+          <th className={`${TH} text-right`}>Actual Basic</th>
+          <th className={`${TH} text-right`}>Earned Basic</th>
+          <th className={`${TH} text-right`}>Actual Gross</th>
+          <th className={`${TH} text-right`}>Earned Gross</th>
+          <th className={`${TH} text-right`}>P.F Contribution</th>
+          <th className={`${TH} text-right`}>Balance</th>
+        </>
+      );
+  }
+}
+
+function ReportRow({
+  reportId, columns, row: r, idx, hasOtHours,
+}: { reportId: ReportType; columns: string[]; row: Record<string, unknown>; idx: number; hasOtHours: boolean }) {
+  const str = (k: string) => String(r[k] ?? "");
+  const val = (k: string) => r[k] as number | undefined;
+
+  switch (reportId) {
+    case "absent-supp":
+      return (
+        <>
+          <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} text-gray-600`}>{str("designation")}</td>
+          <td className={`${TD} text-gray-600`}>{str("department")}</td>
+          <td className={`${TD} text-center font-mono`}>{String(r.absent ?? "")}</td>
+          <td className={`${TD} text-center font-mono`}>{String(r.s_days ?? "")}</td>
+        </>
+      );
+    case "allowance-detail":
+    case "deduction-detail":
+    case "month-wise-deduction": {
+      const values = (r.values ?? {}) as Record<string, number>;
+      return (
+        <>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          {hasOtHours && (
+            <td className={`${TD} text-center font-mono bg-amber-50/60`}>
+              {r.ot_hours == null ? "" : String(r.ot_hours)}
+            </td>
+          )}
+          {columns.map((c) => (
+            <td key={c} className={`${TD} text-right font-mono`}>{money(values[c])}</td>
+          ))}
+          <td className={`${TD} text-right font-mono font-bold text-indigo-900`}>{money(val("total"))}</td>
+        </>
+      );
+    }
+    case "allowance-recon":
+    case "deduction-recon":
+      return (
+        <>
+          <td className={`${TD} text-gray-600 font-medium`}>{str("__group")}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("from_amount"))}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("to_amount"))}</td>
+          <td className={`${TD} text-right font-mono font-bold`}>{money(val("variance"))}</td>
+        </>
+      );
+    case "bank-advice":
+      return (
+        <>
+          <td className={`${TD} text-gray-600`}>{str("__group")}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} font-mono`}>{str("account_number")}</td>
+          <td className={`${TD} text-right font-mono font-bold text-emerald-700`}>{money(val("salary_payable"))}</td>
+        </>
+      );
+    case "active-employees":
+      return (
+        <>
+          <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} text-gray-600`}>{str("unit")}</td>
+          <td className={`${TD} text-gray-600`}>{str("location")}</td>
+          <td className={`${TD} text-gray-600`}>{str("grade")}</td>
+          <td className={`${TD} text-gray-600`}>{str("designation")}</td>
+          <td className={`${TD} text-gray-600`}>{str("department")}</td>
+          <td className={`${TD} text-gray-600`}>{str("section")}</td>
+          <td className={`${TD} text-gray-600`}>{str("qualification")}</td>
+          <td className={`${TD} text-gray-600`}>{str("emp_type")}</td>
+          <td className={`${TD} text-gray-600`}>{str("date_of_birth")}</td>
+          <td className={`${TD} text-gray-600`}>{str("date_of_joining")}</td>
+          <td className={`${TD} text-gray-600`}>{str("date_of_confirm")}</td>
+          <td className={`${TD} text-right font-mono font-bold`}>{money(val("gross"))}</td>
+        </>
+      );
+    case "pf-detail":
+      return (
+        <>
+          <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
+          <td className={`${TD} font-medium text-gray-900 ${STICKY_ID}`}>{str("month_year")}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("actual_basic"))}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("earned_basic"))}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("actual_gross"))}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("earned_gross"))}</td>
+          <td className={`${TD} text-right font-mono`}>{money(val("pf_contribution"))}</td>
+          <td className={`${TD} text-right font-mono font-bold`}>{money(val("balance"))}</td>
+        </>
+      );
+  }
 }

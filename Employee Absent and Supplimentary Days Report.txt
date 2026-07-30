@@ -1,0 +1,76 @@
+query 1
+
+SELECT UNIT_ID , 
+       PERIOD#, 
+       LOC_NAME , ' '||dept_name dept_name,
+       DESG_DESC ,  
+       ECODE,  
+       ENAME,
+       SUM(ABSENT) ABSENT, 
+       SUM(S_DAYS) S_DAYS
+       FROM  
+(SELECT b.UNIT_ID ,
+                A.PERIOD# ,
+       b.LOC_NAME ,
+       b.DEPT_NAME ,' '||B.DESG_DESC  DESG_DESC ,
+       A.OLD_EMPCODE ECODE,
+      ' '|| B.NAME ENAME,
+       A.DAYS,
+       A.ABSENT, 
+       0  S_DAYS
+  FROM HR_EMP_DAYS A, HR_EMP_MASTER_VIEW B
+ WHERE A.OLD_EMPCODE = B.OLD_EMPCODE
+   AND A.UNIT_ID = B.UNIT_ID
+   AND A.PERIOD# =  :mpf 
+   AND A.ABSENT > 0
+   AND A.UNIT_ID = nvl(:MUNIT,a.unit_id)  
+   AND B.LOCation = nvl(:MLOC,b.location) 
+  AND B.DEPT_NO = nvl(:MDEPt,b.dept_no )
+UNION ALL 
+SELECT b.UNIT_ID ,
+                A.PERIOD# ,
+       b.LOC_NAME ,
+       b.DEPT_NAME ,' '||B.DESG_DESC  DESG_DESC ,
+       A.OLD_EMPCODE ECODE,
+      ' '|| B.NAME ENAME,
+      0 DAYS,
+       0 ABSENT,
+       NOF_DAYS WORK_DAYS
+  FROM hr_trans_mst A, HR_EMP_MASTER_VIEW B
+ WHERE A.OLD_EMPCODE = B.OLD_EMPCODE
+   AND A.UNIT_ID = B.UNIT_ID
+   AND A.DOC_TYPE = 'S'
+   and a.nof_days >0
+   AND A.PERIOD# =  :mpf
+   AND A.UNIT_ID = nvl(:MUNIT,a.unit_id)  
+   AND B.LOCation = nvl(:MLOC,b.location) 
+  AND B.DEPT_NO = nvl(:MDEPT,b.dept_no ) )
+GROUP BY UNIT_ID , 
+       PERIOD#,
+       LOC_NAME , dept_name,
+       DESG_DESC , 
+       ECODE,
+       ENAME
+       
+       ORDER BY ECODE 
+
+query 2
+
+   select  codename('ORG',null,null) org_name ,
+               codename('COPYR', 'COPYR', NULL) COPYR,
+                DECODE(:mloc, 
+                 null,  
+                 'ALL Locations',  
+                  CODENAme('LOC_ID', :mloc, null)) Locnm,
+                  DECODE(:MUNIT, 
+                 null, 
+                 'ALL Units',
+                  CODENAme('UNIT_ID', :munit, null)) Unit_Name,
+                  DECODE(:memp, 
+                 null, 
+                 'ALL Employee',
+                  CODENAme('UNIT_ID', :memp, null)) Emp_Name,
+          'Employee Absent and Supplimentary Days Report' Head,
+          'For the Month of ' || codename('PERIOD#',:mpf,null)  head1 , 
+'Dewan Cement Limited.' compnm
+     FROM DUAL

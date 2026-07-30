@@ -1,0 +1,100 @@
+query 1
+
+select a.old_empcode empcode,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.ded_cd ALL_ID,
+       b.ded_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process_final a, hr_deduction b, hr_emp_master c
+ where a.trans_id = b.ded_cd
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and a.trans_type = 'D'
+   and a.period# between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+      AND :MRTYPE = 'P'
+ group by a.old_empcode,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.ded_cd ,
+          b.ded_desc
+---order by 3,1
+UNION ALL 
+select a.old_empcode empcode,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.ded_cd ALL_ID,
+       b.ded_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process a, hr_deduction b, hr_emp_master c
+ where a.trans_id = b.ded_cd
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and a.trans_type = 'D'
+   and a.period# between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+   AND :MRTYPE = 'C'
+ group by a.old_empcode,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.ded_cd ,
+          b.ded_desc
+order by 3,1
+
+query 2
+
+
+select a.old_empcode empcode,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.ded_cd ALL_ID,
+       b.ded_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process_final a, hr_deduction b, hr_emp_master c
+ where a.trans_id = b.ded_cd
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and a.trans_type = 'D'
+   and a.period# between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+      AND :MRTYPE = 'P'
+ group by a.old_empcode,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.ded_cd ,
+          b.ded_desc
+---order by 3,1
+UNION ALL 
+select a.old_empcode empcode,
+       ' '||c.name ename,
+       codename('LOC_ID', c.location, null) locnm,
+       b.ded_cd ALL_ID,
+       b.ded_desc descr,
+       sum(nvl(a.trans_amount, 0)) amont
+  from hr_salary_process a, hr_deduction b, hr_emp_master c
+ where a.trans_id = b.ded_cd
+   and a.old_empcode = c.old_empcode
+   and a.unit_id  = c.UNIT_ID
+   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and a.trans_type = 'D'
+   and a.period# between :p_period1 and :p_period2
+   and a.unit_id = nvl(:munitid, a.unit_id)
+   and c.location = NVL(:mlocatin,C.LOCATION)
+   and a.old_empcode = nvl(:mempcd, a.old_empcode)
+   AND :MRTYPE = 'C'
+ group by a.old_empcode,
+          c.name,
+          codename('LOC_ID', c.location, null),
+          b.ded_cd ,
+          b.ded_desc
+order by 3,1
