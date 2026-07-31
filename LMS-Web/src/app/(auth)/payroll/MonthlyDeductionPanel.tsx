@@ -12,9 +12,10 @@ import { listHRMSEmployees } from "@/services/hrmsService";
 import type { HRMSSearchResult } from "@/models/hrms";
 import {
   fetchDeductionTypes, fetchMonthlyDeductions, saveMonthlyDeduction, deleteMonthlyDeduction,
-  fetchOpenPeriods,
-  type DeductionType, type MonthlyDeduction, type OpenPeriod,
+  fetchEntryPeriods,
+  type DeductionType, type MonthlyDeduction, type EntryPeriod,
 } from "@/services/payrollEntryService";
+import { EntryPeriodSelect, ClosedPeriodNotice } from "./EntryPeriodSelect";
 
 const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
 
@@ -26,7 +27,8 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
   const [types, setTypes] = useState<DeductionType[]>([]);
   const [rows, setRows] = useState<MonthlyDeduction[]>([]);
   const [emps, setEmps] = useState<HRMSSearchResult[]>([]);
-  const [periods, setPeriods] = useState<OpenPeriod[]>([]);
+  const [periods, setPeriods] = useState<EntryPeriod[]>([]);
+  const [period, setPeriod] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -40,27 +42,36 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
       const [t, e, p] = await Promise.all([
         fetchDeductionTypes(adminCardNo, compc),
         listHRMSEmployees(adminCardNo, undefined, compc, brnch),
-        fetchOpenPeriods(adminCardNo, compc),
+        fetchEntryPeriods(adminCardNo, compc),
       ]);
-      setTypes(t.items || []); setEmps(e.items || []); setPeriods(p.items || []);
+      const items = p.items || [];
+      setTypes(t.items || []); setEmps(e.items || []); setPeriods(items);
+      setPeriod((cur) =>
+        cur != null && items.some((x) => x.period === cur)
+          ? cur
+          : (items.find((x) => x.is_open) ?? items[0])?.period ?? null);
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to load"); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCardNo, compc, brnch]);
 
   const loadRows = useCallback(async () => {
+    if (period == null) { setRows([]); return; }
     setLoading(true); setError(null);
     try {
-      const r = await fetchMonthlyDeductions(adminCardNo, compc, brnch, empFilter || undefined);
+      const r = await fetchMonthlyDeductions(adminCardNo, compc, brnch, empFilter || undefined, period);
       setRows(r.items || []);
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to load"); }
     finally { setLoading(false); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminCardNo, compc, brnch, empFilter]);
+  }, [adminCardNo, compc, brnch, empFilter, period]);
 
   useEffect(() => { loadStatic(); }, [loadStatic]);
   useEffect(() => { loadRows(); }, [loadRows]);
 
-  const openPeriod = periods[0];
+  const openPeriod = useMemo(() => periods.find((p) => p.is_open) ?? null, [periods]);
+  const selected = useMemo(() => periods.find((p) => p.period === period) ?? null, [periods, period]);
+  // Entries may only be added/removed in the open period (enforced server-side too).
+  const editable = selected?.is_open === true;
   const empOptions = useMemo(() => emps.map((e) => ({ value: e.empcode, label: `${e.name} (${e.empcode})` })), [emps]);
 
   async function save() {
@@ -97,10 +108,8 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
         <CardContent className="py-4">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2"><MinusCircle className="h-4 w-4 text-indigo-600" /> Monthly Deductions</h3>
-            {openPeriod ? (
-              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-2.5 py-1">
-                <CalendarRange className="h-3.5 w-3.5" /> Open Period: {openPeriod.label}
-              </span>
+            {periods.length > 0 ? (
+              <EntryPeriodSelect periods={periods} period={period} onChange={setPeriod} disabled={loading} />
             ) : (
               <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-1">No open period — open one in Period Opening</span>
             )}
@@ -110,7 +119,9 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
           </div>
 
           {/* Entry form */}
-          <div className="p-4 bg-indigo-50/50 rounded-xl mb-4">
+          <ClosedPeriodNotice selected={selected} openLabel={openPeriod?.label} noun="deductions" />
+
+          <div className={`p-4 rounded-xl mb-4 ${editable ? "bg-indigo-50/50" : "bg-gray-50 opacity-60 pointer-events-none"}`} aria-disabled={!editable}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <SearchableSelect label="Employee" value={form.empcode} onChange={(v) => setForm((f) => ({ ...f, empcode: v }))}
                 placeholder="Type a name or code…" options={empOptions} />
@@ -121,7 +132,8 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
               <Input label="Remarks" value={form.remarks} onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))} placeholder="Optional" />
             </div>
             <div className="mt-3">
-              <Button size="sm" onClick={save} disabled={saving || !openPeriod}>
+              <Button size="sm" onClick={save} disabled={saving || !editable}
+                title={editable ? "Save this deduction" : `${selected?.label ?? "This period"} is closed — entries can only be made in the open period`}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />} Save Deduction
               </Button>
             </div>
@@ -129,7 +141,7 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
 
           {/* View filter */}
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-gray-700">Deductions in this period</span>
+            <span className="text-sm font-medium text-gray-700">Deductions in {selected?.label ?? "this period"}</span>
             <div className="w-72 ml-auto flex items-center gap-2">
               <Search className="h-4 w-4 text-gray-400" />
               <SearchableSelect value={empFilter} onChange={setEmpFilter} placeholder="View a specific employee…"
@@ -150,7 +162,7 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {rows.length === 0 ? (
-                    <tr><td colSpan={8} className="py-8 text-center text-gray-400">No deductions for this period.</td></tr>
+                    <tr><td colSpan={8} className="py-8 text-center text-gray-400">No deductions for {selected?.label ?? "this period"}.</td></tr>
                   ) : rows.map((r) => (
                     <tr key={`${r.old_empcode}-${r.deduction_id}`} className="hover:bg-gray-50">
                       <td className="px-3 py-2 font-medium text-gray-900">{r.name || r.old_empcode}</td>
@@ -161,7 +173,7 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
                       <td className="px-3 py-2 text-right text-red-500 font-semibold">{money(r.amount)}</td>
                       <td className="px-3 py-2 text-gray-500">{r.remarks || "—"}</td>
                       <td className="px-3 py-2 text-right">
-                        <button onClick={() => remove(r)} disabled={busy === `${r.old_empcode}-${r.deduction_id}`} className="text-red-500 hover:text-red-700 disabled:opacity-40">
+                        <button onClick={() => remove(r)} disabled={!editable || busy === `${r.old_empcode}-${r.deduction_id}`} title={editable ? "Remove" : "Closed period — read only"} className="text-red-500 hover:text-red-700 disabled:opacity-30 disabled:cursor-not-allowed">
                           {busy === `${r.old_empcode}-${r.deduction_id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                         </button>
                       </td>

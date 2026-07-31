@@ -5,6 +5,11 @@ export interface OpenPeriod {
   period: number; rule_id?: number; period_frm: string; period_to: string;
   label: string; p_days?: number;
 }
+/** A period selectable in Monthly Inputs: the open one plus earlier months of its fiscal year. */
+export interface EntryPeriod extends OpenPeriod {
+  status: string;
+  is_open: boolean;
+}
 export interface RecoveryType { value: string; label: string }
 export interface AllowanceType { allowance_id: string; allowance_desc: string; allowance_type?: number }
 export interface DeductionType { deduction_id: string; deduction_desc: string }
@@ -36,10 +41,13 @@ const ac = (adminCardNo: string, compc?: string) =>
   `${a(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`;
 const acb = (adminCardNo: string, compc?: string, brnch?: string) =>
   `${ac(adminCardNo, compc)}${brnch ? `&brnch=${encodeURIComponent(brnch)}` : ""}`;
+const pq = (period?: number | null) => (period != null ? `&period=${period}` : "");
 
 // ── Open period / LOVs ──
 export const fetchOpenPeriods = (adminCardNo: string, compc?: string) =>
   apiRequest<{ items: OpenPeriod[] }>(`/payroll-entry/open-periods?${ac(adminCardNo, compc)}`);
+export const fetchEntryPeriods = (adminCardNo: string, compc?: string) =>
+  apiRequest<{ items: EntryPeriod[] }>(`/payroll-entry/entry-periods?${ac(adminCardNo, compc)}`);
 export const fetchRecoveryTypes = (adminCardNo: string) =>
   apiRequest<{ items: RecoveryType[] }>(`/payroll-entry/recovery-types?${a(adminCardNo)}`);
 export const fetchAllowanceTypes = (adminCardNo: string) =>
@@ -58,27 +66,27 @@ export const deleteLoanRecovery = (adminCardNo: string, rowid: string, compc?: s
   apiRequest(`/payroll-entry/loan-recoveries?${ac(adminCardNo, compc)}&rowid=${encodeURIComponent(rowid)}`, { method: "DELETE" });
 
 // ── Monthly allowances ──
-export const fetchMonthlyAllowances = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string) =>
-  apiRequest<{ items: MonthlyAllowance[] }>(`/payroll-entry/allowances?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}`);
-export const saveMonthlyAllowance = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>) =>
-  apiRequest(`/payroll-entry/allowances?${ac(adminCardNo, compc)}`, { method: "POST", body });
-export const deleteMonthlyAllowance = (adminCardNo: string, empcode: string, allowanceId: string, compc?: string) =>
-  apiRequest(`/payroll-entry/allowances?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&allowance_id=${encodeURIComponent(allowanceId)}`, { method: "DELETE" });
+export const fetchMonthlyAllowances = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string, period?: number | null) =>
+  apiRequest<{ items: MonthlyAllowance[] }>(`/payroll-entry/allowances?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}${pq(period)}`);
+export const saveMonthlyAllowance = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>, period?: number | null) =>
+  apiRequest(`/payroll-entry/allowances?${ac(adminCardNo, compc)}${pq(period)}`, { method: "POST", body });
+export const deleteMonthlyAllowance = (adminCardNo: string, empcode: string, allowanceId: string, compc?: string, period?: number | null) =>
+  apiRequest(`/payroll-entry/allowances?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&allowance_id=${encodeURIComponent(allowanceId)}${pq(period)}`, { method: "DELETE" });
 
 // ── Monthly deductions ──
-export const fetchMonthlyDeductions = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string) =>
-  apiRequest<{ items: MonthlyDeduction[] }>(`/payroll-entry/deductions?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}`);
-export const saveMonthlyDeduction = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>) =>
-  apiRequest(`/payroll-entry/deductions?${ac(adminCardNo, compc)}`, { method: "POST", body });
-export const deleteMonthlyDeduction = (adminCardNo: string, empcode: string, deductionId: string, compc?: string) =>
-  apiRequest(`/payroll-entry/deductions?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&deduction_id=${encodeURIComponent(deductionId)}`, { method: "DELETE" });
+export const fetchMonthlyDeductions = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string, period?: number | null) =>
+  apiRequest<{ items: MonthlyDeduction[] }>(`/payroll-entry/deductions?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}${pq(period)}`);
+export const saveMonthlyDeduction = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>, period?: number | null) =>
+  apiRequest(`/payroll-entry/deductions?${ac(adminCardNo, compc)}${pq(period)}`, { method: "POST", body });
+export const deleteMonthlyDeduction = (adminCardNo: string, empcode: string, deductionId: string, compc?: string, period?: number | null) =>
+  apiRequest(`/payroll-entry/deductions?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}&deduction_id=${encodeURIComponent(deductionId)}${pq(period)}`, { method: "DELETE" });
 
 // ── Absent days ──
-export const fetchAbsentDays = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string) =>
-  apiRequest<{ items: AbsentDay[] }>(`/payroll-entry/absent-days?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}`);
-export const fetchEmployeeAbsent = (adminCardNo: string, empcode: string, compc?: string) =>
-  apiRequest<{ absent_days: number; period: number | null }>(`/payroll-entry/absent-days/employee?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}`);
-export const saveAbsentDays = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>) =>
-  apiRequest(`/payroll-entry/absent-days?${ac(adminCardNo, compc)}`, { method: "POST", body });
-export const deleteAbsentDays = (adminCardNo: string, empcode: string, compc?: string) =>
-  apiRequest(`/payroll-entry/absent-days?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}`, { method: "DELETE" });
+export const fetchAbsentDays = (adminCardNo: string, compc?: string, brnch?: string, empcode?: string, period?: number | null) =>
+  apiRequest<{ items: AbsentDay[] }>(`/payroll-entry/absent-days?${acb(adminCardNo, compc, brnch)}${empcode ? `&empcode=${encodeURIComponent(empcode)}` : ""}${pq(period)}`);
+export const fetchEmployeeAbsent = (adminCardNo: string, empcode: string, compc?: string, period?: number | null) =>
+  apiRequest<{ absent_days: number; period: number | null }>(`/payroll-entry/absent-days/employee?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}${pq(period)}`);
+export const saveAbsentDays = (adminCardNo: string, compc: string | undefined, body: Record<string, unknown>, period?: number | null) =>
+  apiRequest(`/payroll-entry/absent-days?${ac(adminCardNo, compc)}${pq(period)}`, { method: "POST", body });
+export const deleteAbsentDays = (adminCardNo: string, empcode: string, compc?: string, period?: number | null) =>
+  apiRequest(`/payroll-entry/absent-days?${ac(adminCardNo, compc)}&empcode=${encodeURIComponent(empcode)}${pq(period)}`, { method: "DELETE" });

@@ -119,6 +119,76 @@ export const listOpenPeriods = async (compc) => {
   }
 };
 
+/**
+ * Periods selectable in the Monthly Inputs screens: the company's open period
+ * and every earlier month **of the same financial year** (RULE_ID). Later
+ * months of the year exist already (created with STATUS 'C' up-front) but have
+ * not happened yet, so they are excluded.
+ *
+ * Entries can only be edited in the open period; the earlier ones are returned
+ * so past input can be reviewed, flagged with is_open = false.
+ */
+export const listEntryPeriods = async (compc) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const result = await connection.execute(
+      `WITH open_p AS (
+         SELECT RULE_ID, PERIOD_FRM
+           FROM (SELECT RULE_ID, PERIOD_FRM
+                   FROM HR_ATTND_PERIOD
+                  WHERE UNIT_ID = :u AND UPPER(NVL(STATUS,'O')) = 'O'
+                  ORDER BY PERIOD_FRM DESC, "PERIOD#" DESC)
+          WHERE ROWNUM = 1
+       )
+       SELECT p."PERIOD#", p.RULE_ID, TO_CHAR(p.PERIOD_FRM,'YYYY-MM-DD'),
+              TO_CHAR(p.PERIOD_TO,'YYYY-MM-DD'), p.P_DAYS,
+              UPPER(NVL(p.STATUS,'O'))
+         FROM HR_ATTND_PERIOD p, open_p o
+        WHERE p.UNIT_ID = :u
+          AND p.RULE_ID = o.RULE_ID
+          AND p.PERIOD_FRM <= o.PERIOD_FRM
+        ORDER BY p.PERIOD_FRM DESC, p."PERIOD#" DESC`,
+      { u: toInt(compc) },
+      { outFormat: OUT_ARRAY }
+    );
+    return (result.rows ?? []).map((r) => ({
+      period: Number(r[0]),
+      rule_id: r[1] !== null && r[1] !== undefined ? Number(r[1]) : null,
+      period_frm: r[2], period_to: r[3], p_days: r[4],
+      status: t(r[5]) || "O",
+      is_open: t(r[5]) === "O",
+      label: label(r[2]) || `Period ${Number(r[0])}`,
+    }));
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * Read-side period resolver: accepts any period belonging to the company, open
+ * or closed, so a past month's entries can be displayed. Falls back to the
+ * latest open period when none is given.
+ *
+ * Writes must NOT use this — they use resolvePeriod below, which only ever
+ * resolves an open period.
+ */
+const resolvePeriodForRead = async (connection, compc, period = null) => {
+  const u = toInt(compc);
+  if (period === null || period === undefined || String(period).trim() === "") {
+    return resolvePeriod(connection, compc, null);
+  }
+  const result = await connection.execute(
+    `SELECT "PERIOD#", RULE_ID FROM HR_ATTND_PERIOD
+      WHERE UNIT_ID = :u AND "PERIOD#" = :p`,
+    { u, p: toInt(period) },
+    { outFormat: OUT_ARRAY }
+  );
+  const r = result.rows?.[0];
+  if (!r) return [null, null];
+  return [Number(r[0]), r[1] !== null && r[1] !== undefined ? Number(r[1]) : null];
+};
+
 // Return [period#, rule_id] for an open period of the company. If `period` is
 // given it must be open; otherwise the latest open period is used. Returns
 // [null, null] when there is no matching open period (mirrors _resolve_period).
@@ -144,6 +214,21 @@ const resolvePeriod = async (connection, compc, period = null) => {
   const r = result.rows?.[0];
   if (!r) return [null, null];
   return [Number(r[0]), r[1] !== null && r[1] !== undefined ? Number(r[1]) : null];
+};
+
+/**
+ * Message for a write that could not resolve an open period. Distinguishes
+ * "the period you named is closed" from "this company has no open period at
+ * all" — the old wording claimed the latter for both.
+ */
+const closedPeriodError = async (connection, compc, period) => {
+  if (period !== null && period !== undefined && String(period).trim() !== "") {
+    const [p] = await resolvePeriodForRead(connection, compc, period);
+    if (p !== null) {
+      return { status: "error", message: `Period is closed — entries can only be changed in the open period.` };
+    }
+  }
+  return { status: "error", message: "No open period for this company. Open a period first." };
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -343,7 +428,7 @@ export const listMonthlyAllowances = async (compc, period = null, empcode = null
   try {
     connection = await getDirectConnection();
     const u = toInt(compc);
-    const [per] = await resolvePeriod(connection, u, period);
+    const [per] = await resolvePeriodForRead(connection, u, period);
     if (per === null) return [];
     const conds = ["a.UNIT_ID = :u", 'a."PERIOD#" = :p'];
     const params = { u, p: per };
@@ -392,7 +477,7 @@ export const upsertMonthlyAllowance = async (compc, empcode, allowanceId, amount
     if (!toStr(empcode)) return { status: "error", message: "Employee is required" };
     if (!toStr(allowanceId)) return { status: "error", message: "Allowance is required" };
     let [per, rule] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company. Open a period first." };
+    if (per === null) return closedPeriodError(connection, u, period);
     if (rule === null) rule = 0;
     const link = await empLink(connection, String(empcode));
     await connection.execute(
@@ -429,7 +514,7 @@ export const deleteMonthlyAllowance = async (compc, empcode, allowanceId, period
     connection = await getDirectConnection();
     const u = toInt(compc);
     const [per] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company." };
+    if (per === null) return closedPeriodError(connection, u, period);
     const link = await empLink(connection, String(empcode));
     const result = await connection.execute(
       `DELETE FROM HR_MONTHLY_ALLOW
@@ -475,7 +560,7 @@ export const listMonthlyDeductions = async (compc, period = null, empcode = null
   try {
     connection = await getDirectConnection();
     const u = toInt(compc);
-    const [per] = await resolvePeriod(connection, u, period);
+    const [per] = await resolvePeriodForRead(connection, u, period);
     if (per === null) return [];
     const conds = ["a.UNIT_ID = :u", 'a."PERIOD#" = :p'];
     const params = { u, p: per };
@@ -524,7 +609,7 @@ export const upsertMonthlyDeduction = async (compc, empcode, deductionId, amount
     if (!toStr(empcode)) return { status: "error", message: "Employee is required" };
     if (!toStr(deductionId)) return { status: "error", message: "Deduction is required" };
     const [per] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company. Open a period first." };
+    if (per === null) return closedPeriodError(connection, u, period);
     const link = await empLink(connection, String(empcode));
     await connection.execute(
       `MERGE INTO HR_MONTHLY_DED t
@@ -557,7 +642,7 @@ export const deleteMonthlyDeduction = async (compc, empcode, deductionId, period
     connection = await getDirectConnection();
     const u = toInt(compc);
     const [per] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company." };
+    if (per === null) return closedPeriodError(connection, u, period);
     const link = await empLink(connection, String(empcode));
     const result = await connection.execute(
       `DELETE FROM HR_MONTHLY_DED
@@ -585,7 +670,7 @@ export const listAbsentDays = async (compc, period = null, empcode = null, brnch
   try {
     connection = await getDirectConnection();
     const u = toInt(compc);
-    const [per] = await resolvePeriod(connection, u, period);
+    const [per] = await resolvePeriodForRead(connection, u, period);
     if (per === null) return [];
     const conds = ["a.UNIT_ID = :u", 'a."PERIOD#" = :p'];
     const params = { u, p: per };
@@ -627,7 +712,7 @@ export const getEmployeeAbsent = async (compc, empcode, period = null) => {
   try {
     connection = await getDirectConnection();
     const u = toInt(compc);
-    const [per] = await resolvePeriod(connection, u, period);
+    const [per] = await resolvePeriodForRead(connection, u, period);
     if (per === null) return { absent_days: 0, period: null };
     const link = await empLink(connection, String(empcode));
     const result = await connection.execute(
@@ -652,7 +737,7 @@ export const setAbsentDays = async (compc, empcode, absentDays, { period = null,
     const days = toNum(absentDays);
     if (days === null || days < 0) return { status: "error", message: "Absent days must be zero or more" };
     const [per] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company. Open a period first." };
+    if (per === null) return closedPeriodError(connection, u, period);
     const link = await empLink(connection, String(empcode));
     await connection.execute(
       `MERGE INTO HR_ABSENT_DAYS t
@@ -680,7 +765,7 @@ export const deleteAbsentDays = async (compc, empcode, period = null) => {
     connection = await getDirectConnection();
     const u = toInt(compc);
     const [per] = await resolvePeriod(connection, u, period);
-    if (per === null) return { status: "error", message: "No open period for this company." };
+    if (per === null) return closedPeriodError(connection, u, period);
     const link = await empLink(connection, String(empcode));
     const result = await connection.execute(
       `DELETE FROM HR_ABSENT_DAYS

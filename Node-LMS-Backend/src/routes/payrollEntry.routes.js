@@ -3,7 +3,8 @@ import { validate } from "../middlewares/validate.middleware.js";
 import { requireHrAdmin } from "../middlewares/hrAdmin.middleware.js";
 
 import {
-  openPeriodsSchema, recoveryTypesSchema, allowanceTypesSchema, deductionTypesSchema,
+  openPeriodsSchema,
+  entryPeriodsSchema, recoveryTypesSchema, allowanceTypesSchema, deductionTypesSchema,
   recoverableLoansSchema, loanRecoveriesSchema, createLoanRecoverySchema, deleteLoanRecoverySchema,
   monthlyAllowancesSchema, createMonthlyAllowanceSchema, deleteMonthlyAllowanceSchema,
   monthlyDeductionsSchema, createMonthlyDeductionSchema, deleteMonthlyDeductionSchema,
@@ -11,7 +12,8 @@ import {
 } from "../models/payrollEntry.schema.js";
 
 import {
-  getOpenPeriods, getRecoveryTypes, getAllowanceTypes, getDeductionTypes,
+  getOpenPeriods,
+  getEntryPeriods, getRecoveryTypes, getAllowanceTypes, getDeductionTypes,
   getRecoverableLoans, getLoanRecoveries, postLoanRecovery, delLoanRecovery,
   getMonthlyAllowances, postMonthlyAllowance, delMonthlyAllowance,
   getMonthlyDeductions, postMonthlyDeduction, delMonthlyDeduction,
@@ -25,6 +27,7 @@ const router = Router();
 
 // Open periods / LOVs
 router.get("/open-periods", validate(openPeriodsSchema), requireHrAdmin, getOpenPeriods);
+router.get("/entry-periods", validate(entryPeriodsSchema), requireHrAdmin, getEntryPeriods);
 router.get("/recovery-types", validate(recoveryTypesSchema), requireHrAdmin, getRecoveryTypes);
 router.get("/allowance-types", validate(allowanceTypesSchema), requireHrAdmin, getAllowanceTypes);
 router.get("/deduction-types", validate(deductionTypesSchema), requireHrAdmin, getDeductionTypes);

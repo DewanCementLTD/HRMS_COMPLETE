@@ -32,7 +32,7 @@ const GROUPS: GroupDef[] = [
   },
   {
     id: "inputs", label: "Monthly Inputs", icon: Coins,
-    desc: "Allowances, deductions and absences for the current open period.",
+    desc: "Allowances, deductions and absences — editable in the open period, earlier months read-only.",
     tabs: [
       { id: "allowances", label: "Allowances", icon: Coins },
       { id: "deductions", label: "Deductions", icon: MinusCircle },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange, FileSpreadsheet } from "lucide-react";
+import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange, FileSpreadsheet, Lock, Unlock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -36,9 +36,17 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
   const loadPeriods = useCallback(async () => {
     try {
       const r = await fetchSalaryPeriods(adminCardNo, compc, brnch);
-      setPeriods(r.items || []);
-      if (r.items?.length) setPeriod((cur) => (cur != null && r.items.some((p) => p.period === cur) ? cur : r.items[0].period));
-      else { setPeriod(null); setRows([]); }
+      const items = r.items || [];
+      setPeriods(items);
+      // Default to the open period rather than merely the newest, so the panel
+      // lands on the month you can actually process.
+      if (items.length) {
+        setPeriod((cur) =>
+          cur != null && items.some((p) => p.period === cur)
+            ? cur
+            : (items.find((p) => p.is_open) ?? items[0]).period
+        );
+      } else { setPeriod(null); setRows([]); }
     } catch (e) { setError(e instanceof Error ? e.message : "Failed to load periods"); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCardNo, compc, brnch]);
@@ -101,6 +109,11 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
     net: filtered.reduce((a, r) => a + (r.net || 0), 0),
   }), [filtered]);
 
+  const selected = useMemo(() => periods.find((p) => p.period === period) ?? null, [periods, period]);
+  // Only the open period may be processed — the procedure itself only ever
+  // targets STATUS='O', so offering it for a closed month would be a lie.
+  const canProcess = Boolean(openPeriod) && selected?.is_open === true;
+
   return (
     <div className="space-y-4">
       {slip && <Payslip data={slip} onClose={() => setSlip(null)} />}
@@ -133,11 +146,33 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
             ) : (
               <span className="text-xs bg-amber-50 text-amber-700 border border-amber-100 rounded-full px-2.5 py-1">No open period — open one in Period Opening</span>
             )}
-            <Button onClick={runProcess} disabled={processing || !openPeriod} className="ml-auto">
+            {openPeriod && selected && !selected.is_open && (
+              <span className="inline-flex items-center gap-1.5 text-xs bg-gray-100 text-gray-600 border border-gray-200 rounded-full px-2.5 py-1">
+                <Lock className="h-3.5 w-3.5" /> Viewing {selected.label} (closed) — read only
+              </span>
+            )}
+            <Button
+              onClick={runProcess}
+              disabled={processing || !canProcess}
+              className="ml-auto"
+              title={
+                !openPeriod ? "No open period"
+                  : !canProcess ? `${selected?.label ?? "This period"} is closed. Only the open period (${openPeriod.label}) can be processed.`
+                  : `Run the salary process for ${openPeriod.label}`
+              }
+            >
               {processing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Cog className="h-4 w-4 mr-1.5" />}
               {processing ? "Processing…" : "Run Salary Process"}
             </Button>
           </div>
+
+          {openPeriod && selected && !selected.is_open && (
+            <p className="text-xs text-gray-500 mt-2">
+              Salary can only be processed for the open period. Switch the Processed Salary selector
+              back to <span className="font-semibold">{openPeriod.label}</span>, or reopen{" "}
+              {selected.label} under Configuration → Period Opening.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -145,12 +180,27 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
         <CardContent className="py-4">
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2"><FileText className="h-4 w-4 text-indigo-600" /> Processed Salary</h3>
-            <div>
+            <div className="flex items-center gap-2">
               <select value={period ?? ""} onChange={(e) => setPeriod(Number(e.target.value))}
                 className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
                 {periods.length === 0 && <option value="">No periods</option>}
-                {periods.map((p) => <option key={p.period} value={p.period}>{p.label} ({p.emp_count})</option>)}
+                {periods.map((p) => (
+                  <option key={p.period} value={p.period}>
+                    {p.label} ({p.emp_count}){p.is_open ? " — Open" : ""}
+                  </option>
+                ))}
               </select>
+              {selected && (
+                selected.is_open ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-2 py-0.5">
+                    <Unlock className="h-3 w-3" /> Open
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[11px] bg-gray-100 text-gray-600 border border-gray-200 rounded-full px-2 py-0.5">
+                    <Lock className="h-3 w-3" /> Closed
+                  </span>
+                )
+              )}
             </div>
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 w-56">
               <Search className="h-4 w-4 text-gray-400" />
@@ -162,7 +212,20 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
           </div>
 
           {loading ? <Spinner /> : filtered.length === 0 ? (
-            <div className="py-12 text-center text-gray-400"><Users className="h-8 w-8 mx-auto mb-2" />No processed salaries for this period.</div>
+            <div className="py-12 text-center text-gray-400">
+              <Users className="h-8 w-8 mx-auto mb-2" />
+              <p>No processed salaries for {selected?.label ?? "this period"}.</p>
+              {/* The working tables are cleared per company on every run, so an
+                  older month has data only if it was posted to the history
+                  tables. Say so rather than implying the month was never run. */}
+              {selected && !selected.is_open && selected.source === "none" && (
+                <p className="text-xs text-gray-400 mt-2 max-w-md mx-auto">
+                  Salary results for closed months are only kept once a period has been posted to
+                  the payroll history tables. Running the process for a newer month replaces the
+                  working results for earlier ones.
+                </p>
+              )}
+            </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-gray-100">
               <table className="w-full text-sm">

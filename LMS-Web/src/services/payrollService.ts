@@ -81,7 +81,18 @@ export const deleteLoan = (adminCardNo: string, doc: number, compc?: string) =>
   apiRequest(`/payroll/loans/${doc}?${ac(adminCardNo, compc)}`, { method: "DELETE" });
 
 // ── Salary / Payslips (read-only) ──
-export interface SalaryPeriod { period: number; period_frm: string; period_to: string; label: string; emp_count: number }
+export interface SalaryPeriod {
+  period: number;
+  period_frm: string;
+  period_to: string;
+  label: string;
+  emp_count: number;
+  /** 'O' = open, 'C' = closed. Only the open period can be processed. */
+  status: string;
+  is_open: boolean;
+  /** Which table the sheet comes from: live working tables, posted history, or neither. */
+  source: "working" | "posted" | "none";
+}
 export interface SalarySheetRow {
   old_empcode: string; name: string; atdtcard: string; empcode: string; dept_name: string;
   actual_gross: number; earned_gross: number; total_earning: number; total_deduction: number; net: number;

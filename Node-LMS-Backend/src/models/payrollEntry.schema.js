@@ -18,9 +18,17 @@ import { z } from "zod";
 
 const adminQuery = { admin_card_no: z.string().min(1, "admin_card_no is required") };
 
+// Optional payroll period. Omitted = the company's open period (previous
+// behaviour). Reads accept any period; writes still require it to be open.
+const periodQuery = { period: z.coerce.number().int().optional() };
+
 // ── Open periods / LOVs ──
 
 export const openPeriodsSchema = z.object({
+  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+});
+
+export const entryPeriodsSchema = z.object({
   query: z.object({ ...adminQuery, compc: z.string().optional() }),
 });
 
@@ -56,7 +64,7 @@ const loanRecoveryBody = {
 };
 
 export const createLoanRecoverySchema = z.object({
-  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  query: z.object({ ...adminQuery, ...periodQuery, compc: z.string().optional() }),
   body: z.object(loanRecoveryBody),
 });
 
@@ -68,7 +76,7 @@ export const deleteLoanRecoverySchema = z.object({
 
 export const monthlyAllowancesSchema = z.object({
   query: z.object({
-    ...adminQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
+    ...adminQuery, ...periodQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
   }),
 });
 
@@ -81,13 +89,13 @@ const monthlyAllowanceBody = {
 };
 
 export const createMonthlyAllowanceSchema = z.object({
-  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  query: z.object({ ...adminQuery, ...periodQuery, compc: z.string().optional() }),
   body: z.object(monthlyAllowanceBody),
 });
 
 export const deleteMonthlyAllowanceSchema = z.object({
   query: z.object({
-    ...adminQuery,
+    ...adminQuery, ...periodQuery,
     empcode: z.string().min(1, "empcode is required"),
     allowance_id: z.string().min(1, "allowance_id is required"),
     compc: z.string().optional(),
@@ -98,7 +106,7 @@ export const deleteMonthlyAllowanceSchema = z.object({
 
 export const monthlyDeductionsSchema = z.object({
   query: z.object({
-    ...adminQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
+    ...adminQuery, ...periodQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
   }),
 });
 
@@ -110,13 +118,13 @@ const monthlyDeductionBody = {
 };
 
 export const createMonthlyDeductionSchema = z.object({
-  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  query: z.object({ ...adminQuery, ...periodQuery, compc: z.string().optional() }),
   body: z.object(monthlyDeductionBody),
 });
 
 export const deleteMonthlyDeductionSchema = z.object({
   query: z.object({
-    ...adminQuery,
+    ...adminQuery, ...periodQuery,
     empcode: z.string().min(1, "empcode is required"),
     deduction_id: z.string().min(1, "deduction_id is required"),
     compc: z.string().optional(),
@@ -127,13 +135,13 @@ export const deleteMonthlyDeductionSchema = z.object({
 
 export const absentDaysSchema = z.object({
   query: z.object({
-    ...adminQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
+    ...adminQuery, ...periodQuery, compc: z.string().optional(), brnch: z.string().optional(), empcode: z.string().optional(),
   }),
 });
 
 export const employeeAbsentDaysSchema = z.object({
   query: z.object({
-    ...adminQuery, empcode: z.string().min(1, "empcode is required"), compc: z.string().optional(),
+    ...adminQuery, ...periodQuery, empcode: z.string().min(1, "empcode is required"), compc: z.string().optional(),
   }),
 });
 
@@ -143,12 +151,12 @@ const absentDaysBody = {
 };
 
 export const createAbsentDaysSchema = z.object({
-  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  query: z.object({ ...adminQuery, ...periodQuery, compc: z.string().optional() }),
   body: z.object(absentDaysBody),
 });
 
 export const deleteAbsentDaysSchema = z.object({
   query: z.object({
-    ...adminQuery, empcode: z.string().min(1, "empcode is required"), compc: z.string().optional(),
+    ...adminQuery, ...periodQuery, empcode: z.string().min(1, "empcode is required"), compc: z.string().optional(),
   }),
 });

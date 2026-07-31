@@ -809,35 +809,87 @@ const fiscalCalStarts = (periodFrm) => {
   return [`${fy}-07-01`, `${y}-01-01`];
 };
 
+/**
+ * The company's payroll months up to and including the currently open period —
+ * i.e. every month that has actually happened. Future months of the financial
+ * year (created up-front with STATUS 'C') are excluded.
+ *
+ * Driven by HR_ATTND_PERIOD, not by HR_SALARY_PROCESS_MASTER. The old version
+ * listed only periods present in that master table, which is a *working* table:
+ * HR_SALARY_PROCES_PRO clears it with `DELETE ... WHERE UNIT_ID = MUNIT` (no
+ * period predicate) on every run, so it only ever holds the most recently
+ * processed month. That made the dropdown show a single entry.
+ *
+ * NOTE on STATUS: it is a plain Open/Closed toggle, not a lifecycle — 'C' means
+ * "not open" and covers both finished and not-yet-started months. Past vs future
+ * is therefore decided by PERIOD_FRM against the open period, not by STATUS.
+ *
+ * `emp_count` counts the working table first and falls back to the posted
+ * (_FINAL) history, so a period reports whichever source actually holds it.
+ */
 export const listSalaryPeriods = async (compc = null, brnch = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
     const result = await connection.execute(
-      `SELECT m."PERIOD#", TO_CHAR(MIN(p.PERIOD_FRM),'YYYY-MM-DD'),
-              TO_CHAR(MIN(p.PERIOD_TO),'YYYY-MM-DD'), COUNT(*)
-       FROM HR_SALARY_PROCESS_MASTER m
-       LEFT JOIN HR_ATTND_PERIOD p ON p."PERIOD#" = m."PERIOD#" AND p.UNIT_ID = m.UNIT_ID
-       WHERE (:u IS NULL OR m.UNIT_ID = :u)
-         AND (:b IS NULL OR TRIM(m.LOCATION) = TRIM(:b))
-       GROUP BY m."PERIOD#" ORDER BY m."PERIOD#" DESC`,
+      `WITH open_p AS (
+         SELECT MAX(PERIOD_FRM) AS frm
+           FROM HR_ATTND_PERIOD
+          WHERE (:u IS NULL OR UNIT_ID = :u)
+            AND UPPER(NVL(STATUS,'O')) = 'O'
+       )
+       SELECT p."PERIOD#",
+              TO_CHAR(p.PERIOD_FRM,'YYYY-MM-DD'),
+              TO_CHAR(p.PERIOD_TO,'YYYY-MM-DD'),
+              UPPER(NVL(p.STATUS,'O')),
+              (SELECT COUNT(*) FROM HR_SALARY_PROCESS_MASTER m
+                WHERE m."PERIOD#" = p."PERIOD#" AND m.UNIT_ID = p.UNIT_ID
+                  AND (:b IS NULL OR TRIM(m.LOCATION) = TRIM(:b))),
+              (SELECT COUNT(*) FROM HR_SALARY_PROCESS_MASTER_FINAL f
+                WHERE f."PERIOD#" = p."PERIOD#" AND f.UNIT_ID = p.UNIT_ID
+                  AND (:b IS NULL OR TRIM(f.LOCATION) = TRIM(:b)))
+         FROM HR_ATTND_PERIOD p, open_p
+        WHERE (:u IS NULL OR p.UNIT_ID = :u)
+          AND (open_p.frm IS NULL OR p.PERIOD_FRM <= open_p.frm)
+        ORDER BY p.PERIOD_FRM DESC, p."PERIOD#" DESC`,
       { u: toInt(compc), b: toStr(brnch) },
       { outFormat: OUT_ARRAY }
     );
-    return (result.rows ?? []).map((r) => ({
-      period: Number(r[0]), period_frm: r[1], period_to: r[2],
-      label: label(r[1]) || `Period ${Number(r[0])}`, emp_count: Number(r[3]),
-    }));
+    return (result.rows ?? []).map((r) => {
+      const working = Number(r[4] || 0);
+      const posted = Number(r[5] || 0);
+      return {
+        period: Number(r[0]), period_frm: r[1], period_to: r[2],
+        label: label(r[1]) || `Period ${Number(r[0])}`,
+        status: trimOrEmpty(r[3]) || "O",
+        is_open: trimOrEmpty(r[3]) === "O",
+        emp_count: working || posted,
+        // Which table the sheet for this period will come from.
+        source: working ? "working" : posted ? "posted" : "none",
+      };
+    });
   } finally {
     await connection?.close();
   }
 };
 
+/**
+ * The salary sheet for one period.
+ *
+ * Reads the working tables (HR_SALARY_PROCESS_MASTER / HR_SALARY_PROCESS), and
+ * falls back to the posted history (…_MASTER_FINAL / …_FINAL) for periods the
+ * working tables no longer hold. HR_SALARY_PROCES_PRO wipes the working tables
+ * per UNIT_ID on every run, so only the most recently processed month survives
+ * there; older months can only come from the posted tables.
+ */
 export const listProcessedSalaries = async (compc, period, q = null, brnch = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
-    const result = await connection.execute(
+    const binds = { p: toInt(period), u: toInt(compc), b: toStr(brnch) };
+
+    // Same projection against either pair of tables.
+    const sheetSql = (master, detail) =>
       `SELECT m.OLD_EMPCODE,
               (SELECT MAX(e.NAME) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE=m.OLD_EMPCODE OR e.EMPCODE=m.OLD_EMPCODE),
               (SELECT MAX(e."ATDTCARD#") FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE=m.OLD_EMPCODE OR e.EMPCODE=m.OLD_EMPCODE),
@@ -846,16 +898,26 @@ export const listProcessedSalaries = async (compc, period, q = null, brnch = nul
                      WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
                   TO_CHAR(m.DEPT_NO)),
               NVL(m.ACTUAL_GROSS,0), NVL(m.EARNED_GROSS,0), NVL(m.TOTAL_EARNING,0),
-              (SELECT NVL(SUM(s.TRANS_AMOUNT),0) FROM HR_SALARY_PROCESS s
+              (SELECT NVL(SUM(s.TRANS_AMOUNT),0) FROM ${detail} s
                  WHERE s.OLD_EMPCODE=m.OLD_EMPCODE AND s."PERIOD#"=m."PERIOD#" AND s.UNIT_ID=m.UNIT_ID AND s.TRANS_TYPE='D'),
               m.SAL
-       FROM HR_SALARY_PROCESS_MASTER m
+       FROM ${master} m
        WHERE m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
          AND (:b IS NULL OR TRIM(m.LOCATION) = TRIM(:b))
-       ORDER BY 2`,
-      { p: toInt(period), u: toInt(compc), b: toStr(brnch) },
+       ORDER BY 2`;
+
+    let result = await connection.execute(
+      sheetSql("HR_SALARY_PROCESS_MASTER", "HR_SALARY_PROCESS"),
+      binds,
       { outFormat: OUT_ARRAY }
     );
+    if (!result.rows?.length) {
+      result = await connection.execute(
+        sheetSql("HR_SALARY_PROCESS_MASTER_FINAL", "HR_SALARY_PROCESS_FINAL"),
+        binds,
+        { outFormat: OUT_ARRAY }
+      );
+    }
     let out = (result.rows ?? []).map((r) => {
       const earned = Number(r[6] || 0);
       const ded = Number(r[8] || 0);
