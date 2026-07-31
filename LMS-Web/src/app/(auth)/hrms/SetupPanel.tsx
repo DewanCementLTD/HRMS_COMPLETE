@@ -319,7 +319,7 @@ function LocationsTable({
         <table className="min-w-full divide-y divide-gray-100">
           <thead className="bg-gray-50">
             <tr>
-              {["Code", "Description", "Short Name", "Region", "City", ""].map((c, i) => (
+              {["Description", "Short Name", "Region", "City", ""].map((c, i) => (
                 <th key={i} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{c}</th>
               ))}
             </tr>
@@ -328,29 +328,27 @@ function LocationsTable({
             {showAdd && (
               <AddRow
                 fields={[
-                  { key: "lcode",      label: "Code",        placeholder: "e.g. DAC" },
                   { key: "descr",      label: "Description", placeholder: "e.g. Dhaka Office" },
                   { key: "sname",      label: "Short Name",  placeholder: "Optional", optional: true },
                   { key: "regioncode", label: "Region",      placeholder: "Optional", optional: true },
                   { key: "city",       label: "City",        placeholder: "e.g. Dhaka",        optional: true },
                 ]}
                 onSave={async (vals) => {
-                  await addLocation(adminCardNo, vals.lcode, vals.descr, vals.sname || vals.descr, vals.regioncode || "", vals.city || "", compc);
+                  await addLocation(adminCardNo, vals.descr, vals.sname || vals.descr, vals.regioncode || "", vals.city || "", compc);
                   setShowAdd(false);
                   onRefresh();
                 }}
               />
             )}
             {loading && (
-              <tr><td colSpan={6} className="py-10 text-center"><Spinner /></td></tr>
+              <tr><td colSpan={5} className="py-10 text-center"><Spinner /></td></tr>
             )}
             {!loading && locs.length === 0 && (
-              <tr><td colSpan={6} className="py-10 text-center text-sm text-gray-400">No records found.</td></tr>
+              <tr><td colSpan={5} className="py-10 text-center text-sm text-gray-400">No records found.</td></tr>
             )}
             {!loading && locs.map((loc) =>
               editLcode === loc.lcode ? (
                 <tr key={loc.lcode} className="bg-indigo-50/60">
-                  <td className="px-4 py-2 text-sm font-mono text-gray-500">{loc.lcode}</td>
                   {(["descr", "sname", "regioncode", "city"] as const).map((field) => (
                     <td key={field} className="px-4 py-2">
                       <input
@@ -381,7 +379,6 @@ function LocationsTable({
                 </tr>
               ) : (
                 <tr key={loc.lcode} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-2.5 text-sm font-mono text-gray-700">{loc.lcode}</td>
                   <td className="px-4 py-2.5 text-sm text-gray-700">{loc.descr || "—"}</td>
                   <td className="px-4 py-2.5 text-sm text-gray-500">{loc.sname || "—"}</td>
                   <td className="px-4 py-2.5 text-sm text-gray-500">{loc.regioncode || "—"}</td>

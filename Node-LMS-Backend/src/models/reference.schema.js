@@ -124,7 +124,6 @@ export const addUnitSchema = z.object({
 
 export const locationSchema = z.object({
   body: z.object({
-    lcode: z.string().min(1),
     descr: z.string().min(1)
   }).passthrough()
 }).merge(baseQuery);

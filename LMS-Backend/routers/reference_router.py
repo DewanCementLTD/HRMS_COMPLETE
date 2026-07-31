@@ -8,12 +8,12 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from typing import Optional
 from core.dependencies import require_hr_admin
-from routers.hrms_router import _resolve_filter_lists
+from routers.hrms_router import _resolve_filter_lists, _get_admin_rights
 from repositories.reference_repository import (
     get_departments, get_grades, get_designations, get_shifts,
     get_shift_lov, add_shift_head, update_shift_head, delete_shift_head,
     get_blood_groups, get_cadre, get_units, get_religions, get_reporting_officers,
-    get_locations, add_location, update_location,
+    get_locations, get_next_location_code, add_location, update_location,
     add_department, add_grade, add_designation,
     add_blood_group, add_cadre, add_unit,
     get_emp_statuses, get_banks, get_bank_branches, get_qualifications,
@@ -126,6 +126,11 @@ def list_locations(
     return {"items": get_locations(allowed_branches=allowed_branches, compc=compc)}
 
 
+@router.get("/locations/next-code")
+def next_location_code():
+    return {"lcode": get_next_location_code()}
+
+
 # ─────────────────────────────────────────────────────────────────
 # ADD endpoints (HR admin only)
 # ─────────────────────────────────────────────────────────────────
@@ -145,6 +150,17 @@ def _admin_compc_brnch(admin_card_no: str):
         return default
 
     return _first_int(final_c, 1), _first_int(final_b, 1)
+
+
+def _admin_usrid(admin_card_no: str) -> Optional[str]:
+    """Resolve the acting admin's SEC_USERNAME.USRID from their card_no.
+
+    Needed because some legacy ERP-owned tables (COM_LOCATION, for one) carry
+    a NOT NULL USRID ownership column the app has to stamp itself.
+    """
+    rights = _get_admin_rights(admin_card_no)
+    usrid = rights.get("usrid")
+    return str(usrid).strip() if usrid is not None else None
 
 
 def _setup_company_branch(admin_card_no: str, compc: Optional[str], brnch: Optional[str]):
@@ -344,7 +360,7 @@ def create_unit(req: AddUnitRequest, admin_card_no: str = Query(...)):
 
 
 class LocationRequest(BaseModel):
-    lcode: str
+    lcode: Optional[str] = None
     descr: str
     sname: Optional[str] = None
     regioncode: Optional[str] = ""
@@ -354,11 +370,17 @@ class LocationRequest(BaseModel):
 @router.post("/locations")
 def create_location(req: LocationRequest, admin_card_no: str = Query(...), compc: Optional[str] = Query(None)):
     require_hr_admin(admin_card_no)
-    if not req.lcode.strip() or not req.descr.strip():
-        raise HTTPException(status_code=400, detail="Location code and description are required")
+    if not req.descr.strip():
+        raise HTTPException(status_code=400, detail="Location name is required")
     # New branch belongs to the selected company (COM_LOCATION.COMPC).
     company = _setup_company(admin_card_no, compc)
-    result = add_location(req.lcode, req.descr, req.sname or req.descr, req.regioncode or "", req.city or "", compc=company)
+    # COM_LOCATION.USRID is NOT NULL — stamp the acting admin's SEC_USERNAME id.
+    usrid = _admin_usrid(admin_card_no)
+    # LCODE is globally unique across all companies (PK_LOC), unlike
+    # HR_DEPT/HR_DESG whose codes repeat per COMPC — always auto-generate it
+    # server-side so admins can never collide with another company's code.
+    lcode = get_next_location_code()
+    result = add_location(lcode, req.descr, req.sname or req.descr, req.regioncode or "", req.city or "", compc=company, usrid=usrid)
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
     return result

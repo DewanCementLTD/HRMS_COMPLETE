@@ -82,6 +82,7 @@ def _get_admin_rights(admin_card_no: str) -> dict:
     return {
         "allowed_companies": allowed_c,
         "allowed_branches":  allowed_b,
+        "usrid": rights.get("usrid"),
     }
 
 

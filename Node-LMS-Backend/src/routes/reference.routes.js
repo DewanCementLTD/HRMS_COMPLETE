@@ -54,6 +54,9 @@ router.get("/reporting-officers", validate(schemas.readFilterSchema), controller
 // [x] http://localhost:8000/reference/locations?admin_card_no=100001.1
 router.get("/locations", validate(schemas.readFilterSchema), controllers.listLocations);
 
+// [x] http://localhost:8000/reference/locations/next-code
+router.get("/locations/next-code", controllers.getNextLocationCode);
+
 // ==========================================
 // ADD/EDIT endpoints (HR Admin Only)
 // ==========================================

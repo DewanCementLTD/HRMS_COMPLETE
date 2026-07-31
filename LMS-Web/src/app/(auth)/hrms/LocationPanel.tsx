@@ -608,19 +608,28 @@ function LocationsMasterTab({ adminCardNo }: { adminCardNo: string }) {
   }
 
   async function saveForm() {
-    if (!form.lcode.trim() || !form.descr.trim()) {
-      setSaveError("Location code and name are required.");
+    if (!isAdding && !form.lcode.trim()) {
+      setSaveError("Location code is required.");
+      return;
+    }
+    if (!form.descr.trim()) {
+      setSaveError("Location name is required.");
       return;
     }
     setSaving(true);
     setSaveError(null);
     try {
       if (isAdding) {
+        // LCODE is globally unique across all companies and is auto-assigned
+        // server-side (see COM_LOCATION.PK_LOC) — never sent from the client.
+        const { lcode, ...body } = form;
+        void lcode;
         await apiRequest(`/reference/locations?admin_card_no=${adminCardNo}`, {
           method: "POST",
-          body: JSON.stringify(form),
+          body: JSON.stringify(body),
         });
-        setRows((prev) => [...prev, { ...form }].sort((a, b) => a.lcode.localeCompare(b.lcode)));
+        const refreshed = await apiRequest<{ items: LocationRow[] }>("/reference/locations");
+        setRows(refreshed.items);
       } else {
         await apiRequest(`/reference/locations/${form.lcode}?admin_card_no=${adminCardNo}`, {
           method: "PUT",
@@ -674,16 +683,16 @@ function LocationsMasterTab({ adminCardNo }: { adminCardNo: string }) {
         <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 space-y-3">
           <p className="text-sm font-semibold text-indigo-800">{isAdding ? "Add New Location" : `Edit — ${editRow?.lcode}`}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Location Code *</label>
-              <input
-                value={form.lcode}
-                onChange={(e) => setForm((f) => ({ ...f, lcode: e.target.value }))}
-                disabled={!isAdding}
-                placeholder="e.g. 10"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:bg-gray-100 disabled:text-gray-400"
-              />
-            </div>
+            {!isAdding && (
+              <div>
+                <label className="text-xs font-medium text-gray-600 block mb-1">Location Code</label>
+                <input
+                  value={form.lcode}
+                  disabled
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-400"
+                />
+              </div>
+            )}
             <div className="sm:col-span-2 lg:col-span-1">
               <label className="text-xs font-medium text-gray-600 block mb-1">Name / Description *</label>
               <input

@@ -469,6 +469,19 @@ export const getReportingOfficers = async (compc = null, brnch = null) => {
   }
 };
 
+export const getNextLocationCode = async () => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    // LCODE is a globally unique code shared across all companies (unlike
+    // HR_DEPT/HR_DESG, whose codes repeat per COMPC) — see PK_LOC. Suggest the
+    // next free one so admins don't collide with another company's branch.
+    return await nextCode(conn, "COM_LOCATION", "LCODE");
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
 export const getLocations = async (allowedBranches = null, compc = null) => {
   let conn;
   try {
@@ -773,6 +786,9 @@ export const addLocation = async (lcode, descr, sname, regioncode, city, compc =
     return { status: "success", lcode: String(lcode).trim() };
   } catch (e) {
     if (conn) await conn.rollback();
+    if (e.message.includes("ORA-00001") && e.message.includes("PK_LOC")) {
+      return { status: "error", message: `Location code "${String(lcode).trim()}" already exists. Please choose a different code.` };
+    }
     return { status: "error", message: e.message };
   } finally {
     if (conn) await conn.close();

@@ -230,13 +230,23 @@ export const createUnit = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+export const getNextLocationCode = async (req, res, next) => {
+  try {
+    res.json({ lcode: await refService.getNextLocationCode() });
+  } catch (err) { next(err); }
+};
+
 export const createLocation = async (req, res, next) => {
   try {
     const { admin_card_no, compc } = res.locals.validated.query;
-    const { lcode, descr, sname, regioncode, city } = res.locals.validated.body;
+    const { descr, sname, regioncode, city } = res.locals.validated.body;
     const company = await setupCompany(admin_card_no, compc);
     // COM_LOCATION.USRID is NOT NULL — stamp the acting admin's SEC_USERNAME id.
     const usrid = await getAdminUsrid(admin_card_no);
+    // LCODE is globally unique across all companies (PK_LOC), unlike
+    // HR_DEPT/HR_DESG whose codes repeat per COMPC — always auto-generate it
+    // server-side so admins can never collide with another company's code.
+    const lcode = await refService.getNextLocationCode();
     handleResult(res, await refService.addLocation(lcode, descr, sname || descr, regioncode || "", city || "", company, usrid));
   } catch (err) { next(err); }
 };

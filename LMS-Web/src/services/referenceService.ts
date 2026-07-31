@@ -120,8 +120,8 @@ export const addCadre       = (adminCardNo: string, cadre: string) =>
 export const addUnit        = (adminCardNo: string, unit_name: string) =>
   apiRequest<Unit>(`/reference/units${q(adminCardNo)}`, { method: "POST", body: { unit_name } });
 
-export const addLocation    = (adminCardNo: string, lcode: string, descr: string, sname: string, regioncode: string, city: string, compc?: string) =>
-  apiRequest<Location>(`/reference/locations${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "POST", body: { lcode, descr, sname, regioncode, city } });
+export const addLocation    = (adminCardNo: string, descr: string, sname: string, regioncode: string, city: string, compc?: string) =>
+  apiRequest<Location>(`/reference/locations${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "POST", body: { descr, sname, regioncode, city } });
 
 export const updateLocation = (adminCardNo: string, lcode: string, descr: string, sname: string, regioncode: string, city: string) =>
   apiRequest<Location>(`/reference/locations/${encodeURIComponent(lcode)}${q(adminCardNo)}`, { method: "PUT", body: { lcode, descr, sname, regioncode, city } });

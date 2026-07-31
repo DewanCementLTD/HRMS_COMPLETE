@@ -699,6 +699,18 @@ def add_cadre(cadre: str, compc=1, brnch=1) -> dict:
         cursor.close(); conn.close()
 
 
+def get_next_location_code() -> str:
+    """Suggest the next free COM_LOCATION.LCODE. LCODE is globally unique across
+    all companies (PK_LOC), unlike HR_DEPT/HR_DESG whose codes repeat per COMPC,
+    so this avoids admins picking a code another company already owns."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        return _next_code(cursor, "COM_LOCATION", "LCODE")
+    finally:
+        cursor.close(); conn.close()
+
+
 def get_locations(allowed_branches=None, compc=None) -> list:
     """Return locations (branches) from COM_LOCATION.
     - compc: when given, only branches of that company (COM_LOCATION.COMPC).
@@ -746,22 +758,29 @@ def get_locations(allowed_branches=None, compc=None) -> list:
         cursor.close(); conn.close()
 
 
-def add_location(lcode: str, descr: str, sname: str, regioncode: str, city: str, compc=None) -> dict:
+def add_location(lcode: str, descr: str, sname: str, regioncode: str, city: str, compc=None, usrid=None) -> dict:
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "INSERT INTO COM_LOCATION (LCODE, DESCR, SNAME, REGIONCODE, CITY, COMPC)"
-            " VALUES (:lcode, :descr, :sname, :region, :city, :compc)",
+            # COM_LOCATION.USRID is an ERP-owned NOT NULL ownership column with no
+            # default and no trigger, so the insert MUST supply it — omitting it
+            # fails with ORA-01400. Stamped with the acting admin's SEC_USERNAME.USRID.
+            "INSERT INTO COM_LOCATION (LCODE, DESCR, SNAME, REGIONCODE, CITY, COMPC, USRID)"
+            " VALUES (:lcode, :descr, :sname, :region, :city, :compc, :usrid)",
             {"lcode": lcode.strip(), "descr": descr.strip(), "sname": (sname or descr).strip(),
              "region": regioncode.strip(), "city": city.strip(),
-             "compc": (str(compc).strip() if compc is not None and str(compc).strip() != "" else None)}
+             "compc": (str(compc).strip() if compc is not None and str(compc).strip() != "" else None),
+             "usrid": (str(usrid).strip() if usrid is not None and str(usrid).strip() != "" else "1")}
         )
         conn.commit()
         return {"status": "success", "lcode": lcode.strip()}
     except Exception as e:
         conn.rollback()
-        return {"status": "error", "message": str(e)}
+        msg = str(e)
+        if "ORA-00001" in msg and "PK_LOC" in msg:
+            msg = f'Location code "{lcode.strip()}" already exists. Please choose a different code.'
+        return {"status": "error", "message": msg}
     finally:
         cursor.close(); conn.close()
 
