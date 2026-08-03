@@ -1,5 +1,6 @@
 query 1
 
+
 SELECT b.unit_id,
        B.PERIOD# ,
        CODENAME('PERIOD#',B.PERIOD#,NULL) MNTH,

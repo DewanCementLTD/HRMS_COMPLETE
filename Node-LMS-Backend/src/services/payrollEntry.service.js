@@ -541,12 +541,10 @@ export const listDeductionTypes = async (compc = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
-    const c = toInt(compc);
-    const where = c !== null ? "WHERE UNIT_ID = :u" : "";
-    const params = c !== null ? { u: c } : {};
+    // HR_DEDUCTION is a global master table. All companies use UNIT_ID = 1 (or NULL) deductions.
     const result = await connection.execute(
-      `SELECT DED_CD, DED_DESC FROM HR_DEDUCTION ${where} ORDER BY LPAD(DED_CD, 5)`,
-      params,
+      `SELECT DED_CD, DED_DESC FROM HR_DEDUCTION WHERE (UNIT_ID = 1 OR UNIT_ID IS NULL) AND DED_CD IS NOT NULL ORDER BY TO_NUMBER(DED_CD)`,
+      {},
       { outFormat: OUT_ARRAY }
     );
     return (result.rows ?? []).map((r) => ({ deduction_id: t(r[0]), deduction_desc: t(r[1]) }));

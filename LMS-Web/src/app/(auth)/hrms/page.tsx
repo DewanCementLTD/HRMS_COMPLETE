@@ -430,6 +430,49 @@ export default function HRMSPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, user?.hr_admin]);
 
+  // ---- Populate edit form when selectedEmployee is ready ----
+  useEffect(() => {
+    if (view === "edit" && ctrl.selectedEmployee) {
+      const e = ctrl.selectedEmployee;
+      setForm({
+        name: e.name || "",
+        fhname: e.fhname || "",
+        atdtcard: e.atdtcard || "",
+        sex: e.sex || "",
+        dtofbrth: e.dtofbrth || "",
+        nicno: e.nicno || "",
+        dtofappt: e.dtofappt || "",
+        dept_no: e.dept_no || "",
+        desg_cd: e.desg_cd || "",
+        mobile: e.mobile || "",
+        email: e.email || "",
+        address: e.address || "",
+        unit_id: e.unit_id ?? 1,
+        location: e.location || "",
+        status: e.status || "A",
+        user_paswd: e.user_paswd || "",
+        hr_admin: e.hr_admin || "N",
+        rpt_officer: e.rpt_officer || "",
+        marstat: e.marstat || "",
+        religion: e.religion || "",
+        basic: e.basic ?? undefined,
+        gross: e.gross ?? undefined,
+        w_hour: e.w_hour ?? undefined,
+        track_location: e.track_location || "N",
+        track_location_hr: e.track_location_hr ?? 2,
+        // Extended profile fields
+        emp_status: e.emp_status || "",
+        ntn: e.ntn || "",
+        bnkcode: e.bnkcode || "",
+        brncode: e.brncode || "",
+        bnkacct: e.bnkacct || "",
+        qfication: e.qfication || "",
+        qual_detail: e.qual_detail || "",
+        dtofconfirm: e.dtofconfirm || "",
+      });
+    }
+  }, [view, ctrl.selectedEmployee]);
+
   // Access check
   if (!user?.hr_admin) {
     return (
@@ -567,49 +610,6 @@ export default function HRMSPage() {
     });
     setView("roster");
   }
-
-  // ---- Populate edit form when selectedEmployee is ready ----
-  useEffect(() => {
-    if (view === "edit" && ctrl.selectedEmployee) {
-      const e = ctrl.selectedEmployee;
-      setForm({
-        name: e.name || "",
-        fhname: e.fhname || "",
-        atdtcard: e.atdtcard || "",
-        sex: e.sex || "",
-        dtofbrth: e.dtofbrth || "",
-        nicno: e.nicno || "",
-        dtofappt: e.dtofappt || "",
-        dept_no: e.dept_no || "",
-        desg_cd: e.desg_cd || "",
-        mobile: e.mobile || "",
-        email: e.email || "",
-        address: e.address || "",
-        unit_id: e.unit_id ?? 1,
-        location: e.location || "",
-        status: e.status || "A",
-        user_paswd: e.user_paswd || "",
-        hr_admin: e.hr_admin || "N",
-        rpt_officer: e.rpt_officer || "",
-        marstat: e.marstat || "",
-        religion: e.religion || "",
-        basic: e.basic ?? undefined,
-        gross: e.gross ?? undefined,
-        w_hour: e.w_hour ?? undefined,
-        track_location: e.track_location || "N",
-        track_location_hr: e.track_location_hr ?? 2,
-        // Extended profile fields
-        emp_status: e.emp_status || "",
-        ntn: e.ntn || "",
-        bnkcode: e.bnkcode || "",
-        brncode: e.brncode || "",
-        bnkacct: e.bnkacct || "",
-        qfication: e.qfication || "",
-        qual_detail: e.qual_detail || "",
-        dtofconfirm: e.dtofconfirm || "",
-      });
-    }
-  }, [view, ctrl.selectedEmployee]);
 
   function updateField(
     field: keyof HRMSEmployeeCreate,

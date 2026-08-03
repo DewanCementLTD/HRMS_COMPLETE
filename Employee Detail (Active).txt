@@ -1,5 +1,6 @@
 // select * from hr_emp_master_view e where e.unit_id = 2
 
+
 query 1
 
 select a.UNIT_NAME,a.LOC_NAME,a.EMP_type,

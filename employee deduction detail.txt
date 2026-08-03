@@ -1,5 +1,6 @@
 query 1
 
+
 select a.old_empcode empcode,
        ' '||c.name ename,
        codename('LOC_ID', c.location, null) locnm,

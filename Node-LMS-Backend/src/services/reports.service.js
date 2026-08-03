@@ -193,7 +193,7 @@ export const listDeductionTypes = async () => {
   try {
     connection = await getDirectConnection();
     const res = await connection.execute(
-      `SELECT DED_CD, DED_DESC FROM HR_DEDUCTION ORDER BY TO_NUMBER(DED_CD)`,
+      `SELECT DED_CD, DED_DESC FROM HR_DEDUCTION WHERE (UNIT_ID = 1 OR UNIT_ID IS NULL) AND DED_CD IS NOT NULL ORDER BY TO_NUMBER(DED_CD)`,
       {},
       { outFormat: OUT_ARRAY }
     );

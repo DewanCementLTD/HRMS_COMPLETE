@@ -9,6 +9,7 @@ to view Unit 2's tax deductions.
 
 query 1
 
+
 select a.unit_id,
        a.location,
        a.old_empcode,
