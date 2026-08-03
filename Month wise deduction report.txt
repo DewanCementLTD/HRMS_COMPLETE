@@ -1,3 +1,12 @@
+// Updated getMonthWiseDeductionReport in reports.service.js to query 
+// both HR_SALARY_PROCESS (current active runs) 
+// and HR_SALARY_PROCESS_FINAL (posted month-ends) using a UNION ALL.
+
+
+When logged into Unit 2, selecting Unit 2's INCOME TAX (DED_CD = 29) 
+from the dropdown returns 0 rows. Users must select Unit 1's INCOME TAX (DED_CD = 10)
+to view Unit 2's tax deductions.
+
 query 1
 
 select a.unit_id,

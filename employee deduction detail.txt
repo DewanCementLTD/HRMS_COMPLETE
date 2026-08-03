@@ -7,10 +7,10 @@ select a.old_empcode empcode,
        b.ded_desc descr,
        sum(nvl(a.trans_amount, 0)) amont
   from hr_salary_process_final a, hr_deduction b, hr_emp_master c
- where a.trans_id = b.ded_cd
+ where a.trans_id = b.ded_cd                             // Issue
    and a.old_empcode = c.old_empcode
    and a.unit_id  = c.UNIT_ID
-   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and b.ded_cd not in (1,10,11,12,13,16,5)              // Issue
    and a.trans_type = 'D'
    and a.period# between :p_period1 and :p_period2
    and a.unit_id = nvl(:munitid, a.unit_id)
@@ -31,10 +31,10 @@ select a.old_empcode empcode,
        b.ded_desc descr,
        sum(nvl(a.trans_amount, 0)) amont
   from hr_salary_process a, hr_deduction b, hr_emp_master c
- where a.trans_id = b.ded_cd
+ where a.trans_id = b.ded_cd                         // Issue
    and a.old_empcode = c.old_empcode
    and a.unit_id  = c.UNIT_ID
-   and b.ded_cd not in (1,10,11,12,13,16,5)
+   and b.ded_cd not in (1,10,11,12,13,16,5)            // Issue
    and a.trans_type = 'D'
    and a.period# between :p_period1 and :p_period2
    and a.unit_id = nvl(:munitid, a.unit_id)

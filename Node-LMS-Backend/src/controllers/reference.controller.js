@@ -86,8 +86,8 @@ export const listBanks = async (req, res, next) => {
 
 export const listBankBranches = async (req, res, next) => {
   try {
-    const { bnkcode } = res.locals.validated.query;
-    res.json({ items: await refService.getBankBranches(bnkcode) });
+    const { bnkcode, compc } = res.locals.validated.query;
+    res.json({ items: await refService.getBankBranches(bnkcode, compc) });
   } catch (err) { next(err); }
 };
 

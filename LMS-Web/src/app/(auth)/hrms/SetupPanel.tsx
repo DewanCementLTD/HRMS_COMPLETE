@@ -76,7 +76,7 @@ function AddRow({
   fields,
   onSave,
 }: {
-  fields: { key: string; label: string; placeholder: string; optional?: boolean }[];
+  fields: { key: string; label: string; placeholder: string; optional?: boolean; auto?: boolean }[];
   onSave: (values: Record<string, string>) => Promise<void>;
 }) {
   const [values, setValues] = useState<Record<string, string>>(() =>
@@ -86,7 +86,7 @@ function AddRow({
   const [error, setError] = useState<string | null>(null);
 
   async function handleSave() {
-    if (fields.some((f) => !f.optional && !values[f.key].trim())) {
+    if (fields.some((f) => !f.optional && !f.auto && !values[f.key]?.trim())) {
       setError("Required fields must be filled");
       return;
     }
@@ -106,14 +106,20 @@ function AddRow({
     <tr className="bg-indigo-50/60">
       {fields.map((f) => (
         <td key={f.key} className="px-4 py-2">
-          <input
-            type="text"
-            value={values[f.key]}
-            onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder={f.placeholder}
-            className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          />
+          {f.auto ? (
+            <span className="text-xs text-gray-400 font-mono italic px-1.5 py-1 block bg-gray-100/60 rounded border border-dashed border-gray-200 text-center">
+              (Auto)
+            </span>
+          ) : (
+            <input
+              type="text"
+              value={values[f.key] ?? ""}
+              onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
+              placeholder={f.placeholder}
+              className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+            />
+          )}
         </td>
       ))}
       <td className="px-4 py-2">
@@ -328,10 +334,10 @@ function LocationsTable({
             {showAdd && (
               <AddRow
                 fields={[
-                  { key: "descr",      label: "Description", placeholder: "e.g. Dhaka Office" },
-                  { key: "sname",      label: "Short Name",  placeholder: "Optional", optional: true },
-                  { key: "regioncode", label: "Region",      placeholder: "Optional", optional: true },
-                  { key: "city",       label: "City",        placeholder: "e.g. Dhaka",        optional: true },
+                  { key: "descr", label: "Description", placeholder: "e.g. Dhaka Office" },
+                  { key: "sname", label: "Short Name", placeholder: "Optional", optional: true },
+                  { key: "regioncode", label: "Region", placeholder: "Optional", optional: true },
+                  { key: "city", label: "City", placeholder: "e.g. Dhaka", optional: true },
                 ]}
                 onSave={async (vals) => {
                   await addLocation(adminCardNo, vals.descr, vals.sname || vals.descr, vals.regioncode || "", vals.city || "", compc);
@@ -486,13 +492,13 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [tab, setTab] = useState<Tab>("departments");
 
   // Data
-  const [depts,  setDepts]  = useState<Department[]>([]);
+  const [depts, setDepts] = useState<Department[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [desigs, setDesigs] = useState<Designation[]>([]);
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [shiftLov, setShiftLov] = useState<ShiftLov[]>([]);
-  const [bgs,    setBgs]    = useState<BloodGroup[]>([]);
-  const [locs,   setLocs]   = useState<Location[]>([]);
+  const [bgs, setBgs] = useState<BloodGroup[]>([]);
+  const [locs, setLocs] = useState<Location[]>([]);
   const [empStatuses, setEmpStatuses] = useState<EmpStatus[]>([]);
   const [banks, setBanks] = useState<Bank[]>([]);
   const [bankBranches, setBankBranches] = useState<BankBranch[]>([]);
@@ -505,7 +511,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     setLoading(true);
     try {
       switch (t) {
-        case "departments":  { const r = await fetchDepartments(activeCompany, activeBranch);  setDepts(r.items);  break; }
+        case "departments": { const r = await fetchDepartments(activeCompany, activeBranch); setDepts(r.items); break; }
         case "designations": {
           // Grades are loaded alongside so the "filter by grade" dropdown works.
           const [r, g] = await Promise.all([
@@ -514,22 +520,22 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           ]);
           setDesigs(r.items); setGrades(g.items); break;
         }
-        case "shifts":       {
+        case "shifts": {
           const [r, l] = await Promise.all([
             fetchShifts(activeCompany, activeBranch),
             fetchShiftLov(),
           ]);
           setShifts(r.items); setShiftLov(l.items); break;
         }
-        case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch);  setBgs(r.items);    break; }
-        case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
+        case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch); setBgs(r.items); break; }
+        case "locations": { const r = await fetchLocations(activeCompany); setLocs(r.items); break; }
         case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
         case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
         case "interview_types": { const r = await fetchInterviewTypes(activeCompany, activeBranch); setIvTypes(r.items); break; }
-        case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
+        case "banks": { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
         case "bank_branches": {
           const r = await fetchBanks(activeCompany); setBanks(r.items);
-          if (branchBank) { const b = await fetchBankBranches(branchBank); setBankBranches(b.items); }
+          if (branchBank) { const b = await fetchBankBranches(branchBank, activeCompany); setBankBranches(b.items); }
           else setBankBranches([]);
           break;
         }
@@ -560,6 +566,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("departments")}
       addFields={[
+        { key: "dept_no", label: "Dept No", placeholder: "(Auto)", auto: true },
         { key: "dept_name", label: "Department Name", placeholder: "e.g. Human Resources" },
       ]}
       onAdd={async (v) => {
@@ -595,8 +602,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         loading={loading}
         onRefresh={() => load("designations")}
         addFields={[
-          { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1" },
-          { key: "desg_desc", label: "Designation",  placeholder: "e.g. Senior Officer" },
+          { key: "grade_cd", label: "Grade Code", placeholder: "e.g. G1" },
+          { key: "desg_cd", label: "Desig Code", placeholder: "(Auto)", auto: true },
+          { key: "desg_desc", label: "Designation", placeholder: "e.g. Senior Officer" },
         ]}
         onAdd={async (v) => {
           await addDesignation(adminCardNo, v.grade_cd, v.desg_desc);
@@ -626,6 +634,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("blood_groups")}
       addFields={[
+        { key: "pk", label: "ID", placeholder: "(Auto)", auto: true },
         { key: "blood_group", label: "Blood Group", placeholder: "e.g. AB+" },
       ]}
       onAdd={async (v) => {
@@ -652,7 +661,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       rows={empStatuses.map((s) => [s.emp_status, s.descr])}
       loading={loading}
       onRefresh={() => load("emp_statuses")}
-      addFields={[{ key: "descr", label: "Status", placeholder: "e.g. Permanent" }]}
+      addFields={[
+        { key: "emp_status", label: "Code", placeholder: "(Auto)", auto: true },
+        { key: "descr", label: "Status", placeholder: "e.g. Permanent" },
+      ]}
       onAdd={async (v) => { await addEmpStatus(adminCardNo, v.descr, activeCompany); }}
       onDelete={async (i) => { await deleteEmpStatus(adminCardNo, empStatuses[i].emp_status, activeCompany); }}
     />
@@ -691,7 +703,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       rows={banks.map((b) => [b.bnkcode, b.bnkname])}
       loading={loading}
       onRefresh={() => load("banks")}
-      addFields={[{ key: "bnkname", label: "Bank Name", placeholder: "e.g. HBL" }]}
+      addFields={[
+        { key: "bnkcode", label: "Bank Code", placeholder: "(Auto)", auto: true },
+        { key: "bnkname", label: "Bank Name", placeholder: "e.g. Habib Bank Limited" },
+      ]}
       onAdd={async (v) => { await addBank(adminCardNo, v.bnkname, activeCompany); }}
       onDelete={async (i) => { await deleteBank(adminCardNo, banks[i].bnkcode, activeCompany); }}
     />
@@ -717,7 +732,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           rows={bankBranches.map((b) => [b.brncode, b.brnname])}
           loading={loading}
           onRefresh={() => load("bank_branches")}
-          addFields={[{ key: "brnname", label: "Branch Name", placeholder: "e.g. Main Branch" }]}
+          addFields={[
+            { key: "brncode", label: "Branch Code", placeholder: "(Auto)", auto: true },
+            { key: "brnname", label: "Branch Name", placeholder: "e.g. Main Branch" },
+          ]}
           onAdd={async (v) => { await addBankBranch(adminCardNo, branchBank, v.brnname, activeCompany); }}
           onDelete={async (i) => { await deleteBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, activeCompany); }}
         />
@@ -728,15 +746,15 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   );
 
   const contentMap: Record<Tab, React.ReactNode> = {
-    departments:  deptTable,
+    departments: deptTable,
     designations: desigTable,
-    shifts:       shiftTable,
+    shifts: shiftTable,
     blood_groups: bgTable,
-    locations:    locationTable,
+    locations: locationTable,
     emp_statuses: empStatusTable,
     qualifications: qualTable,
     interview_types: ivTypeTable,
-    banks:        bankTable,
+    banks: bankTable,
     bank_branches: bankBranchTable,
     company_logo: (
       <CompanyLogoTab
@@ -766,11 +784,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           const active = g.id === groupId;
           return (
             <button key={g.id} onClick={() => selectGroup(g)}
-              className={`text-left rounded-2xl border p-3.5 transition-all ${
-                active
+              className={`text-left rounded-2xl border p-3.5 transition-all ${active
                   ? "border-indigo-300 bg-indigo-50/70 shadow-sm ring-1 ring-indigo-200"
                   : "border-gray-200 bg-white hover:border-indigo-200 hover:bg-gray-50"
-              }`}>
+                }`}>
               <div className="flex items-center gap-2">
                 <span className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${active ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
                   <Icon className="h-5 w-5" />
@@ -794,9 +811,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           <div className="flex flex-wrap gap-1 p-1 bg-gray-100 rounded-xl">
             {group.tabs.map((t) => (
               <button key={t} onClick={() => switchTab(t)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === t ? "bg-white text-indigo-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
-                }`}>
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === t ? "bg-white text-indigo-700 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                  }`}>
                 {TAB_LABEL[t]}
               </button>
             ))}

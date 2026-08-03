@@ -8,11 +8,11 @@ SELECT b.unit_id,
        D.EARNED_GROSS,
        D.ACTUAL_BASIC,
        D.EARNED_BASIC,
-       sum(decode(b.trans_id,'12',B.TRANS_AMOUNT,0))  amount
+       sum(decode(b.trans_id,'12',B.TRANS_AMOUNT,0))  amount 
   FROM HR_SALARY_PROCESS_FINAL        B,
        HR_DEDUCTION                   C,
        HR_SALARY_PROCESS_MASTER_FINAL D
- WHERE B.TRANS_ID = C.DED_Cd
+ WHERE B.TRANS_ID = C.DED_Cd                      // Issue
    AND B.OLD_EMPCODE = D.OLD_EMPCODE
    AND B.UNIT_ID = D.UNIT_ID
    AND B.PERIOD# = D.PERIOD#
@@ -39,7 +39,7 @@ SELECT b.unit_id,
        sum(PF_BAL)  amount
   FROM HR_PF_BALANCES B,
        HR_DEDUCTION  C
- WHERE B.DED_CD = C.DED_Cd
+ WHERE B.DED_CD = C.DED_Cd                   // Issue
    AND b.unit_id = NVL(:MUNIT,B.UNIT_ID)
    and b.old_empcode = upper(:MEMP )
 

@@ -151,50 +151,38 @@ export const getBanks = async (compc = null) => {
   try {
     conn = await getDirectConnection();
     const c = coerce(compc);
-    let rows = [];
+    let sql = "SELECT BNKCODE, BNKNAME FROM HR_BANK WHERE BNKCODE IS NOT NULL";
+    const params = {};
     if (c !== null && c !== undefined) {
-      try {
-        const res = await conn.execute(
-          "SELECT BNKCODE, BNKNAME FROM HR_BANK WHERE (UNIT_ID = :u OR UNIT_ID IS NULL) AND BNKCODE IS NOT NULL ORDER BY BNKNAME",
-          { u: c },
-          { outFormat: OUT_FORMAT_ARRAY }
-        );
-        rows = res.rows || [];
-        return rows.map((r) => ({ bnkcode: String(r[0] ?? "").trim(), bnkname: String(r[1] ?? "").trim() }));
-      } catch (e) {
-        // Fallback
-      }
+      sql += " AND (UNIT_ID = :u OR UNIT_ID IS NULL)";
+      params.u = c;
     }
-    const res = await conn.execute(
-      "SELECT BNKCODE, BNKNAME FROM HR_BANK WHERE BNKCODE IS NOT NULL ORDER BY BNKNAME",
-      {},
-      { outFormat: OUT_FORMAT_ARRAY }
-    );
-    rows = res.rows || [];
+    sql += " ORDER BY LPAD(BNKCODE, 5)";
+    const res = await conn.execute(sql, params, { outFormat: OUT_FORMAT_ARRAY });
+    const rows = res.rows || [];
     return rows.map((r) => ({ bnkcode: String(r[0] ?? "").trim(), bnkname: String(r[1] ?? "").trim() }));
   } finally {
     if (conn) await conn.close();
   }
 };
 
-export const getBankBranches = async (bnkcode = null) => {
+export const getBankBranches = async (bnkcode = null, compc = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
-    let res;
+    const c = coerce(compc);
+    const conds = ["BRNCODE IS NOT NULL"];
+    const params = {};
     if (bnkcode) {
-      res = await conn.execute(
-        "SELECT BRNCODE, BRNNAME FROM HR_BRANCH WHERE BNKCODE = :b AND BRNCODE IS NOT NULL ORDER BY BRNNAME",
-        { b: String(bnkcode).trim() },
-        { outFormat: OUT_FORMAT_ARRAY }
-      );
-    } else {
-      res = await conn.execute(
-        "SELECT BRNCODE, BRNNAME FROM HR_BRANCH WHERE BRNCODE IS NOT NULL ORDER BY BRNNAME",
-        {},
-        { outFormat: OUT_FORMAT_ARRAY }
-      );
+      conds.push("BNKCODE = :b");
+      params.b = String(bnkcode).trim();
     }
+    if (c !== null && c !== undefined) {
+      conds.push("(UNIT_ID = :u OR UNIT_ID IS NULL)");
+      params.u = c;
+    }
+    const sql = `SELECT BRNCODE, BRNNAME FROM HR_BRANCH WHERE ${conds.join(" AND ")} ORDER BY BRNNAME`;
+    const res = await conn.execute(sql, params, { outFormat: OUT_FORMAT_ARRAY });
     const rows = res.rows || [];
     return rows.map((r) => ({ brncode: String(r[0] ?? "").trim(), brnname: String(r[1] ?? "").trim() }));
   } finally {

@@ -727,6 +727,31 @@ export const getMonthWiseDeductionReport = async ({
               d.period_frm,
               b.trans_amount
          from hr_emp_master           a,
+              hr_salary_process       b,
+              hr_deduction            c,
+              hr_attnd_period         d
+        where a.OLD_EMPCODE = b.old_empcode
+          and a.UNIT_ID = b.unit_id
+          and b.trans_id = c.ded_cd
+          and b.trans_type = 'D'
+          and b.period# = d.period#
+          and b.unit_id = d.unit_id
+          and b.trans_id = :md_cd
+          and ${optEq('a.OLD_EMPCODE', 'empcd')}
+          and ${optEq('a.DEPT_NO', 'mdept')}
+          and ${optEq('a.LOCATION', 'mloc')}
+          and ${optEq('a.UNIT_ID', 'munit')}
+          and b.period# between :mdt1 and :mdt2
+        union all
+       select a.unit_id,
+              a.location,
+              a.old_empcode,
+              ' ' || a.name name,
+              c.ded_desc,
+              b.period#,
+              d.period_frm,
+              b.trans_amount
+         from hr_emp_master           a,
               hr_salary_process_final b,
               hr_deduction            c,
               hr_attnd_period         d
@@ -840,6 +865,7 @@ export const getBankAdviceReport = async ({
           AND A.OLD_EMPCODE = D.OLD_EMPCODE
           AND A.UNIT_ID = D.UNIT_ID
           AND A.DESG_CD = F.DESG_CD
+          AND (F.COMPC = A.UNIT_ID OR F.COMPC IS NULL)
           AND ${optEq('F.Desg_GRP', 'mdesh_ord')}
           AND D.PERIOD# = :mperiod
           AND A.UNIT_ID = :munit
@@ -878,6 +904,7 @@ export const getBankAdviceReport = async ({
           AND A.OLD_EMPCODE = D.OLD_EMPCODE
           AND A.UNIT_ID = D.UNIT_ID
           AND A.DESG_CD = F.DESG_CD
+          AND (F.COMPC = A.UNIT_ID OR F.COMPC IS NULL)
           AND ${optEq('F.Desg_GRP', 'mdesh_ord')}
           AND D.PERIOD# = :mperiod
           AND A.UNIT_ID = :munit
