@@ -36,8 +36,8 @@ SELECT OLD_EMPCODE,
                HR_LOCATION                    D
          WHERE A.PERIOD# = :mpt
            AND A.UNIT_ID = NVL(:munit, A.UNIT_ID)
-           AND A.TRANS_TYPE = 'A'
-           AND B.USE_ALLOWANCE <> 'F'
+           AND A.TRANS_TYPE = 'A'                                     // Hardcoded
+           AND B.USE_ALLOWANCE <> 'F'                                  // Hardcoded  
           ----------- AND A.TRANS_TYPE || B.ALLOWANCE_ID not in ('A21','A23','A24','A28')
            AND A.TRANS_ID = B.ALLOWANCE_ID
            AND A.PERIOD# = C.PERIOD#

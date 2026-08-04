@@ -35,8 +35,8 @@ select a.old_empcode empcode,  A.UNIT_ID UNITID,
  where a.trans_id = b.allowance_id
    and a.old_empcode = c.old_empcode
    and a.unit_id  = c.UNIT_ID
-   and b.use_allowance = 'M'
-   and a.trans_type = 'A'
+   and b.use_allowance = 'M'                           // Hradcoded
+   and a.trans_type = 'A'                              // Hardocded
    and a.period# = :p_period1  ----between :p_period1 and :p_period2
    and a.unit_id = nvl(:munitid, a.unit_id)
    and c.location = NVL(:mlocatin,C.LOCATION)
