@@ -1,3 +1,4 @@
+import logging
 import os
 import cv2
 import faiss
@@ -9,6 +10,21 @@ import oracledb
 
 # ******** ENV
 os.environ['INSIGHTFACE_HOME'] = r'C:/Users/Administrator/.insightface/models'
+
+# ******** LOGGING
+# This service used to only print() its identify results/failures — lost the
+# moment the console window scrolls or the process is backgrounded. Every
+# /face/identify outcome (matched, low-confidence, no-face, DB error) now also
+# goes to a durable log file so a "I marked attendance but nothing shows"
+# report can be traced back to the actual reason (2026-08-06).
+_log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+os.makedirs(_log_dir, exist_ok=True)
+logger = logging.getLogger("face_rec")
+if not logger.handlers:
+    _fh = logging.FileHandler(os.path.join(_log_dir, "face_identify.log"), encoding="utf-8")
+    _fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(_fh)
+    logger.setLevel(logging.INFO)
 
 # ******** INSIGHTFACE
 face_app = FaceAnalysis(name="buffalo_s", providers=["CPUExecutionProvider"])
@@ -59,10 +75,10 @@ def load_faiss_from_db():
             index = None
 
         labels = new_labels
-        print(f"[FAISS] Loaded {len(labels)} embeddings")
+        logger.info(f"[FAISS] Loaded {len(labels)} embeddings")
 
     except Exception as e:
-        print("FAISS LOAD ERROR:", e)
+        logger.error(f"[FAISS] load failed: {e}")
         index = None
         labels = []
     finally:
@@ -320,6 +336,7 @@ def identify_face(b64_images):
     """1:N face search: identify who this person is from all registered faces."""
 
     if index is None or len(labels) == 0:
+        logger.error("[IDENTIFY] rejected: no registered faces in system")
         return {"body": {
             "identified": False, "card_no": None, "emp_name": None,
             "confidence": 0.0, "message": "No registered faces in system"
@@ -336,6 +353,7 @@ def identify_face(b64_images):
             break
 
     if not embeddings:
+        logger.error(f"[IDENTIFY] rejected: no face detected in any of {len(b64_images)} frame(s)")
         return {"body": {
             "identified": False, "card_no": None, "emp_name": None,
             "confidence": 0.0, "message": "No face detected in frames"
@@ -355,6 +373,7 @@ def identify_face(b64_images):
             vote_scores[matched] = sim
 
     if not vote_scores:
+        logger.error(f"[IDENTIFY] rejected: no FAISS match for {len(embeddings)} embedding(s)")
         return {"body": {
             "identified": False, "card_no": None, "emp_name": None,
             "confidence": 0.0, "message": "No match found"
@@ -363,13 +382,15 @@ def identify_face(b64_images):
     best_card = max(vote_scores, key=vote_scores.get)
     best_sim = vote_scores[best_card]
 
-    print(f"[IDENTIFY] best_match={best_card} similarity={best_sim:.4f}")
-
     if best_sim < 0.50:
+        logger.error(f"[IDENTIFY] rejected: best_match={best_card} similarity={best_sim:.4f} "
+                      f"(< 0.50 threshold)")
         return {"body": {
             "identified": False, "card_no": None, "emp_name": None,
             "confidence": best_sim, "message": "Face not recognized (low confidence)"
         }}
+
+    logger.info(f"[IDENTIFY] matched={best_card} similarity={best_sim:.4f}")
 
     # Look up emp_name from Oracle
     emp_name = None
@@ -389,7 +410,7 @@ def identify_face(b64_images):
         if row:
             emp_name = row[0]
     except Exception as e:
-        print("IDENTIFY DB ERROR:", e)
+        logger.error(f"[IDENTIFY] emp_name lookup failed for card={best_card}: {e}")
     finally:
         try:
             cursor.close()

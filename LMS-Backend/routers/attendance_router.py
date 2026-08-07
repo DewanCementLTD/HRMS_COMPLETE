@@ -4,6 +4,8 @@ IMPORTANT: /attendance/face and /attendance/summary must be defined
 BEFORE /attendance/{card_no} to avoid the path parameter catching them.
 """
 
+import logging
+import os
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
@@ -25,6 +27,19 @@ from repositories.app_version_repository import force_update_block
 from repositories.user_repository import lookup_by_phone
 
 router = APIRouter(prefix="/auth", tags=["Attendance"])
+
+# Same file as attendance_repository.py / face_verification_service.py's
+# loggers — every face-guard decision (accepted, overridden, or rejected)
+# lands in one place instead of only a console print() that's lost once the
+# terminal scrolls (2026-08-06).
+_log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+os.makedirs(_log_dir, exist_ok=True)
+_logger = logging.getLogger("attendance")
+if not _logger.handlers:
+    _fh = logging.FileHandler(os.path.join(_log_dir, "attendance_errors.log"), encoding="utf-8")
+    _fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    _logger.addHandler(_fh)
+    _logger.setLevel(logging.ERROR)
 
 
 # POST /auth/attendance/face  — MUST be before /{card_no}
@@ -49,10 +64,14 @@ def mark_face_attendance(request: FaceAttendanceRequest):
     card_to_mark = request.card_no
     scanned_name = None
     if request.frames:
-        scanned_card, scanned_name, reason = identify_scanned_card(request.frames)
+        scanned_card, scanned_name, reason = identify_scanned_card(
+            request.frames, submitted_card=request.card_no)
         if not scanned_card:
-            print(f"[FACE_GUARD] no confident identity for face-mark "
-                  f"(submitted card={request.card_no}): {reason}")
+            # identify_scanned_card already logged the specific reason
+            # (too few frames / service unreachable / low confidence) to
+            # attendance_errors.log — this line just confirms the mark was
+            # rejected, for anyone scanning the log by card_no.
+            _logger.error(f"[FACE_GUARD] REJECTED face-mark for card={request.card_no}: {reason}")
             raise HTTPException(
                 status_code=400,
                 detail={
@@ -61,12 +80,12 @@ def mark_face_attendance(request: FaceAttendanceRequest):
                 },
             )
         if scanned_card != request.card_no:
-            print(f"[FACE_GUARD] overriding submitted card={request.card_no} with "
-                  f"scanned identity={scanned_card} ({scanned_name})")
+            _logger.error(f"[FACE_GUARD] overriding submitted card={request.card_no} with "
+                           f"scanned identity={scanned_card} ({scanned_name})")
         card_to_mark = scanned_card
     else:
-        print(f"[FACE_GUARD] UNVERIFIED face-mark for card={request.card_no} "
-              f"(no frames sent by app version={request.app_version})")
+        _logger.error(f"[FACE_GUARD] UNVERIFIED face-mark for card={request.card_no} "
+                       f"(no frames sent by app version={request.app_version})")
 
     result = smart_mark_attendance(
         card_no=card_to_mark,

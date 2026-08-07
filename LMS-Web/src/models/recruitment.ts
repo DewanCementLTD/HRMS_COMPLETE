@@ -175,6 +175,10 @@ export interface Interview {
   status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
   feedback: string | null;
   created_at: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location_or_link: string | null;
+  interview_mode: string | null;
 }
 
 export interface Offer {

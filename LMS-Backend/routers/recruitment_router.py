@@ -19,7 +19,7 @@ from repositories.document_repository import DOCS_BASE
 from models.recruitment_models import (
     JobCreateRequest, JobUpdateRequest,
     ApplicationCreateRequest, ApplicationStatusUpdate,
-    InterviewCreateRequest, InterviewUpdateRequest,
+    InterviewCreateRequest, InterviewUpdateRequest, InterviewRescheduleRequest,
     OfferCreateRequest, OfferUpdateRequest,
     CandidateCreateRequest, CandidateUpdateRequest, CandidateApplyRequest,
     PanelPoolAddRequest, PanelPoolDeactivateRequest,
@@ -41,7 +41,7 @@ from services.recruitment_service import (
     svc_evaluate_application,
     svc_list_panel_pool, svc_add_panel_members, svc_deactivate_panel_row,
     svc_deactivate_panel_member, svc_panel_options_for_app,
-    svc_create_interview_assignments, svc_list_interview_assignments,
+    svc_create_interview_assignments, svc_list_interview_assignments, svc_reschedule_interview,
     svc_list_notification_templates, svc_create_notification_selections,
     svc_list_notification_selections,
 )
@@ -316,6 +316,25 @@ def update_interview(
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result.get("message"))
     return {"status": "success", "message": "Interview updated"}
+
+
+@router.patch("/interviews/{interview_id}/reschedule")
+def reschedule_interview(
+    interview_id: int,
+    request: InterviewRescheduleRequest,
+    admin_card_no: str = Query(...),
+):
+    """Change date/start/end time (and optionally location/mode) of an already
+    -scheduled interview. Re-runs the same interviewer overlap check used at
+    creation time; 409 if the new slot clashes with another PENDING interview
+    for any of the same interviewers."""
+    require_hr_admin(admin_card_no)
+    result = svc_reschedule_interview(interview_id, request.model_dump(exclude_none=True))
+    if result["status"] == "error":
+        raise HTTPException(status_code=result.get("code") or 400, detail=result.get("message"))
+    return {"status": "success", "message": "Interview rescheduled", **{
+        k: v for k, v in result.items() if k != "status"
+    }}
 
 
 # ===================================

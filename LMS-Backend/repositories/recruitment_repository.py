@@ -578,6 +578,14 @@ def create_interview(data: dict) -> dict:
 
 def list_interviews(app_id: int = None, status: str = None, compc=None, brnch=None) -> list:
     ensure_interview_feedback_columns()
+    # LOCATION_OR_LINK/INTERVIEW_MODE (on RECRUITMENT_INTERVIEWS) and the
+    # INTERVIEW_ASSIGNMENTS table (for start/end time) live in the panel-pool
+    # DDL, not this module's — make sure they exist before the join below.
+    try:
+        from repositories.interview_panel_repository import ensure_interview_tables
+        ensure_interview_tables()
+    except Exception:
+        pass
     conn = get_connection()
     cursor = conn.cursor()
     conditions = []
@@ -604,10 +612,19 @@ def list_interviews(app_id: int = None, status: str = None, compc=None, brnch=No
                 i.RECOMMENDATION,
                 i.STATUS,
                 i.FEEDBACK,
-                TO_CHAR(i.CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT
+                TO_CHAR(i.CREATED_AT, 'YYYY-MM-DD') AS CREATED_AT,
+                ia.START_TIME,
+                ia.END_TIME,
+                i.LOCATION_OR_LINK,
+                i.INTERVIEW_MODE
             FROM RECRUITMENT_INTERVIEWS i
             JOIN RECRUITMENT_APPLICATIONS a ON a.APP_ID = i.APP_ID
             JOIN RECRUITMENT_JOBS j ON j.JOB_ID = a.JOB_ID
+            LEFT JOIN (
+                SELECT INTERVIEW_ID, MIN(START_TIME) AS START_TIME, MAX(END_TIME) AS END_TIME
+                FROM INTERVIEW_ASSIGNMENTS
+                GROUP BY INTERVIEW_ID
+            ) ia ON ia.INTERVIEW_ID = i.INTERVIEW_ID
             __WHERE__
             ORDER BY i.INTERVIEW_ID DESC
         """

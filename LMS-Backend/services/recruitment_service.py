@@ -148,6 +148,17 @@ def svc_list_interview_assignments(app_id: int) -> list:
     from repositories.interview_panel_repository import list_interview_assignments
     return list_interview_assignments(app_id)
 
+def svc_reschedule_interview(interview_id: int, data: dict) -> dict:
+    from repositories.interview_panel_repository import reschedule_interview
+    return reschedule_interview(
+        interview_id,
+        interview_date=data.get("interview_date"),
+        start_time=data.get("start_time"),
+        end_time=data.get("end_time"),
+        location_or_link=data.get("location_or_link"),
+        interview_mode=data.get("interview_mode"),
+    )
+
 
 # ── Notification templates + selections ──
 

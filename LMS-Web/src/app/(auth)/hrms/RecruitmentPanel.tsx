@@ -48,6 +48,7 @@ import {
   updateApplicationStatus,
   listInterviews,
   updateInterview,
+  rescheduleInterview,
   getPanelPool,
   addPanelPoolMembers,
   deactivatePanelPoolMember,
@@ -212,6 +213,7 @@ export function RecruitmentPanel({ adminCardNo }: { adminCardNo: string }) {
           scope={scope}
           initialCandidateId={jumpCandidateId}
           onConsumeJump={() => setJumpCandidateId(null)}
+          onGoToRanking={() => setTab("ai-ranking")}
         />
       )}
       {tab === "applications" && (
@@ -771,15 +773,17 @@ const EMPTY_CAND_FORM: CandFormState = {
 };
 
 function CandidatesTab({
-  adminCardNo, scope, initialCandidateId, onConsumeJump,
+  adminCardNo, scope, initialCandidateId, onConsumeJump, onGoToRanking,
 }: {
   adminCardNo: string;
   scope?: { compc?: string; brnch?: string };
   initialCandidateId?: number | null;
   onConsumeJump?: () => void;
+  onGoToRanking?: () => void;
 }) {
   const [view, setView] = useState<CandView>("list");
   const [candidates, setCandidates] = useState<CandidateListItem[]>([]);
+  const [sortBy, setSortBy] = useState<"newest" | "name" | "applications">("newest");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1310,6 +1314,12 @@ function CandidatesTab({
     );
   }
 
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    if (sortBy === "name") return a.candidate_name.localeCompare(b.candidate_name);
+    if (sortBy === "applications") return b.applications - a.applications;
+    return (b.created_at ?? "").localeCompare(a.created_at ?? "");   // newest first
+  });
+
   // ── LIST ──
   return (
     <div className="animate-fade-in">
@@ -1326,12 +1336,36 @@ function CandidatesTab({
           />
         </div>
         <Button variant="secondary" size="sm" onClick={() => load(search)}>Search</Button>
+        <div className="w-full sm:w-44">
+          <Select
+            options={[
+              { value: "newest", label: "Sort: Newest" },
+              { value: "name", label: "Sort: Name (A–Z)" },
+              { value: "applications", label: "Sort: Most applied" },
+            ]}
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+          />
+        </div>
         <div className="sm:ml-auto">
           <Button onClick={() => setView("upload")}>
             <UploadCloud className="h-4 w-4 mr-1.5" />Upload CVs
           </Button>
         </div>
       </div>
+
+      {onGoToRanking && (
+        <div className="flex items-center justify-between gap-3 bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 mb-4">
+          <p className="text-sm text-indigo-800">
+            To shortlist or rank CVs for a specific position, apply a candidate to that job
+            (from their profile) — the <span className="font-medium">AI Ranking</span> tab then
+            sorts every applicant for that job by AI match score.
+          </p>
+          <Button variant="secondary" size="sm" onClick={onGoToRanking}>
+            <Sparkles className="h-4 w-4 mr-1.5" />Go to AI Ranking
+          </Button>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -1365,7 +1399,7 @@ function CandidatesTab({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {candidates.map((c) => (
+                  {sortedCandidates.map((c) => (
                     <tr key={c.candidate_id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="py-3 pr-4">
                         <button onClick={() => openDetail(c.candidate_id)}
@@ -2376,6 +2410,9 @@ function InterviewsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { 
   const [feedbackId, setFeedbackId] = useState<number | null>(null);
   const [fb, setFb] = useState({ ...EMPTY_FEEDBACK });
   const [savingFb, setSavingFb] = useState<string | null>(null);   // which recommendation is saving
+  const [rescheduleId, setRescheduleId] = useState<number | null>(null);
+  const [rf, setRf] = useState({ interview_date: "", start_time: "", end_time: "", location_or_link: "", interview_mode: "" });
+  const [savingReschedule, setSavingReschedule] = useState(false);
   const [form, setForm] = useState({ app_id: "", interview_date: "", interview_type: "", start_time: "", end_time: "", location_or_link: "", interview_mode: "" });
   const [saving, setSaving] = useState(false);
   const [notifyCtx, setNotifyCtx] = useState<NotifyContext | null>(null);
@@ -2483,9 +2520,45 @@ function InterviewsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { 
     }
   }
 
+  function openReschedule(iv: Interview) {
+    if (rescheduleId === iv.interview_id) { setRescheduleId(null); return; }
+    setRescheduleId(iv.interview_id);
+    setFeedbackId(null);
+    setRf({
+      interview_date: iv.interview_date || "",
+      start_time: iv.start_time || "",
+      end_time: iv.end_time || "",
+      location_or_link: iv.location_or_link || "",
+      interview_mode: iv.interview_mode || "",
+    });
+  }
+
+  async function submitReschedule(interviewId: number) {
+    if (!rf.start_time) { setError("Start time is required"); return; }
+    setSavingReschedule(true);
+    setError(null);
+    try {
+      await rescheduleInterview(adminCardNo, interviewId, {
+        interview_date: rf.interview_date || undefined,
+        start_time: rf.start_time,
+        end_time: rf.end_time || undefined,
+        location_or_link: rf.location_or_link || undefined,
+        interview_mode: rf.interview_mode || undefined,
+      });
+      setSuccess("Interview rescheduled");
+      setRescheduleId(null);
+      load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to reschedule");
+    } finally {
+      setSavingReschedule(false);
+    }
+  }
+
   function openFeedback(iv: Interview) {
     if (feedbackId === iv.interview_id) { setFeedbackId(null); return; }
     setFeedbackId(iv.interview_id);
+    setRescheduleId(null);
     setFb({
       feedback_owner: iv.feedback_owner || iv.interviewer || "",
       technical_rating: iv.technical_rating || "",
@@ -2648,14 +2721,22 @@ function InterviewsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { 
                       <tr key={iv.interview_id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="py-3 pr-4 font-medium text-gray-900">{iv.candidate_name}</td>
                         <td className="py-3 pr-4 text-gray-600">{iv.job_title}</td>
-                        <td className="py-3 pr-4 text-gray-600">{iv.interview_date || "—"}</td>
+                        <td className="py-3 pr-4 text-gray-600">
+                          {iv.interview_date || "—"}
+                          {iv.start_time && (
+                            <span className="text-gray-400"> · {iv.start_time}{iv.end_time ? `–${iv.end_time}` : ""}</span>
+                          )}
+                        </td>
                         <td className="py-3 pr-4 text-gray-600">{iv.interview_type || "—"}</td>
                         <td className="py-3 pr-4 text-gray-600">{iv.interviewer || "—"}</td>
                         <td className="py-3 pr-4"><Badge status={iv.status} /></td>
                         <td className="py-3">
                           <div className="flex gap-2">
                             {iv.status === "SCHEDULED" && (
-                              <button onClick={() => markCompleted(iv.interview_id)} className="text-green-600 hover:text-green-800 text-xs font-medium">Complete</button>
+                              <>
+                                <button onClick={() => openReschedule(iv)} className="text-amber-600 hover:text-amber-800 text-xs font-medium">Reschedule</button>
+                                <button onClick={() => markCompleted(iv.interview_id)} className="text-green-600 hover:text-green-800 text-xs font-medium">Complete</button>
+                              </>
                             )}
                             <button
                               onClick={() => openFeedback(iv)}
@@ -2666,6 +2747,38 @@ function InterviewsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { 
                           </div>
                         </td>
                       </tr>
+                      {rescheduleId === iv.interview_id && (
+                        <tr key={`rs-${iv.interview_id}`}>
+                          <td colSpan={7} className="py-4 px-3 bg-amber-50/50">
+                            <div className="max-w-3xl">
+                              <p className="text-base font-semibold text-gray-900">Reschedule interview</p>
+                              <p className="text-sm text-gray-500 mb-4">
+                                {iv.candidate_name}
+                                {iv.interview_type ? ` · ${iv.interview_type} round` : ""}
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Input label="Interview Date" type="date" value={rf.interview_date}
+                                  onChange={(e) => setRf({ ...rf, interview_date: e.target.value })} />
+                                <Select label="Mode" options={INTERVIEW_MODE_OPTS} value={rf.interview_mode}
+                                  onChange={(e) => setRf({ ...rf, interview_mode: e.target.value })} />
+                                <Input label="Start Time *" type="time" value={rf.start_time}
+                                  onChange={(e) => setRf({ ...rf, start_time: e.target.value })} />
+                                <Input label="End Time" type="time" value={rf.end_time}
+                                  onChange={(e) => setRf({ ...rf, end_time: e.target.value })}
+                                  placeholder="e.g. 15 min after start" />
+                                <div className="sm:col-span-2">
+                                  <Input label="Location / Link" value={rf.location_or_link}
+                                    onChange={(e) => setRf({ ...rf, location_or_link: e.target.value })} />
+                                </div>
+                              </div>
+                              <div className="flex gap-3 mt-4">
+                                <Button onClick={() => submitReschedule(iv.interview_id)} loading={savingReschedule}>Save</Button>
+                                <Button variant="ghost" onClick={() => setRescheduleId(null)}>Cancel</Button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                       {feedbackId === iv.interview_id && (
                         <tr key={`fb-${iv.interview_id}`}>
                           <td colSpan={7} className="py-4 px-3 bg-gray-50">

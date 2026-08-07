@@ -109,6 +109,18 @@ export const updateInterview = (adminCardNo: string, interviewId: number, data: 
     body: data,
   });
 
+// Change date/start/end time (and optionally location/mode) of an already-
+// scheduled interview. Re-checks interviewer clashes server-side; a 409 means
+// the new slot overlaps another PENDING interview for one of the interviewers.
+export const rescheduleInterview = (
+  adminCardNo: string, interviewId: number,
+  data: { interview_date?: string; start_time?: string; end_time?: string;
+          location_or_link?: string; interview_mode?: string },
+) =>
+  apiRequest<{ status: string; interview_date: string; start_time: string; end_time: string }>(
+    `/recruitment/interviews/${interviewId}/reschedule?${q(adminCardNo)}`,
+    { method: "PATCH", body: data });
+
 // --- Interview panel pool ---
 // The pool of employees allowed to conduct interviews, per company+branch.
 // With no branch selected ("All Branches") adds/removals fan out to every

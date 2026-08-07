@@ -143,6 +143,14 @@ class PanelPoolDeactivateRequest(BaseModel):
     empcode: str                        # soft-remove across the current scope
 
 
+class InterviewRescheduleRequest(BaseModel):
+    interview_date: Optional[str] = None   # YYYY-MM-DD; omit to keep current date
+    start_time: Optional[str] = None       # HH:MM (24h); omit to keep current start
+    end_time: Optional[str] = None         # HH:MM; omit to keep current duration/end
+    location_or_link: Optional[str] = None
+    interview_mode: Optional[str] = None
+
+
 class InterviewAssignmentCreateRequest(BaseModel):
     empcodes: List[str]                 # one assignment row per interviewer
     interview_type: str                 # required (400 if blank)

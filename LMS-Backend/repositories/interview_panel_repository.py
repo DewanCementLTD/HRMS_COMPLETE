@@ -514,6 +514,100 @@ def create_interview_assignments(app_id: int, empcodes: list, interview_type: st
         conn.close()
 
 
+def reschedule_interview(interview_id: int, interview_date: str = None,
+                          start_time: str = None, end_time: str = None,
+                          location_or_link: str = None, interview_mode: str = None) -> dict:
+    """Change date/time (and optionally location/mode) of an already-scheduled
+    interview. Updates every INTERVIEW_ASSIGNMENTS row sharing this
+    INTERVIEW_ID (they were all scheduled together) plus the legacy
+    RECRUITMENT_INTERVIEWS event row, re-running the same per-interviewer
+    overlap check as create — excluding this interview's own rows so it
+    doesn't clash with itself."""
+    ensure_interview_tables()
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT EMPCODE, TO_CHAR(INTERVIEW_DATE, 'YYYY-MM-DD'), START_TIME, END_TIME
+            FROM INTERVIEW_ASSIGNMENTS WHERE INTERVIEW_ID = :id
+        """, {"id": interview_id})
+        rows = cursor.fetchall()
+        if not rows:
+            return {"status": "error", "code": 404, "message": "Interview not found"}
+
+        codes = sorted({str(r[0]).strip() for r in rows})
+        cd, cs, ce = rows[0][1], rows[0][2], rows[0][3]
+        cur_date = interview_date.strip() if (interview_date or "").strip() else None
+        try:
+            new_start = _norm_time(start_time) if (start_time or "").strip() else None
+            new_end = _norm_time(end_time) if (end_time or "").strip() else None
+        except ValueError as e:
+            return {"status": "error", "code": 400, "message": str(e)}
+
+        # Resolve the effective date/start/end (fall back to the existing row's
+        # values for whichever fields weren't supplied).
+        eff_date = cur_date or cd
+        eff_start = new_start or cs
+        if new_end:
+            eff_end = new_end
+        elif start_time and not end_time:
+            # Start moved but no explicit end given: keep the original duration.
+            eff_end = _plus_hour(eff_start) if eff_start >= ce else ce
+        else:
+            eff_end = ce
+        if eff_end <= eff_start:
+            return {"status": "error", "code": 400, "message": "End time must be after start time"}
+
+        ph = ", ".join(f":e{i}" for i in range(len(codes)))
+        cursor.execute(f"""
+            SELECT ia.EMPCODE, MAX(h.NAME), ia.START_TIME, ia.END_TIME
+            FROM INTERVIEW_ASSIGNMENTS ia
+            LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = ia.EMPCODE
+            WHERE ia.STATUS = 'PENDING'
+              AND ia.EMPCODE IN ({ph})
+              AND ia.INTERVIEW_ID != :id
+              AND ia.INTERVIEW_DATE = TO_DATE(:d, 'YYYY-MM-DD')
+              AND ia.START_TIME < :endt AND :startt < ia.END_TIME
+            GROUP BY ia.EMPCODE, ia.START_TIME, ia.END_TIME
+        """, {**{f"e{i}": v for i, v in enumerate(codes)}, "id": interview_id,
+              "d": eff_date, "startt": eff_start, "endt": eff_end})
+        clashes = [f"{(r[1] or '').strip() or r[0]} ({r[0]}) already has an interview "
+                   f"{r[2]}-{r[3]} on {eff_date}" for r in cursor.fetchall()]
+        if clashes:
+            return {"status": "error", "code": 409,
+                    "message": "Time clash: " + "; ".join(clashes)}
+
+        cursor.execute("""
+            UPDATE INTERVIEW_ASSIGNMENTS
+            SET INTERVIEW_DATE = TO_DATE(:d, 'YYYY-MM-DD'),
+                START_TIME = :startt, END_TIME = :endt
+            WHERE INTERVIEW_ID = :id
+        """, {"d": eff_date, "startt": eff_start, "endt": eff_end, "id": interview_id})
+
+        set_parts = ["INTERVIEW_DATE = TO_DATE(:d, 'YYYY-MM-DD')"]
+        params = {"d": eff_date, "id": interview_id}
+        if location_or_link is not None:
+            set_parts.append("LOCATION_OR_LINK = :loc")
+            params["loc"] = (location_or_link or "").strip()[:300] or None
+        if interview_mode is not None:
+            set_parts.append("INTERVIEW_MODE = :ivmode")
+            params["ivmode"] = (interview_mode or "").strip()[:30] or None
+        cursor.execute(f"""
+            UPDATE RECRUITMENT_INTERVIEWS SET {', '.join(set_parts)}
+            WHERE INTERVIEW_ID = :id
+        """, params)
+
+        conn.commit()
+        return {"status": "success", "interview_date": eff_date,
+                "start_time": eff_start, "end_time": eff_end}
+    except Exception as e:
+        conn.rollback()
+        return {"status": "error", "code": 500, "message": str(e)}
+    finally:
+        cursor.close()
+        conn.close()
+
+
 def list_interview_assignments(app_id: int) -> list:
     """Assignments for an application, newest first, names joined from
     HR_EMP_MASTER (never stored)."""
