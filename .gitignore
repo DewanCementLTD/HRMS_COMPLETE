@@ -47,7 +47,7 @@ _submodule_git_backup/
 
 # Employee documents (sensitive — stored on disk, never in git)
 LMS-Backend/EMP_DOCS/
-
+Old
 LMS-Web.rar
 # ── Large archives — never in git (GitHub 100MB limit) ──
 *.rar
