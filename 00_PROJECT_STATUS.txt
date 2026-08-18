@@ -1,0 +1,73 @@
+# HRMS/Full-DB Redesign — Project Status
+
+**How to use this file:** paste/attach this doc plus the numbered SQL files (01...) into a new chat to resume work with full context, without re-explaining the project.
+
+## Objective
+Full ground-up redesign of Dewan Cement Limited's Oracle 12cR2 database (not just HRMS — the whole thing) into a clean, normalized, well-connected PostgreSQL 17 database. Not a migration of the old structure — a redesign. Nothing gets left out except genuine scratch/staging/backup debris (see "Explicitly excluded" below).
+
+**Standards applied to every table, no exceptions:**
+- `bigint generated always as identity` primary keys
+- Full audit columns: `created_at`, `created_by`, `updated_at`, `updated_by` — `_by` columns are `NOT NULL` with **no default** (forces the app to always say who made a change; a past mistake of defaulting to user 1 was caught and fixed)
+- `audit.set_updated_at()` trigger attached to every table
+- Explicit constraint names, indexes on every FK column
+- `COMMENT ON` for every table and non-obvious column
+- Schema-per-module (not everything in `public`)
+- Point-in-time snapshots (e.g. on payslips) are kept deliberately, with real FKs, where business-correct — not treated as a normalization bug
+
+## Source material
+- `hrms_ddl.ddl` — an early, incomplete 56-table export (superseded)
+- `orclddl.sql` — the real, full export: **304 tables, 28 views, 27 sequences, 24 triggers, 2 packages (`DATACRYPT`, `RECRUIT_NOTIF_PKG`), 7 procedures, 4 functions**. This is the authoritative source now.
+- A live `SELECT`-queried table list confirmed the 304-table DDL is accurate (304 vs 305, one throwaway table off)
+
+## Modules completed so far (files 01–07, all in prior chat, all runnable in pgAdmin Query Tool, in this order)
+
+| # | Schema | Tables | Replaces (old) | Status |
+|---|---|---|---|---|
+| 1 | `auth`, `audit` | app_user + trigger fn | SEC_USERNAME (partial) | ✅ Built |
+| 1 | `org` | company, branch, department, grade, designation | company_info, hr_dept, hr_desg, hr_grade_cd, hr_branch(**not** this one — see note) | ✅ Built |
+| 2 | `hr` | person, employee, bank/bank_branch, employee_bank_account, emergency_contact, credential, document, qualification, tracking_setting, blood_group, employee_status, approval_level | hr_emp_master (split), hr_bank, hr_branch, hr_document, hr_emp_qualification | ✅ Built |
+| 3 | `attendance` | shift_schedule, attendance_period, duty_status, duty_roster, attendance_record, location_track | shift_head, hr_attnd_period, duty_roster, attendance_records, location_tracks | ✅ Built, corrected once (see decisions log) |
+| 4 | `leave_mgmt` | leave_type, leave_type_entitlement, holiday, leave_balance, leave_application | leave_types, leave_application | ✅ Built |
+| 5 | `payroll` | allowance_type, deduction_type, salary_formula_parameter, salary_component_rule, loan_type, employee_loan, loan_recovery, tax_slab_set, tax_slab, salary_run, salary_run_allowance, salary_run_deduction | hr_allowance, hr_deduction, hr_loan_*, hr_tax_*, hr_salary_process_master, hr_monthly_allow/ded | ✅ Built |
+| 6 | `recruitment` | job, candidate, candidate_education/experience/skill, application, interview_type, interview, interview_assignment, interview_panel_pool, offer, ai_evaluation, ai_strength, ai_weakness, notification_log | recruitment_* tables | ✅ Built, ratings/recommendation fixed to CHECK-constrained scales |
+| 7 | `notification` | message_template, message_log | notification_templates | ✅ Built, closes Module 6's forward reference |
+| — | `08_full_schema_erd.mermaid` | Full ERD, all 59 tables + 95 real FK relationships (audit FKs omitted for readability) | — | ✅ Built |
+
+**Important note on `org.branch`:** it does NOT map to the old `hr_branch` table — that table turned out to be *bank branch* data (bank code + branch code), not company location. `org.branch` is a newly-designed table filling a genuine gap (no company-location table existed in the early export). `hr.bank_branch` is what replaces the real `hr_branch`.
+
+## Full scope decided (this session)
+User's objective: redesign the **entire database**, not just HR — normalized, connected, efficient, no unnecessary redundancy, nothing genuinely relevant left behind.
+
+**In scope, still to be built:**
+- Extend `org`: section, sub-department, cadre
+- Extend `hr`: family/dependents, prior work experience, confirmation/probation/resignation history
+- Extend `attendance`: biometric device registry (`ZK_DEVICES`), raw punch data, manual OT approval
+- Extend `leave_mgmt`: entitlement rules, adjustment audit trail
+- Extend `payroll`: increments, rebates, tax computation detail, PF/EOBI
+- New `geography` schema: country/state/city/district/area
+- New `benefits` schema: LFA (travel allowance), OPD (medical claims)
+- New `budget` schema: HR budget planning
+- New `finance` schema: Chart of accounts, GL, balance sheet, suppliers, currency — a separate business domain, connects to `org.company`, not its own duplicate company tables
+- New `access_control` schema: **modern RBAC** (role, permission, role_permission, user_role) — replacing the old `SEC_USERPERM`/`SEC_USER_VTYPE`/`SEC_USERCOMP`/`SEC_USERBRCH` per-user, per-menu-item permission model. Confirmed via real column check that old access control existed (`SEC_USERPERM` had per-user INSRT/QUERY/UPDAT/DELET flags) — this is a genuine modernization, not new functionality.
+- Extend `recruitment`: settings, notification-selection tables
+- Extend `notification`: SMS/email queue/SMTP send infrastructure
+
+**Explicitly excluded, with reasoning:**
+- ~27 scratch/staging/test/backup tables (`TEMP_*`, `XL_DATA*`, `T1/T2/T3`, `TEST`, `*_OLD`, `*_BK`, `*_FINAL`) — not business data, no normalized form exists for a scratch pad. The "_FINAL" naming pattern is solved architecturally already (e.g. `payroll.salary_run.status`), not by keeping duplicate tables.
+- Legacy ERP shell — menus/screens/forms (`APP_MENU`, `SCREENS`, `COM_FORMS_*`, `REP_MST`, `SEC_MAINMENU`, `SEC_MODULE_S`, `SEC_MOD_ACES`, `SEC_USERMENU`) — UI metadata for the old Oracle Forms app specifically, not reusable regardless of what replaces it.
+
+**Agreed next order:** `access_control` (RBAC) → extend existing modules (`org`, `hr`, `attendance`, `leave_mgmt`, `payroll`) → new domains (`geography` → `benefits` → `budget` → `finance`).
+
+## Key decisions/corrections log (don't re-litigate these)
+- Booleans real (`boolean`), not `CHAR(1)` Y/N
+- `MAX(pk)+1` trigger pattern replaced everywhere with `identity` columns (was a real race condition in the old schema)
+- Hardcoded salary formula (`/1.55`, 45%, 10%, magic allowance IDs `'2'/'3'/'5'`) replaced with `payroll.salary_formula_parameter` + `payroll.salary_component_rule` — config-driven now
+- `hod1/hod2/hod3` repeating columns → `hr.employee_approval_level` child table
+- `nxt_*`/`ice_*` contact columns → `hr.employee_emergency_contact` rows
+- Attendance module corrected once: `early_out_hday_start/end` turned out to be genuinely distinct from `early_out_late_start/end` (not a duplicate as first assumed) — both kept. `y_out_time` intentionally dropped — solved structurally by real `timestamptz` instead of Oracle's midnight-crossing text workaround.
+- `duty_roster` late/half-day flags consolidated: old `late_flag`/`half_day_late`/`late_flag_out`/`half_day_early_going` (4 independent-but-actually-exclusive booleans) → `arrival_status` + `departure_status` (2 CHECK-constrained enums)
+- Interview ratings/recommendation: fixed-label 5-point CHECK-constrained scales (`POOR`→`EXCELLENT`, `STRONG_NO_HIRE`→`STRONG_HIRE`), not free text
+- Oracle round-trip: confirmed **not a free reverse** if ever needed (booleans, `time`/`interval` generated columns, PL/pgSQL triggers, schema-as-user model all need rework) — this is a "just in case" concern only, not designing around it currently
+
+## User context
+Mohsin, works at Dewan Cement Limited. Self-directed on this project (audit background, has an appraisal coming up — this project is good evidence of initiative). Wants things explained clearly but decided on his behalf rather than asked repeatedly for small technical calls — flag only genuine judgment calls, not routine ones. PostgreSQL 17 + pgAdmin installed and working.

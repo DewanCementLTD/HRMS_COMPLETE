@@ -33,7 +33,7 @@ This document provides a comprehensive technical overview of the HRMS and Payrol
     * `ALLOWANCE_ID = 5` — Utilities (`UT`)
     * `ALLOWANCE_ID = 17` — FPO (`FPO`)
 * IK EMPLOYEE KI CORRESPONDING ENTERY AGR HR_EMP_ALLOW MA HOGI TAB HI WHO "All ACTIVE EMPLOYEE DETAIL REPORT" MA DEKHAY GA
-* **`HR_SALARY_PROCESS` vs. `HR_SALARY_PROCESS_FINAL`**
+* **`HR_SALARY_PROCESS` vs. `HR_SALARY_PROe ocmlete db CESS_FINAL`**
 
   * **`HR_SALARY_PROCESS` & `HR_SALARY_PROCESS_MASTER`**: Stores **active draft salary run results** for Open periods.
   * **`HR_SALARY_PROCESS_FINAL` & `HR_SALARY_PROCESS_MASTER_FINAL`**: Stores **closed/posted historical salary results** after month-end posting.
