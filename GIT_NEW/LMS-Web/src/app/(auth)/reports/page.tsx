@@ -77,7 +77,7 @@ export default function ReportsPage() {
   );
 
   useEffect(() => {
-    if (!categoryReports.some((r) => r.id === selectedReportId)) {
+    if (selectedReportId && !categoryReports.some((r) => r.id === selectedReportId)) {
       setSelectedReportId(categoryReports[0].id);
     }
   }, [activeCategory, categoryReports, selectedReportId]);
