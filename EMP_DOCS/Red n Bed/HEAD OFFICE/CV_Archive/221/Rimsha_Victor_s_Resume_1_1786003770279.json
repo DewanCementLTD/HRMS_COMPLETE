@@ -1,0 +1,86 @@
+{
+  "cv_file": "Rimsha_Victor_s_Resume_1_1786003770279.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:30.816240+00:00",
+  "pipeline": {
+    "total_seconds": 47.419,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.793,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 994,
+    "output_tokens": 559,
+    "total_tokens": 2624
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "header",
+      "skills"
+    ],
+    "text_chars": 1218
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Rimsha Victor Gill",
+      "email": "rimshavictor135@gmail.com",
+      "phone": "+923411220094",
+      "location": null
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Digital Marketer specializing in social media management, paid advertising, and influencer collaborations. Experienced in executing end-to-end SMM strategies to enhance brand awareness and engagement.",
+    "education": [
+      {
+        "institution": "Federal Urdu University Of Arts, Science And Technology",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Devrims",
+        "role": "Digital Marketing Executive",
+        "duration": "April 2023 - Present",
+        "description": "Manages end-to-end social media marketing, community engagement, influencer collaborations, and content creation to increase brand awareness."
+      },
+      {
+        "company": "Atsem Soft",
+        "role": "Social Media Marketing",
+        "duration": "March 2023 - June 2023",
+        "description": "Optimized and managed Facebook and Instagram ad campaigns."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Paid Ads",
+      "Influencer Outreach",
+      "Link Building",
+      "Facebook Ads",
+      "Inbound Marketing",
+      "Content Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 85,
+    "experience_match": 50,
+    "overall_score": 68,
+    "strengths": [
+      "Strong proficiency in Meta/Facebook/Instagram advertising",
+      "Experience with influencer outreach and community engagement",
+      "Relevant certifications from Meta and Google"
+    ],
+    "weaknesses": [
+      "Total professional experience is under the 2-year minimum requirement",
+      "Bachelor's degree is listed as ongoing/incomplete"
+    ],
+    "recommendation": "Consider",
+    "summary": "The candidate possesses the exact technical skill set required for social media management and paid ads, but falls short of the minimum experience and education completion requirements."
+  }
+}

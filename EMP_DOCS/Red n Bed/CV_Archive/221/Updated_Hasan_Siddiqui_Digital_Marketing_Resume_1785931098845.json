@@ -1,0 +1,121 @@
+{
+  "cv_file": "Updated_Hasan_Siddiqui_Digital_Marketing_Resume_1785931098845.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:02:07.662182+00:00",
+  "pipeline": {
+    "total_seconds": 60.333,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.073,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1435,
+    "output_tokens": 947,
+    "total_tokens": 3565
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3074
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hasan Siddiqui",
+      "email": "hazansiddiqi@gmail.com",
+      "phone": "+92 343 2442004",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing",
+    "profile_summary": "Senior digital marketing professional with over 9 years of experience specializing in paid media, SEO, and lead generation. Proven track record in scaling campaigns and managing high-value client portfolios across diverse industries.",
+    "education": [],
+    "experience": [
+      {
+        "company": "Appedology",
+        "role": "Senior Paid Marketing Specialist",
+        "duration": "2025 – Present",
+        "description": "Optimized Google and Meta Ads, implemented GTM and GA4 conversion tracking, and enhanced landing page funnels to improve CPL and conversion rates."
+      },
+      {
+        "company": "Magnet Group",
+        "role": "Head of Marketing",
+        "duration": "2023 – 2024",
+        "description": "Planned marketing events and university seminars while maintaining lead pipelines and email marketing campaigns."
+      },
+      {
+        "company": "GABA Education",
+        "role": "Digital Marketing Manager",
+        "duration": "2018 – 2021",
+        "description": "Managed annual ad budgets exceeding $25,000 and successfully reduced offline marketing expenditures by $12,000."
+      },
+      {
+        "company": "GABA Publishers",
+        "role": "Digital Marketing Manager",
+        "duration": "2018 – 2021",
+        "description": "Drove a 22% increase in company revenue through the implementation of strategic digital lead generation campaigns."
+      },
+      {
+        "company": "Sheikh Construction",
+        "role": "Digital Marketing Manager",
+        "duration": "2016 – 2017",
+        "description": "Managed multi-channel campaigns across email, social, and web, achieving a 6% year-over-year KPI improvement."
+      },
+      {
+        "company": "ASHS Consultants",
+        "role": "Head of Digital Marketing",
+        "duration": "2015 – 2025",
+        "description": "Launched and scaled a full-service consultancy focusing on PPC, SEO, and study abroad services."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Google Ads",
+      "Meta Ads",
+      "Facebook Marketing",
+      "Instagram Marketing",
+      "Email Marketing",
+      "Mailchimp",
+      "Klaviyo",
+      "Constant Contact",
+      "Shopify",
+      "Magento",
+      "WordPress",
+      "Google Analytics",
+      "GA4",
+      "Google Tag Manager",
+      "Funnel Building",
+      "Affiliate Marketing",
+      "Lead Generation",
+      "Canva",
+      "MS Office",
+      "AI",
+      "Copywriting",
+      "Leadership"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Expert-level proficiency in Meta Ads and Google Ads",
+      "Strong technical tracking skills (GA4, GTM) for UTM and reporting",
+      "Extensive experience exceeding the 2-year minimum",
+      "Proficient in Canva and MS Office"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok management",
+      "Bachelor's degree not explicitly listed in CV text"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is overqualified for a Specialist role but possesses every required technical skill, including the 'nice-to-haves'. His deep expertise in Meta Ads and analytics ensures he can handle campaign setup and reporting with ease."
+  }
+}

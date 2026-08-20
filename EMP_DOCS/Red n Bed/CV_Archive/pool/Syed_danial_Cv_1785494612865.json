@@ -1,0 +1,87 @@
+{
+  "cv_file": "Syed_danial_Cv_1785494612865.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:46:27.036927+00:00",
+  "pipeline": {
+    "total_seconds": 38.909,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 38.855,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 665,
+    "output_tokens": 491,
+    "total_tokens": 2055
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "summary"
+    ],
+    "text_chars": 1230
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "SYED DANIYAL",
+      "email": null,
+      "phone": null,
+      "location": "Karachi"
+    },
+    "preferred_job_title": "OPERATIONS EXECUTIVE",
+    "profile_summary": "Operations and Customer Support professional with experience in e-commerce and retail operations. Proficient in CRM tools, ERP systems, and order management with a focus on customer query resolution and operational efficiency.",
+    "education": [
+      {
+        "institution": "Board of Karachi",
+        "degree": "Intermediate Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Karachi",
+        "degree": "Matriculation Science",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "DIT In Information Technology",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Musk Al Mahal",
+        "role": "Customer Support Agent",
+        "duration": "25 Jan 2023 - 31 Nov 2025",
+        "description": "Handled customer queries, managed order booking, and provided assistance in various team tasks."
+      },
+      {
+        "company": "Scents N Stories Pvt Ltd",
+        "role": "Customer Support & Operations Executive",
+        "duration": "8 December 2025 - Present",
+        "description": "Managed UAE operations, including order booking, dispatching, ERP, and chat support via Retail AI CRM and Daraz."
+      }
+    ],
+    "skills": [
+      "Beta logistics",
+      "ERP",
+      "Google sheets",
+      "Retail AI CRM",
+      "Shopify",
+      "E-Taps",
+      "Communication skills",
+      "Active Listening",
+      "Negotiation skills",
+      "Problem-solving skills",
+      "Fast typing",
+      "Product Knowledge",
+      "Target achieving",
+      "Customer Support",
+      "Urdu",
+      "English"
+    ]
+  }
+}

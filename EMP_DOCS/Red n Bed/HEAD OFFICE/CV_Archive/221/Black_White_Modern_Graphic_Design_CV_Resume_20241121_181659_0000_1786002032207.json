@@ -1,0 +1,96 @@
+{
+  "cv_file": "Black_White_Modern_Graphic_Design_CV_Resume_20241121_181659_0000_1786002032207.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:49.360034+00:00",
+  "pipeline": {
+    "total_seconds": 49.656,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.392,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 806,
+    "output_tokens": 560,
+    "total_tokens": 2343
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": "Sales Solution Architect",
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 476
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mahnoor Zahid",
+      "email": null,
+      "phone": null,
+      "location": null
+    },
+    "preferred_job_title": "Sales Solution Architect",
+    "profile_summary": "Retail sales professional with experience in sales advising and visual merchandising within the supermarket and fashion industries. Specialized in customer-facing roles and beauty advising.",
+    "education": [
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Imtiaz Super Market",
+        "role": "Sales Advisor",
+        "duration": "2021 - 2023",
+        "description": "Served as a sales advisor."
+      },
+      {
+        "company": "SANA SAFINAZ",
+        "role": "Sales Advisor",
+        "duration": "2023 - 2024",
+        "description": "Managed sales and visual merchandising at the outlet."
+      },
+      {
+        "company": "MARIA B",
+        "role": "Beauty Advisor",
+        "duration": "2024",
+        "description": "Worked as a beauty advisor."
+      }
+    ],
+    "skills": [
+      "Sales",
+      "Visual Merchandising",
+      "Beauty Advising",
+      "Customer Service"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 10,
+    "overall_score": 5,
+    "strengths": [
+      "Consistent employment in retail sales",
+      "Experience in visual merchandising"
+    ],
+    "weaknesses": [
+      "No marketing experience",
+      "Lacks required Bachelor's degree",
+      "No knowledge of social media management or UTM tracking",
+      "Preferred job title is unrelated to the JD"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a retail sales professional with no relevant experience or education in marketing, making them entirely unsuitable for the Marketing Specialist role."
+  }
+}

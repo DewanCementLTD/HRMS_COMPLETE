@@ -1,0 +1,87 @@
+{
+  "cv_file": "CV_2_Sana_Malik_1783602744370.pdf",
+  "job_folder": "103",
+  "job_id": 103,
+  "mode": "evaluate",
+  "processed_at": "2026-07-09T13:13:25.894433+00:00",
+  "pipeline": {
+    "total_seconds": 54.406,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 54.175,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 920,
+    "output_tokens": 540,
+    "total_tokens": 2534
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 952
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sana Malik",
+      "email": "sana.malik@email.com",
+      "phone": "+92 321 5551234",
+      "location": "Lahore, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "IT professional with approximately 3-4 years of experience in application support and business systems coordination. Proficient in SQL and process documentation with basic Power BI skills.",
+    "education": [
+      {
+        "institution": "University of the Punjab",
+        "degree": "BS Information Technology",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Crescent Retail Group",
+        "role": "Business Systems Coordinator",
+        "duration": "Jan 2022 – Present",
+        "description": "Supported inventory and POS systems, documented process flows for finance and operations, and assisted in data migration during system upgrades."
+      },
+      {
+        "company": "Horizon Logistics",
+        "role": "IT Support Executive",
+        "duration": "Aug 2020 – Dec 2021",
+        "description": "Provided first-line application support to internal staff and managed user access records."
+      }
+    ],
+    "skills": [
+      "SQL",
+      "Zoho Creator",
+      "requirements documentation",
+      "Power BI",
+      "cross-team coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 40,
+    "experience_match": 30,
+    "overall_score": 33,
+    "strengths": [
+      "Relevant BS degree in IT",
+      "SQL proficiency",
+      "Basic Power BI knowledge"
+    ],
+    "weaknesses": [
+      "Under minimum experience requirement (3-4 years vs 5+)",
+      "No Oracle/SAP ERP administration experience",
+      "Lack of vendor management experience"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an early-career professional who lacks the required seniority and the specific ERP administration and vendor management expertise necessary for this role."
+  }
+}

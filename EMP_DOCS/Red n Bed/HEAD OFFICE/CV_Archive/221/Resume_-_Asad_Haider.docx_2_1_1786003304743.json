@@ -1,0 +1,87 @@
+{
+  "cv_file": "Resume_-_Asad_Haider.docx_2_1_1786003304743.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:18.535950+00:00",
+  "pipeline": {
+    "total_seconds": 50.446,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.733,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 780,
+    "output_tokens": 482,
+    "total_tokens": 1978
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 2,
+    "ocr_pages": [
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 520
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Asad Haider",
+      "email": null,
+      "phone": "03282669006",
+      "location": "Jamshed Quarters"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entry-level professional with a certification in digital marketing and brief experience in social media management. Focused on utilizing foundational marketing skills in a growth-oriented environment.",
+    "education": [
+      {
+        "institution": "Islamia Govt Science College",
+        "degree": "Inter",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Fatimiyah Boys School",
+        "degree": "Matric",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "World Travel Makers",
+        "role": "Social Media Manager",
+        "duration": "3 months",
+        "description": "Managed social media activities for a travel-focused organization."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Social Media Management",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 30,
+    "experience_match": 10,
+    "overall_score": 20,
+    "strengths": [
+      "Possesses a Digital Marketing certification",
+      "Basic practical experience in social media management"
+    ],
+    "weaknesses": [
+      "Does not meet minimum experience requirement (3 months vs 2 years)",
+      "Does not meet education requirement (Inter vs Bachelor's degree)",
+      "No mention of specific tools like Meta Business Suite, Canva, or Excel"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is significantly under-qualified, lacking both the required bachelor's degree and the minimum two years of professional experience."
+  }
+}

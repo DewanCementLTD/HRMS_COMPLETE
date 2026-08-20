@@ -1,0 +1,119 @@
+{
+  "cv_file": "Resume-_M._Umair_Hasan_2026_1785931098833.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:00:47.135818+00:00",
+  "pipeline": {
+    "total_seconds": 73.439,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 73.332,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1773,
+    "output_tokens": 937,
+    "total_tokens": 4361
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Product Marketing Manager",
+    "sections_found": [
+      "certifications",
+      "summary"
+    ],
+    "text_chars": 5226
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "M. Umair Hasan",
+      "email": "umairhasan05@gmail.com",
+      "phone": "+92-3333643474",
+      "location": "Johar-Karachi-Pakistan"
+    },
+    "preferred_job_title": "Product Marketing Manager",
+    "profile_summary": "Senior Digital Marketer and Growth Strategist with extensive experience in performance marketing and brand management. Expert in scaling B2B and B2C brands through multi-channel strategies and conversion-focused funnels.",
+    "education": [
+      {
+        "institution": "Aligarh Institute Of Technology",
+        "degree": "DAE In Electronics",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "ServeEasy-Tekrevol",
+        "role": "Product Marketing Manager",
+        "duration": "2023-Present",
+        "description": "Developed marketing strategies for a SaaS POS system, conducting market research and creating product collateral and pricing strategies."
+      },
+      {
+        "company": "Tech-Beta",
+        "role": "Co-Founder & Growth Strategist",
+        "duration": "2022-2023",
+        "description": "Defined GTM strategy and executed multi-channel growth campaigns across Meta, Google, and LinkedIn for USA and UK markets."
+      },
+      {
+        "company": "Gr-tech",
+        "role": "Social Media Manager",
+        "duration": "2022-2023",
+        "description": "Managed social media presence, content strategy, and community engagement while addressing customer queries via social platforms."
+      },
+      {
+        "company": "Cydomedia-Tekrevol",
+        "role": "Brand Manager",
+        "duration": "2021-2022",
+        "description": "Oversaw brand standards, PR efforts, and the creation and publication of engaging company content."
+      },
+      {
+        "company": "Evenue360",
+        "role": "Co-Founder",
+        "duration": "2014-Present",
+        "description": "Built a Shopify store from scratch, managing Facebook and Google ads to drive sales and lead generation."
+      },
+      {
+        "company": "Freelance",
+        "role": "Performance Marketing Specialist",
+        "duration": "2019-2021",
+        "description": "Optimized paid media campaigns for e-commerce clients, focusing on KPIs and managing significant advertising spend."
+      }
+    ],
+    "skills": [
+      "Content Marketing",
+      "Digital Marketing",
+      "Facebook Blueprints",
+      "Performance Marketing",
+      "Growth Marketing",
+      "Go High Level",
+      "LinkedIn Marketing",
+      "Inbound Marketing",
+      "Team Management",
+      "Brand Management",
+      "B2B Marketing",
+      "B2C Marketing",
+      "Organic Growth",
+      "SEO",
+      "Meta Ads",
+      "Google Ads",
+      "Shopify",
+      "CRO"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 95,
+    "overall_score": 88,
+    "strengths": [
+      "Expertise in Meta and Google Ads",
+      "Comprehensive social media management and community engagement experience",
+      "Strong background in growth and performance marketing"
+    ],
+    "weaknesses": [
+      "Lacks the required Bachelor's degree in Marketing or a related field"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is highly overqualified for the Marketing Specialist role, possessing senior-level experience in growth and performance marketing. While he lacks the specific degree requirement, his practical expertise in social media, content strategy, and campaign management far exceeds the job's needs."
+  }
+}

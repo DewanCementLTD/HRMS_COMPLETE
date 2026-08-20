@@ -1,0 +1,126 @@
+{
+  "cv_file": "ZainKhanResume_1786003770294.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:11:45.879902+00:00",
+  "pipeline": {
+    "total_seconds": 71.059,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.914,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2005,
+    "output_tokens": 918,
+    "total_tokens": 4516
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 5682
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Zain Khan",
+      "email": "zainkhanzadaofficial@gmail.com",
+      "phone": "03471247898 / 03132821593",
+      "location": "Garden west Saddar town Karachi"
+    },
+    "preferred_job_title": "Brand & Business Development Manager",
+    "profile_summary": "Experienced Brand and Business Development professional with over 4 years of expertise in driving growth and brand identity. Specializes in strategic planning, content development, and market analysis across diverse global industries.",
+    "education": [
+      {
+        "institution": "Szabist University",
+        "degree": "Masters of Advertising",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Hamdard University",
+        "degree": "Software Engineering",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Pre-Engineering",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "BHS",
+        "degree": "Computer Science",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Allied Services International Private Limited",
+        "role": "Brand & Communication Manager",
+        "duration": "2024",
+        "description": "Managed campaigns for Safari Group and Gulf companies; focused on brand reputation, content development, and AI-driven workflow optimization."
+      },
+      {
+        "company": "Team Reactivate",
+        "role": "Brand & Business Development Manager",
+        "duration": "2023",
+        "description": "Developed brand strategies and growth initiatives for international agencies and food brands, increasing website traffic and social media engagement."
+      },
+      {
+        "company": "Appedology",
+        "role": "Business Development Executive | Brand Executive",
+        "duration": "2022 - 2023",
+        "description": "Identified business opportunities and developed strategic plans for US-based companies to boost revenue and market presence."
+      },
+      {
+        "company": "Fleekbiz",
+        "role": "Business Development Executive & Brand Executive",
+        "duration": "2021 - 2022",
+        "description": "Increased organic social media reach and online visibility through targeted content and professional LinkedIn networking."
+      },
+      {
+        "company": "Digitli",
+        "role": "Business & Lead Generation Specialist",
+        "duration": "2020 - 2021",
+        "description": "Implemented innovative marketing strategies to enhance brand visibility for local and e-commerce brands."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Business Development",
+      "Google Analytics",
+      "Figma",
+      "Freepik",
+      "Biteable",
+      "Storyset",
+      "Intercom",
+      "AI Marketing Tools",
+      "Market Analysis",
+      "Negotiation",
+      "Content Development",
+      "LinkedIn Networking"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 80,
+    "experience_match": 90,
+    "overall_score": 85,
+    "strengths": [
+      "Masters in Advertising",
+      "Strong portfolio of international brand work",
+      "Proficient in modern design and AI tools"
+    ],
+    "weaknesses": [
+      "No explicit mention of UTM tracking or Meta Business Suite"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "Candidate is highly qualified with a relevant Master's degree and extensive experience in brand management and social media growth, exceeding the minimum experience requirements."
+  }
+}

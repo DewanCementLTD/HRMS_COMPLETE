@@ -1,0 +1,118 @@
+{
+  "cv_file": "Zawar_CV_-_English_1786003770295.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:11:49.773508+00:00",
+  "pipeline": {
+    "total_seconds": 71.81,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.712,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1809,
+    "output_tokens": 959,
+    "total_tokens": 4374
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 5071
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Zawar Mohiuddin",
+      "email": "zawarmohiuddin@gmail.com",
+      "phone": "+923472067471",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with a strong academic foundation in Marketing and extensive experience in Software Quality Assurance and customer relationship management. Expert in SQA leadership, Salesforce automation, and digital banking operations.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master in Business Administration (MBA) Marketing",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor in Business Administration (BBA) Marketing",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Syncing Soft",
+        "role": "SQA Team Lead",
+        "duration": "April 2023 - Present",
+        "description": "Developed test strategies for Salesforce and mobile apps, reducing post-release defects by 30% and managing client requirements."
+      },
+      {
+        "company": "Avanza Solutions",
+        "role": "SQA Engineer",
+        "duration": "November 2021 - March 2023",
+        "description": "Conducted root cause analysis on defects and mentored junior QA members to enhance product quality."
+      },
+      {
+        "company": "Rafi Securities",
+        "role": "Digital Customer Service Officer",
+        "duration": "April 2021 - October 2021",
+        "description": "Managed digital account opening and directed digital marketing strategies to improve client experience and growth."
+      },
+      {
+        "company": "Telenor Microfinance Bank",
+        "role": "Customer Service Officer",
+        "duration": "June 2019 - November 2020",
+        "description": "Managed 100+ enterprise accounts as a relationship manager, achieving 100% KPI fulfillment."
+      },
+      {
+        "company": "Meezan Bank Limited",
+        "role": "ADC Officer",
+        "duration": "January 2018 - May 2019",
+        "description": "Led mobile app and internet banking upgrades, improving app store ratings and customer satisfaction."
+      },
+      {
+        "company": "Bilkish Associates",
+        "role": "Assistant Manager",
+        "duration": "September 2016 - February 2017",
+        "description": "Utilized social media for skip tracing and portfolio analysis to improve recovery rates."
+      }
+    ],
+    "skills": [
+      "Mobile App Testing",
+      "Quality Assurance",
+      "Salesforce Automation",
+      "Business Analysis",
+      "Project Management",
+      "CRM",
+      "Digital Banking",
+      "Google Analytics",
+      "Customer Relationship Management",
+      "UAT",
+      "Digital Marketing Strategies"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 20,
+    "experience_match": 20,
+    "overall_score": 25,
+    "strengths": [
+      "Perfect educational alignment with BBA and MBA in Marketing",
+      "Certification in Google Analytics",
+      "Strong background in digital customer experience"
+    ],
+    "weaknesses": [
+      "Recent professional experience is focused on SQA/Technical QA rather than Marketing",
+      "No evidence of experience with Meta Business Suite, Canva, or social media scheduling",
+      "Lacks a portfolio of content creation or campaign management"
+    ],
+    "recommendation": "Reject",
+    "summary": "Despite having the ideal educational background in Marketing, the candidate has spent the last several years building a career in Software Quality Assurance. They lack the specific hands-on experience in social media management and content coordination required for this role."
+  }
+}

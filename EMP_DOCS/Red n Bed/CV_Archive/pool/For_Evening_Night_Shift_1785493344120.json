@@ -1,0 +1,102 @@
+{
+  "cv_file": "For_Evening_Night_Shift_1785493344120.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:42.144217+00:00",
+  "pipeline": {
+    "total_seconds": 56.801,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.429,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1634,
+    "output_tokens": 689,
+    "total_tokens": 3596
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 4152
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Laraib Yasir",
+      "email": "laraibyasir469@gmail.com",
+      "phone": "+92-312-1200879",
+      "location": "Industrial Area Site, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with extensive experience in administrative, supervisory, and operational roles. Strong background in office management, CCTV monitoring, and storekeeping, supported by diverse certifications in IT and hospitality.",
+    "education": [
+      {
+        "institution": "Allama Iqbal Open University, Islamabad",
+        "degree": "BS Library and Information Sciences",
+        "graduation_year": null
+      },
+      {
+        "institution": "Allama Iqbal Open University, Islamabad",
+        "degree": "Bachelor of Arts (Mass Communication)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Govt. Degree Science College, Buffer Zone, North Nazimabad, Karachi",
+        "degree": "Intermediate with Commerce",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Govt. Boys Sec. School Pakistan Air Force Base Masroor, Karachi",
+        "degree": "Matriculation with Science (Bio)",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Harmain Trading",
+        "role": "Clerk, Office Boy and Computer Operator",
+        "duration": "4 years",
+        "description": "Performed clerical tasks, office support, and computer operations."
+      },
+      {
+        "company": "Al-Murtaza Network",
+        "role": "CCTV Monitoring/ Observer, Telephone Operator & Receptionist",
+        "duration": "4 years",
+        "description": "Managed security surveillance, handled telephone communications, and managed reception duties."
+      },
+      {
+        "company": "Al-Shariq & Co.",
+        "role": "Supervisor Time Keeper and Storekeeper",
+        "duration": "4 years",
+        "description": "Supervised timekeeping and managed store inventory."
+      },
+      {
+        "company": "Al-Habib Restaurant",
+        "role": "Cashier, Dispatch, Call Center & Rider",
+        "duration": "3 years",
+        "description": "Handled cash transactions, dispatch, customer service via call center, and deliveries."
+      }
+    ],
+    "skills": [
+      "Web Designing",
+      "Microsoft Office",
+      "Hardware & Networking",
+      "CCTV Monitoring",
+      "Storekeeping",
+      "Timekeeping",
+      "Cashiering",
+      "Communication",
+      "Interpersonal Skills",
+      "Research",
+      "Analytical Skills",
+      "Presentation Skills",
+      "Urdu",
+      "Hindco",
+      "English"
+    ]
+  }
+}

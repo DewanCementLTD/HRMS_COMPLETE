@@ -1,0 +1,79 @@
+{
+  "cv_file": "Asad-Khan-Digital_Marketing_Resume_1785485520477.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:04.504787+00:00",
+  "pipeline": {
+    "total_seconds": 41.134,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.669,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 654,
+    "output_tokens": 483,
+    "total_tokens": 2045
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Executive",
+    "sections_found": [
+      "education",
+      "experience",
+      "summary"
+    ],
+    "text_chars": 924
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "M. ASAD KHAN",
+      "email": "ak03402598051@gmail.com",
+      "phone": "+92 3402598051",
+      "location": "Clifton Block 8"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Dedicated SEO and SMM professional with 2 years of experience driving digital marketing strategies to enhance online visibility and conversion rates. Proficient in SEO techniques, social media platforms, and analytics tools.",
+    "education": [
+      {
+        "institution": "DHACSS DEGREE COLLEGE",
+        "degree": "Intermediate",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Digi Skill",
+        "degree": "Digital Marketing Certified",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TECHVERSOL INC",
+        "role": "SEO And Social Media Marketing Executive",
+        "duration": "April 2024 - Present",
+        "description": "Leading SEO and social media marketing efforts to drive brand growth and online visibility."
+      },
+      {
+        "company": "AIDA DIGITAL MARKETING",
+        "role": "Digital Marketing Executive",
+        "duration": "December 2022 - March 2024",
+        "description": "Implemented digital marketing strategies to optimize website performance, engagement, and conversion rates."
+      },
+      {
+        "company": "COMTECH ASSOCIATE",
+        "role": "Digital Marketing Intern",
+        "duration": "July 2022 - October 2022",
+        "description": "Gained foundational experience in digital marketing operations and execution."
+      }
+    ],
+    "skills": [
+      "Search Engine Optimization",
+      "Facebook Ads",
+      "Communication",
+      "Canva",
+      "Social Media Marketing",
+      "Instagram Marketing"
+    ]
+  }
+}

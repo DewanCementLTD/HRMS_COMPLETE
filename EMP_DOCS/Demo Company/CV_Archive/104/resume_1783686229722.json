@@ -1,0 +1,110 @@
+{
+  "cv_file": "resume_1783686229722.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:25:00.244986+00:00",
+  "pipeline": {
+    "total_seconds": 60.341,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 59.668,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1336,
+    "output_tokens": 727,
+    "total_tokens": 3436
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2338
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Affan Basit",
+      "email": "affan.basit@hotmail.com",
+      "phone": "+92 315 2979547",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Systems Programmer",
+    "profile_summary": "High-achieving Computer Science student with a 3.81 CGPA specializing in high-performance C/C++ and CUDA programming. Possesses a versatile skill set spanning low-level systems architecture and modern full-stack web technologies.",
+    "education": [
+      {
+        "institution": "National University of Computer & Emerging Sciences",
+        "degree": "Bachelor of Science, Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Commecs College",
+        "degree": "Higher Secondary School Certificate, Pre-Engineering",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Internship",
+        "duration": "Jun 2025 – Jul 2025",
+        "description": "Troubleshot the RAAST payment system and utilized SQL for cleaning and preparing financial datasets for analysis."
+      },
+      {
+        "company": "Dotinfiny Solutions",
+        "role": "Content Writer",
+        "duration": "Mar 2020 – Feb 2023",
+        "description": "Implemented SEO strategies and authored researched articles to improve search engine rankings and content quality."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "Python",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "CUDA",
+      "Bash",
+      "VS Code",
+      "Git",
+      "LaTeX",
+      "Docker",
+      "Notion",
+      "CMake",
+      "PostgreSQL",
+      "MongoDB",
+      "MySQL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 65,
+    "experience_match": 20,
+    "overall_score": 43,
+    "strengths": [
+      "Strong academic performance",
+      "Proficiency in React, TypeScript, and JavaScript",
+      "Experience with both SQL and NoSQL databases",
+      "Familiarity with Docker and Git"
+    ],
+    "weaknesses": [
+      "Career objective is explicitly focused on Systems Programming rather than Full Stack",
+      "Lack of professional experience in building scalable web applications",
+      "No mentioned experience with Node.js or AWS",
+      "Limited professional software engineering experience"
+    ],
+    "recommendation": "Underqualified",
+    "summary": "While the candidate possesses several of the required technical skills (React, TS, SQL), they are a student whose primary interest and project experience lie in low-level systems programming rather than full-stack web development."
+  }
+}

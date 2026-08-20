@@ -1,0 +1,103 @@
+{
+  "cv_file": "areeba_abu_bashar_1785494612862.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:44:55.911774+00:00",
+  "pipeline": {
+    "total_seconds": 60.579,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 54.276,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 921,
+    "output_tokens": 704,
+    "total_tokens": 2811
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2397
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Areeba Abu Bashar",
+      "email": "Areebashaikh5l4@gmail.com",
+      "phone": "03130117703",
+      "location": "Dehli colony, clifton"
+    },
+    "preferred_job_title": "Customer Service and Sales Professional",
+    "profile_summary": "Results-driven professional with over 3 years of experience in customer support, sales, telemarketing, and administration. Skilled in managing customer relationships, resolving inquiries, and optimizing front-desk operations to drive business growth.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "B.com",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Govt. Commerce and Economics Girls College",
+        "degree": "Intermediate in commerce",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Neelos and Maha School",
+        "degree": "Matriculation in Computer Science",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "SLBASICS",
+        "role": "Sales Associate",
+        "duration": null,
+        "description": "Managed customer communications via WhatsApp, Instagram, and calls; handled inquiries, complaints, and coordinated order processing from placement to delivery."
+      },
+      {
+        "company": "SLBASICS",
+        "role": "Hand Model",
+        "duration": "Mar 2025 - Apr 2026",
+        "description": "Modeled for product, beauty, and lifestyle shoots, collaborating with photographers and brands for professional marketing campaigns."
+      },
+      {
+        "company": "Qamar Ul Islam Hospital",
+        "role": "Receptionist",
+        "duration": "Sep 2024 - Apr 2026",
+        "description": "Managed front desk operations, including patient greeting, appointment scheduling, registration, and record management."
+      },
+      {
+        "company": "Riza Tech (UAE Campaign)",
+        "role": "Telesales Executive",
+        "duration": "Sep 2023 - Jun 2024",
+        "description": "Conducted outbound calls to promote services, generate leads, and close sales while maintaining detailed activity records."
+      },
+      {
+        "company": "EFU Life Assurance",
+        "role": "Business Sales Representative",
+        "duration": "Feb 2023 - Aug 2023",
+        "description": "Promoted life insurance products, assessed client needs, and built relationships to achieve company sales targets."
+      }
+    ],
+    "skills": [
+      "Administrative support",
+      "Customer service",
+      "Team collaboration",
+      "Communication",
+      "Problem solving",
+      "Microsoft Word",
+      "Microsoft Excel",
+      "English",
+      "Urdu"
+    ]
+  }
+}

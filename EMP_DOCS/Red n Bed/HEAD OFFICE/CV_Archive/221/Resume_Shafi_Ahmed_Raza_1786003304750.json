@@ -1,0 +1,129 @@
+{
+  "cv_file": "Resume_Shafi_Ahmed_Raza_1786003304750.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:08:12.668346+00:00",
+  "pipeline": {
+    "total_seconds": 130.951,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 128.292,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2309,
+    "output_tokens": 897,
+    "total_tokens": 4933
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 6,
+    "ocr_pages": [
+      5,
+      6
+    ],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header"
+    ],
+    "text_chars": 6103
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shafi Ahmed Raza",
+      "email": "Shafiahmed.net@gmail.com",
+      "phone": "+92 3198128242",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Results-driven digital marketing professional with expertise in social media management, Meta Ads, and SEO. Proven track record in managing paid campaigns and driving business growth across various industries.",
+    "education": [
+      {
+        "institution": "Virtual University",
+        "degree": "Bachelor of Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Formen Govt. College",
+        "degree": "Intermediate",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Rakhshinda Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Think Higher Consultants",
+        "role": "Team Lead Digital Marketer",
+        "duration": "August 2024 – Present",
+        "description": "Manages paid marketing campaigns, social media scheduling, content strategy, SEO blogs, and email marketing automations."
+      },
+      {
+        "company": "altMedia.pk",
+        "role": "Sr. Digital Marketing Manager",
+        "duration": "July 2023 – August 2024",
+        "description": "Executed paid campaigns and social media strategies to increase reach, awareness, and sales for agency clients."
+      },
+      {
+        "company": "Graphic Creators",
+        "role": "Sales Executive",
+        "duration": "December 2022 – July 2023",
+        "description": "Leveraged Twitter and Instagram to promote graphic design products and achieve sales targets through consumer engagement."
+      },
+      {
+        "company": "Freelance",
+        "role": "Self-Employed",
+        "duration": "December 2020 – August 2022",
+        "description": "Developed Shopify stores, performed SEO, and managed Meta ads and social accounts for various clients."
+      }
+    ],
+    "skills": [
+      "Paid ad campaigns",
+      "Social Media Management",
+      "Shopify",
+      "WordPress",
+      "Facebook Ads",
+      "Google Ads",
+      "TikTok Ads",
+      "LinkedIn Ads",
+      "Mailchimp",
+      "Mailer lite",
+      "Brevo",
+      "Outlook",
+      "SEO",
+      "Google Analytics",
+      "Google Search Console",
+      "GMB",
+      "Bing Places",
+      "Google Spreadsheets",
+      "Competitor Analysis",
+      "CRM",
+      "CMS",
+      "MS-Office",
+      "Canva",
+      "Leadership",
+      "Communication",
+      "Problem Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Expertise in Meta and TikTok ads",
+      "Proficient in Canva and Excel/Spreadsheets",
+      "Strong background in SMM and competitor analysis"
+    ],
+    "weaknesses": [
+      "Bachelor's degree is in Computer Science and is still in progress"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is a highly skilled digital marketer with over 3 years of practical experience in social media scheduling, paid campaigns, and asset creation, aligning perfectly with the technical requirements of the Marketing Specialist role."
+  }
+}

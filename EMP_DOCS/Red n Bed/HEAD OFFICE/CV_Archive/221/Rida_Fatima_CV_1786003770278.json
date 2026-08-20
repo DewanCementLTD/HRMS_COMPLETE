@@ -1,0 +1,133 @@
+{
+  "cv_file": "Rida_Fatima_CV_1786003770278.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:54.698329+00:00",
+  "pipeline": {
+    "total_seconds": 71.322,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.696,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2355,
+    "output_tokens": 1026,
+    "total_tokens": 4876
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 7632
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Rida Fatima Anmool",
+      "email": "rida.fatima.anmool@gmail.com",
+      "phone": "0334-3-226-226",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with a BS in Accounting and Finance and extensive practical experience in social media management and customer service. Strong expertise in digital marketing, content strategy, and data analytics supported by multiple professional certifications.",
+    "education": [
+      {
+        "institution": "SZABIST University Karachi",
+        "degree": "BS Accounting and Finance",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "DA Degree College for Women",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "KIDS University",
+        "degree": "Secondary School Certificate",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ocean1 (Pvt) Ltd",
+        "role": "Customer Service Representative",
+        "duration": "Current",
+        "description": "Consulted clients on study abroad solutions and collaborated with the marketing team to promote programs and increase engagement."
+      },
+      {
+        "company": "Anmol Shati",
+        "role": "Social Media Manager",
+        "duration": "Current",
+        "description": "Manages social media accounts, creates engaging content, collaborates with influencers, and optimizes campaigns based on performance metrics."
+      },
+      {
+        "company": "Institute of Chartered Accountants of Pakistan (ICAP)",
+        "role": "Technical Services Officer",
+        "duration": "September 2023-June 2024",
+        "description": "Analyzed circular debt, implemented SDGs, and organized sustainability reporting seminars in collaboration with SECP."
+      },
+      {
+        "company": "BMA Investments Advisors",
+        "role": "Investment Analyst",
+        "duration": "July 2023- August 2023",
+        "description": "Conducted financial forecasting and prepared tailored Fund Manager Reports for clients."
+      },
+      {
+        "company": "Institute of Chartered Accountants of Pakistan (ICAP)",
+        "role": "Technical service internship",
+        "duration": "4 months",
+        "description": "Reviewed audit certificate requirements and compared international and local ethics codes."
+      },
+      {
+        "company": "PAIR Investment Company Limited (PICL)",
+        "role": "Finance Intern",
+        "duration": "6 weeks",
+        "description": "Managed transaction tracking, sales tax calculations, and bank reconciliations."
+      },
+      {
+        "company": "Ambreen Shati Beauty Salon",
+        "role": "Receptionist and Social Media Manager",
+        "duration": "2018-2023",
+        "description": "Optimized social media accounts, managed brand messaging, and handled client inquiries and inventory."
+      }
+    ],
+    "skills": [
+      "Social Media Marketing",
+      "Content Development",
+      "Digital Marketing",
+      "Market Research",
+      "Competitive Analysis",
+      "SEO Optimization",
+      "Copywriting",
+      "Google Analytics",
+      "Power BI",
+      "MS Excel",
+      "Paid Ads",
+      "Data Visualization",
+      "Predictive Modelling",
+      "GenAI for Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 90,
+    "experience_match": 95,
+    "overall_score": 88,
+    "strengths": [
+      "Extensive hands-on social media management experience (5+ years)",
+      "Strong analytical toolkit including Google Analytics and Power BI",
+      "Specialized certifications in AI copywriting and marketing analytics"
+    ],
+    "weaknesses": [
+      "Academic degree is in Finance rather than Marketing or Communications"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds the minimum experience requirement with a proven track record in social media management and content creation. While her degree is in Finance, her extensive certifications and practical experience in digital marketing and analytics make her a highly compatible fit."
+  }
+}

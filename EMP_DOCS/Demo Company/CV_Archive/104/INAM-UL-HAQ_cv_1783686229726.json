@@ -1,0 +1,85 @@
+{
+  "cv_file": "INAM-UL-HAQ_cv_1783686229726.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:24:34.963709+00:00",
+  "pipeline": {
+    "total_seconds": 35.059,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 34.358,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1193,
+    "output_tokens": 476,
+    "total_tokens": 2361
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Sales Consultant",
+    "sections_found": [
+      "education",
+      "header",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1299
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "INAM-UL-HAQ",
+      "email": null,
+      "phone": "0344-0605071",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Sales Consultant",
+    "profile_summary": "Professional with 6 years of experience across sales, administration, and procurement. Demonstrates strengths in communication and adaptability within challenging work environments.",
+    "education": [
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Suzuki I.G Motors Islamabad",
+        "role": "Sales Consultant & Admin Depart Work",
+        "duration": "3 years",
+        "description": "Handled sales consultancy and administrative duties."
+      },
+      {
+        "company": "Dewan Cement PVT LTD",
+        "role": "Purchase Depart",
+        "duration": "3 years",
+        "description": "Managed procurement and purchasing operations."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Administration",
+      "Procurement",
+      "Adaptability"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Professional experience in sales and administration",
+      "Good communication skills"
+    ],
+    "weaknesses": [
+      "No technical skills in JavaScript, TypeScript, Node.js, React, or SQL",
+      "No software engineering experience",
+      "Does not meet the minimum education requirement (Bachelor's in CS)"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a sales and administrative professional with no technical background or education relevant to software engineering."
+  }
+}

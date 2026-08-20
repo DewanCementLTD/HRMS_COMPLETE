@@ -1,0 +1,116 @@
+{
+  "cv_file": "Ayesha_Aamir_Resume_2.0_1785239702877.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:57:31.146295+00:00",
+  "pipeline": {
+    "total_seconds": 57.294,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 57.173,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2130,
+    "output_tokens": 943,
+    "total_tokens": 4147
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Lead",
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 5163
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ayesha Aamir",
+      "email": "ayeshaaabro98@gmail.com",
+      "phone": "+92 335 7747771",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Strategist / Brand Manager",
+    "profile_summary": "Results-driven marketing strategist with over 5 years of experience in brand equity and digital campaigns. Expert in scaling engagement and managing multi-million dollar portfolios across FMCG, media, and nonprofit sectors.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "Postgraduate — Media Management & Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor of Arts — Media Studies",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TCF-USA",
+        "role": "Lead Social Media & Email Marketing Strategist",
+        "duration": "March 2023 – Present",
+        "description": "Spearheads US-wide social and email strategies, increasing engagement by 35% and contributing to a $25M fundraising milestone."
+      },
+      {
+        "company": "Burger Lab",
+        "role": "Assistant Brand Manager",
+        "duration": "June 2022 – March 2023",
+        "description": "Managed PKR 10M+ budget and P&L for 35 outlets; drove 20k+ monthly orders via Facebook and Google Ads."
+      },
+      {
+        "company": "Herbs & Roots",
+        "role": "Marketing Manager",
+        "duration": "September 2021 – June 2022",
+        "description": "Established brand as category leader in herbal baby care, capturing 30% market share within the first year."
+      },
+      {
+        "company": "Craftsmen Media",
+        "role": "Senior Account Manager",
+        "duration": "May 2021 – September 2021",
+        "description": "Managed integrated advertising campaigns for premium clients, increasing brand visibility by 25% for key accounts."
+      },
+      {
+        "company": "Express News / E Tribune",
+        "role": "Senior Associate Producer",
+        "duration": "March 2021 – May 2021",
+        "description": "Produced digital content for Urdu and English platforms, achieving 45% growth in digital viewership."
+      }
+    ],
+    "skills": [
+      "Facebook Ads Manager",
+      "Google Ads",
+      "Google Analytics 4",
+      "Meta Blueprint",
+      "Constant Contact",
+      "HubSpot CRM",
+      "Zoho CRM",
+      "Mailchimp",
+      "Hootsuite",
+      "WordPress",
+      "Adobe Premiere Pro",
+      "Canva",
+      "Shopify",
+      "MS Office Suite",
+      "Brand Strategy",
+      "Content Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 85,
+    "overall_score": 93,
+    "strengths": [
+      "Expertise in GA4 and ad platform reporting",
+      "Proven track record with consumer brands (QSR, Baby Care)",
+      "Local to Karachi",
+      "Strong budget management experience (PKR 10M+)"
+    ],
+    "weaknesses": [
+      "People management duration not explicitly quantified in years"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Candidate exceeds technical requirements with GA4 and ad platform mastery. Possesses direct experience managing budgets and brand strategy for consumer brands in Karachi, making her an ideal fit for the Marketing Manager role."
+  }
+}

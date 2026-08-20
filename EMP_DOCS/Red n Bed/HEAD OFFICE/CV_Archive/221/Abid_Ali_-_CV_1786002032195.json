@@ -1,0 +1,105 @@
+{
+  "cv_file": "Abid_Ali_-_CV_1786002032195.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:57.865296+00:00",
+  "pipeline": {
+    "total_seconds": 123.521,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 122.157,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1147,
+    "output_tokens": 742,
+    "total_tokens": 3161
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 1938
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abid Ali",
+      "email": "abidali.ysn@gmail.com",
+      "phone": "+923118969807",
+      "location": "Garden West, Karachi"
+    },
+    "preferred_job_title": "Marketer",
+    "profile_summary": "BBA graduate in Marketing and Sales with expertise in sales copywriting and SEO. Experienced in managing social media, crafting engaging content, and driving brand growth through strategic digital presence.",
+    "education": [
+      {
+        "institution": "Sukkur IBA University",
+        "degree": "Bachelor of Business Administration (Marketing and Sales)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Govt Boys College Gilgit",
+        "degree": "FSC pre-engineering",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "7figures.pk",
+        "role": "Sales Marketer",
+        "duration": "2024 - Present",
+        "description": "Led sales and marketing strategies to boost revenue and managed lead generation campaigns to increase qualified leads."
+      },
+      {
+        "company": "Snowcap Adventures",
+        "role": "SEO Content Writer",
+        "duration": "2023 - 2024",
+        "description": "Conducted market research and oversaw multi-platform content creation, collaborating with external agencies for brand consistency."
+      },
+      {
+        "company": "Bwritest",
+        "role": "Marketing Associate",
+        "duration": "2022 - 2023",
+        "description": "Executed targeted campaigns and SEO strategies, increasing lead generation by 25% and website traffic by 30%."
+      }
+    ],
+    "skills": [
+      "Marketing",
+      "SEO",
+      "Copywriting",
+      "Lead Generation",
+      "Market Research",
+      "Content Creation",
+      "Customer Service",
+      "Organizational Skills",
+      "Teamwork",
+      "Time Management",
+      "Leadership",
+      "Effective Communication",
+      "English",
+      "Urdu",
+      "Burushaski",
+      "Shina"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 70,
+    "experience_match": 90,
+    "overall_score": 82,
+    "strengths": [
+      "Relevant BBA degree in Marketing",
+      "Meets minimum experience requirement",
+      "Proven success in lead generation and SEO",
+      "Experience collaborating with external agencies"
+    ],
+    "weaknesses": [
+      "No explicit mention of Meta Business Suite, Canva, or Excel",
+      "Lacks specific mention of TikTok/Instagram scheduling tools"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "The candidate is a well-qualified BBA graduate with over 2 years of experience in digital marketing and content creation, aligning well with the core requirements of the Marketing Specialist role."
+  }
+}

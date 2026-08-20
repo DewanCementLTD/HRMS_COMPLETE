@@ -1,0 +1,115 @@
+{
+  "cv_file": "Touseef_Aziz_CV_2.pdf_1785930722887.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:55:50.743984+00:00",
+  "pipeline": {
+    "total_seconds": 70.14,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.019,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1536,
+    "output_tokens": 835,
+    "total_tokens": 4030
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3399
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Touseef Aziz",
+      "email": "aziztouseef19@gmail.com",
+      "phone": "+92- 335- 2115210",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Creative and self-driven marketing professional with a Master's in Media Sciences. Specialized in digital marketing, social media strategy, and brand management for local and multinational brands.",
+    "education": [
+      {
+        "institution": "SZABIST UNIVERSITY",
+        "degree": "Masters in Media Sciences (Advertising)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "KARACHI UNIVERSITY",
+        "degree": "Masters in Public Administration",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "KARACHI UNIVERSITY",
+        "degree": "Bachelors in Public Administration",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Olive Digital",
+        "role": "Brand Executive",
+        "duration": "Aug 2024 - Present",
+        "description": "Creates client pitches for social media campaigns and develops competitive and audience analysis strategy frameworks."
+      },
+      {
+        "company": "Octane Marketing",
+        "role": "Social Media Manager",
+        "duration": "Jul 2021 - Dec 2023",
+        "description": "Developed monthly social media calendars and strategies for local brands across dental, aesthetic, beauty, and food sectors."
+      },
+      {
+        "company": "Freelancer",
+        "role": "Social Media Optimizer",
+        "duration": "Mar 2017 - Dec 2018",
+        "description": "Planned and optimized Facebook and Instagram ads, managed community engagement, and analyzed social data metrics."
+      },
+      {
+        "company": "PeridotProducts Pvt. Ltd",
+        "role": "Social Media Executive",
+        "duration": null,
+        "description": "Monitored daily campaigns, reported results to ABM, and assisted in e-commerce portal content deployment and market research."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Advertising",
+      "Brand Management",
+      "Public Relations",
+      "Social Media Strategy",
+      "Community Management",
+      "Facebook Ads",
+      "Instagram Ads",
+      "Content Calendar Development",
+      "Competitive Analysis",
+      "Reporting",
+      "BTL Activities",
+      "Time Management",
+      "Leadership",
+      "Effective Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 95,
+    "overall_score": 93,
+    "strengths": [
+      "Advanced degree in Advertising/Media Sciences",
+      "Extensive experience in social media strategy and community management",
+      "Proven track record in reporting and competitive analysis"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok experience",
+      "Canva and Excel not explicitly listed as skills"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an excellent match, exceeding the minimum experience and education requirements. They possess direct experience in almost every core responsibility of the job description, including content calendars, reporting, and community management."
+  }
+}

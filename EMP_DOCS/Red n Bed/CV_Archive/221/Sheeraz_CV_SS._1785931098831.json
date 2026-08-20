@@ -1,0 +1,116 @@
+{
+  "cv_file": "Sheeraz_CV_SS._1785931098831.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:08.346689+00:00",
+  "pipeline": {
+    "total_seconds": 69.675,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 69.532,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2305,
+    "output_tokens": 910,
+    "total_tokens": 4759
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 6487
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sheeraz Liaquat",
+      "email": "sheerazliaquat@hotmail.com",
+      "phone": "+966510455492",
+      "location": "Riyadh, KSA"
+    },
+    "preferred_job_title": "Sales & Marketing Expert",
+    "profile_summary": "Senior Sales and Marketing professional with over 20 years of experience in key account management and business growth. Expert in driving revenue through strategic planning and team leadership across various industries.",
+    "education": [
+      {
+        "institution": "Institute of Business and Technology",
+        "degree": "EMBA in Marketing and Sales",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Almarai",
+        "role": "Area Sales Supervisor",
+        "duration": "Dec 2025 - Present",
+        "description": "Optimized sales and distribution of dairy and bakery products, leading a team of 12-15 salesmen to meet growth objectives."
+      },
+      {
+        "company": "Almarai",
+        "role": "Pre Sales Salesman",
+        "duration": "Sep 2024 - Nov 2025",
+        "description": "Built customer relationships, facilitated product listing, and negotiated retailer-specific promotions."
+      },
+      {
+        "company": "Dynamic Solutions (EPC Company)",
+        "role": "Manager Sales and Marketing",
+        "duration": "May 2020 - July 2024",
+        "description": "Analyzed market trends, developed pricing and advertising strategies for solar and CCTV products, and managed budgets."
+      },
+      {
+        "company": "Adamjee Engineering (Pvt) Ltd.",
+        "role": "Deputy Manager Sales and Marketing",
+        "duration": "Sep 2014 - May 2020",
+        "description": "Developed 5-year marketing and sales plans, managed budgets, and monitored promotional material placement at retail outlets."
+      },
+      {
+        "company": "Pioneer Systems",
+        "role": "Assistant Manager Sales and Marketing",
+        "duration": "Jan 2014 - Aug 2014",
+        "description": "Managed local sales clients, met monthly targets, and resolved retailer and sub-dealer queries."
+      },
+      {
+        "company": "Saltec Powerlink",
+        "role": "Assistant Manager Sales and Marketing",
+        "duration": "Feb 2003 - Dec 2013",
+        "description": "Achieved monthly deal targets and utilized advertising methodologies to convert prospects into clients."
+      }
+    ],
+    "skills": [
+      "Sales",
+      "Account Acquisition",
+      "Account Retention",
+      "Negotiation",
+      "Closure",
+      "Product Management",
+      "New Product Development",
+      "Direct Sales",
+      "Channel Sales",
+      "Microsoft Office",
+      "SAP"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 10,
+    "experience_match": 30,
+    "overall_score": 20,
+    "strengths": [
+      "Extensive senior leadership experience",
+      "Strong background in B2B sales and market analysis",
+      "Advanced degree (EMBA)"
+    ],
+    "weaknesses": [
+      "No experience with social media platforms (TikTok, IG, FB)",
+      "Lack of digital marketing tools (Canva, Meta Business Suite, UTMs)",
+      "Overqualified in seniority for a Specialist role"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced senior sales manager. However, he lacks the specific digital content creation and social media management skills required for this role."
+  }
+}

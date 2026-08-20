@@ -1,0 +1,133 @@
+{
+  "cv_file": "Adeel_Ghouri_-_Updated_Resume_1785239702858.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:24.032157+00:00",
+  "pipeline": {
+    "total_seconds": 178.797,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 169.92,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2302,
+    "output_tokens": 1172,
+    "total_tokens": 5310
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 5939
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Adeel Ghouri",
+      "email": "adeelghouri.digital@gmail.com",
+      "phone": "+92 310 107 5838",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Strategist / Brand Builder",
+    "profile_summary": "MBA-qualified marketing leader with over 10 years of experience in brand building and digital strategy. Proven track record of scaling 20+ brands and managing high-value client accounts across diverse global and regional markets.",
+    "education": [
+      {
+        "institution": "SZABIST, Karachi",
+        "degree": "MBA – Marketing & Advertising",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Preston University",
+        "degree": "BBA",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sleekhive Technologies",
+        "role": "AVP – Marketing Strategy & Brand Operations",
+        "duration": "Feb 2024 – Present",
+        "description": "Launched 20+ brands, generated $45K+ in quarterly upsells, and built sales and production teams with operational SOPs."
+      },
+      {
+        "company": "Crystallite Pakistan",
+        "role": "Senior Digital Marketing Manager",
+        "duration": "Sep 2023 – Feb 2024",
+        "description": "Developed content strategies and brand narratives to drive consistent engagement and account growth."
+      },
+      {
+        "company": "Tech Horizontal Pvt. Ltd.",
+        "role": "Head of Digital Marketing",
+        "duration": "Feb 2022 – Sep 2023",
+        "description": "Led performance marketing and ORM for US-based clients, achieving $8,000 in marketing upsells through service expansion."
+      },
+      {
+        "company": "Synergy Dentsu X Synite Digital",
+        "role": "Senior Digital Marketing Manager",
+        "duration": "Apr 2021 – Feb 2022",
+        "description": "Managed integrated digital campaigns for major brands and retained PKR 2.5 Cr+ in annual revenue."
+      },
+      {
+        "company": "Fizzz Social",
+        "role": "Group Account Manager",
+        "duration": "Jan 2019 – Feb 2021",
+        "description": "Led SMM team operations and digital strategy for 10+ clients across banking, retail, and entertainment."
+      },
+      {
+        "company": "Axact",
+        "role": "Assistant Brand Manager",
+        "duration": "Feb 2017 – Oct 2019",
+        "description": "Managed brand communications and coordinated with creative teams across multiple business verticals."
+      },
+      {
+        "company": "Aaramshop Pvt. Ltd.",
+        "role": "Senior Brand Executive",
+        "duration": "Jan 2015 – Feb 2017",
+        "description": "Executed brand campaigns for global names including Pepsi, Reckitt Benckiser, and L'Oréal."
+      },
+      {
+        "company": "Tradekey Pvt. Ltd.",
+        "role": "Business Development Executive",
+        "duration": "Sep 2014 – Nov 2014",
+        "description": "Supported B2B business development and client outreach."
+      }
+    ],
+    "skills": [
+      "Digital Marketing Strategy",
+      "Brand Building & Positioning",
+      "ORM",
+      "SMM",
+      "Performance Marketing",
+      "Meta Ads",
+      "Google Ads",
+      "GA4",
+      "Team Leadership",
+      "Client Servicing",
+      "Ad Copywriting",
+      "Marketing Operations",
+      "LinkedIn Ads",
+      "CRM"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 98,
+    "technical_match": 100,
+    "experience_match": 95,
+    "overall_score": 97,
+    "strengths": [
+      "10+ years of experience exceeding the 5-7 year requirement",
+      "Proven leadership of teams and agencies",
+      "Expertise in integrated campaigns for global consumer brands (Pepsi, L'Oréal)",
+      "Strong technical proficiency in GA4 and ad platforms",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "No explicit mention of managing a total departmental budget P&L, though ad budget optimization is noted"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, possessing the required MBA, extensive leadership experience, and a proven track record of managing integrated campaigns for high-profile consumer brands. He meets all must-have technical requirements (GA4, Ad platforms) and is based in Karachi."
+  }
+}

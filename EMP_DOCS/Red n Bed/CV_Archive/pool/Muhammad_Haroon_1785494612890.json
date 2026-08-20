@@ -1,0 +1,90 @@
+{
+  "cv_file": "Muhammad_Haroon_1785494612890.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:51.773155+00:00",
+  "pipeline": {
+    "total_seconds": 60.421,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.393,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 770,
+    "output_tokens": 551,
+    "total_tokens": 2357
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1240
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Haroon",
+      "email": "haroonfarhanms@gmail.com",
+      "phone": "0308 2882092",
+      "location": "Saddar Town, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Early-career digital marketing professional with a focus on affiliate marketing and lead generation. Experienced in managing ad campaigns and Shopify stores, supported by multiple certifications in digital marketing and IT office assistance.",
+    "education": [
+      {
+        "institution": "S.M. Arts/Commerce College",
+        "degree": "Intermediate",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Orion Academy School",
+        "degree": "Matriculation",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mad Minds Creative",
+        "role": "Affiliate Marketing Associate",
+        "duration": "Dec 2025 – Mar 2026",
+        "description": "Executed affiliate marketing strategies to drive organizational growth."
+      },
+      {
+        "company": "Zaphyre Pro",
+        "role": "Lead Generation Associate",
+        "duration": "Oct 2025 – Aug 2025",
+        "description": "Focused on identifying and acquiring high-quality leads."
+      },
+      {
+        "company": "Zapp One System",
+        "role": "Onboard Executive Partner",
+        "duration": "July 2022 – Feb 2023",
+        "description": "Managed partner onboarding processes and executive coordination."
+      },
+      {
+        "company": "Creative IT Sols",
+        "role": "Affiliate Marketing Intern",
+        "duration": "Oct 2021 – June 2022",
+        "description": "Supported affiliate marketing operations during an internship period."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Social Media Marketing",
+      "Social Media Optimization",
+      "SEO",
+      "Google Analytics",
+      "Shopify Creation & Management",
+      "Microsoft Office",
+      "Lead Generation",
+      "Data Entry"
+    ]
+  }
+}

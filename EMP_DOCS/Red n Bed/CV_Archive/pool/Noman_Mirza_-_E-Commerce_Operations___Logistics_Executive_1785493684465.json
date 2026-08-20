@@ -1,0 +1,93 @@
+{
+  "cv_file": "Noman_Mirza_-_E-Commerce_Operations___Logistics_Executive_1785493684465.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:20.866270+00:00",
+  "pipeline": {
+    "total_seconds": 65.24,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.22,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1272,
+    "output_tokens": 685,
+    "total_tokens": 3458
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Sales Executive",
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 3843
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Noman Mirza",
+      "email": "nm399304@gmail.com",
+      "phone": "03110229828",
+      "location": "Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": "E-Commerce Operations & Logistics Executive",
+    "profile_summary": "Customer Support and E-Commerce Operations professional with 5+ years of experience managing online stores via Shopify and WooCommerce. Expert in multi-carrier logistics and RTO reduction, with a proven ability to optimize order fulfillment and customer satisfaction.",
+    "education": [
+      {
+        "institution": "Virtual University of Pakistan (VU)",
+        "degree": "Associate Degree Program (ADP) In Business Administration",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Pioneer Technical Institute, Karachi",
+        "degree": "Diploma of Associate Engineering (Civil)",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "DigiSkills.pk",
+        "degree": "E-Commerce Management",
+        "graduation_year": null
+      },
+      {
+        "institution": "DigiSkills.pk",
+        "degree": "Data Analysis & Business Intelligence",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "BATA Co. Pvt Ltd",
+        "role": "Sales Executive",
+        "duration": "Nov 2021 — Present",
+        "description": "Managed in-store sales operations, assisted customers with product selection, and utilized negotiation skills to drive sales and customer satisfaction."
+      },
+      {
+        "company": "Deal20one.com",
+        "role": "Customer Support & Logistics Executive",
+        "duration": "Nov 2020 — Jul 2021",
+        "description": "Managed end-to-end Shopify and WooCommerce order processing. Reduced RTO from 32% to 18% through proactive address verification and multi-carrier coordination."
+      },
+      {
+        "company": "Leopards Courier Services (LCS)",
+        "role": "Data Entry Executive (MMS Department)",
+        "duration": "Sept 2017 — Feb 2019",
+        "description": "Maintained shipment records, managed reverse logistics, and resolved dispatch discrepancies to ensure accurate courier workflow."
+      }
+    ],
+    "skills": [
+      "E-Commerce Operations",
+      "Order Processing & Fulfillment",
+      "Shopify",
+      "WooCommerce",
+      "Logistics Coordination",
+      "RTO Reduction",
+      "Customer Support",
+      "Conflict Resolution",
+      "Invenish ERP",
+      "MS Excel",
+      "Google Sheets",
+      "Courier Platform Management (PostEx, Trax, LCS, Rocket, Tranzo, Call Courier, BlueEx)"
+    ]
+  }
+}

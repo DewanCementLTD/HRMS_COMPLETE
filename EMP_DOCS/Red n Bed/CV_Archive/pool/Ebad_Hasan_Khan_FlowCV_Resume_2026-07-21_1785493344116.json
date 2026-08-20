@@ -1,0 +1,135 @@
+{
+  "cv_file": "Ebad_Hasan_Khan_FlowCV_Resume_2026-07-21_1785493344116.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:54.763143+00:00",
+  "pipeline": {
+    "total_seconds": 69.459,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 69.044,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 979,
+    "output_tokens": 932,
+    "total_tokens": 3440
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2238
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ebad Hasan Khan",
+      "email": "hsekhanofficial@gmail.com",
+      "phone": "0310 2865075",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Early-career professional pursuing a combined BBA and IT degree with a diverse background in customer support and digital marketing. Experienced in managing e-commerce accounts, PPC campaigns, and international client relations.",
+    "education": [
+      {
+        "institution": "Unspecified",
+        "degree": "BBA & IT combined degree",
+        "graduation_year": null
+      },
+      {
+        "institution": "Army Public School Faisal",
+        "degree": "Intermediate",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Army Public School Faisal",
+        "degree": "Matriculation",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "DigiSkills.org",
+        "degree": "Basic and Advanced Digital Marketing, E-Commerce and Free Lancing",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "ELFA Ev Technologies Pvt Lmt",
+        "role": "Customer Service Representative",
+        "duration": "06/2024 – Present",
+        "description": "Provides customer support, handles inquiries, and resolves complaints to ensure customer satisfaction."
+      },
+      {
+        "company": "Daraz.pk",
+        "role": "Claims Specialist / Customer Support Representative",
+        "duration": "05/2023 – 12/2024",
+        "description": "Managed customer support and claims processing."
+      },
+      {
+        "company": "Unspecified",
+        "role": "Customer Support Representative",
+        "duration": "2021 – 2023",
+        "description": "Handled customer support for USA-based campaigns."
+      },
+      {
+        "company": "Tirmizi Foods",
+        "role": "Assistant Manager",
+        "duration": "2022 – 2022",
+        "description": "Managed Daraz Seller Account for the brand."
+      },
+      {
+        "company": "Amazon",
+        "role": "Data Analyst/ Business Developer / Bidder",
+        "duration": "2022 – 2022",
+        "description": "Executed PPC campaigns as a data analyst and bidder."
+      },
+      {
+        "company": "DU Telecom & Etisalat",
+        "role": "Customer Care Service",
+        "duration": "2020 – 2020",
+        "description": "Provided internet service support for UAE-based campaigns."
+      },
+      {
+        "company": "Unspecified",
+        "role": "Digital Marketer/Developer",
+        "duration": "Present",
+        "description": "Working on C++, SEM, SEO, SMM, and content writing."
+      },
+      {
+        "company": "Unspecified",
+        "role": "Receptionist",
+        "duration": null,
+        "description": "Handled administration and management tasks."
+      },
+      {
+        "company": "Best Homz builders & developers",
+        "role": "Sales and Marketing associate",
+        "duration": null,
+        "description": "Worked as a sales and marketing associate."
+      }
+    ],
+    "skills": [
+      "In Page Urdu",
+      "MS Word",
+      "MS Excel",
+      "MS PowerPoint",
+      "MS Outlook",
+      "MS Publisher",
+      "English",
+      "Urdu",
+      "Sales",
+      "Customer Support",
+      "C++",
+      "SEM",
+      "SEO",
+      "SMM",
+      "Content writing",
+      "Digital Marketing"
+    ]
+  }
+}

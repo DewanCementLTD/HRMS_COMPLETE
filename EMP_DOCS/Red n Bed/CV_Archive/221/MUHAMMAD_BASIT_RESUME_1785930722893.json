@@ -1,0 +1,109 @@
+{
+  "cv_file": "MUHAMMAD_BASIT_RESUME_1785930722893.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:54:40.484936+00:00",
+  "pipeline": {
+    "total_seconds": 61.875,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.593,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1215,
+    "output_tokens": 756,
+    "total_tokens": 3389
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2453
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Basit",
+      "email": "basitarif32@gmail.com",
+      "phone": "+92 3486898654",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Social Media Manager | Influencer Campaign Manager",
+    "profile_summary": "Experienced Social Media and Influencer Campaign Manager specializing in UGC strategies and creator partnerships. Proven track record in driving brand engagement and managing digital growth across major social platforms.",
+    "education": [
+      {
+        "institution": "Iqra university",
+        "degree": "Associate Degree Digital Marketing",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Government college of economics and commerce",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sharksfluence",
+        "role": "Senior Campaign Manager",
+        "duration": "Feb 2025 - Mar 2026",
+        "description": "Managed influencer campaigns, UGC strategies, and creator collaborations. Coordinated content approvals and monitored social media growth."
+      },
+      {
+        "company": "i3media",
+        "role": "Outreach Specialist",
+        "duration": "2024 - 2025",
+        "description": "Handled backlink opportunities, personalized email outreach to webmasters, and managed contact databases for guest posting."
+      },
+      {
+        "company": "Gaditek",
+        "role": "Digital marketing intern",
+        "duration": "2023 (4 months)",
+        "description": "Implemented on-page/off-page SEO, conducted keyword research, and supported social media content coordination."
+      }
+    ],
+    "skills": [
+      "Meta Business Suite",
+      "Buffer",
+      "Ads Library",
+      "WordPress",
+      "ClickUp",
+      "Zoho",
+      "Asana",
+      "Slack",
+      "Google Keyword Planner",
+      "Semrush",
+      "Search Console",
+      "Google Analytics",
+      "Influencer Outreach",
+      "UGC Strategy",
+      "SEO",
+      "Content Planning",
+      "Communication",
+      "Problem solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 95,
+    "experience_match": 70,
+    "overall_score": 83,
+    "strengths": [
+      "Direct experience with Meta Business Suite",
+      "Strong background in UGC and influencer coordination",
+      "Proficient in social media growth and content planning"
+    ],
+    "weaknesses": [
+      "Lacks a completed Bachelor's degree",
+      "Experience duration is borderline for the 2-year minimum"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "The candidate is a strong technical match with specific expertise in Meta Business Suite and social media management. Despite not having a completed Bachelor's degree, his practical experience in campaign execution and content coordination aligns well with the job requirements."
+  }
+}

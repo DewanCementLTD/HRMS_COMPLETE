@@ -1,0 +1,82 @@
+{
+  "cv_file": "Python_Developer_CV_1_Year_1_1784032274037.pdf",
+  "job_folder": "121",
+  "job_id": 121,
+  "mode": "evaluate",
+  "processed_at": "2026-07-14T12:32:00.089372+00:00",
+  "pipeline": {
+    "total_seconds": 40.68,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.565,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 746,
+    "output_tokens": 460,
+    "total_tokens": 2174
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 447
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Your Name",
+      "email": "your.email@example.com",
+      "phone": "03122574934",
+      "location": null
+    },
+    "preferred_job_title": "Python Developer",
+    "profile_summary": "Junior Python Developer with 1 year of experience specializing in backend development using Django and FastAPI. Proficient in REST APIs, SQL databases, and version control.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "BS Computer Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": null,
+        "role": "Python Developer",
+        "duration": "1 Year",
+        "description": "Developed and maintained web applications, APIs, database queries, bug fixes, and deployments."
+      }
+    ],
+    "skills": [
+      "Python",
+      "Django",
+      "FastAPI",
+      "Flask",
+      "Oracle",
+      "MySQL",
+      "REST APIs",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git",
+      "Linux"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 95,
+    "experience_match": 50,
+    "overall_score": 68,
+    "strengths": [
+      "Strong alignment with required technical stack (Django, FastAPI, Flask)",
+      "Possesses required Bachelor's degree"
+    ],
+    "weaknesses": [
+      "Does not meet the minimum 2-year experience requirement",
+      "No mentioned experience with AWS cloud infrastructure"
+    ],
+    "recommendation": "Consider",
+    "summary": "The candidate is technically proficient in all required Python frameworks and has the necessary education, but falls short of the minimum professional experience threshold."
+  }
+}

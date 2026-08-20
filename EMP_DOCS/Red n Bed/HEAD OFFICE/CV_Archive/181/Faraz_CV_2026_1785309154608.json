@@ -1,0 +1,152 @@
+{
+  "cv_file": "Faraz_CV_2026_1785309154608.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:34.222533+00:00",
+  "pipeline": {
+    "total_seconds": 97.408,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 79.979,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1944,
+    "output_tokens": 1203,
+    "total_tokens": 4786
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 2,
+    "ocr_pages": [
+      1,
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages"
+    ],
+    "text_chars": 6771
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Faraz",
+      "email": "farazjalal88@gmail.com",
+      "phone": "+92 333 3175066",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Communications & Creative Strategy Professional",
+    "profile_summary": "Marketing professional with over 10 years of experience across B2B tech, SaaS, healthcare, and education. Expert in multi-channel digital strategies, brand storytelling, and budget management with a track record of driving commercial growth.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Master of Business Administration (MBA), Marketing",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "Pakistan Institute of Management",
+        "degree": "Diploma, Project Management",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Pakistan Institute of Management",
+        "degree": "Diploma, Healthcare & Hospital Management",
+        "graduation_year": null
+      },
+      {
+        "institution": "Habib University Affiliated Institute",
+        "degree": "Certificate, Office Administration",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Texitech",
+        "role": "Assistant Manager Marketing Communications",
+        "duration": "November 2021 — Present",
+        "description": "Manages integrated marketing for global tech brands, leading multi-channel campaigns, product launches, and budget planning to drive brand visibility and lead generation."
+      },
+      {
+        "company": "Roots International",
+        "role": "Marketing Manager",
+        "duration": "June 2021 — November 2021",
+        "description": "Executed digital strategies for international markets, scaling social media, email marketing, and paid ads (Google, LinkedIn) to improve lead quality and conversion."
+      },
+      {
+        "company": "Liaquat College of Medicine & Dentistry",
+        "role": "Manager of Marketing",
+        "duration": "November 2019 — June 2021",
+        "description": "Led social media and paid ad strategies, managed recruitment events, and oversaw website SEO, analytics, and external vendor relationships."
+      },
+      {
+        "company": "Liaquat College of Medicine & Dentistry & Darul Sehat Hospital",
+        "role": "Brand & Talent Communications Specialist",
+        "duration": "November 2018 — November 2019",
+        "description": "Developed employer branding and recruitment marketing strategies using paid social and Google Ads to optimize candidate journeys."
+      },
+      {
+        "company": "Darul Sehat Hospital",
+        "role": "Strategy & Communications Executive",
+        "duration": "July 2016 — June 2018",
+        "description": "Managed executive-level communications, stakeholder engagement, and strategic institutional events to align brand positioning."
+      },
+      {
+        "company": "Ummah Charity International",
+        "role": "Content Writer & PPC Executive",
+        "duration": "December 2015 — July 2016",
+        "description": "Executed Google Search and Display campaigns for UK audiences, focusing on high-converting ad copy and performance optimization."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Marketing Communications",
+      "Campaign Strategy",
+      "Market Research",
+      "Budget Management",
+      "SEO",
+      "SEM",
+      "Google Ads",
+      "Meta Ads",
+      "PPC",
+      "Email Marketing",
+      "Social Media Marketing",
+      "Content Marketing",
+      "Analytics",
+      "Copywriting",
+      "Video Production",
+      "2D Animation",
+      "Brand Storytelling",
+      "Sales Collateral",
+      "Event Management",
+      "Mailchimp",
+      "HubSpot",
+      "CRM Platforms"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 88,
+    "experience_match": 95,
+    "overall_score": 91,
+    "strengths": [
+      "10+ years of comprehensive marketing experience",
+      "Strong academic credentials with an MBA in Marketing",
+      "Proven experience managing budgets and external agencies",
+      "Expertise in integrated paid and organic campaigns",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "GA4 not explicitly mentioned by name, though 'Analytics Tools' are",
+      "Direct people management scale (team size) not explicitly detailed"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly qualified candidate with an MBA and extensive experience in integrated marketing. He meets all core requirements, including budget management, agency coordination, and multi-channel campaign execution, and is based in the required location."
+  }
+}

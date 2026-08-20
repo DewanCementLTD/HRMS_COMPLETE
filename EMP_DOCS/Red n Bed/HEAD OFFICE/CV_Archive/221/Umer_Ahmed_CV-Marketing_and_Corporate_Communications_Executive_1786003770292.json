@@ -1,0 +1,101 @@
+{
+  "cv_file": "Umer_Ahmed_CV-Marketing_and_Corporate_Communications_Executive_1786003770292.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:11:18.876987+00:00",
+  "pipeline": {
+    "total_seconds": 47.962,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 47.853,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1603,
+    "output_tokens": 721,
+    "total_tokens": 3304
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 4130
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Umer Ahmed",
+      "email": "umerlp123@gmail",
+      "phone": "03312712741",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing and Corporate Communications Specialist",
+    "profile_summary": "Marketing and Corporate Communications Specialist with over 3 years of experience in digital marketing, SEO, and corporate storytelling. Proven track record in driving brand growth across B2B, B2C, and B2G sectors using data-driven strategies.",
+    "education": [
+      {
+        "institution": "NED University of Engineering and Technology",
+        "degree": "BS in Economics & Finance",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "VIDIZMO",
+        "role": "Product Marketing Executive",
+        "duration": "November 2023 – Current",
+        "description": "Manages social media content, SEO optimization, and lead generation funnels. Produces sales enablement materials and press releases to enhance brand visibility and authority."
+      },
+      {
+        "company": "Contech Corp",
+        "role": "Senior Content Strategist",
+        "duration": "April 2022 – October 2023",
+        "description": "Executed content campaigns and social media strategies for 100+ clients. Led a team of content creators and conducted comprehensive website audits to improve messaging."
+      }
+    ],
+    "skills": [
+      "SEMRush",
+      "Ahrefs",
+      "Google Keyword Planner",
+      "Google Search Console",
+      "Google Analytics",
+      "Hotjar",
+      "Canva",
+      "Figma",
+      "Adobe Express",
+      "MS Excel",
+      "MS Word",
+      "MS PowerPoint",
+      "Power BI",
+      "Azure DevOps",
+      "Asana",
+      "Trello",
+      "SEO",
+      "Marketing Funnel Design",
+      "Campaign Analysis",
+      "Content Creation",
+      "Branding",
+      "Multi-Channel Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 90,
+    "overall_score": 92,
+    "strengths": [
+      "Exceeds minimum experience requirement",
+      "Proficient in Canva and MS Excel",
+      "Strong background in multi-channel social media management",
+      "Advanced analytical skills with Google Analytics and SEMRush"
+    ],
+    "weaknesses": [
+      "Degree is in Economics & Finance rather than Marketing/Mass Communication",
+      "No explicit mention of TikTok or Meta Business Suite specifically"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is highly qualified, possessing 3+ years of relevant experience and a strong technical toolkit that aligns perfectly with the job requirements, including the 'nice-to-have' skills."
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "cv_file": "Syed_Farhal_Haider_1785931098846.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:59.211353+00:00",
+  "pipeline": {
+    "total_seconds": 71.966,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.867,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1539,
+    "output_tokens": 970,
+    "total_tokens": 4096
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3362
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Farhal Haider",
+      "email": "farhalhaider@gmail.com",
+      "phone": null,
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced E-commerce and Digital Marketing professional with an MBA in Marketing. Strong expertise in business development, sales management, and digital strategy to drive brand growth.",
+    "education": [
+      {
+        "institution": "Salim Habib University, Karachi",
+        "degree": "Master of Business Administration – Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "FAST - National University of Computer & Emerging Sciences, Karachi",
+        "degree": "Bachelor of Business Administration – Marketing",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "S. ZIA-UL-HAQ & SONS (PVT.) LTD [Zia Group]",
+        "role": "Marketing Manager",
+        "duration": "2024",
+        "description": "Managed marketing operations and strategies."
+      },
+      {
+        "company": "Wafi Digital (Digital Marketing Agency) 3D Ads",
+        "role": "Senior Area Sales Manager",
+        "duration": "2023 - 2024",
+        "description": "Led sales and digital marketing initiatives within an agency setting."
+      },
+      {
+        "company": "GRACE FABRICS INTERNATIONAL (Textile)",
+        "role": "Assistant Manager",
+        "duration": "2023",
+        "description": "Managed operations within the export department."
+      },
+      {
+        "company": "ABTACH LTD. (Intersys)",
+        "role": "Executive Business Development (E-Commerce)",
+        "duration": "2022 - 2023",
+        "description": "Drove e-commerce business growth and development."
+      },
+      {
+        "company": "Daraz",
+        "role": "Store Owner",
+        "duration": "2020 - 2022",
+        "description": "Managed self-employed e-commerce store operations."
+      },
+      {
+        "company": "Amazon & eBay",
+        "role": "Freelancer",
+        "duration": "2020",
+        "description": "Handled e-commerce sales for leather jackets."
+      },
+      {
+        "company": "SBT Japan | Global Car Exporter",
+        "role": "International Business Executive – Sales (E-Commerce)",
+        "duration": "2018 – 2020",
+        "description": "Generated leads, managed client acquisition, and coordinated sales processes via social media and networking."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Time Management",
+      "Leadership",
+      "Affiliate Marketing",
+      "Creative Thinking",
+      "Analytical",
+      "Problem Solving",
+      "Microsoft Office",
+      "Social Media Ads",
+      "SPSS",
+      "Sofa Statistics",
+      "Minitab",
+      "Sugar CRM",
+      "SmartPLS"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 75,
+    "technical_match": 60,
+    "experience_match": 90,
+    "overall_score": 75,
+    "strengths": [
+      "Advanced academic qualifications in Marketing (MBA)",
+      "Extensive experience in e-commerce and digital agency environments",
+      "Strong background in lead generation and business development"
+    ],
+    "weaknesses": [
+      "No explicit mention of Canva or Meta Business Suite",
+      "Profile is more managerial/sales-focused than content-execution focused"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is overqualified in terms of education and seniority but possesses the core digital marketing and e-commerce experience required. While specific content tools aren't listed, their agency and managerial background suggest they can handle the specialist tasks."
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "cv_file": "Kamran_Ahmed_CV_Digital_marketing_1786003304706.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:41.181903+00:00",
+  "pipeline": {
+    "total_seconds": 214.162,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 196.477,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1684,
+    "output_tokens": 871,
+    "total_tokens": 3905
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 4,
+    "ocr_pages": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 4306
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamran Ahmed",
+      "email": "Kamran.ahmed1221@gmail.com",
+      "phone": "0341-2395654",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Executive",
+    "profile_summary": "Digital Marketing Executive and Affiliate Marketer with over 2 years of experience. Specializes in data-driven SEO strategies, website visibility, and growth optimization with a technical background in Computer Science.",
+    "education": [
+      {
+        "institution": "Iqra University Gulshan campus",
+        "degree": "Bachelors in Computer Science",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Govt. Degree Collage Gulzar-e-Hijri",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Comet's Educational System",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2013"
+      }
+    ],
+    "experience": [
+      {
+        "company": "WebAffinity",
+        "role": "SEO Executive",
+        "duration": "June 2021 - Current",
+        "description": "Executed keyword research, on-page/off-page optimization, and website audits. Managed content streamlining according to Google EEAT guidelines and led team task publication."
+      },
+      {
+        "company": "Gaditek",
+        "role": "Affiliate Digital Marketer",
+        "duration": "March 2021 - May 2021",
+        "description": "Completed a 3-month internship focusing on affiliate marketing strategies."
+      },
+      {
+        "company": "YAR Collective",
+        "role": "Creative production",
+        "duration": "June 2019 - Sept 2019",
+        "description": "3-month internship in creative production within a Google-affiliated incubator."
+      },
+      {
+        "company": "Spotcomm",
+        "role": "Network Assistant",
+        "duration": "May 2018 - August 2018",
+        "description": "3-month internship providing technical network assistance."
+      }
+    ],
+    "skills": [
+      "Keyword Research",
+      "ON Page Optimization",
+      "OFF Page Optimization",
+      "Data Analysis",
+      "Content Marketing",
+      "Social Media Marketing",
+      "Market Research",
+      "Project Management",
+      "Affiliate Marketing",
+      "Google Analytics",
+      "HTML",
+      "Digital Media marketing",
+      "Email Marketing",
+      "SERP Analysis",
+      "SEMrush"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 60,
+    "experience_match": 85,
+    "overall_score": 70,
+    "strengths": [
+      "Strong analytical and data-driven approach",
+      "Extensive SEO and SERP knowledge",
+      "Meets minimum experience and education requirements"
+    ],
+    "weaknesses": [
+      "Lacks explicit mention of Meta Business Suite, Canva, or TikTok scheduling",
+      "Experience is heavily skewed toward SEO rather than social media content management"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a qualified digital marketer with the required years of experience and a relevant degree. While his profile is more SEO-centric than social-centric, his technical skills and general marketing knowledge make him a strong adaptable candidate."
+  }
+}

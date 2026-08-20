@@ -1,0 +1,125 @@
+{
+  "cv_file": "Aman_Pirzada_CV_PERFORMANCE_MARKETING_1785930722873.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:38.487271+00:00",
+  "pipeline": {
+    "total_seconds": 73.807,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 73.503,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1805,
+    "output_tokens": 943,
+    "total_tokens": 4401
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4779
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Aman Pirzada",
+      "email": "amanpirzada13@gmail.com",
+      "phone": "+92 310-2837380",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Performance Marketer",
+    "profile_summary": "Performance Marketer with 2+ years of experience managing high-budget paid media across Meta, Google, and TikTok. Expert in ROAS optimization, UTM tracking, and marketing automation for e-commerce and B2B sectors.",
+    "education": [
+      {
+        "institution": "DHA Suffa University, Karachi",
+        "degree": "BBA – Marketing",
+        "graduation_year": "2027"
+      },
+      {
+        "institution": null,
+        "degree": "Intermediate – Commerce",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Socialpie Technology",
+        "role": "Performance Marketer",
+        "duration": "Jan 2026 – Present",
+        "description": "Manages $20k+ monthly ad spend across Google, DSP, and TikTok; implemented n8n and Google Sheets automation for reporting."
+      },
+      {
+        "company": "Artwing Studio",
+        "role": "Performance Marketer",
+        "duration": "Sep 2025 – Jan 2026",
+        "description": "Led full-funnel strategies for 8+ brands, achieving 6+ ROAS through creative iteration and landing page optimization."
+      },
+      {
+        "company": "Management Association of Pakistan (MAP)",
+        "role": "Digital Marketer",
+        "duration": "Sep 2024 – Aug 2025",
+        "description": "Executed Meta campaigns and managed content calendars, increasing Instagram and LinkedIn engagement by 140%."
+      },
+      {
+        "company": "Digitalize Zone",
+        "role": "Digital Marketing Intern",
+        "duration": "Oct 2023 – Dec 2023",
+        "description": "Managed lead generation campaigns on Facebook, Instagram, and Google Ads, improving CTR by 25%."
+      }
+    ],
+    "skills": [
+      "Google Ads",
+      "Meta Ads Manager",
+      "TikTok Ads",
+      "DSP Platforms",
+      "Programmatic Advertising",
+      "CRO",
+      "CAC",
+      "A/B Testing",
+      "GA4",
+      "Google Tag Manager",
+      "UTM Tracking",
+      "Data Studio",
+      "Power BI",
+      "Google Sheets Automation",
+      "SEO",
+      "Ad Copywriting",
+      "Landing Page Optimisation",
+      "Content Planning",
+      "Social Media Strategy",
+      "HubSpot CRM",
+      "GoHighLevel",
+      "ClickFunnels",
+      "Meta Business Suite",
+      "n8n",
+      "Zapier",
+      "Canva",
+      "CapCut"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 98,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Advanced proficiency in Meta, TikTok, and Google Ads",
+      "Expertise in UTM tracking and performance reporting",
+      "Proficient in all 'nice-to-have' tools (Canva, Meta Business Suite, Excel/Sheets)",
+      "Strong background in content calendar management and creative coordination"
+    ],
+    "weaknesses": [
+      "Bachelor's degree is still in progress (expected 2027)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an overqualified technical match for the Marketing Specialist role. He possesses all required platform skills and exceeds expectations in reporting and automation, though he has not yet completed his degree."
+  }
+}

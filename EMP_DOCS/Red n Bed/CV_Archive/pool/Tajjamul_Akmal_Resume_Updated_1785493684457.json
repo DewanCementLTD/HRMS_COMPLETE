@@ -1,0 +1,86 @@
+{
+  "cv_file": "Tajjamul_Akmal_Resume_Updated_1785493684457.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:51.293445+00:00",
+  "pipeline": {
+    "total_seconds": 47.625,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 47.614,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 775,
+    "output_tokens": 581,
+    "total_tokens": 2459
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 1924
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tajjamul Akmal",
+      "email": "tajammul558@gmail.com",
+      "phone": "0321-3123743",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Service & Operations Specialist",
+    "profile_summary": "Customer Service & Operations Specialist with over 4 years of experience in call center support, logistics, and after-sales service. Expert in case resolution, operational coordination, and delivering solution-focused customer support in fast-paced environments.",
+    "education": [
+      {
+        "institution": "Federal Urdu University of Arts, Science & Technology",
+        "degree": "BS in Commerce",
+        "graduation_year": null
+      },
+      {
+        "institution": "Federal Boys College Cantt, Karachi",
+        "degree": "Intermediate in Arts",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "AEG",
+        "role": "Information Service Representative",
+        "duration": "Dec 2024 – Dec 2025",
+        "description": "Resolves customer queries and service requests, coordinates with internal teams for case closure, and maintains detailed documentation."
+      },
+      {
+        "company": "Snoonu",
+        "role": "Rider Operations Executive",
+        "duration": "Mar 2024 – Dec 2024",
+        "description": "Managed rider attendance, performance tracking, and route assignments while resolving logistics issues and supporting onboarding."
+      },
+      {
+        "company": "Daraz.pk",
+        "role": "IR Return Specialist",
+        "duration": "Oct 2022 – Jan 2024",
+        "description": "Managed end-to-end after-sales return operations, coordinated buyer-seller investigations, and reviewed fraud cases to ensure SLA adherence."
+      },
+      {
+        "company": "Red Hub Pro",
+        "role": "Call Center Agent",
+        "duration": "2020 – 2021",
+        "description": "Handled live chat, inbound, and outbound customer interactions to resolve issues and collect satisfaction feedback."
+      }
+    ],
+    "skills": [
+      "Customer Support",
+      "Communication",
+      "Problem Solving",
+      "Teamwork",
+      "Time Management",
+      "Active Listening",
+      "Operations Coordination"
+    ]
+  }
+}

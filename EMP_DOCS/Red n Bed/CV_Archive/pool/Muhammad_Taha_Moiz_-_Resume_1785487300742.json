@@ -1,0 +1,85 @@
+{
+  "cv_file": "Muhammad_Taha_Moiz_-_Resume_1785487300742.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:44:55.607003+00:00",
+  "pipeline": {
+    "total_seconds": 102.013,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 101.993,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 820,
+    "output_tokens": 519,
+    "total_tokens": 2281
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1949
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Taha Moiz",
+      "email": "tahamoiz.ah@gmail.com",
+      "phone": "+92 347 3667626",
+      "location": null
+    },
+    "preferred_job_title": "E-commerce Operations Manager",
+    "profile_summary": "Experienced E-commerce Operations professional specializing in end-to-end store management, order fulfillment, and logistics. Proficient in Shopify and customer service, with a proven track record of optimizing supply chain efficiency and enhancing post-purchase experiences.",
+    "education": [
+      {
+        "institution": "National College",
+        "degree": "Intermediate in Arts",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Ali Foundation School",
+        "degree": "Matriculation in Science",
+        "graduation_year": "2013"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Decuir Shop",
+        "role": "E-commerce Operations Manager",
+        "duration": "September 2023 - Present",
+        "description": "Oversees end-to-end store operations, Shopify website maintenance, inventory management, and logistics coordination with warehouses and courier partners to ensure timely fulfillment."
+      },
+      {
+        "company": "Sidiqsons Pvt Ltd",
+        "role": "Customer Support Representative",
+        "duration": "July 2020 - August 2023",
+        "description": "Managed customer inquiries and resolved complaints to maintain high levels of customer satisfaction."
+      },
+      {
+        "company": "Aimhike",
+        "role": "Social Media Executive",
+        "duration": "November 2017 - February 2020",
+        "description": "Executed social media strategies and managed online engagement."
+      }
+    ],
+    "skills": [
+      "E-commerce Operations",
+      "Shopify",
+      "Order Processing",
+      "Inventory Management",
+      "Logistics Management",
+      "Customer Service",
+      "Warehouse Coordination",
+      "Shipping & Returns",
+      "MS Office",
+      "Social Media Management"
+    ]
+  }
+}

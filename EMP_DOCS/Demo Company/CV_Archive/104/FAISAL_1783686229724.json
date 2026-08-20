@@ -1,0 +1,89 @@
+{
+  "cv_file": "FAISAL_1783686229724.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:24:40.260224+00:00",
+  "pipeline": {
+    "total_seconds": 40.416,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 39.691,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1039,
+    "output_tokens": 521,
+    "total_tokens": 2331
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 1146
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Faisal",
+      "email": null,
+      "phone": "03122575757",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced automotive professional specializing in car painting with over 15 years of industry experience. Skilled in specialized B&P paint courses and workshop operations.",
+    "education": [
+      {
+        "institution": "Karachi board",
+        "degree": "Matriculation",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi board",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Amir Auto DHA Phase #7",
+        "role": "Automobile Car Painter",
+        "duration": "2010-2014",
+        "description": "Provided professional automobile painting services."
+      },
+      {
+        "company": "Saudia Abdul Latif Jameel Motors",
+        "role": "Automobile Car Painter",
+        "duration": "2015-2026",
+        "description": "Provided professional automobile painting services."
+      }
+    ],
+    "skills": [
+      "Automobile Car Painting",
+      "B&P Team Paint Course Step 1",
+      "B&P Team Paint Course Step 2",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Extensive longevity in previous roles"
+    ],
+    "weaknesses": [
+      "No software engineering experience",
+      "No knowledge of required tech stack (JS, TS, Node, React, SQL)",
+      "Lacks required Computer Science degree"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a professional car painter with no relevant skills or education for a Software Engineering role."
+  }
+}

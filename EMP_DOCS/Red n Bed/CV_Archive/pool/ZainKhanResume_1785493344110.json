@@ -1,0 +1,113 @@
+{
+  "cv_file": "ZainKhanResume_1785493344110.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:25:19.003090+00:00",
+  "pipeline": {
+    "total_seconds": 59.685,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 59.607,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1721,
+    "output_tokens": 801,
+    "total_tokens": 3833
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 5682
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Zain Khan",
+      "email": "zainkhanzadaofficial@gmail.com",
+      "phone": "03471247898 / 03132821593",
+      "location": "Garden west Saddar town Karachi"
+    },
+    "preferred_job_title": "Brand & Business Development Manager",
+    "profile_summary": "Brand and Business Development professional with 4 years of experience driving growth and identity for international clients. Expert in strategic planning, market analysis, and data-driven brand scaling across US and Gulf markets.",
+    "education": [
+      {
+        "institution": "BHS",
+        "degree": "Computer Science",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Pre-Engineering",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Hamdard University",
+        "degree": "Software Engineering",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Szabist University",
+        "degree": "Masters of Advertising",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Allied Services International Private Limited",
+        "role": "Brand & Communication Manager",
+        "duration": "2024",
+        "description": "Managed recruitment campaigns for Safari Group and Gulf companies (Amazon, EFS, Emrill). Utilized AI tools and design software to enhance brand reputation and streamline workflows."
+      },
+      {
+        "company": "Team Reactivate",
+        "role": "Brand & Business Development Manager",
+        "duration": "2023",
+        "description": "Developed growth strategies and brand identities for MakeShopify, Visual Playground, and Dubai-based food brands, focusing on increasing engagement and visibility."
+      },
+      {
+        "company": "Appedology",
+        "role": "Business Development Executive | Brand Executive",
+        "duration": "2022 - 2023",
+        "description": "Identified business opportunities and developed strategic growth plans for US companies, including Medical Lien Management and Green Scene Billing."
+      },
+      {
+        "company": "Fleekbiz",
+        "role": "Business Development Executive & Brand Executive",
+        "duration": "2021 - 2022",
+        "description": "Increased online visibility for dymentions.com and grew organic social media reach through targeted LinkedIn networking and content creation."
+      },
+      {
+        "company": "Digitli",
+        "role": "Business & Lead Generation Specialist",
+        "duration": "2020 - 2021",
+        "description": "Promoted local brands and collaborated with e-commerce platforms to expand market reach while mentoring junior team members."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Business Development",
+      "Market Analysis",
+      "Negotiation",
+      "Strategic Planning",
+      "Google Analytics",
+      "Intercom",
+      "Figma",
+      "Freepik",
+      "Biteable",
+      "Storyset",
+      "3D Design",
+      "Lead Generation",
+      "Content Strategy",
+      "LinkedIn Networking",
+      "Shopify Plus"
+    ]
+  }
+}

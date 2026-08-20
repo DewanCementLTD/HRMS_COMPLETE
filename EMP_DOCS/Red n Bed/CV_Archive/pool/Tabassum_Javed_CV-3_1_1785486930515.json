@@ -1,0 +1,91 @@
+{
+  "cv_file": "Tabassum_Javed_CV-3_1_1785486930515.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:37:56.672428+00:00",
+  "pipeline": {
+    "total_seconds": 58.042,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.014,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 908,
+    "output_tokens": 586,
+    "total_tokens": 2525
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 2288
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tabassum Javed",
+      "email": "alonglife11223@gmail.com",
+      "phone": "+92 370 9958746",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "E-Commerce Specialist",
+    "profile_summary": "Results-driven e-commerce and sales professional with over 3 years of experience in digital customer service and retail operations. Expert in order management, complaint resolution, and team leadership to drive sales targets.",
+    "education": [
+      {
+        "institution": "Junior Model School",
+        "degree": "Matriculation",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Islamia College",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shades of Zara",
+        "role": "Order Booking Executive — WhatsApp Clients",
+        "duration": "Nov 2025 – Present",
+        "description": "Manages end-to-end digital order placement via WhatsApp, resolves customer queries, and streamlines order workflows for fulfillment."
+      },
+      {
+        "company": "Shades of Zara",
+        "role": "Sales Department Head",
+        "duration": "Jan 2026 – Present",
+        "description": "Supervises retail sales operations, manages inventory, compiles sales reports, and mentors junior staff."
+      },
+      {
+        "company": "E-Commerce Operations",
+        "role": "E-Commerce Specialist",
+        "duration": "2024 – 2026",
+        "description": "Managed multi-channel customer service including order taking, complaints, and social media management to ensure high retention."
+      },
+      {
+        "company": "Imtiaz Super Mart",
+        "role": "Retail Associate",
+        "duration": "1 Year",
+        "description": "Handled in-store customer queries, item placement, and assisted in large-scale inventory management."
+      }
+    ],
+    "skills": [
+      "Customer Support",
+      "Complaint Handling",
+      "Order Taking & Logistics",
+      "E-Commerce Operations",
+      "WhatsApp Client Booking",
+      "Sales & Retail Management",
+      "Inventory & Stock Control",
+      "Communication Skills",
+      "Problem Solving",
+      "English",
+      "Urdu"
+    ]
+  }
+}

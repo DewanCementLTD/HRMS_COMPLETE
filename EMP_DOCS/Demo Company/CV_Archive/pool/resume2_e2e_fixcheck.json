@@ -1,0 +1,82 @@
+{
+  "cv_file": "resume2_e2e_fixcheck.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-10T05:13:18.617921+00:00",
+  "pipeline": {
+    "total_seconds": 44.214,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 44.004,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 759,
+    "output_tokens": 500,
+    "total_tokens": 2289
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 1478
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "John W. Smith",
+      "email": "jwsmith@colostate.edu",
+      "phone": null,
+      "location": "Fort Collins, CO"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced professional with four years of expertise in early childhood development and special needs care for children and adults. Proven strengths in client coordination, staff supervision, and administrative record management.",
+    "education": [
+      {
+        "institution": "University of Arkansas at Little Rock",
+        "degree": "BS in Early Childhood Development",
+        "graduation_year": "1999"
+      },
+      {
+        "institution": "University of Arkansas at Little Rock",
+        "degree": "BA in Elementary Education",
+        "graduation_year": "1998"
+      }
+    ],
+    "experience": [
+      {
+        "company": "The Wesley Center",
+        "role": "Counseling Supervisor",
+        "duration": "1999-2002",
+        "description": "Coordinated service assignments for 20 counselors and 100 families, oversaw daily activity planning, and assisted families with healthcare and financial assistance research."
+      },
+      {
+        "company": "Rainbow Special Care Center",
+        "role": "Client Specialist",
+        "duration": "1997-1999",
+        "description": "Managed work placement for 150 special needs adults, maintained client databases, coordinated healthcare professional contact, and supervised 25 volunteers."
+      },
+      {
+        "company": "Cowell Elementary",
+        "role": "Teacher’s Assistant",
+        "duration": "1996-1997",
+        "description": "Assisted teachers with daily classroom management and oversaw student activities."
+      }
+    ],
+    "skills": [
+      "Early Childhood Development",
+      "Special Needs Care",
+      "Client Database Management",
+      "Staff Supervision",
+      "Volunteer Management",
+      "Activity Planning",
+      "Healthcare Coordination",
+      "Financial Assistance Research",
+      "Classroom Management"
+    ]
+  }
+}

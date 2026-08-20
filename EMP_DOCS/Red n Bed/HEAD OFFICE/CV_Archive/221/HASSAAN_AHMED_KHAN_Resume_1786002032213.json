@@ -1,0 +1,114 @@
+{
+  "cv_file": "HASSAAN_AHMED_KHAN_Resume_1786002032213.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:43:57.148260+00:00",
+  "pipeline": {
+    "total_seconds": 66.104,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.996,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1477,
+    "output_tokens": 844,
+    "total_tokens": 3507
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3234
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hassaan Ahmed Khan",
+      "email": "hassaan_a_khan@yahoo.com",
+      "phone": "+92-334-3319119",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing / E-commerce Specialist",
+    "profile_summary": "Digital marketing professional with over 2 years of experience specializing in social media management, performance marketing, and content creation. Proven track record of managing diverse brand portfolios and implementing data-driven growth strategies.",
+    "education": [
+      {
+        "institution": "Institute of Business Management University",
+        "degree": "Digital Marketing and E-commerce (Ongoing)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "ACCA",
+        "degree": "Completed 2 Papers",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Degree Boys College, Gulzar-E-Hijri",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "White House Grammar School",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "The Digital Factory",
+        "role": "Digital Media Executive",
+        "duration": "March 2024 - Present",
+        "description": "Leads digital operations and social media strategies for multiple brands, coordinating video content and managing PR and performance marketing support."
+      },
+      {
+        "company": "Sveston Watches Pvt Ltd",
+        "role": "Digital Marketing Executive",
+        "duration": "November 2022 - January 2024",
+        "description": "Managed social media, content, and performance marketing; handled Shopify, web analytics, graphic design, and customer query resolution."
+      },
+      {
+        "company": "MCR Pvt Ltd (Pizza Hut Pakistan)",
+        "role": "Customer Service Representative (CSR)",
+        "duration": "April 2018 - August 2018",
+        "description": "Managed order bookings and customer complaints via phone and online channels."
+      }
+    ],
+    "skills": [
+      "Social Media Marketing",
+      "Content Marketing",
+      "Performance Marketing",
+      "Web Analytics",
+      "SEO/SEM",
+      "Paid Advertising",
+      "AI Expertise",
+      "Graphics Designing",
+      "Shopify Management",
+      "CRM Management",
+      "Interpersonal Communication",
+      "Leadership",
+      "Problem-Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 90,
+    "experience_match": 80,
+    "overall_score": 82,
+    "strengths": [
+      "Strong social media and content management experience",
+      "Graphic design and video content coordination skills",
+      "Experience managing multiple high-profile brands",
+      "Proficiency in performance marketing and web analytics"
+    ],
+    "weaknesses": [
+      "Does not possess a completed Bachelor's degree in Marketing or Mass Communication"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a strong technical match with direct experience in all core job responsibilities, including social media management and asset coordination. While he lacks the formal degree requirement, his professional track record and certifications make him a highly viable candidate."
+  }
+}

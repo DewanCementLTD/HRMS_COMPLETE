@@ -1,0 +1,108 @@
+{
+  "cv_file": "Ali_Syed_Resume_1786002032197.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:41:59.601624+00:00",
+  "pipeline": {
+    "total_seconds": 65.222,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.729,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1516,
+    "output_tokens": 770,
+    "total_tokens": 3689
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3036
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Muhammad Ali",
+      "email": "Ialisyed55@gmail.com",
+      "phone": "+92 335 7479214",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Digital Content Executive with over 3 years of experience in e-commerce sales and marketing. Strong background in campaign management, SEO, and customer service within the hospitality and retail sectors.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "Intermediate with Commerce",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Lycos Grammar School",
+        "degree": "Matriculation",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Omfort Pvt Ltd.",
+        "role": "Digital Content Executive (Sales and Marketing)",
+        "duration": "October 2020 - Present",
+        "description": "Managed e-commerce listings on Shopify, Walmart, and eBay. Handled campaign management, SEO optimization, social media engagement, content creation, and competitor monitoring."
+      },
+      {
+        "company": "Avari Towers, Karachi",
+        "role": "Reservation Supervisor",
+        "duration": "November 2019 - August 2020",
+        "description": "Managed guest bookings and quotes via email and phone, while providing support to the marketing team."
+      },
+      {
+        "company": "Movenpick Hotel, Karachi",
+        "role": "Guest Service Attendant",
+        "duration": "April 2017 - September 2019",
+        "description": "Handled guest relations, conflict resolution, payments, and professional telephone inquiries."
+      }
+    ],
+    "skills": [
+      "Shopify",
+      "Walmart",
+      "eBay",
+      "Sears",
+      "Wish",
+      "Campaign Management",
+      "SEO Optimization",
+      "Social Media Marketing",
+      "Competitor Analysis",
+      "Content Creation",
+      "Microsoft Excel",
+      "Microsoft Word",
+      "Customer Service",
+      "Opera PMS 5.0",
+      "Upselling"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 65,
+    "experience_match": 85,
+    "overall_score": 68,
+    "strengths": [
+      "Direct experience in digital content and e-commerce marketing",
+      "Proficiency in Microsoft Excel",
+      "Proven track record in competitor monitoring and campaign management",
+      "Strong customer service and communication skills"
+    ],
+    "weaknesses": [
+      "Does not meet the Bachelor's degree requirement",
+      "No explicit mention of Meta Business Suite or Canva",
+      "Lacks specific mention of UTM tracking and reporting"
+    ],
+    "recommendation": "Consider",
+    "summary": "The candidate exceeds the minimum experience requirement with strong practical skills in digital content and e-commerce. However, they lack the required Bachelor's degree and specific tool certifications (Meta/Canva) requested in the job description."
+  }
+}

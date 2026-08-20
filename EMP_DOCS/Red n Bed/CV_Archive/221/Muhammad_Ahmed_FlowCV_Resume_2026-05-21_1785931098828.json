@@ -1,0 +1,116 @@
+{
+  "cv_file": "Muhammad_Ahmed_FlowCV_Resume_2026-05-21_1785931098828.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:53.762249+00:00",
+  "pipeline": {
+    "total_seconds": 72.297,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.636,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2497,
+    "output_tokens": 877,
+    "total_tokens": 5011
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": "Full Stack Digital Marketer",
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 8565
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ahmed",
+      "email": "ahmedaslam.info@gmail.com",
+      "phone": "+92 3317774584",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Full Stack Digital Marketer",
+    "profile_summary": "Senior Full Stack Digital Marketer specializing in eCommerce growth and performance marketing. Expert in managing full-funnel campaigns across Meta, Google, and TikTok to drive ROAS and customer acquisition.",
+    "education": [
+      {
+        "institution": "University Of Karachi (UOK)",
+        "degree": "Bachelors In Commerce (Marketing)",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Omal BY Komal",
+        "role": "Digital Marketing Manager",
+        "duration": "08/2025 – 05/2026",
+        "description": "Managed paid ads across Meta, Google, and TikTok, oversaw Shopify operations, and led creative teams to optimize customer acquisition and brand growth."
+      },
+      {
+        "company": "Moyo Comfort",
+        "role": "Manager Marketing",
+        "duration": "04/2025 – 03/2026",
+        "description": "Directed digital marketing for the East Africa market, managing Meta and Google campaigns and coordinating seasonal brand communication strategies."
+      },
+      {
+        "company": "Login Smart Technology",
+        "role": "Ecommerce & Digital Marketing Manager",
+        "duration": "03/2023 – 08/2025",
+        "description": "Led performance marketing and eCommerce operations across Shopify and multiple marketplaces, managing PR and influencer collaborations."
+      },
+      {
+        "company": "The DelaMode",
+        "role": "Digital Marketing Specialist",
+        "duration": "06/2021 – 02/2023",
+        "description": "Executed multi-channel campaigns, managed social media content calendars, and implemented SEO strategies to enhance brand visibility."
+      },
+      {
+        "company": "Country Club Travel & Tour",
+        "role": "Digital Marketing Executive",
+        "duration": "05/2020 – 11/2022",
+        "description": "Developed online campaigns for travel packages, managed social media content, and conducted market research on competitor offerings."
+      }
+    ],
+    "skills": [
+      "Full Funnel Marketing",
+      "TikTok Ads",
+      "Meta Ads",
+      "Google Ads",
+      "Shopify",
+      "GA4",
+      "Performance Tracking",
+      "Influencer Strategy",
+      "Marketplace Management",
+      "SEO",
+      "Content Calendar Management",
+      "Creative Direction",
+      "A/B Testing",
+      "Campaign Reporting"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 98,
+    "experience_match": 100,
+    "overall_score": 96,
+    "strengths": [
+      "Expertise in Meta and TikTok advertising",
+      "Proven experience in content calendar and creative team management",
+      "Strong data-driven approach to reporting and ROAS"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Specialist role",
+      "No explicit mention of Canva or Excel"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is a highly experienced digital marketer who exceeds the 2-year requirement and possesses advanced skills in the exact platforms (Meta, TikTok) and tasks (content scheduling, agency coordination) required."
+  }
+}

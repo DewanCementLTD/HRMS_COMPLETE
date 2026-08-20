@@ -1,0 +1,106 @@
+{
+  "cv_file": "resume1_1783586916278.pdf",
+  "job_folder": "1",
+  "job_id": 1,
+  "processed_at": "2026-07-09T08:50:04.555252+00:00",
+  "pipeline": {
+    "total_seconds": 53.119,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 52.42,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1047,
+    "output_tokens": 623,
+    "total_tokens": 2829
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2338
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Affan Basit",
+      "email": "affan.basit@hotmail.com",
+      "phone": "+92 315 2979547",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Systems Programmer",
+    "education": [
+      {
+        "institution": "National University of Computer & Emerging Sciences",
+        "degree": "Bachelor of Science, Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Commecs College",
+        "degree": "Higher Secondary School Certificate, Pre-Engineering",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Internship",
+        "duration": "Jun 2025 – Jul 2025",
+        "description": "Troubleshot the RAAST payment system and utilized SQL for cleaning financial datasets."
+      },
+      {
+        "company": "Dotinfiny Solutions",
+        "role": "Content Writer",
+        "duration": "Mar 2020 – Feb 2023",
+        "description": "Implemented SEO strategies and wrote researched articles to improve search engine rankings."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "Python",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "CUDA",
+      "Bash",
+      "VS Code",
+      "Git",
+      "LaTeX",
+      "Docker",
+      "Notion",
+      "CMake",
+      "PostgreSQL",
+      "MongoDB",
+      "MySQL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 30,
+    "experience_match": 5,
+    "overall_score": 15,
+    "strengths": [
+      "Strong academic record",
+      "Proficiency in low-level programming (C++/CUDA)",
+      "Basic knowledge of React"
+    ],
+    "weaknesses": [
+      "Lacks Next JS experience",
+      "No senior-level professional experience",
+      "Career objectives align with systems programming rather than full-stack web development"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an undergraduate student seeking a systems programming role. He lacks the required seniority and the specific Next JS skill set necessary for this Senior Full Stack position."
+  }
+}

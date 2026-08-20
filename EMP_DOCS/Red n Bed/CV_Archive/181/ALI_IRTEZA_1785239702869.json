@@ -1,0 +1,127 @@
+{
+  "cv_file": "ALI_IRTEZA_1785239702869.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:14.369253+00:00",
+  "pipeline": {
+    "total_seconds": 168.78,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 160.21,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1559,
+    "output_tokens": 1076,
+    "total_tokens": 4197
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3935
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ali Irteza",
+      "email": "irtezaa17@gmail.com",
+      "phone": "+92-300-8230704",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Strategy and Operations professional with 8+ years of experience across enterprise technology, telecom, and luxury retail. Expert in executing growth initiatives, leading large cross-functional teams, and managing complex B2B projects.",
+    "education": [
+      {
+        "institution": "Greenwich University",
+        "degree": "Executive MBA",
+        "graduation_year": null
+      },
+      {
+        "institution": "DHA Suffa University",
+        "degree": "Bachelor of Engineering (Electrical & Electronics)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ufone, Ptcl and Telenor Group",
+        "role": "Manager – Enterprise Solutions",
+        "duration": "May 2026 – Present",
+        "description": "Leads enterprise solutions operations for Telecom, M2M, IoT, and Cloud services, focusing on client retention and cross-functional team performance."
+      },
+      {
+        "company": "Mobilink Jazz - PMCL",
+        "role": "Business Consultant – Enterprise Solutions",
+        "duration": "Jul 2025 – May 2026",
+        "description": "Supported enterprise growth and operational alignment via GSM, M2M, IoT, and Cloud solutions for corporate clients."
+      },
+      {
+        "company": "Synergy Technologies Pvt. Ltd.",
+        "role": "Business Development Manager – Strategic Partnerships & Execution",
+        "duration": "Mar 2024 – Jul 2025",
+        "description": "Led regional market expansion in Southern Pakistan and executed go-to-market strategies for global premium brands."
+      },
+      {
+        "company": "Al-Hafeez Builders & Developers",
+        "role": "Project Lead",
+        "duration": "Mar 2023 – Mar 2024",
+        "description": "Led a 34-member cross-functional team managing high-value commercial real estate project lifecycles and delivery."
+      },
+      {
+        "company": "Al-Hafeez Builders & Developers",
+        "role": "Sales Manager / Sales Executive",
+        "duration": "Aug 2021 – Mar 2023",
+        "description": "Drove revenue growth through structured client engagement, pipeline management, and market analysis for commercial real estate."
+      },
+      {
+        "company": "JETTCO Ltd.",
+        "role": "Operations Manager",
+        "duration": "Jan 2020 – Aug 2021",
+        "description": "Oversaw operations and contract management for multiple projects, negotiating over 30 commercial contracts."
+      },
+      {
+        "company": "JETTCO Ltd.",
+        "role": "Operations Specialist",
+        "duration": "Jan 2019 – Jan 2020",
+        "description": "Supported operational planning, reporting, and vendor coordination across ongoing projects."
+      }
+    ],
+    "skills": [
+      "Strategy Execution",
+      "Business Transformation",
+      "Team Leadership",
+      "Program Management",
+      "Project Management",
+      "Data-Driven Decision Making",
+      "Go-to-Market Strategy",
+      "Stakeholder Management",
+      "Vendor Management",
+      "B2B Sales",
+      "Enterprise Solutions"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 10,
+    "experience_match": 40,
+    "overall_score": 30,
+    "strengths": [
+      "Strong people management experience (led teams up to 34 members)",
+      "Experience with GTM strategies and market expansion",
+      "Based in Karachi",
+      "Advanced degree (Executive MBA)"
+    ],
+    "weaknesses": [
+      "No mentioned experience with GA4 or ad platform reporting",
+      "Lacks experience in consumer brand (B2C) integrated campaigns",
+      "Background is heavily focused on Operations and B2B Enterprise rather than Marketing"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a highly skilled Operations and Strategy leader, but lacks the specific digital marketing technical stack (GA4, ad platforms) and consumer-facing brand experience required for this role."
+  }
+}

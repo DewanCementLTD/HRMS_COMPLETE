@@ -1,0 +1,112 @@
+{
+  "cv_file": "SHAHEER_CV_NEW_1785494612881.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:47:01.190901+00:00",
+  "pipeline": {
+    "total_seconds": 82.89,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 82.792,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1523,
+    "output_tokens": 824,
+    "total_tokens": 3671
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages"
+    ],
+    "text_chars": 5324
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shaheer Ali",
+      "email": "Shaheer.desk@gmail.com",
+      "phone": "+92-312-0017075",
+      "location": "Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": "Sales or Marketing Professional",
+    "profile_summary": "BBA Marketing candidate with experience in FMCG sales, financial services, and media. Strong expertise in route-to-market execution, CRM, and team leadership, including four years of operating an independent sales venture.",
+    "education": [
+      {
+        "institution": "Sukkur IBA University",
+        "degree": "Bachelor of Business Administration (BBA), Marketing",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Government Islamia Science & Arts College",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Adamjee Life Assurance Company Ltd.",
+        "role": "Sales & Marketing Intern",
+        "duration": "2025",
+        "description": "Supported lead generation, prepared sales proposals, conducted market research, and maintained CRM records to achieve monthly targets."
+      },
+      {
+        "company": "PNP Press Network of Pakistan",
+        "role": "Media & Communications Intern",
+        "duration": "2025",
+        "description": "Developed multi-platform communication campaigns, managed social media analytics, and produced field research reports."
+      },
+      {
+        "company": "Self-Initiated Business Venture",
+        "role": "Sales Executive (Founder)",
+        "duration": "2019 – 2023",
+        "description": "Founded and operated a sales business, managing the full sales cycle and supervising junior team members to grow revenue."
+      },
+      {
+        "company": "Sukkur IBA University",
+        "role": "Team Lead, Global Village",
+        "duration": "2024",
+        "description": "Led end-to-end planning and execution of a large-scale campus event, managing budget and stakeholder coordination."
+      },
+      {
+        "company": "SIBAU Entrepreneurship Event",
+        "role": "Entrepreneur, Aik Din Sale Ka",
+        "duration": "2023",
+        "description": "Executed a one-day sales activation, optimizing pricing and promotions to drive visibility and revenue."
+      },
+      {
+        "company": "PLF '25 Operations Team",
+        "role": "Team Member, Pakistan Literature Festival",
+        "duration": "2025",
+        "description": "Coordinated large-scale public event operations, focusing on teamwork and communication under high-footfall conditions."
+      }
+    ],
+    "skills": [
+      "Sales Strategy & Planning",
+      "Route-to-Market Execution",
+      "Business Development",
+      "Brand Management",
+      "Market Research & Analysis",
+      "Order Booker Supervision",
+      "In-Store Branding & Merchandising",
+      "CRM",
+      "Competitor Activity Monitoring",
+      "Sales Reporting & Documentation",
+      "Team Leadership & Supervision",
+      "Negotiation & Persuasion",
+      "Digital & Social Media Marketing",
+      "B2B & B2C Sales",
+      "MS Office",
+      "Digital Marketing",
+      "E-Commerce",
+      "Generative AI",
+      "Prompt Engineering",
+      "Google Ads"
+    ]
+  }
+}

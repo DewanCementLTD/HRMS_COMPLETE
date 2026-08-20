@@ -1,0 +1,89 @@
+{
+  "cv_file": "Sameer_Social_Media_Marketing_3_years_cv_1_1785932131605.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:05.110612+00:00",
+  "pipeline": {
+    "total_seconds": 49.119,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.014,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1163,
+    "output_tokens": 606,
+    "total_tokens": 2910
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 1991
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sameer Ali",
+      "email": "sameerjawad12233@gmail.com",
+      "phone": "03242440541",
+      "location": "Karachi Lyari"
+    },
+    "preferred_job_title": "Social Media Manager",
+    "profile_summary": "Early-career social media specialist with experience in team leadership and content strategy. Strong focus on organic growth, influencer coordination, and client relationship management for digital brands.",
+    "education": [
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "Bachelor of Business Administration (BBA Hons)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Expobird",
+        "role": "Social Media Accounts Manager",
+        "duration": "January 2025 - Present",
+        "description": "Leads SMM team in executing social media strategies, managing client communications, and overseeing content calendars for multiple brands."
+      },
+      {
+        "company": "Nodztech",
+        "role": "Social Media Executive",
+        "duration": "February 2024 - December 2024",
+        "description": "Managed organic social media growth and created engaging content to drive brand awareness and online reputation."
+      }
+    ],
+    "skills": [
+      "Social Media Strategy",
+      "Client Relationship Management",
+      "Campaign Briefing & Execution",
+      "Reels Script Writing",
+      "Team Coordination",
+      "Canva Designing",
+      "Performance Reporting & Analytics",
+      "Trend Research",
+      "Influencer Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 40,
+    "experience_match": 20,
+    "overall_score": 30,
+    "strengths": [
+      "Based in Karachi",
+      "Experience in team coordination",
+      "Strong organic content and SMM focus"
+    ],
+    "weaknesses": [
+      "Lacks required 5-7 years of experience",
+      "No specific mention of GA4 or paid ad platform reporting",
+      "Degree is still in progress"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is significantly under-qualified for a Marketing Manager role, possessing only about one year of experience compared to the required 5-7 years, and lacks the necessary technical expertise in GA4 and paid media."
+  }
+}

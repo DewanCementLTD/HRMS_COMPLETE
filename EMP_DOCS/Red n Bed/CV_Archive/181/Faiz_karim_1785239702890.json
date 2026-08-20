@@ -1,0 +1,118 @@
+{
+  "cv_file": "Faiz_karim_1785239702890.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:53.699137+00:00",
+  "pipeline": {
+    "total_seconds": 61.695,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.526,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 3158,
+    "output_tokens": 908,
+    "total_tokens": 5362
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 5,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 11727
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "S.M Faiz Karim",
+      "email": "faizkarim85@gmail.com",
+      "phone": "+92-331-6038-103",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Manager",
+    "profile_summary": "Versatile marketing professional with over 12 years of experience across e-commerce, digital marketing, and export sales. Expert in driving online growth, managing cross-functional teams, and executing integrated marketing strategies for consumer brands.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Masters in Public Administration",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelors in Science",
+        "graduation_year": "2009"
+      },
+      {
+        "institution": "DJ College",
+        "degree": "Intermediate",
+        "graduation_year": "2006"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Durvesh International",
+        "role": "Manager Marketing (Local and International)",
+        "duration": "Feb 2024 - Present",
+        "description": "Leads export and local marketing, optimizing Alibaba listings and social media ads. Increased online sales by 40% through e-commerce website development and content strategy."
+      },
+      {
+        "company": "Pearl Confectionery Private Limited",
+        "role": "Assistant Manager, Ecommerce & Digital / Assistant Export Manager",
+        "duration": "Jul 2022 - Jan 2024",
+        "description": "Spearheaded e-commerce growth, managed digital agencies, and expanded international market penetration for a portfolio of 100+ products."
+      },
+      {
+        "company": "Pinnacle Enterprise",
+        "role": "Associate Manager (Business Unit)",
+        "duration": "Mar 2014 - Jun 2022",
+        "description": "Managed three e-commerce projects, led the e-commerce division, and oversaw employee recruitment, training, and departmental reporting to the CEO."
+      },
+      {
+        "company": "Karim Containers Private Limited",
+        "role": "Associate Manager Sales & Marketing",
+        "duration": "Feb 2012 - Feb 2014",
+        "description": "Managed key accounts, handled production planning, and implemented sales forecasting and personal selling strategies."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "E-commerce Management",
+      "Team Leadership",
+      "Vendor Management",
+      "Project Management",
+      "Market Analysis",
+      "Social Media Advertising",
+      "International Client Dealing",
+      "Export Marketing",
+      "Public Relations"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 60,
+    "experience_match": 90,
+    "overall_score": 78,
+    "strengths": [
+      "Extensive experience in the Karachi market",
+      "Proven track record of managing teams and e-commerce divisions",
+      "Strong background in integrated digital campaigns and vendor management",
+      "Experience with both local and international consumer brands"
+    ],
+    "weaknesses": [
+      "No explicit mention of GA4 or specific ROI/CAC/LTV reporting metrics",
+      "Education is in Public Administration/Science rather than Marketing/Business"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a strong match for the role's seniority and management requirements, possessing significant experience in the local market. While he lacks explicit mention of GA4, his broad digital marketing and e-commerce leadership experience make him a highly qualified candidate."
+  }
+}

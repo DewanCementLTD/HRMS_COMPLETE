@@ -1,0 +1,95 @@
+{
+  "cv_file": "Bilal_Top-tier_marketer_1786002032204.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:50.934313+00:00",
+  "pipeline": {
+    "total_seconds": 70.919,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.803,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1095,
+    "output_tokens": 617,
+    "total_tokens": 2859
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Top-Tier Result-Oriented Growth Marketer",
+    "sections_found": [
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 1230
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Bilal",
+      "email": "bilalsultanmarketer@gmail.com",
+      "phone": "+923490224117",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Top-Tier Result-Oriented Growth Marketer",
+    "profile_summary": "Senior Growth Marketer with over 7 years of experience specializing in paid social (Meta, TikTok) and e-commerce. Proven track record of managing million-dollar ad spends and generating high ROAS for multiple brands.",
+    "education": [],
+    "experience": [
+      {
+        "company": "Techno Rivals",
+        "role": "Head Of Marketing Department",
+        "duration": null,
+        "description": "Led the marketing department focusing on growth and strategic oversight."
+      },
+      {
+        "company": "Nixaam LLC",
+        "role": "Head Of E-commerce Department",
+        "duration": null,
+        "description": "Managed e-commerce operations and growth strategies."
+      },
+      {
+        "company": "Nixaam LLC",
+        "role": "Marketing Specialist",
+        "duration": null,
+        "description": "Executed marketing campaigns and growth initiatives."
+      },
+      {
+        "company": "Wavetec",
+        "role": "Senior E-commerce Marketer",
+        "duration": null,
+        "description": "Focused on e-commerce marketing and sales generation."
+      }
+    ],
+    "skills": [
+      "Facebook Ads",
+      "Instagram Ads",
+      "TikTok Ads",
+      "PPC",
+      "Landing Page Optimization",
+      "Lead Generation",
+      "Meta Campaigns",
+      "ROAS Optimization",
+      "Digital Marketing",
+      "Ad Spend Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Expertise in Meta and TikTok advertising",
+      "Proven high-revenue generation and ROAS",
+      "Extensive experience managing large ad budgets"
+    ],
+    "weaknesses": [
+      "Education not specified in CV",
+      "No explicit mention of content scheduling tools or Canva"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an overqualified expert in paid social and growth marketing, far exceeding the 2-year experience requirement and possessing deep technical mastery of the required platforms."
+  }
+}

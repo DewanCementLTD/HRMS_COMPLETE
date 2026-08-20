@@ -1,0 +1,72 @@
+{
+  "cv_file": "Muhammad_Rabeet_CV_1785494612867.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:26.666190+00:00",
+  "pipeline": {
+    "total_seconds": 30.661,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 30.596,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 727,
+    "output_tokens": 374,
+    "total_tokens": 1773
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1292
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Rabeet",
+      "email": "muhammadrabeet73@gmail.com",
+      "phone": "0318-1412690",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing or E-commerce",
+    "profile_summary": "Motivated Sales and Marketing student with practical experience in e-commerce management. Proven ability to handle end-to-end online store operations and customer service.",
+    "education": [
+      {
+        "institution": "Virtual University of Pakistan",
+        "degree": "Associate Degree in Sales and Marketing",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "St. Patrick College",
+        "degree": "Intermediate",
+        "graduation_year": null
+      },
+      {
+        "institution": "M.H Grammar School",
+        "degree": "Matriculation",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Daraz.pk (Self-employed)",
+        "role": "Store Manager / Seller",
+        "duration": "2023 – Present",
+        "description": "Managed an online store with 100+ completed orders, overseeing product listing, order processing, customer service, and returns."
+      }
+    ],
+    "skills": [
+      "Basic Python Programming",
+      "English Communication",
+      "Sales & Marketing Fundamentals",
+      "Online Business Management"
+    ]
+  }
+}

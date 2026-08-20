@@ -1,0 +1,109 @@
+{
+  "cv_file": "Talat_Hussain_CV_1786003770289.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:34.712856+00:00",
+  "pipeline": {
+    "total_seconds": 51.222,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.666,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1774,
+    "output_tokens": 744,
+    "total_tokens": 3553
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 4623
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Talat Hussain Dayo",
+      "email": "tallathussain78@gmail.com",
+      "phone": "(+92)3113612053",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entrepreneurial marketing professional with over 3 years of experience in digital strategy and social media management. Expert in driving brand growth and managing cross-functional teams within e-commerce and agency environments.",
+    "education": [
+      {
+        "institution": "Iqra University, Karachi",
+        "degree": "Bachelor of Business Administration (hons)",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Edfort College, Sukkur",
+        "degree": "Intermediate",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Oxford Grammar School, Sukkur",
+        "degree": "Matriculation",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Habibi Essentials",
+        "role": "Head of Marketing",
+        "duration": "2021-2023",
+        "description": "Developed digital marketing strategies, managed social media presence across Meta and Instagram, executed targeted ad campaigns, and led cross-functional teams of designers and copywriters."
+      },
+      {
+        "company": "GROWBIZZ.UK",
+        "role": "Co-founder",
+        "duration": "2023-Present",
+        "description": "Launched a social media marketing agency specializing in UK car dealerships, implementing strategies to increase brand visibility and customer engagement."
+      }
+    ],
+    "skills": [
+      "MS Excel",
+      "MS Word",
+      "MS PowerPoint",
+      "MS Outlook",
+      "Hootsuite",
+      "Sprout Social",
+      "Google Ads",
+      "Meta Ads",
+      "Marketo",
+      "Pardot",
+      "Google Analytics",
+      "Tableau",
+      "CRM",
+      "HRIS",
+      "ATS",
+      "Digital Marketing Strategy",
+      "Social Media Management",
+      "Market Research",
+      "Content Creation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 90,
+    "overall_score": 92,
+    "strengths": [
+      "Strong proficiency in Meta Ads and social media management tools",
+      "Relevant BBA degree",
+      "Proven track record of increasing social media following and traffic",
+      "Experience managing designers and external assets"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok or Canva"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds the minimum experience and education requirements. Their background as a Head of Marketing and Agency Co-founder provides the exact technical skill set needed for social media scheduling, campaign reporting, and asset coordination."
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "cv_file": "Muhammad_Rohan_Farooq_-_Resume_1785932131597.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:16.029898+00:00",
+  "pipeline": {
+    "total_seconds": 77.49,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 77.355,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2449,
+    "output_tokens": 1069,
+    "total_tokens": 5202
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Intern",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 7322
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Rohan Farooq",
+      "email": "bba2211165@szabist.pk",
+      "phone": "+92 335 3147982",
+      "location": "Karachi, Sindh"
+    },
+    "preferred_job_title": "Digital Marketing Intern",
+    "profile_summary": "An aspiring marketing professional and current BBA student with a strong foundation in SEO, social media management, and content creation. Experienced in executing digital campaigns and improving organic visibility across various industries through multiple internships.",
+    "education": [
+      {
+        "institution": "SZABIST University",
+        "degree": "Bachelors of Business Administration",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "TCF College Qayyumabad",
+        "degree": "Pre-Engineering",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "TCF Sec School",
+        "degree": "Matriculation",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Starfish Creatives",
+        "role": "Social Media Executive",
+        "duration": "Mar 2026 – June 2026",
+        "description": "Managed end-to-end social media operations, content calendars, and performance analytics for Intercontinental Investment Bank and other clients."
+      },
+      {
+        "company": "Objects",
+        "role": "Digital Marketing Intern",
+        "duration": "July 2025 – Oct 2025",
+        "description": "Implemented SEO, Meta Ads, and email marketing strategies to improve online visibility and audience engagement."
+      },
+      {
+        "company": "Customs Declarations UK",
+        "role": "SEO Specialist (Off-Page / Link Building)",
+        "duration": "June 2024 – Ongoing",
+        "description": "Utilized SEMrush for keyword research and executed off-page SEO strategies to improve Google search rankings."
+      },
+      {
+        "company": "Top Accountant",
+        "role": "Social Media Intern",
+        "duration": "Jan 2025 – Jan 2025",
+        "description": "Managed digital marketing activities, content creation, and Meta Ads for multiple business profiles in UK and Pakistan."
+      },
+      {
+        "company": "OwnSaaS",
+        "role": "Marketing Intern",
+        "duration": "Nov 2024 – Dec 2024",
+        "description": "Developed SEO strategies and managed social media content across Meta, LinkedIn, Threads, Pinterest, and Discord."
+      },
+      {
+        "company": "BrandStaq",
+        "role": "Creative Designer",
+        "duration": "Jan 2022 – June 2024",
+        "description": "Created 1,000+ social media posts via Canva and executed SEO strategies for clothing brands."
+      },
+      {
+        "company": "FAB Accociates",
+        "role": "Real Estate Agent",
+        "duration": "Jan 2021 – Dec 2021",
+        "description": "Handled property buying/selling processes, client communication, and market analysis in Bahria Town, Karachi."
+      }
+    ],
+    "skills": [
+      "Ms Office",
+      "Canva",
+      "Google Workspace",
+      "Meta Business Suite",
+      "Meta Ads Manager",
+      "Designing",
+      "Creative Story Telling",
+      "Brand Identity",
+      "Digital Marketing",
+      "SEO",
+      "Social Media Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 40,
+    "experience_match": 5,
+    "overall_score": 15,
+    "strengths": [
+      "Strong proficiency in SEO and social media execution",
+      "Experienced with Meta Ads and Canva",
+      "Proactive internship history"
+    ],
+    "weaknesses": [
+      "Lacks required 5-7 years of professional experience",
+      "No people management or team leadership experience",
+      "No mention of GA4 proficiency",
+      "Currently an undergraduate student"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an entry-level student/intern, whereas the role requires a senior Marketing Manager with significant leadership experience and a proven track record of managing budgets and teams."
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "cv_file": "Bismah_Mansoor_Resume_1785494612864.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:10.490241+00:00",
+  "pipeline": {
+    "total_seconds": 74.856,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 74.41,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 957,
+    "output_tokens": 587,
+    "total_tokens": 3477
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2714
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bismah Mansoor",
+      "email": "bismah_mansoor@hotmail.com",
+      "phone": "03363660981",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Service Executive",
+    "profile_summary": "Customer service professional with 3 years of experience in international client support. Expert in issue resolution, CRM tools, and advanced Excel reporting. Strong communicator dedicated to building customer trust and satisfaction.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Masters in Physics (Laser Physics)",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelors in Physics",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Sir Adamjee Institute",
+        "degree": "Intermediate in Pre Engineering",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Little Hearts School",
+        "degree": "Matriculation in Computer Science",
+        "graduation_year": "2013"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TCS Head Office Karachi",
+        "role": "Customer Service Representative",
+        "duration": "2022 - 2024",
+        "description": "Managed international client queries via phone, email, and WhatsApp. Handled shipment records using advanced Excel, coordinated with operations and brokerage teams, and trained new staff."
+      },
+      {
+        "company": "UPS Head Office Karachi",
+        "role": null,
+        "duration": "2024 - 2026",
+        "description": null
+      },
+      {
+        "company": "Pakistan Council of Scientific and Industrial Research",
+        "role": "Intern",
+        "duration": null,
+        "description": "Internship in Computer and Instrumentation Center."
+      }
+    ],
+    "skills": [
+      "Customer Service",
+      "CRM tools",
+      "Microsoft Excel",
+      "VLOOKUP",
+      "HLOOKUP",
+      "Pivot Tables",
+      "Conflict Resolution",
+      "Problem Solving",
+      "Time Management",
+      "Multitasking",
+      "Teamwork",
+      "Active Listening",
+      "English",
+      "Urdu"
+    ]
+  }
+}

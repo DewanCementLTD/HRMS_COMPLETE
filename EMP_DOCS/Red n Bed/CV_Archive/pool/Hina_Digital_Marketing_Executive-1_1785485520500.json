@@ -1,0 +1,91 @@
+{
+  "cv_file": "Hina_Digital_Marketing_Executive-1_1785485520500.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:26.519607+00:00",
+  "pipeline": {
+    "total_seconds": 47.946,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 47.913,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1173,
+    "output_tokens": 589,
+    "total_tokens": 2874
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Executive",
+    "sections_found": [
+      "certifications",
+      "header",
+      "languages"
+    ],
+    "text_chars": 3468
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hina Abdul Wahab",
+      "email": "hinawahab75@gmail.com",
+      "phone": "+92-336-8301374",
+      "location": "Gulistan-e-Jauhar, Block#20, Karachi, Sindh"
+    },
+    "preferred_job_title": "Digital Marketing Executive",
+    "profile_summary": "Digital Marketing professional with over four years of experience specializing in social media management and lead generation. Expert in crafting content strategies and managing paid campaigns to enhance brand visibility and audience growth.",
+    "education": [
+      {
+        "institution": "IBA-CICT City Campus",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": null
+      },
+      {
+        "institution": "Shah Abdul Latif University",
+        "degree": "Bachelor's Degree in General History",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "6th Creation Marketing Agency",
+        "role": "Social Media Executive",
+        "duration": "August 2020 to November 2022",
+        "description": "Strategized social media campaigns and created consistent content to increase customer engagement and boost online presence."
+      },
+      {
+        "company": "StepMov-Footwear Brand",
+        "role": "Social Media Executive",
+        "duration": "January 2023 to June 2023",
+        "description": "Managed influencer marketing, project management, and Instagram campaigns, including community management and content creation."
+      },
+      {
+        "company": "Techlorence Company",
+        "role": "Digital Marketing Executive",
+        "duration": "August 2023 to August 2024",
+        "description": "Optimized US-based Facebook Ads for lead generation and traffic, and implemented email marketing campaigns using Mailchimp and Avada."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Facebook Ads",
+      "Lead Generation",
+      "Email Marketing",
+      "Content Strategy",
+      "Influencer Marketing",
+      "SEO",
+      "Google Ads",
+      "Mailchimp",
+      "Campaign Monitor",
+      "Avada Email Marketing",
+      "WordPress",
+      "Project Management",
+      "Team Building",
+      "Communication",
+      "Creative Thinking",
+      "Problem Solving",
+      "Time Management"
+    ]
+  }
+}

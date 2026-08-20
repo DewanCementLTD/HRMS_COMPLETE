@@ -1,0 +1,87 @@
+{
+  "cv_file": "CV_3_Bilal_Anwar_1783602744373.pdf",
+  "job_folder": "103",
+  "job_id": 103,
+  "mode": "evaluate",
+  "processed_at": "2026-07-09T13:13:18.783229+00:00",
+  "pipeline": {
+    "total_seconds": 47.278,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 47.106,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 886,
+    "output_tokens": 527,
+    "total_tokens": 2180
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 843
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bilal Anwar",
+      "email": "bilal.anwar@email.com",
+      "phone": "+92 333 9876543",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Technology Management Role",
+    "profile_summary": "Marketing professional with 4 years of experience in digital campaigns and brand management. Currently seeking to transition into a technology management career path.",
+    "education": [
+      {
+        "institution": "Institute of Business Administration, Karachi",
+        "degree": "BBA Marketing",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "BrightWave Media",
+        "role": "Marketing Executive",
+        "duration": "Feb 2021 – Present",
+        "description": "Executed digital ad campaigns, coordinated with creative vendors, and analyzed performance using Excel and Google Analytics."
+      },
+      {
+        "company": "Palm Retail Co.",
+        "role": "Marketing Associate",
+        "duration": "Jun 2019 – Jan 2021",
+        "description": "Supported seasonal promotional planning and in-store activations."
+      }
+    ],
+    "skills": [
+      "Digital marketing",
+      "campaign analytics",
+      "content strategy",
+      "MS Excel",
+      "basic project coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Vendor coordination experience",
+      "Basic data tracking skills"
+    ],
+    "weaknesses": [
+      "No ERP (Oracle/SAP) experience",
+      "No SQL knowledge",
+      "Lacks required 5+ years of application management experience",
+      "Degree is in Business/Marketing rather than Computer Science/Information Systems"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a marketing professional with no relevant technical background, ERP experience, or IT education required for the Application Manager role."
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "cv_file": "Hassaan_Tahir_Updated_1785309154643.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:07.005269+00:00",
+  "pipeline": {
+    "total_seconds": 61.108,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.983,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2125,
+    "output_tokens": 1148,
+    "total_tokens": 4292
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 6091
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hassan Tahir",
+      "email": "hassaantahir048@gmail.com",
+      "phone": "03323517104",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Ecommerce & Performance Marketing Professional",
+    "profile_summary": "Experienced performance marketing and ecommerce leader specializing in driving online sales and conversion optimization. Proven track record in managing paid media budgets and technical ecommerce operations across multiple platforms.",
+    "education": [
+      {
+        "institution": "Ilma University",
+        "degree": "Bachelors of Computer Science",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Intermediate (Pre Engineering)",
+        "graduation_year": "2009"
+      },
+      {
+        "institution": "Bahria Foundation",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2007"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Anfords Pakistan Pvt Ltd",
+        "role": "Digital Marketing Manager",
+        "duration": "February 2025 — October 2025",
+        "description": "Managed online sales strategies, conversion rates, and paid media budgets across Facebook and Google Ads to optimize ROI and CPL/CPA."
+      },
+      {
+        "company": "Freelance",
+        "role": "Ecommerce & Digital Consultant",
+        "duration": "November 2022 — Present",
+        "description": "Developed ecommerce strategies, optimized digital channels, and executed online marketing campaigns for various clients."
+      },
+      {
+        "company": "East River Digital",
+        "role": "Performance Marketing Lead",
+        "duration": "July 2023 — January 2024",
+        "description": "Executed comprehensive performance campaigns across Google, Facebook, Snapchat, and TikTok; managed budgets and reported ROI to stakeholders."
+      },
+      {
+        "company": "Oaks Pvt Ltd",
+        "role": "Ecommerce Consultant",
+        "duration": "May 2023 — July 2023",
+        "description": "Provided digital transformation guidance and optimized website performance and marketing campaigns."
+      },
+      {
+        "company": "Amir Adnan",
+        "role": "Head of Ecommerce",
+        "duration": "September 2021 — October 2022",
+        "description": "Led technical ecommerce operations, migrated site to Shopify, and supervised customer support, warehouse, and digital marketing teams."
+      },
+      {
+        "company": "Zaaviay",
+        "role": "Head of IT & Ecommerce",
+        "duration": "December 2019 — September 2021",
+        "description": "Managed Shopify store operations, monitored GA/GSC trends, and oversaw social media platforms and order fulfillment."
+      },
+      {
+        "company": "Blaze Minds Solutions",
+        "role": "Software Support Analyst",
+        "duration": "February 2019 — November 2019",
+        "description": "Provided software support and technical analysis."
+      },
+      {
+        "company": "Consumer Association Pakistan",
+        "role": "IT Coordinator",
+        "duration": "January 2017 — January 2019",
+        "description": "Coordinated IT operations and infrastructure."
+      }
+    ],
+    "skills": [
+      "Social Media",
+      "Google Ads",
+      "Facebook Business Manager",
+      "Email Marketing",
+      "Wordpress",
+      "Digital Marketing",
+      "Tiktok Ads",
+      "Google Analytics",
+      "Shopify",
+      "Ecommerce Operations",
+      "Facebook Ads",
+      "Snapchat Ads",
+      "Google Search Console",
+      "Magento",
+      "Google Tag Manager"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 95,
+    "experience_match": 80,
+    "overall_score": 87,
+    "strengths": [
+      "Expertise in GA4 and multiple ad platforms (Google, FB, TikTok, Snapchat)",
+      "Strong leadership experience as 'Head of Ecommerce'",
+      "Deep technical knowledge of Shopify and ecommerce conversion optimization",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "Degree is in Computer Science rather than Marketing/Business",
+      "Less emphasis on high-level brand strategy and creative direction compared to performance metrics"
+    ],
+    "recommendation": "Strong Fit",
+    "summary": "The candidate is a highly technical performance marketer who exceeds the requirements for GA4 and ad platform reporting. While lacking a formal marketing degree, his experience leading ecommerce functions and managing teams makes him a strong candidate for the Marketing Manager role."
+  }
+}

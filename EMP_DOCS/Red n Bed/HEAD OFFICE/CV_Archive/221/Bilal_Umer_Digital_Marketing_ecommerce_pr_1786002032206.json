@@ -1,0 +1,121 @@
+{
+  "cv_file": "Bilal_Umer_Digital_Marketing_ecommerce_pr_1786002032206.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:43:26.274629+00:00",
+  "pipeline": {
+    "total_seconds": 100.769,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 100.675,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1263,
+    "output_tokens": 882,
+    "total_tokens": 3605
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2374
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bilal Umer",
+      "email": "umerh618@gmail.com",
+      "phone": "+92 3171159947",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer / E-Commerce / PR Management",
+    "profile_summary": "Creative digital marketer and E-commerce specialist with expertise in PR and content creation. Skilled in blending data-driven strategies with engaging content to drive brand visibility and conversion.",
+    "education": [
+      {
+        "institution": "ILMA University",
+        "degree": "BS in Digital Marketing",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Pre Engineering",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Ethic City School",
+        "degree": "Science",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shop Saverr",
+        "role": "E-Commerce Specialist",
+        "duration": "June 2024 - Present",
+        "description": "Tracks sales and engagement, manages Shopify themes, and optimizes customer acquisition and retention strategies."
+      },
+      {
+        "company": "Smart Living",
+        "role": "Social Media Executive (Freelance)",
+        "duration": "July 2023 - Present",
+        "description": "Freelance social media management and execution."
+      },
+      {
+        "company": "AA Joyland Pvt Ltd",
+        "role": "Digital Marketing / PR Management",
+        "duration": "June 2023 - May 2024",
+        "description": "Developed digital strategies, optimized advertising ROI, and conducted market and competitor research."
+      },
+      {
+        "company": "Keysol Pvt Ltd",
+        "role": "Digital Marketing Intern",
+        "duration": "Mar 2023 - May 2023",
+        "description": "Managed brand presence and created content for Facebook, Instagram, and WhatsApp."
+      },
+      {
+        "company": "Sell Center",
+        "role": "Social Media Intern",
+        "duration": "Jan 2023 - June 2023",
+        "description": "Executed social media campaigns and analyzed performance data across multiple platforms."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "E-Commerce",
+      "PR Management",
+      "Social Media Marketing",
+      "Meta Social Media Marketing",
+      "Content Creation",
+      "Market Research",
+      "Shopify",
+      "Management Skills",
+      "Creativity",
+      "Critical Thinking",
+      "English",
+      "Urdu",
+      "Hindko"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 90,
+    "experience_match": 70,
+    "overall_score": 82,
+    "strengths": [
+      "Direct experience with Meta platforms (FB, IG)",
+      "Strong background in content creation and competitor analysis",
+      "Proficiency in E-commerce and Shopify"
+    ],
+    "weaknesses": [
+      "Bachelor's degree is still in progress",
+      "Total professional experience is slightly under the 2-year requirement"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a strong technical match for the social media and content requirements of the role, though they are still completing their degree and have slightly less than 2 years of full-time experience."
+  }
+}

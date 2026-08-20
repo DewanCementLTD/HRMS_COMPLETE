@@ -1,0 +1,110 @@
+{
+  "cv_file": "Hina_Digital_Marketing_Executive-1_1786002032214.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:44:20.142632+00:00",
+  "pipeline": {
+    "total_seconds": 88.89,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 88.793,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1457,
+    "output_tokens": 781,
+    "total_tokens": 3678
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Executive",
+    "sections_found": [
+      "certifications",
+      "header",
+      "languages"
+    ],
+    "text_chars": 3468
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hina Abdul Wahab",
+      "email": "hinawahab75@gmail.com",
+      "phone": "+92-336-8301374",
+      "location": "Karachi, Sindh"
+    },
+    "preferred_job_title": "Digital Marketing Executive",
+    "profile_summary": "Digital Marketing professional with over 4 years of experience specializing in multi-platform social media management and lead generation. Expert in content strategy, influencer marketing, and coordinating creative teams to enhance brand visibility.",
+    "education": [
+      {
+        "institution": "IBA-CICT City Campus",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": null
+      },
+      {
+        "institution": "Shah Abdul Latif University",
+        "degree": "Bachelor's Degree in General History",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techlorence Company",
+        "role": "Digital Marketing Executive",
+        "duration": "August 2023 - August 2024",
+        "description": "Managed US-based Facebook Ads for awareness and lead generation; executed email marketing campaigns via Mailchimp, Campaign Monitor, and Avada."
+      },
+      {
+        "company": "StepMov-Footwear Brand",
+        "role": "Social Media Executive",
+        "duration": "January 2023 - June 2023",
+        "description": "Handled influencer marketing, Instagram campaign design, caption/hashtag optimization, and community management across social platforms."
+      },
+      {
+        "company": "6th Creation Marketing Agency",
+        "role": "Social Media Executive",
+        "duration": "August 2020 - November 2022",
+        "description": "Strategized social media campaigns, created consistent content to boost engagement, and conducted research to improve online presence."
+      }
+    ],
+    "skills": [
+      "Facebook Ads",
+      "Instagram",
+      "TikTok",
+      "LinkedIn",
+      "X",
+      "Pinterest",
+      "Threads",
+      "YouTube",
+      "Lead Generation",
+      "Email Marketing",
+      "Mailchimp",
+      "Campaign Monitor",
+      "Avada",
+      "Content Calendars",
+      "Influencer Marketing",
+      "SEO",
+      "Google Ads",
+      "WordPress",
+      "Project Management",
+      "Team Coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Extensive experience across all required social platforms",
+      "Proven ability to lead designers and content writers",
+      "Strong background in both organic and paid social strategies"
+    ],
+    "weaknesses": [
+      "Bachelor's degree is in History rather than Marketing/Communications",
+      "No explicit mention of UTM tracking or Microsoft Excel"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is highly qualified with over 4 years of direct experience in social media management and content coordination, exceeding the minimum requirements."
+  }
+}

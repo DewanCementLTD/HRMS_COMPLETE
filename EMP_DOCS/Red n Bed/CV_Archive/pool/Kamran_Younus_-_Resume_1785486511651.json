@@ -1,0 +1,96 @@
+{
+  "cv_file": "Kamran_Younus_-_Resume_1785486511651.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:29:40.494799+00:00",
+  "pipeline": {
+    "total_seconds": 46.645,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.584,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1409,
+    "output_tokens": 611,
+    "total_tokens": 3018
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "summary"
+    ],
+    "text_chars": 4334
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamran Younus",
+      "email": "kamran_younus@outlook.com",
+      "phone": "+923012503060",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Sales, Business Development, or Marketing Coordinator",
+    "profile_summary": "MBA graduate specializing in Marketing with expertise in inventory management, accounting, and digital marketing. Proficient in Odoo ERP, Zoho Books, and generative AI to streamline operations and drive business growth.",
+    "education": [
+      {
+        "institution": "Karachi Institute of Economics & Technology",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Karachi Institute of Economics & Technology",
+        "degree": "BBA (Marketing)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "B-Com",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt College of Commerce & Economics",
+        "degree": "HSC (Commerce)",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Al Azhar Academy School",
+        "degree": "SSC (Science)",
+        "graduation_year": "2011"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Industrial Equipments",
+        "role": "Inventory Assistant",
+        "duration": "Oct 2019 to Present",
+        "description": "Managed customer inquiries, purchase orders, and delivery notes. Coordinated GST invoicing and handled import documentation and correspondence with international vendors."
+      },
+      {
+        "company": "Cargo Aviation Systems Pvt. Ltd",
+        "role": "Assistant Accountant",
+        "duration": "Apr 2017 to Nov 2018",
+        "description": "Created invoices, managed export documentation, and maintained operational correspondence with business partners while providing internal IT support."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Generative AI",
+      "Odoo ERP",
+      "Zoho Books",
+      "MS Office",
+      "B2B Correspondence",
+      "Import/Export Documentation",
+      "CRM",
+      "SEO",
+      "Google Ads",
+      "Google Analytics",
+      "HubSpot Inbound",
+      "Content Marketing",
+      "Social Media Marketing",
+      "Email Marketing"
+    ]
+  }
+}

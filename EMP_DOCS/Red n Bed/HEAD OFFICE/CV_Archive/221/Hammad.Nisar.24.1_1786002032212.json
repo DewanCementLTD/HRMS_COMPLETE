@@ -1,0 +1,101 @@
+{
+  "cv_file": "Hammad.Nisar.24.1_1786002032212.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:43:24.615831+00:00",
+  "pipeline": {
+    "total_seconds": 68.578,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 68.457,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1395,
+    "output_tokens": 730,
+    "total_tokens": 3144
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header"
+    ],
+    "text_chars": 3239
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Hammad Nisar",
+      "email": "mhammadnisar13@gmail.com",
+      "phone": "0324 240 5123",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entrepreneurial marketing professional with a background in Economics and a strong track record in lead generation and e-commerce. Expert in Meta Ads and social media growth with experience managing multiple startups.",
+    "education": [
+      {
+        "institution": "Institute Of Business Administration",
+        "degree": "Bs Economics",
+        "graduation_year": "Present"
+      }
+    ],
+    "experience": [
+      {
+        "company": "SCENTS",
+        "role": "Founder",
+        "duration": "Dec 2019-Present",
+        "description": "Managed logistics and e-commerce via Shopify, selling 1500+ products and running social media campaigns with a 10% conversion rate."
+      },
+      {
+        "company": "Carvana",
+        "role": "Co-founder",
+        "duration": "2022-Present",
+        "description": "Generated Rs.1 million in commission sales through strategic automobile trading and organic social media growth."
+      },
+      {
+        "company": "OKAYKER",
+        "role": "Sales & Marketing Intern",
+        "duration": "June 23-July 23",
+        "description": "Executed BTL activities, analyzed advertising results to reduce CPL, and trained new sales agents."
+      },
+      {
+        "company": "BYTRIX TECHNOLOGIES",
+        "role": "Marketing intern",
+        "duration": "June 22-July 22",
+        "description": "Designed social media content and managed Facebook/Instagram ad campaigns to increase reach and lead generation."
+      }
+    ],
+    "skills": [
+      "Facebook Ads Manager",
+      "Meta Business Manager",
+      "Facebook Insights",
+      "Digital Marketing",
+      "Shopify",
+      "Python",
+      "Stata",
+      "SQL",
+      "Lead Generation",
+      "BTL Marketing",
+      "Data Analytics"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 90,
+    "experience_match": 80,
+    "overall_score": 85,
+    "strengths": [
+      "Strong proficiency in Meta Business Suite and Ads Manager",
+      "Proven ability to drive conversions and organic growth",
+      "Entrepreneurial experience managing end-to-end marketing and sales"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok or Canva",
+      "Lack of traditional full-time corporate employment history"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a strong match with direct experience in social media campaign management and lead generation. He possesses the 'nice-to-have' Meta Business Suite skills and exceeds the minimum experience requirement through his entrepreneurial ventures."
+  }
+}

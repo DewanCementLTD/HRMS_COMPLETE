@@ -1,0 +1,142 @@
+{
+  "cv_file": "Kamil_Shoukat_1785309154649.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:25.695990+00:00",
+  "pipeline": {
+    "total_seconds": 62.875,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 62.682,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 3357,
+    "output_tokens": 1218,
+    "total_tokens": 5595
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": "Performance Marketing Specialist",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "references"
+    ],
+    "text_chars": 10969
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamil Shoukat",
+      "email": "kamilshoukat@outlook.com",
+      "phone": "+92 345 2944681",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Performance Marketing Specialist",
+    "profile_summary": "Senior performance marketing expert and digital transformation leader with over 8 years of experience. Specialized in scaling revenue, managing multi-channel paid acquisition, and leading cross-functional teams to drive ROI and brand authority.",
+    "education": [
+      {
+        "institution": "PAF KIET",
+        "degree": "BE Electronics",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "IceBerg Studios",
+        "role": "Head of Performance Marketing (Consultant)",
+        "duration": "Aug '24 – Present",
+        "description": "Establishing marketing operations, website, and social media; executing paid acquisition strategies via Google and Facebook Ads while managing budgets and art direction."
+      },
+      {
+        "company": "Pencil Media Production",
+        "role": "Marketing Consultant (Contract)",
+        "duration": "May – July '24",
+        "description": "Developed paid acquisition strategies across Google, Facebook, affiliates, and email; managed vendor relationships and prepared comprehensive performance reports."
+      },
+      {
+        "company": "Jome Journey",
+        "role": "Head of Performance Marketing (Contract)",
+        "duration": "Jan – April '24",
+        "description": "Led a global remote team overseeing SEO, paid ads, and video production; implemented SOPs, KPIs, and managed hiring and budgets."
+      },
+      {
+        "company": "Pencil Media Production",
+        "role": "Head of Performance Marketing",
+        "duration": "May – Dec '23",
+        "description": "Led digital marketing team in creating brand presence; optimized paid acquisition campaigns and managed vendor relationships and reporting."
+      },
+      {
+        "company": "REDBOX Marketing Estate",
+        "role": "Head of Marketing",
+        "duration": "Sept – Dec '22",
+        "description": "Spearheaded strategic campaigns, branding, and pricing; managed IT and production teams, developed hiring plans, and coordinated sales-marketing efforts."
+      },
+      {
+        "company": "Future Power SMC Pvt Ltd.",
+        "role": "Performance Marketing Consultant (Contract)",
+        "duration": "July – Sept ‘22",
+        "description": "Implemented B2B/B2C sales strategies and optimized high-converting websites; executed data-driven campaigns on Facebook, Google, and LinkedIn."
+      },
+      {
+        "company": "TPL Trakker",
+        "role": "Manager Digital Transformation",
+        "duration": "July '21 – June '22",
+        "description": "Scaled digital sales from $300k to $7.7M monthly; managed external agencies and executed comprehensive SEO/SEM and social media campaigns."
+      },
+      {
+        "company": "Seamless Ideas",
+        "role": "Marketing Consultant / Senior Content Marketing Manager",
+        "duration": "Jan '20 – July '21",
+        "description": "Managed B2B/B2C ad campaigns and content strategy; delegated tasks to creators and designers while optimizing lead magnets and landing pages."
+      },
+      {
+        "company": "Crea8ive Bench",
+        "role": "Team Lead Content / Content Strategist",
+        "duration": "Aug '16 – Oct '19",
+        "description": "Managed content teams and strategy for major clients like Unilever; oversaw SEO-optimized blogs and social media copy management."
+      },
+      {
+        "company": "Do IT",
+        "role": "Content Writer",
+        "duration": "Feb – Aug '16",
+        "description": "Created SEO-optimized web content, DIY blogs, and product reviews for technical and medical websites."
+      }
+    ],
+    "skills": [
+      "PPC",
+      "SEO",
+      "SMM",
+      "Performance Marketing",
+      "Project Management",
+      "Budget & Growth Planning",
+      "Digital Integrations",
+      "Consumer Journey",
+      "Public Speaking",
+      "Paid Acquisition",
+      "Lead Generation",
+      "Team Management",
+      "Agency Management",
+      "Content Strategy"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 90,
+    "overall_score": 92,
+    "strengths": [
+      "Proven track record of scaling revenue (TPL Trakker)",
+      "Extensive experience in people and agency management",
+      "Deep expertise in integrated paid and organic campaigns",
+      "Local presence in Karachi"
+    ],
+    "weaknesses": [
+      "Educational background is in Electronics rather than Marketing/Business"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an overqualified performance marketer with significant leadership experience. He meets all key requirements for strategy, budget management, and team leadership, and has a demonstrated ability to drive massive revenue growth."
+  }
+}

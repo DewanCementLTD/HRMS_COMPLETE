@@ -1,0 +1,125 @@
+{
+  "cv_file": "SRH.Resume_1785487300761.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:44:43.487001+00:00",
+  "pipeline": {
+    "total_seconds": 62.868,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 62.803,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1485,
+    "output_tokens": 802,
+    "total_tokens": 3728
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4024
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Rafay Hussain",
+      "email": "syedrafayhussain50@gmail.com",
+      "phone": "0342-3296478",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Software Engineer",
+    "profile_summary": "Software Engineering student with a diverse professional background in administration, HR, and customer service. Proficient in front-end web development and operational management, seeking to leverage technical and analytical skills in a professional career.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Science in Software Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "BS Software Engineering (3 semesters)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Saylani Mass IT Training Program",
+        "degree": "Front-End Web Development Course",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Government Dehli Inter Science College",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "The Scholar’s Academy",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techmile Solutions",
+        "role": "Customer Service Representative / Shift Lead",
+        "duration": "1 Year",
+        "description": "Provided customer support via chat and was promoted to Shift Lead to supervise daily operations and coordinate team workflow."
+      },
+      {
+        "company": "MIMA Construction Company",
+        "role": "Human Resource Management (HR Officer)",
+        "duration": "1 Year",
+        "description": "Managed recruitment, employee records, and HR documentation while supporting administrative operations."
+      },
+      {
+        "company": "MIMA Construction Company",
+        "role": "Procurement Officer (Purchaser)",
+        "duration": "2 Months",
+        "description": "Handled purchasing, supplier coordination, and inventory tracking for construction materials."
+      },
+      {
+        "company": "FWT Fly World Travels",
+        "role": "Air Ticketing & Sales Executive",
+        "duration": "3 Months",
+        "description": "Managed flight bookings, travel reservations, and customer inquiries."
+      },
+      {
+        "company": "Farhan School of Education",
+        "role": "Admin Officer",
+        "duration": "2 Years",
+        "description": "Managed office administration, daily operations, records, and staff schedules."
+      }
+    ],
+    "skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "React.js",
+      "Supabase",
+      "MySQL",
+      "C",
+      "C++",
+      "Python",
+      "OOP",
+      "Data Structures & Algorithms",
+      "Responsive Web Design",
+      "UI Development",
+      "MS Office",
+      "Communication",
+      "Teamwork",
+      "Office Administration",
+      "HR Coordination",
+      "Procurement",
+      "Vendor Management",
+      "Customer Service",
+      "Problem-solving"
+    ]
+  }
+}

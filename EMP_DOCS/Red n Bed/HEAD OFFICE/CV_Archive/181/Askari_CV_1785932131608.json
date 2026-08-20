@@ -1,0 +1,108 @@
+{
+  "cv_file": "Askari_CV_1785932131608.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:54.764656+00:00",
+  "pipeline": {
+    "total_seconds": 61.075,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.614,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1411,
+    "output_tokens": 754,
+    "total_tokens": 3468
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 3,
+    "ocr_pages": [
+      3
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3066
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Babar Nazim",
+      "email": "sbabaraskari@gmail.com",
+      "phone": "0300-2162499",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Accomplished Executive with over 13 years of experience in operational management and business leadership. Expert in business administration, change management, and staff supervision with a focus on profitability and operational efficiency.",
+    "education": [
+      {
+        "institution": "Preston University",
+        "degree": "EMBA (Management)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "BA",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "MBE Inc.",
+        "role": "Operation Manager (Customer Services POS)",
+        "duration": "2020-present",
+        "description": "Develops customer service standards, monitors policy compliance, evaluates satisfaction levels, and trains staff on POS systems and SOPs."
+      },
+      {
+        "company": "Dry Dock World",
+        "role": "Assistant Operation Manager",
+        "duration": "Nov 2012-June 2018",
+        "description": "Supported daily organizational operations, developed employee work rules, and collaborated with top management on operational issues."
+      },
+      {
+        "company": "Rare field Engineers Pvt limited",
+        "role": "Operational Specialist",
+        "duration": "Sep 2008-Oct 2011",
+        "description": "Managed visa issues, clearing and forwarding, payroll assistance, and worker accommodation and food logistics."
+      },
+      {
+        "company": "Ufone Telecoms",
+        "role": "Customer Care Executive",
+        "duration": "Mar 2006-Jul 2008",
+        "description": "Handled inbound customer calls, resolved queries effectively, and evaluated calls to enhance quality levels."
+      }
+    ],
+    "skills": [
+      "Business Administration",
+      "Change Management",
+      "Operational Management",
+      "Staff Supervision",
+      "Customer Service",
+      "Quality Control",
+      "KPI Monitoring",
+      "Inventory Planning",
+      "Strategic Planning"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 0,
+    "experience_match": 15,
+    "overall_score": 10,
+    "strengths": [
+      "Extensive people management experience",
+      "Strong operational background",
+      "Possesses an EMBA",
+      "Based in Karachi"
+    ],
+    "weaknesses": [
+      "No professional marketing experience",
+      "Lack of technical skills in GA4 and ad platform reporting",
+      "No experience with brand strategy, CAC/LTV, or integrated campaigns"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a seasoned operations and customer service manager but lacks all the core marketing competencies and technical requirements specified in the job description."
+  }
+}

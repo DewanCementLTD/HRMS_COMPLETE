@@ -1,0 +1,126 @@
+{
+  "cv_file": "Faizan_Ahmed_Qureshi_Resume_1785239702891.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T12:00:04.409369+00:00",
+  "pipeline": {
+    "total_seconds": 118.69,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 118.564,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2453,
+    "output_tokens": 990,
+    "total_tokens": 4751
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 7345
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Faizan Ahmad Qureshi",
+      "email": "faizanaq21@gmail.com",
+      "phone": "0322-7873-744",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Procurement and branding professional with an MBA in Marketing. Experienced in vendor management, cost optimization, and physical brand implementation within the banking sector.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master’s in Business Administration – Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelor of Art’s",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Government Science & Commerce Collage",
+        "degree": "Intermediate in Science",
+        "graduation_year": "2010"
+      },
+      {
+        "institution": "Sarfaraz Pilot Higher Secondary School",
+        "degree": "Matric in Science",
+        "graduation_year": "2007"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Corporate Support Services (CSS)-HBL",
+        "role": "Manager - Procurement",
+        "duration": "June 2024 to Date",
+        "description": "Manages vendor partnerships, product standardization, and cost-saving initiatives. Leads procurement team and oversees branding dashboards and marketing material production."
+      },
+      {
+        "company": "Corporate Services (CS)-UBL",
+        "role": "Manager - Branding & Signage",
+        "duration": "Jan 2022 to May 2024",
+        "description": "Ensured adherence to marketing guidelines for physical branding and signage. Managed vendors and project timelines for branch renovations and relocations."
+      },
+      {
+        "company": "Corporate Services (CS)-UBL",
+        "role": "Assistant Manager",
+        "duration": "Feb 2020 to Dec 2021",
+        "description": "Handled procurement of technical equipment and negotiated deals to achieve significant cost savings (PKR 156M+). Managed RFP processes and audit controls."
+      },
+      {
+        "company": "Corporate Services (CS)-UBL (Hillcrest Solutions)",
+        "role": "Assistant Manager",
+        "duration": "June 2018 to Feb 2020",
+        "description": "Managed maintenance of power systems and CCTV, handled administrative tasks, and oversaw vendor performance reviews and audit reporting."
+      },
+      {
+        "company": "UBL (SMS Global)",
+        "role": "Officer- Power Management",
+        "duration": "May 2016 to May 2018",
+        "description": "Managed power management operations."
+      }
+    ],
+    "skills": [
+      "Procurement",
+      "Vendor Management",
+      "Physical Branding",
+      "Signage Management",
+      "Oracle",
+      "ERP",
+      "Web Development",
+      "Web Designing",
+      "3D Visualization",
+      "Advanced Excel",
+      "Change Management",
+      "RFP Processing",
+      "Cost Optimization"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 10,
+    "experience_match": 40,
+    "overall_score": 25,
+    "strengths": [
+      "MBA in Marketing",
+      "Strong vendor and people management experience",
+      "Experience in physical brand execution and guidelines"
+    ],
+    "weaknesses": [
+      "No experience with digital marketing, GA4, or ad platforms",
+      "Lacks experience in integrated consumer brand campaigns",
+      "Background is primarily in procurement and facilities rather than marketing strategy"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a procurement specialist with a marketing degree. While he has managed physical branding and teams, he lacks the essential digital marketing skills (GA4, ad reporting) and strategic growth experience required for a Marketing Manager role."
+  }
+}

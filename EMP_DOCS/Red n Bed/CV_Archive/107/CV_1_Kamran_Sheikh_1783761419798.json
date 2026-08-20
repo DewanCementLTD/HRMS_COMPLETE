@@ -1,0 +1,89 @@
+{
+  "cv_file": "CV_1_Kamran_Sheikh_1783761419798.pdf",
+  "job_folder": "107",
+  "job_id": 107,
+  "mode": "evaluate",
+  "processed_at": "2026-07-11T09:17:56.622377+00:00",
+  "pipeline": {
+    "total_seconds": 49.663,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.52,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 973,
+    "output_tokens": 570,
+    "total_tokens": 2369
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1205
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamran Sheikh",
+      "email": "kamran.sheikh@email.com",
+      "phone": "+92 300 1234567",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Application Manager",
+    "profile_summary": "Application Manager with 6 years of experience specializing in Oracle ERP implementation, upgrades, and support. Proven track record in vendor coordination and requirements gathering within manufacturing and distribution domains.",
+    "education": [
+      {
+        "institution": "NED University of Engineering and Technology",
+        "degree": "BS Computer Science",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Al-Noor Industries",
+        "role": "Application Manager",
+        "duration": "Mar 2021 – Present",
+        "description": "Leads Oracle ERP support for 400+ users, manages vendor SLAs to improve resolution times, and coordinates requirement workshops for module rollouts."
+      },
+      {
+        "company": "Zenith Textiles Ltd",
+        "role": "Senior ERP Analyst",
+        "duration": "Jul 2018 – Feb 2021",
+        "description": "Configured Oracle Financials and SCM modules and developed SQL-based reports for management review and audit compliance."
+      }
+    ],
+    "skills": [
+      "Oracle ERP (EBS, Fusion)",
+      "SQL",
+      "Requirements gathering",
+      "Vendor management",
+      "User access administration",
+      "Business process mapping",
+      "ITIL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Direct Oracle ERP expertise",
+      "Meets minimum experience threshold",
+      "ITIL certified",
+      "Strong SQL and vendor management skills"
+    ],
+    "weaknesses": [
+      "No mentioned experience with Power BI or Cloud platforms (AWS/Azure)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an ideal match, possessing the exact required ERP experience, technical skills, and educational background specified in the job description."
+  }
+}

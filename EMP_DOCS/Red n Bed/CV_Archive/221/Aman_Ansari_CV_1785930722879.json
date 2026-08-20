@@ -1,0 +1,103 @@
+{
+  "cv_file": "Aman_Ansari_CV_1785930722879.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:23.864361+00:00",
+  "pipeline": {
+    "total_seconds": 59.185,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.865,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1279,
+    "output_tokens": 737,
+    "total_tokens": 3322
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Senior Digital Marketing Executive",
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3100
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Aman Ansari",
+      "email": "amanans911@gmail.com",
+      "phone": "+92 331 2494258",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Senior Digital Marketing Executive & Team Lead",
+    "profile_summary": "Senior Digital Marketing professional with 4+ years of experience specializing in eCommerce and performance marketing. Expert in scaling PPC campaigns across Meta and Google Ads to drive revenue growth for international brands.",
+    "education": [
+      {
+        "institution": "Iqra University (IU)",
+        "degree": "Bachelor's degree in Accounting and Finance",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "AmanraSoft",
+        "role": "Assistant Manager Digital Marketing",
+        "duration": "2023 - 2025",
+        "description": "Managed digital strategy for international clothing brands, executing PPC campaigns on Google and Meta Ads while optimizing Shopify stores for conversion."
+      },
+      {
+        "company": "Techi Coders",
+        "role": "Senior Digital Marketing Executive & Team Lead",
+        "duration": "2022 - 2023",
+        "description": "Led multi-channel campaigns for eCommerce and service clients, focusing on lead generation, ROI improvement, and SEO optimization."
+      },
+      {
+        "company": "TriAd Boost",
+        "role": "Digital Marketing Executive",
+        "duration": "2021 - 2022",
+        "description": "Executed Facebook and Instagram advertising campaigns, designed brand-aligned creatives using Canva, and implemented Facebook Pixel tracking."
+      }
+    ],
+    "skills": [
+      "Performance Marketing",
+      "PPC Advertising",
+      "Google Ads",
+      "Meta Ads",
+      "Facebook Ads",
+      "Instagram Ads",
+      "E-commerce Marketing",
+      "Shopify Store Management",
+      "Conversion Rate Optimization",
+      "SEO",
+      "Lead Generation",
+      "Campaign Optimization",
+      "Marketing Analytics",
+      "Google Analytics",
+      "Facebook Pixel",
+      "Google Tag Manager",
+      "Team Leadership",
+      "Canva"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Advanced expertise in Meta Ads and Canva",
+      "Strong background in eCommerce and Shopify growth",
+      "Proven experience in campaign tracking and performance analytics"
+    ],
+    "weaknesses": [
+      "Degree is in Accounting and Finance rather than Marketing",
+      "Candidate is overqualified for a Specialist level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds all technical and experience requirements. While their degree is in Finance, their 4+ years of direct digital marketing experience and mastery of Meta Ads and Canva make them an ideal fit."
+  }
+}

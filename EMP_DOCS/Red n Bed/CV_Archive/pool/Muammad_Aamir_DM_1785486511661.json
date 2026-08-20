@@ -1,0 +1,137 @@
+{
+  "cv_file": "Muammad_Aamir_DM_1785486511661.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:12.880985+00:00",
+  "pipeline": {
+    "total_seconds": 78.334,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 78.251,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1864,
+    "output_tokens": 1075,
+    "total_tokens": 4647
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 5056
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hafiz Muhammad Aamir Zaman",
+      "email": "aamirzaman20@gmail.com",
+      "phone": "(+92) 345-3194155",
+      "location": "Buffer Zone, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager | Social Media Marketing Specialist | Daraz & Shopify Expert",
+    "profile_summary": "Accomplished Digital Marketing Specialist with over 4 years of experience in e-commerce and lead generation. Proven track record of delivering up to 400% ROI using Meta Ads and AI optimization tools.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "DIHE",
+        "degree": "B. Com",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt. Degree College",
+        "degree": "I.Com",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "Private",
+        "degree": "Matriculation (General)",
+        "graduation_year": "2008"
+      },
+      {
+        "institution": "Iqra Roza Tul Jannah",
+        "degree": "Hifz-ul-Quran",
+        "graduation_year": "2005"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Zaitslab",
+        "role": "Social Media Marketer (lead)",
+        "duration": "2024 to present",
+        "description": "Drove 170% return from FB & Insta ads in the US, leveraged AI for optimization, and conducted competitor analysis."
+      },
+      {
+        "company": "Zaitslab",
+        "role": "Digital Media Marketer",
+        "duration": "2021 to 2024",
+        "description": "Achieved 400% ROI on ad spend, managed multi-channel social media operations, and performed A/B testing for conversion."
+      },
+      {
+        "company": "Daraz",
+        "role": "Digital Media Marketer",
+        "duration": "2020 to 2023",
+        "description": "Increased product visibility by 45% and sales by 20% through optimized listing strategies and FBD/FBM inventory management."
+      },
+      {
+        "company": "Yunus Textile Mills limited",
+        "role": "Internal Audit Senior",
+        "duration": "July 2021 to July 2023",
+        "description": "Assessed internal controls, identified gaps, and trained audit team members for efficiency."
+      },
+      {
+        "company": "Yunus Textile Mills limited",
+        "role": "Internal Audit Officer",
+        "duration": "June 2017 to June 2021",
+        "description": "Verified payments across various departments, monitored gate passes, and tracked daily local sales."
+      },
+      {
+        "company": "Excel Tex Industries (Pvt.) Ltd.",
+        "role": "Executive Officer Stock & Operations",
+        "duration": "Sep 2015 to June 2017",
+        "description": "Managed bank and cash payment vouchers, reconciled financial differences, and accounted for material receipts."
+      },
+      {
+        "company": "AL-Madina Oil Industries (Pvt.) Ltd.",
+        "role": "Store In-charge",
+        "duration": "Nov 2014 to Sep 2015",
+        "description": "Prepared monthly stock and damage reports and supervised raw materials and finished goods inventory."
+      },
+      {
+        "company": "Raza Communication",
+        "role": "Cashier",
+        "duration": "July 2011 to Oct 2015",
+        "description": "Managed cash handling, receipts, and customer service in a retail environment."
+      }
+    ],
+    "skills": [
+      "AI Tools",
+      "Meta Ads",
+      "Digital Marketing",
+      "E-commerce",
+      "Daraz",
+      "Shopify",
+      "Lead Generation",
+      "ROI Optimization",
+      "A/B Testing",
+      "Competitor Analysis",
+      "Advance Excel",
+      "MS Office",
+      "Internal Audit",
+      "Financial Reconciliation",
+      "Inventory Management",
+      "English",
+      "Urdu"
+    ]
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "cv_file": "Irzam_CV_1785932131590.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:15.886185+00:00",
+  "pipeline": {
+    "total_seconds": 81.349,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 81.012,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1980,
+    "output_tokens": 1075,
+    "total_tokens": 4856
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 5505
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sheikh Irzam",
+      "email": "irzamsheikh@icloud.com",
+      "phone": "0302-2050449",
+      "location": "Malir 15, Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Sales and Business Development professional with 6+ years of experience in client acquisition and CRM across logistics, banking, and healthcare. Expert in B2B sales, revenue growth, and relationship management.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Govt. Degree College Malir Cantt",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Karachi Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "InterSys Limited",
+        "role": "HR Executive",
+        "duration": "Feb 2025 - June 2026",
+        "description": "Redesigned candidate screening and onboarding workflows, reducing time-to-hire by 20% and increasing onboarding satisfaction to 90%."
+      },
+      {
+        "company": "Junaid Jamshed Pvt Ltd",
+        "role": "Supply Chain Executive",
+        "duration": "Oct 2024 - Jan 2025",
+        "description": "Optimized inventory operations, stock monitoring, and warehouse coordination through improved management practices."
+      },
+      {
+        "company": "Leopards Courier Service",
+        "role": "Customer Support Officer | Client Relationship & Business Development",
+        "duration": "May 2023 - Sep 2024",
+        "description": "Acquired corporate clients and improved customer satisfaction through relationship management and proactive problem-solving."
+      },
+      {
+        "company": "TCS Visatronix",
+        "role": "Front Desk Visa Officer",
+        "duration": "May 2022 - Nov 2022",
+        "description": "Secured embassy partnerships and streamlined ticket facilitation workflows to reduce client wait times."
+      },
+      {
+        "company": "TRAX Logistics",
+        "role": "Customer Service Representative",
+        "duration": "Sept 2021 - April 2022",
+        "description": "Retained 95% of corporate accounts and converted online brands to full-volume delivery through cost-saving demonstrations."
+      },
+      {
+        "company": "Silk Bank",
+        "role": "Sales Executive — Financial Products",
+        "duration": "Sept 2020 - Feb 2021",
+        "description": "Exceeded first-month sales quota by 150% through referral networking and consultative selling of credit products."
+      },
+      {
+        "company": "PTE Academy School and Coaching Center",
+        "role": "Teacher",
+        "duration": "Jan 2019 - Dec 2019",
+        "description": "Improved student assessment scores by 22% through personalized feedback and engaging lesson plans."
+      }
+    ],
+    "skills": [
+      "Business Development",
+      "Lead Generation",
+      "Sales Target Achievement",
+      "Client Acquisition",
+      "CRM",
+      "B2B Sales",
+      "Negotiation & Closing Techniques",
+      "Customer Retention",
+      "Digital Marketing",
+      "Sales Reporting & Analysis"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 10,
+    "experience_match": 15,
+    "overall_score": 15,
+    "strengths": [
+      "BBA degree",
+      "Strong B2B sales and client acquisition track record",
+      "Based in Karachi"
+    ],
+    "weaknesses": [
+      "No professional experience in marketing management",
+      "Lacks GA4 and ad platform reporting expertise",
+      "No experience managing marketing budgets or teams"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a Sales and Business Development specialist, not a Marketing Manager. They lack the required professional marketing experience, people management history, and technical skills (GA4/Ad platforms) specified in the JD."
+  }
+}

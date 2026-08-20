@@ -1,0 +1,164 @@
+{
+  "cv_file": "HM_Usama_Resume_2026_1785309154644.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:15.189858+00:00",
+  "pipeline": {
+    "total_seconds": 65.73,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.633,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1339,
+    "output_tokens": 1315,
+    "total_tokens": 3646
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2022
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "HM Usama Siddiqui",
+      "email": "usiddiqui525@gmail.com",
+      "phone": "+923053595983",
+      "location": "Sector 11-L, North Karachi"
+    },
+    "preferred_job_title": "Social Media Marketing Strategist",
+    "profile_summary": "Digital marketing specialist and instructor with extensive experience in paid advertising across multiple platforms. Strong focus on technical execution and mentoring, with a background in software engineering and digital marketing training.",
+    "education": [
+      {
+        "institution": "Daar ul uloom Rehmania",
+        "degree": "Darse Nizami (Masters equivalent in Islamiat)",
+        "graduation_year": null
+      },
+      {
+        "institution": "PECHS GOVT COLLEGE",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "IQRA HUFFAZ GRAMMAR SCHOOL",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Aptech",
+        "degree": "Software Engineering Diploma",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Banoqabil",
+        "degree": "Digital Marketing Course",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Jzarr IT Company",
+        "role": "Paid Ads Specialist",
+        "duration": "Aug 2025 - Present",
+        "description": "Specializing in paid advertising campaigns."
+      },
+      {
+        "company": "Aptech Learning Centre",
+        "role": "Digital Marketing Instructor",
+        "duration": "May 2025 - Present",
+        "description": "Teaching digital marketing principles and tools."
+      },
+      {
+        "company": "Weathercollections.com",
+        "role": "Meta Ads Expert",
+        "duration": "May 2025 - Aug 2025",
+        "description": "Managed Meta advertising for a women's clothing brand."
+      },
+      {
+        "company": "Leadinn Institute of IT",
+        "role": "Co-Founder & Digital Marketing Instructor",
+        "duration": "Sep 2024 - Aug 2025",
+        "description": "Co-founded institute and provided digital marketing instruction."
+      },
+      {
+        "company": "Compteksol computer training institute",
+        "role": "Digital Marketing Instructor",
+        "duration": "Sep 2024 - Jun 2025",
+        "description": "Delivered digital marketing training."
+      },
+      {
+        "company": "FC Computer Training Centre",
+        "role": "Digital Marketing Instructor",
+        "duration": "Jan 2025 - July 2025",
+        "description": "Trained over 150 students in digital marketing."
+      },
+      {
+        "company": "Brandlo.com & sabajeez.com",
+        "role": "Meta Ads Expert & Shopify Developer",
+        "duration": "2024 - 2025",
+        "description": "Handled Meta ads and Shopify development for clothing brands."
+      },
+      {
+        "company": "Media Valley by Danial Sheikh",
+        "role": "Digital Marketing Instructor",
+        "duration": "Mar 2024 - Feb 2025",
+        "description": "Provided digital marketing instruction."
+      },
+      {
+        "company": "The Technolance",
+        "role": "SMM Team Leader",
+        "duration": "Jan 2017 - Dec 2029",
+        "description": "Led social media marketing efforts for an IT solutions agency."
+      },
+      {
+        "company": "Digital Agency",
+        "role": "Upwork Bidding Trainer",
+        "duration": "2020 - 2021",
+        "description": "Trained others in Upwork bidding for video editing solutions."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Youtube Ads",
+      "Linkedin Ads",
+      "Twitter Ads",
+      "Tiktok Ads",
+      "Wordpress",
+      "Shopify",
+      "HTML",
+      "CSS",
+      "Urdu",
+      "English",
+      "Arabic"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 60,
+    "experience_match": 30,
+    "overall_score": 45,
+    "strengths": [
+      "Deep expertise in multiple paid ad platforms",
+      "Experience in the e-commerce sector (clothing brands)",
+      "Local to Karachi",
+      "Strong teaching and mentoring background"
+    ],
+    "weaknesses": [
+      "Lacks a Bachelor's/Master's in Marketing or Business",
+      "No mention of GA4 or advanced ROI/CAC/LTV reporting",
+      "Experience is heavily skewed toward instruction rather than corporate brand management",
+      "Lacks evidence of end-to-end marketing strategy and budget ownership"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a skilled technical executor and instructor in paid media but lacks the strategic leadership, formal education, and analytical reporting experience required for a Marketing Manager role."
+  }
+}

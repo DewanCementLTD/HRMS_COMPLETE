@@ -1,0 +1,82 @@
+{
+  "cv_file": "Kamal_Hussain_Resume_1785485520506.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:32.824600+00:00",
+  "pipeline": {
+    "total_seconds": 36.688,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 34.086,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 607,
+    "output_tokens": 431,
+    "total_tokens": 1806
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 913
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamal Hussain",
+      "email": "kamalhussain1634@gmail.com",
+      "phone": "923202081108",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "SEO Executive",
+    "profile_summary": "Entry-level professional with a Diploma in Software Engineering and practical experience in search engine optimization. Demonstrated growth through multiple SEO internships and an executive role.",
+    "education": [
+      {
+        "institution": "Aptech Learning Pakistan / Karachi",
+        "degree": "Diploma in Software Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "PSGC Collage Karachi",
+        "degree": "Intermediate with Pre-Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "Metropolitan School / Karachi",
+        "degree": "Matriculation with Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Scripters Hub",
+        "role": "SEO Executive",
+        "duration": null,
+        "description": "Responsible for executing search engine optimization strategies to improve organic search rankings."
+      },
+      {
+        "company": "Soft Nation Technologies",
+        "role": "SEO Intern",
+        "duration": null,
+        "description": "Gained hands-on experience in SEO techniques and digital marketing fundamentals."
+      },
+      {
+        "company": "Digit Creator",
+        "role": "SEO Intern",
+        "duration": null,
+        "description": "Supported SEO activities to enhance website visibility and traffic."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Functional Testing",
+      "Software Engineering"
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "cv_file": "areeba_shiraz_final_cv_3_1785487300745.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:42:57.685781+00:00",
+  "pipeline": {
+    "total_seconds": 54.643,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 54.417,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1065,
+    "output_tokens": 605,
+    "total_tokens": 2771
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills"
+    ],
+    "text_chars": 3554
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Areeba Shiraz Chhotani",
+      "email": "areebashirazchhotani@gmail.com",
+      "phone": "+92 330-3901191",
+      "location": "Gulistan-e-Jauhar, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Supply Chain Internship",
+    "profile_summary": "BS Logistics and Supply Chain Management student with a strong academic foundation and professional experience in business development and sales. Skilled in client management, lead generation, and MS Excel, seeking to optimize operational efficiencies in supply chain operations.",
+    "education": [
+      {
+        "institution": "Institute of Business Management",
+        "degree": "BS in Logistics and Supply Chain Management",
+        "graduation_year": "2028"
+      },
+      {
+        "institution": "Pak Turk College",
+        "degree": "Intermediate – Commerce",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "DM School System",
+        "degree": "O Level’s – Commerce",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Plum Tree Global",
+        "role": "Business Development Representative",
+        "duration": "July 2025 – Dec 2025",
+        "description": "Managed client communication, lead generation, and prospect outreach. Assisted account managers with client onboarding and relationship coordination."
+      },
+      {
+        "company": "Asoft Logix",
+        "role": "Sales Executive",
+        "duration": "Aug – Dec 2023",
+        "description": "Conducted inbound and outbound sales calls for health and life insurance, focusing on lead generation and building long-term client relationships."
+      },
+      {
+        "company": "Penta Digitals",
+        "role": "Sales Executive",
+        "duration": "Jan 2024 – Jun 2025",
+        "description": "Promoted websites and card machinery through tailored sales pitches and managed client inquiries based on company policies."
+      }
+    ],
+    "skills": [
+      "MS Excel",
+      "MS Word",
+      "MS PowerPoint",
+      "Active Listening",
+      "Leadership",
+      "Problem solving",
+      "Communication",
+      "Project management",
+      "Client management",
+      "Time Management",
+      "Organizational skills",
+      "Uprightness",
+      "Composure",
+      "Teamwork"
+    ]
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "cv_file": "Basma_Khan_Resume_1785930722854.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:54:50.248413+00:00",
+  "pipeline": {
+    "total_seconds": 80.659,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 80.504,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1692,
+    "output_tokens": 1024,
+    "total_tokens": 4565
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Marketing Specialist",
+    "sections_found": [
+      "achievements",
+      "education",
+      "header"
+    ],
+    "text_chars": 4168
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Basma Khan",
+      "email": "Ridakhan9521@gmail.com",
+      "phone": "+92333-0204889",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Specialist",
+    "profile_summary": "Marketing Executive with over 5 years of experience across marketing, e-commerce, and sales. Expert in designing digital strategies, leading cross-functional teams, and driving business growth through customer engagement.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master of Business Administration (MBA), Marketing & Human Resource Management",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration (BBA), Honors",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "The Shaheen Public College",
+        "degree": "Intermediate in Commerce",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "The Educators",
+        "degree": "Matriculation in Science",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Black Swan LLC",
+        "role": "Project Manager Sales",
+        "duration": "Feb 2023 – Jun 2025",
+        "description": "Led sales projects from planning to execution, managed client onboarding, and conducted market analysis and forecasting to support strategic decision-making."
+      },
+      {
+        "company": "Book It Now",
+        "role": "Marketing Manager",
+        "duration": "Nov 2021 – Sep 2022",
+        "description": "Executed digital marketing campaigns across social media and email, managed content creation, and optimized ROI using analytics tools."
+      },
+      {
+        "company": "AMPCO Group of Companies / SM Chawla",
+        "role": "Marketing Manager",
+        "duration": "Sep 2020 – Oct 2021",
+        "description": "Planned integrated marketing campaigns, managed e-commerce operations, and developed SEO strategies to increase website traffic."
+      },
+      {
+        "company": "Rewterz",
+        "role": "Marketing & HR Executive",
+        "duration": "Mar 2020 – Sep 2020",
+        "description": "Launched digital marketing campaigns to increase social media engagement and managed HR recruitment and employer branding."
+      },
+      {
+        "company": "Digital Globe Service",
+        "role": "Sales Executive",
+        "duration": "2016 – 2019",
+        "description": "Managed US-based client portfolios and mentored junior team members to improve overall performance."
+      },
+      {
+        "company": "Emerald Fashion",
+        "role": "Customer Representative",
+        "duration": "2010 – 2015",
+        "description": "Handled US-based client portfolios and focused on customer retention and relationship management."
+      }
+    ],
+    "skills": [
+      "MS Office",
+      "Marketing Strategy",
+      "Sales Strategy",
+      "Digital Marketing",
+      "SEO",
+      "E-commerce",
+      "HR & Recruitment",
+      "Project Planning",
+      "Client Relationship Management",
+      "Market Analysis",
+      "Content Creation",
+      "Social Media Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 80,
+    "experience_match": 95,
+    "overall_score": 88,
+    "strengths": [
+      "Advanced academic qualifications (MBA in Marketing)",
+      "Extensive experience in digital campaign management and social media",
+      "Strong background in both strategic marketing and sales execution"
+    ],
+    "weaknesses": [
+      "No explicit mention of Canva or Meta Business Suite",
+      "Most recent role was focused on sales project management rather than content marketing"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "The candidate is highly qualified, exceeding the minimum experience and education requirements. They possess a strong blend of digital marketing execution and strategic management skills."
+  }
+}

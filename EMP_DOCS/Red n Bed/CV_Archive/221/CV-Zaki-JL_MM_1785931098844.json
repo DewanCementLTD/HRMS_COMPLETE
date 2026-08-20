@@ -1,0 +1,106 @@
+{
+  "cv_file": "CV-Zaki-JL_MM_1785931098844.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:45.946091+00:00",
+  "pipeline": {
+    "total_seconds": 64.649,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.845,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1397,
+    "output_tokens": 800,
+    "total_tokens": 3668
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3122
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Zikrullah Arain (Zaki)",
+      "email": "ziki008@msn.com",
+      "phone": "+92 (300) 9276842",
+      "location": "Lahore, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior sales and marketing professional with over 20 years of experience in the denim and textile industry. Expert in international business development, client management, and strategic revenue growth.",
+    "education": [
+      {
+        "institution": "Preston Institute of Management, Science & Technology (PIMSAT)",
+        "degree": "MBA, Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Preston Institute of Management, Science & Technology (PIMSAT)",
+        "degree": "BBA, Marketing",
+        "graduation_year": "2001"
+      }
+    ],
+    "experience": [
+      {
+        "company": "ANM Fashion (Pvt.) Ltd",
+        "role": "Head of Sales & Marketing – Denim Division",
+        "duration": "09/2022 – 02/2025",
+        "description": "Developed sales and marketing strategies, managed daily operations, and represented the company at international trade shows to expand the client portfolio."
+      },
+      {
+        "company": "Indigo Textile (Pvt.) Ltd",
+        "role": "Marketing Manager",
+        "duration": "04/2007 – 01/2022",
+        "description": "Managed international accounts in Europe and Asia, coordinated trend-aligned collections, and led teams to achieve sales and marketing objectives."
+      },
+      {
+        "company": "Artistic Denim Mills (ADM)",
+        "role": "Marketing Executive",
+        "duration": "01/2003 – 04/2007",
+        "description": "Engaged international customers to fulfill product requirements and coordinated with production teams for timely order execution."
+      }
+    ],
+    "skills": [
+      "Business Development",
+      "Sales Strategy",
+      "Negotiation",
+      "Contract Management",
+      "Marketing Research",
+      "Competitor Analysis",
+      "Project Leadership",
+      "Team Leadership",
+      "International Client Relationship Management",
+      "Trade Shows Management",
+      "Exhibitions Management",
+      "Brand Requirement Analysis",
+      "Product Development",
+      "Market Trend Analysis"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 10,
+    "experience_match": 40,
+    "overall_score": 25,
+    "strengths": [
+      "Extensive senior-level marketing experience",
+      "Strong academic credentials (MBA)",
+      "Expertise in competitor and trend analysis"
+    ],
+    "weaknesses": [
+      "No experience with social media platforms or content scheduling",
+      "Lack of technical skills in Meta Business Suite, Canva, or UTM tracking",
+      "Significantly overqualified for a specialist role"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced B2B industrial marketing leader. He lacks the specific digital content and social media management skills required for this B2C-oriented specialist role."
+  }
+}

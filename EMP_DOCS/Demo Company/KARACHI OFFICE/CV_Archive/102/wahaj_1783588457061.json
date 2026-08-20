@@ -1,0 +1,89 @@
+{
+  "cv_file": "wahaj_1783588457061.pdf",
+  "job_folder": "102",
+  "job_id": 102,
+  "processed_at": "2026-07-09T09:15:04.132606+00:00",
+  "pipeline": {
+    "total_seconds": 43.048,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 39.081,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1239,
+    "output_tokens": 499,
+    "total_tokens": 2605
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 1000
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammd Wahqj Sheikh",
+      "email": "wahgjsheikhwajjuu@gmail.com",
+      "phone": "03390080634",
+      "location": "Lucknow Society"
+    },
+    "preferred_job_title": null,
+    "education": [
+      {
+        "institution": "Karachi Board",
+        "degree": "Matric",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Waada Digital Pvt Ltd",
+        "role": "Call Center Agent",
+        "duration": null,
+        "description": "Served as a call center agent focusing on sales and customer service."
+      },
+      {
+        "company": "Eros Pharma Pvt Ltd",
+        "role": "QC File Maintenance",
+        "duration": null,
+        "description": "Handled BMR and BPO record keeping and maintained quality control files."
+      }
+    ],
+    "skills": [
+      "Web Design",
+      "MS Word",
+      "MS Excel",
+      "Graphics card and logos design",
+      "Sales Strategies",
+      "Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Sales and customer service experience",
+      "Basic web design and graphics skills"
+    ],
+    "weaknesses": [
+      "No Python or backend development experience",
+      "Lacks required Computer Science degree",
+      "No knowledge of required frameworks (Django, Flask, FastAPI) or databases"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is entirely unqualified for the Python Developer position, possessing a background in sales and pharmaceutical quality control rather than software engineering."
+  }
+}

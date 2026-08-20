@@ -1,0 +1,88 @@
+{
+  "cv_file": "Taha_s_Resume_2_1783917800022.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-13T04:44:16.390658+00:00",
+  "pipeline": {
+    "total_seconds": 53.211,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 53.02,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1472,
+    "output_tokens": 515,
+    "total_tokens": 3335
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Software Engineer",
+    "sections_found": [
+      "education",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3643
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Taha Hussain",
+      "email": "tahahussain1506@gmail.com",
+      "phone": "+923352076625",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Software Engineer",
+    "profile_summary": "Computer Science student with a strong foundation in DSA, OOP, and Java. Experienced in developing academic software and AI/ML projects, currently seeking an internship to apply technical skills.",
+    "education": [
+      {
+        "institution": "Salim Habib University",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2028"
+      }
+    ],
+    "experience": [],
+    "skills": [
+      "C",
+      "C++",
+      "Java",
+      "Python",
+      "Assembly Language",
+      "Object-Oriented Programming (OOP)",
+      "Data Structures & Algorithms",
+      "GUI Development",
+      "File Handling",
+      "Problem Solving",
+      "Debugging",
+      "Java Swing",
+      "Git",
+      "GitHub",
+      "Visual Studio Code",
+      "Oracle VirtualBox",
+      "Linux",
+      "UNIX",
+      "Google Colab",
+      "Jupyter Notebook"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 15,
+    "experience_match": 10,
+    "overall_score": 15,
+    "strengths": [
+      "Strong academic grounding in CS fundamentals",
+      "Proficiency in Java and Python",
+      "Experience with AI/ML and complex data structures"
+    ],
+    "weaknesses": [
+      "Complete lack of required full-stack skills (JavaScript, TypeScript, Node.js, React, SQL)",
+      "No professional industry experience",
+      "Currently an undergraduate student"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an undergraduate student who lacks the professional experience and the specific full-stack technical stack required for this full-time role."
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "cv_file": "resume0_1783599306834.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-09T12:15:50.996371+00:00",
+  "pipeline": {
+    "total_seconds": 37.774,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 37.701,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1120,
+    "output_tokens": 475,
+    "total_tokens": 2398
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2944
+  },
+  "metrics": {
+    "metrics": {
+      "contact_info": {
+        "name": "Muhammad Saad Bin Khalid",
+        "email": "saadkhalid1604@gmail.com",
+        "phone": "+92 336 305 2865",
+        "location": "Karachi, Pakistan"
+      },
+      "preferred_job_title": "Full-stack Web Developer / AI Developer",
+      "profile_summary": "High-achieving Computer Science student with a 3.87 CGPA and expertise in full-stack web development and AI. Proven ability to build scalable web applications and predictive machine learning models.",
+      "education": [
+        {
+          "institution": "FAST National University of Computer and Emerging Sciences",
+          "degree": "Bachelor of Science in Computer Science",
+          "graduation_year": "Present"
+        },
+        {
+          "institution": "Beaconhouse School System",
+          "degree": "A-Levels, Computer Science",
+          "graduation_year": "2023"
+        }
+      ],
+      "experience": [
+        {
+          "company": "International Trading Company",
+          "role": "Office Assistant",
+          "duration": "2020 — Present",
+          "description": "Managed administrative tasks, including client quotations, billing statements, sales tax invoices, and digital transaction records."
+        }
+      ],
+      "skills": [
+        "Python",
+        "JavaScript",
+        "TypeScript",
+        "C",
+        "C++",
+        "React",
+        "Next.js",
+        "Node.js",
+        "Express",
+        "Tailwind CSS",
+        "HTML",
+        "CSS",
+        "REST API",
+        "Artificial Intelligence",
+        "Data Structures & Algorithms",
+        "OOP",
+        "Operating Systems",
+        "PostgreSQL",
+        "MySQL",
+        "MongoDB",
+        "Git",
+        "VS Code",
+        "WSL",
+        "Vercel",
+        "Docker"
+      ]
+    }
+  }
+}

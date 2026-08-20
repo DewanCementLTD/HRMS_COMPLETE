@@ -1,0 +1,102 @@
+{
+  "cv_file": "Resume_-_Youmna_Rehman_-Marketing_Professional_1786003304746.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:37.816130+00:00",
+  "pipeline": {
+    "total_seconds": 56.515,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.403,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1273,
+    "output_tokens": 706,
+    "total_tokens": 3280
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3008
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Youmna Rehman",
+      "email": "youmnarehman25@gmail.com",
+      "phone": "+923432901561",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Marketing professional with approximately two years of experience and an MBA in Marketing. Specialized in lead generation, digital campaigns, and client relationship management with a strong foundation in digital marketing tools.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA-Marketing",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Jinnah University for Women",
+        "degree": "BS-English Linguistics",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Impetus Systems (FlowHCM)",
+        "role": "Marketing Professional",
+        "duration": "November 2022 - Present",
+        "description": "Drives customer acquisition through outbound marketing, digital campaigns, and LinkedIn networking. Manages HubSpot CRM and executes corporate events to increase brand visibility."
+      },
+      {
+        "company": "Skyray Venture",
+        "role": "Client Management Officer",
+        "duration": "May 2022 - July 2022",
+        "description": "Handled client relations, generated leads via Upwork, and managed content publishing on WordPress and email marketing."
+      },
+      {
+        "company": "Skyray Venture",
+        "role": "Partnership Management Intern",
+        "duration": "February 2022 - May 2022",
+        "description": "Managed outreach to potential partners and assisted in the creation of partnership proposals and agreements."
+      }
+    ],
+    "skills": [
+      "Microsoft Office",
+      "Digital Marketing",
+      "Canva",
+      "Email Marketing",
+      "Research",
+      "Content Writing",
+      "Team Collaboration",
+      "HubSpot CRM",
+      "WordPress",
+      "Lead Generation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 70,
+    "experience_match": 80,
+    "overall_score": 78,
+    "strengths": [
+      "MBA in Marketing",
+      "Proficiency in Canva",
+      "Google Digital Marketing certification",
+      "Strong lead generation and CRM experience"
+    ],
+    "weaknesses": [
+      "No explicit mention of Meta Business Suite",
+      "Lack of documented experience with UTM tracking and social media scheduling tools"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate meets the educational requirements and has the minimum required experience. While specific social media management tools aren't listed, her MBA and digital marketing certification suggest she can quickly adapt to the technical requirements."
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "cv_file": "Ahmed_Bilal_CV_-_vff_1785931098837.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:58.559995+00:00",
+  "pipeline": {
+    "total_seconds": 77.266,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 76.494,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1831,
+    "output_tokens": 986,
+    "total_tokens": 4533
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": "Executive",
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 5012
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ahmed Bilal",
+      "email": "ahmedbilal1871@gmail.com",
+      "phone": "+92 300 7080181",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Executive",
+    "profile_summary": "Senior commercial and technical leader with over 28 years of experience in the textile and industrial solutions sector. Expert in regional business development and commercial management across Pakistan, Bangladesh, and Sri Lanka.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "MSc – Applied Chemistry (Specialization in Polymer & Textile technology)",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "MSc – Environmental Sciences",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "MS - Administrative Sciences (Equivalent to MBA)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "J&P Coats Pakistan Pvt. Ltd.",
+        "role": "Head of Commercial (sales & marketing)",
+        "duration": "February 2023 – Present",
+        "description": "Leads regional commercial operations and strategies across Pakistan, Bangladesh, and Sri Lanka, achieving triple-digit sales growth."
+      },
+      {
+        "company": "J&P Coats Pakistan Pvt. Ltd.",
+        "role": "Head of Business Development & Technical Advisory",
+        "duration": "May 2018 – January 2023",
+        "description": "Led business development and provided technical solutions and application support for industrial customers."
+      },
+      {
+        "company": "J&P Coats Pakistan Pvt. Ltd.",
+        "role": "Technical Services Manager",
+        "duration": "May 2005 – April 2018",
+        "description": "Managed technical services, product application support, and process optimization for industrial clients."
+      },
+      {
+        "company": "J&P Coats Pakistan Pvt. Ltd.",
+        "role": "Quality Assurance Manager",
+        "duration": "October 2000 – April 2005",
+        "description": "Led quality assurance systems, compliance with international standards, and internal audits."
+      },
+      {
+        "company": "J&P Coats Pakistan Pvt. Ltd.",
+        "role": "Shift Manager - Dyehouse",
+        "duration": "October 1997 – September 2000",
+        "description": "Supervised dyeing operations, managed production targets, and trained staff on safety and quality."
+      },
+      {
+        "company": "Universal Chemical Industries Pvt. Ltd.",
+        "role": "Laboratory Manager",
+        "duration": "April 1995 – September 1997",
+        "description": "Conducted textile chemical testing, analysis, and performance evaluation of dyes and auxiliaries."
+      }
+    ],
+    "skills": [
+      "Commercial Strategy",
+      "Market Expansion",
+      "Regional Sales Leadership",
+      "Business Development",
+      "Technical Services Management",
+      "Quality Assurance",
+      "CRM",
+      "Strategic Planning",
+      "Leadership",
+      "Textile Chemistry"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 10,
+    "overall_score": 5,
+    "strengths": [
+      "Extensive senior leadership experience",
+      "Proven track record in regional business growth",
+      "Strong technical and scientific background"
+    ],
+    "weaknesses": [
+      "No experience with social media platforms (TikTok, Instagram, FB)",
+      "Lack of digital marketing tool proficiency (Canva, Meta Business Suite)",
+      "Severely overqualified for a specialist role"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced senior industrial executive. While he has 'marketing' in his current title, it is B2B commercial leadership, which does not align with the digital content and social media requirements of this specialist role."
+  }
+}

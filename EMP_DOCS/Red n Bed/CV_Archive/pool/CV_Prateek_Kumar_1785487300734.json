@@ -1,0 +1,85 @@
+{
+  "cv_file": "CV_Prateek_Kumar_1785487300734.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:43:00.332812+00:00",
+  "pipeline": {
+    "total_seconds": 57.292,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 57.225,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1008,
+    "output_tokens": 489,
+    "total_tokens": 2497
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 2973
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Prateek Kumar",
+      "email": "prateekkumar040404@gmail.com",
+      "phone": "+91-9729496766",
+      "location": "Gurgaon, Haryana"
+    },
+    "preferred_job_title": "Product Designer",
+    "profile_summary": "Product Designer specializing in UI/UX, design systems, and workflow automation. Expert in reducing friction in digital experiences and building scalable tools to optimize design efficiency.",
+    "education": [
+      {
+        "institution": "GJUS&T, Hisar",
+        "degree": "B.Tech (Computer Science Engineering)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Internshala",
+        "role": "Product Designer - Intern",
+        "duration": "Sep 2025 - Present",
+        "description": "Designed scalable UI components and campaign assets, developed custom Figma plugins to automate workflows, and created animated UI elements to enhance user engagement."
+      },
+      {
+        "company": "Upwork",
+        "role": "Freelance Graphic Designer & UI/UX Designer",
+        "duration": "June 2022 - Sep 2025",
+        "description": "Delivered 15+ UI/UX, SaaS dashboard, and branding projects for international clients, focusing on scalable interfaces and user-centric design systems."
+      }
+    ],
+    "skills": [
+      "UX Strategy",
+      "Interaction Design",
+      "Wireframing",
+      "Prototyping",
+      "Design Systems",
+      "Figma",
+      "Illustrator",
+      "Photoshop",
+      "After Effects",
+      "Figma Plugins",
+      "Design Automation",
+      "HTML",
+      "CSS",
+      "JS",
+      "UI Design",
+      "Motion Graphics",
+      "Icon Design",
+      "FastAPI",
+      "Github",
+      "Render",
+      "ChatGPT"
+    ]
+  }
+}

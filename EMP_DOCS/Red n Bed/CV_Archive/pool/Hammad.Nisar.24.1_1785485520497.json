@@ -1,0 +1,85 @@
+{
+  "cv_file": "Hammad.Nisar.24.1_1785485520497.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:57.807563+00:00",
+  "pipeline": {
+    "total_seconds": 43.837,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.775,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1111,
+    "output_tokens": 556,
+    "total_tokens": 2648
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header"
+    ],
+    "text_chars": 3239
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Hammad Nisar",
+      "email": "mhammadnisar13@gmail.com",
+      "phone": "0324 240 5123",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entrepreneurial Economics student with a strong background in e-commerce, digital marketing, and sales. Experienced in scaling startups and utilizing data analytics tools like Stata and Python to drive business growth.",
+    "education": [
+      {
+        "institution": "Institute Of Business Administration",
+        "degree": "Bs Economics",
+        "graduation_year": "Present"
+      }
+    ],
+    "experience": [
+      {
+        "company": "SCENTS",
+        "role": "Founder",
+        "duration": "Dec 2019-Present",
+        "description": "Launched a Shopify e-commerce store selling 1500+ branded perfumes, managing logistics, payment schedules, and social media lead generation with a 10% conversion rate."
+      },
+      {
+        "company": "Carvana",
+        "role": "Co-founder",
+        "duration": "2022-Present",
+        "description": "Generated Rs.1 million in commission sales through strategic automobile trading and organic social media customer acquisition."
+      },
+      {
+        "company": "OKAYKER",
+        "role": "Sales & Marketing Intern",
+        "duration": "June 23-July 23",
+        "description": "Executed BTL activities generating Rs 70k in orders, optimized social media campaigns to reduce CPL, and trained 10 sales agents."
+      },
+      {
+        "company": "BYTRIX TECHNOLOGIES",
+        "role": "Marketing intern",
+        "duration": "June 22-July 22",
+        "description": "Increased organic reach by 30k through social media design and developed targeted ad campaigns for international lead generation."
+      }
+    ],
+    "skills": [
+      "Python",
+      "Stata",
+      "SQL",
+      "Facebook Ads Manager",
+      "Business Manager",
+      "Targeted Ads",
+      "Digital Marketing",
+      "Shopify",
+      "Lead Generation",
+      "Data Analytics",
+      "Sales",
+      "Applied Econometrics"
+    ]
+  }
+}

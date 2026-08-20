@@ -1,0 +1,82 @@
+{
+  "cv_file": "Python_Developer_CV_3_Years_1_1784032274033.pdf",
+  "job_folder": "121",
+  "job_id": 121,
+  "mode": "evaluate",
+  "processed_at": "2026-07-14T12:31:53.359669+00:00",
+  "pipeline": {
+    "total_seconds": 33.948,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 33.795,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 745,
+    "output_tokens": 453,
+    "total_tokens": 1923
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 449
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Your Name",
+      "email": "your.email@example.com",
+      "phone": "03122574934",
+      "location": null
+    },
+    "preferred_job_title": "Python Developer",
+    "profile_summary": "Python Developer with 3 years of experience specializing in backend development. Proficient in Django, FastAPI, and REST API implementation with strong SQL database skills.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "BS Computer Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": null,
+        "role": "Python Developer",
+        "duration": "3 years",
+        "description": "Developed and maintained web applications, APIs, and database queries, while managing bug fixes and deployments."
+      }
+    ],
+    "skills": [
+      "Python",
+      "Django",
+      "FastAPI",
+      "Flask",
+      "Oracle",
+      "MySQL",
+      "REST APIs",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git",
+      "Linux"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Proficient in all required frameworks (Django, Flask, FastAPI)",
+      "Exceeds minimum experience requirement",
+      "Strong foundation in SQL and REST APIs"
+    ],
+    "weaknesses": [
+      "No mentioned experience with AWS cloud infrastructure"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is a highly compatible match, meeting all mandatory technical requirements and exceeding the minimum experience threshold."
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "cv_file": "Fazeel_Khan_Resume_1_1785309154616.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:05.765077+00:00",
+  "pipeline": {
+    "total_seconds": 68.943,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.191,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1634,
+    "output_tokens": 834,
+    "total_tokens": 3999
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3493
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Fazeel Khan",
+      "email": "fazeelkhan@gmail.com",
+      "phone": "(+92) 335-2677044",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Business Director / Marketing Leader",
+    "profile_summary": "Award-winning marketing and client services leader with over 10 years of experience building brands and leading agencies. Expert in delivering integrated campaigns for major consumer brands and managing high-value C-suite relationships.",
+    "education": [],
+    "experience": [
+      {
+        "company": "Viral Edge",
+        "role": "Business Director",
+        "duration": "Apr 2024 – Present",
+        "description": "Oversees $500K–$1M annual billings, leads C-suite relations, and drove brand transformation for Shangrila Pakistan including a $250K campaign."
+      },
+      {
+        "company": "Nemaura Pharma",
+        "role": "Digital Marketing Consultant",
+        "duration": "Apr 2022 – Feb 2024",
+        "description": "Built digital KPI performance dashboards and led GTM audience research for Middle East and Saudi Arabia expansion."
+      },
+      {
+        "company": "The NPD Group",
+        "role": "Content Strategist",
+        "duration": "Oct 2020 – Apr 2022",
+        "description": "Produced US market intelligence reports and used analytics to shape GTM decisions for the Home Improvement sector."
+      },
+      {
+        "company": "Viral Edge",
+        "role": "Senior Account Manager",
+        "duration": "Nov 2017 – Sep 2020",
+        "description": "Led award-winning integrated campaigns and scaled the client services team from 4 to 7 members."
+      },
+      {
+        "company": "Synergy Advertising",
+        "role": "Content Manager",
+        "duration": "Sep 2016 – Oct 2017",
+        "description": "Led digital brand strategy for major clients including Engro Foods, Faysal Bank, and Standard Chartered."
+      }
+    ],
+    "skills": [
+      "Brand Strategy",
+      "Campaign Management",
+      "Go-to-Market",
+      "Consumer Insights",
+      "Business Development",
+      "Digital Marketing",
+      "Social Media",
+      "Performance Marketing",
+      "Content Strategy",
+      "SEO/SEM",
+      "C-Suite Relations",
+      "Team Leadership",
+      "Crisis Management",
+      "Client Services"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 70,
+    "experience_match": 95,
+    "overall_score": 85,
+    "strengths": [
+      "Two-time Effie Award winner",
+      "Extensive experience with top-tier consumer brands",
+      "Proven track record of managing and scaling teams",
+      "Strong local presence in Karachi"
+    ],
+    "weaknesses": [
+      "GA4 and specific ad platform reporting tools not explicitly mentioned",
+      "Education details not provided in text"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "A highly seasoned marketing leader who exceeds the experience and leadership requirements. While specific tool certifications (GA4) aren't listed, his history of managing performance dashboards and integrated campaigns for global brands makes him an ideal fit."
+  }
+}

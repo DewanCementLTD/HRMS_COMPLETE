@@ -1,0 +1,88 @@
+{
+  "cv_file": "CV_5_Ayesha_Tariq_1783761419804.pdf",
+  "job_folder": "107",
+  "job_id": 107,
+  "mode": "evaluate",
+  "processed_at": "2026-07-11T09:17:52.080364+00:00",
+  "pipeline": {
+    "total_seconds": 45.052,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 44.842,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 923,
+    "output_tokens": 569,
+    "total_tokens": 2297
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1005
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ayesha Tariq",
+      "email": "ayesha.tariq@email.com",
+      "phone": "+92 345 6667788",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Application Manager",
+    "profile_summary": "Application support professional with 5 years of experience specializing in Oracle ERP administration. Strong expertise in SQL, vendor coordination, and requirements gathering.",
+    "education": [
+      {
+        "institution": "Aptech Computer Education",
+        "degree": "Diploma in Information Technology",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sindh Agro Foods Ltd",
+        "role": "Application Manager",
+        "duration": "Apr 2020 – Present",
+        "description": "Manages Oracle ERP support for Finance and Procurement, coordinates vendor upgrades, and leads requirements gathering for module enhancements."
+      },
+      {
+        "company": "Dawn Engineering Works",
+        "role": "ERP Support Analyst",
+        "duration": "Feb 2018 – Mar 2020",
+        "description": "Provided application-level support for Oracle Financials and utilized SQL for monthly management reporting."
+      }
+    ],
+    "skills": [
+      "Oracle ERP support",
+      "SQL",
+      "vendor coordination",
+      "user access management",
+      "requirements gathering",
+      "incident management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 80,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 82,
+    "strengths": [
+      "Direct Oracle ERP administration experience",
+      "Proficient in SQL",
+      "Proven vendor management and requirements gathering skills",
+      "Meets minimum years of experience"
+    ],
+    "weaknesses": [
+      "Does not meet the Bachelor's degree requirement (Diploma holder)",
+      "Lacks mentioned nice-to-have skills (Power BI, Cloud, ITIL)"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate is a strong technical match with exact experience in Oracle ERP and SQL, meeting the 5-year threshold. The only significant gap is the educational requirement."
+  }
+}

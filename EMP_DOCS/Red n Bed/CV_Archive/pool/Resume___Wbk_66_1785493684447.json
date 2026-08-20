@@ -1,0 +1,108 @@
+{
+  "cv_file": "Resume___Wbk_66_1785493684447.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:15.394541+00:00",
+  "pipeline": {
+    "total_seconds": 59.439,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 59.126,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1163,
+    "output_tokens": 743,
+    "total_tokens": 3247
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "header",
+      "languages",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3029
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Waleed Bin Khalid",
+      "email": "waleed.abiscd@gmail.com",
+      "phone": "+ 92 315 2721 727",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Creative Designer",
+    "profile_summary": "Creative designer with over 6 years of experience specializing in brand identity, visual systems, and digital visuals. Proven track record leading creative direction for high-end brands and collaborating with international teams across Australia and the US.",
+    "education": [
+      {
+        "institution": "Government College of Science and Arts",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "KU",
+        "degree": "Bachelors (CS)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "M Designs Architects",
+        "role": "Sr. Graphics Designer",
+        "duration": "2025 - Present",
+        "description": "Manages digital presence and brand identity for the high-end Arab market, utilizing AI-driven storytelling for portfolio reels and data-driven insights for growth."
+      },
+      {
+        "company": "Connect Resources",
+        "role": "Sr. Graphics Designer",
+        "duration": "2023 - 2025",
+        "description": "Collaborated with social media teams to elevate and strengthen the digital presence of multiple brands within the group."
+      },
+      {
+        "company": "ZipSites",
+        "role": "Graphics and User Interface Designer",
+        "duration": "2022 - 2023",
+        "description": "Designed graphics and UI for various digital products, optimizing user experience for improved usability and visual appeal."
+      },
+      {
+        "company": "Sleekhive",
+        "role": "Creative Design (Lead)",
+        "duration": "Dec 2020 - Mar 2022",
+        "description": "Led four creative heads in product and system design while managing marketing visuals for consumers and developers."
+      },
+      {
+        "company": "Crystal Smith Enterprises",
+        "role": "Sr. Graphic Designer",
+        "duration": "2019 - 2020",
+        "description": "Developed branding materials, logos, and marketing collateral in coordination with the creative director."
+      },
+      {
+        "company": "Click5",
+        "role": "Graphics Designer",
+        "duration": "2018 - 2019",
+        "description": "Created digital raw assets including social media bundles, logo vectors, and marketing templates."
+      }
+    ],
+    "skills": [
+      "Figma",
+      "Sketch",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Principle",
+      "Adobe XD",
+      "Visual Identities",
+      "Brand Identities",
+      "Ai and Adaptive Techs",
+      "Content Planning & Management",
+      "Web Design",
+      "UX Design",
+      "English",
+      "Urdu"
+    ]
+  }
+}

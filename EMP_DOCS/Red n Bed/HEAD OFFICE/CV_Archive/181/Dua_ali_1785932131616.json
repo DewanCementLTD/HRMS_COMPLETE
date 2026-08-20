@@ -1,0 +1,118 @@
+{
+  "cv_file": "Dua_ali_1785932131616.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:01.266804+00:00",
+  "pipeline": {
+    "total_seconds": 67.565,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.088,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1950,
+    "output_tokens": 856,
+    "total_tokens": 4264
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 5,
+    "ocr_pages": [
+      5
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "header"
+    ],
+    "text_chars": 5202
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Dua Ali",
+      "email": "Duaali19@gmail.com",
+      "phone": "0318-8199539",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with 15 years of experience across sales, marketing, administration, and teaching. Strong background in brand promotion and customer support with a focus on operational efficiency and team collaboration.",
+    "education": [
+      {
+        "institution": "University of Sindh Jamshoro",
+        "degree": "BA",
+        "graduation_year": null
+      },
+      {
+        "institution": "Sir Syed Govt girls College",
+        "degree": "Intermediate",
+        "graduation_year": null
+      },
+      {
+        "institution": "Lalqila Grammer school",
+        "degree": "Matriculation",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Exact Solution",
+        "role": "Assistant Representative",
+        "duration": "2025",
+        "description": "Assisted in marketing campaigns, customer engagement, and product promotion to achieve targets."
+      },
+      {
+        "company": "TFS",
+        "role": "Data Entry & Office",
+        "duration": "Oct 2024 - May 2025",
+        "description": "Managed data entry, documentation, and basic accounting tasks using QuickBooks."
+      },
+      {
+        "company": "100% Wellness.co",
+        "role": "Sales & Marketing",
+        "duration": "Apr 2023 - Sept 2024",
+        "description": "Handled Shopify and social media management, resolved customer queries, and maintained interaction records."
+      },
+      {
+        "company": "CPLC Public School",
+        "role": "Teaching and Administration",
+        "duration": "Apr 2018 - Jan 2023",
+        "description": "Managed office administration and taught students from KG to 5th standard."
+      },
+      {
+        "company": "Hemani Herbal Group of Companies",
+        "role": "Brand Promoter/Sales Support",
+        "duration": "Jul 2012 - Mar 2018",
+        "description": "Executed company strategies, managed sales reporting and forecasting, and achieved top promoter status in the South region."
+      }
+    ],
+    "skills": [
+      "MS Office",
+      "QuickBooks",
+      "Shopify",
+      "Social Media Handling",
+      "Sales Reporting",
+      "Customer Relationship Management",
+      "Team Leadership",
+      "Communication",
+      "Sales Analysis"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 10,
+    "experience_match": 40,
+    "overall_score": 25,
+    "strengths": [
+      "Strong track record in brand promotion and sales",
+      "Diverse experience in customer support and administration",
+      "Proven ability to meet sales targets"
+    ],
+    "weaknesses": [
+      "Lack of GA4 and ad platform reporting expertise",
+      "No experience in strategic budget management or ROI/CAC/LTV tracking",
+      "Education is listed as continuing/incomplete"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate has significant experience in sales and brand promotion but lacks the strategic marketing management, technical analytics skills (GA4), and budget ownership required for a Marketing Manager role."
+  }
+}

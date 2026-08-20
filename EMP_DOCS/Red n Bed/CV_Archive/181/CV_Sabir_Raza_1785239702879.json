@@ -1,0 +1,113 @@
+{
+  "cv_file": "CV_Sabir_Raza_1785239702879.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:56.697568+00:00",
+  "pipeline": {
+    "total_seconds": 120.641,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 106.491,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1870,
+    "output_tokens": 788,
+    "total_tokens": 3867
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 2,
+    "ocr_pages": [
+      1,
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5018
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Sabir Raza",
+      "email": "msraza74@hotmail.com",
+      "phone": "0301-8470680",
+      "location": "Sheikhupura"
+    },
+    "preferred_job_title": "DGM Admin, HR / IR & Legal Affairs",
+    "profile_summary": "Seasoned leader with over 25 years of experience in Administration, Industrial Relations, Legal Affairs, and HR Strategy. Expert in labor law compliance, dispute resolution, and organizational resilience.",
+    "education": [
+      {
+        "institution": "American International College, Lahore",
+        "degree": "MBA (HRM)",
+        "graduation_year": "2006"
+      },
+      {
+        "institution": "Punjab University",
+        "degree": "M.A. (Political Science)",
+        "graduation_year": "2004"
+      },
+      {
+        "institution": "Punjab University",
+        "degree": "L.L.B",
+        "graduation_year": "2002"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sapphire Fibers Ltd",
+        "role": "Deputy General Manager - HR & Admin / Legal Affairs",
+        "duration": "Jan 2012 - Present",
+        "description": "Leads company-wide administrative, legal, and external affairs functions, including CBA negotiations and government liaison."
+      },
+      {
+        "company": "Toyo Nasic (Tariq Glass Industries Ltd)",
+        "role": "Deputy Manager - Personnel & Administration",
+        "duration": "Oct 2005 - Jan 2012",
+        "description": "Implemented workforce rationalization and facilitated training on HRM, legal, and ISO compliance."
+      },
+      {
+        "company": "Sargodha Group (Sargodha Jute Mills Ltd)",
+        "role": "Admin Officer to Deputy Manager - Personnel & Admin",
+        "duration": "Apr 1998 - Oct 2005",
+        "description": "Managed IR activities, land/legal matters, and worker welfare coordination with EOBI and Social Security."
+      }
+    ],
+    "skills": [
+      "Microsoft Office Suite",
+      "Legal Documentation & Drafting",
+      "HRM",
+      "Labor Law Compliance",
+      "Industrial Relations",
+      "Conflict Resolution",
+      "Performance Management",
+      "Recruitment",
+      "Budget Management (Labour Cost)",
+      "ISO Standards",
+      "Strategic Administration"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Extensive senior leadership experience",
+      "Deep expertise in legal and labor affairs",
+      "Strong administrative and policy development skills"
+    ],
+    "weaknesses": [
+      "No experience in marketing or brand management",
+      "Lack of technical skills in GA4 and ad platform reporting",
+      "Professional background is entirely unrelated to the job requirements"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced HR and Legal professional with no relevant marketing experience or technical skills required for a Marketing Manager role."
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "cv_file": "Muhammad_Bilal_Khan_4_1785930722877.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:55:21.140051+00:00",
+  "pipeline": {
+    "total_seconds": 51.523,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.424,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1260,
+    "output_tokens": 1027,
+    "total_tokens": 3075
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 2637
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD BILAL KHAN",
+      "email": "blackscorpio16@live.co.uk",
+      "phone": "+923339206633",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Tech-savvy marketing and travel professional with over 11 years of experience. Expert in digital marketing, SEO, and e-commerce with a strong technical foundation in web tools and creative software.",
+    "education": [
+      {
+        "institution": "Board of Intermediate Karachi",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matric (Computer Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Perfume Parlour (UK & Pakistan)",
+        "role": "Marketing Executive",
+        "duration": "Sep 2025 – Present",
+        "description": "Manages organic social media and multi-channel paid campaigns (Google, FB, TikTok, Snapchat) to drive growth and maximize ROAS."
+      },
+      {
+        "company": "SriLankan Airlines",
+        "role": "Digital Marketing Executive",
+        "duration": null,
+        "description": "Developed e-commerce SEM and SEO strategies and coordinated promotions with regional heads."
+      },
+      {
+        "company": "Quality Aviation (Pvt) Ltd",
+        "role": "Corporate Travel Consultant",
+        "duration": "Sep 2013 – Jul 2025",
+        "description": "Managed corporate travel arrangements and optimized client data systems."
+      },
+      {
+        "company": "Journey Maker International",
+        "role": "Managing Partner",
+        "duration": "Sep 2024 – Jul 2025",
+        "description": "Led strategic operations, finance, and marketing strategies for business growth."
+      },
+      {
+        "company": "Mosafir",
+        "role": "Sales Executive",
+        "duration": "Jan 2025 – Mar 2025",
+        "description": "Provided travel solutions to walk-in clients to achieve sales targets."
+      },
+      {
+        "company": "Fazal e Haq Services",
+        "role": "Travel Consultant",
+        "duration": "Jun 2024 – Aug 2024",
+        "description": "Created custom itineraries using Amadeus, NDC, and Galileo."
+      },
+      {
+        "company": "Knockout Pest Control",
+        "role": "Social Media Manager",
+        "duration": "May 2021 – Jun 2022",
+        "description": "Built online communities, managed social campaigns, and analyzed performance."
+      },
+      {
+        "company": "Touch Wood Real Estate",
+        "role": "Online Advertising Manager",
+        "duration": "Mar 2018 – Jun 2021",
+        "description": "Created and managed online advertisements across major property platforms."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "SEO",
+      "SEM",
+      "E-commerce",
+      "Facebook Ads",
+      "TikTok Ads",
+      "Google Ads",
+      "YouTube Ads",
+      "Snapchat Ads",
+      "Canva",
+      "Photoshop",
+      "HTML",
+      "CSS",
+      "Shopify",
+      "Community Management",
+      "Performance Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 95,
+    "experience_match": 90,
+    "overall_score": 82,
+    "strengths": [
+      "Extensive experience with TikTok, Facebook, and Instagram",
+      "Proficient in Canva",
+      "Strong background in paid media and performance tracking",
+      "Proven community management skills"
+    ],
+    "weaknesses": [
+      "Does not meet the Bachelor's degree requirement"
+    ],
+    "recommendation": "Strongly Consider",
+    "summary": "The candidate exceeds the technical and experience requirements for social media management and campaign execution, though they lack the specified formal degree."
+  }
+}

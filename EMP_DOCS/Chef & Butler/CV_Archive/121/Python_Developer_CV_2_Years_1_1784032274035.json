@@ -1,0 +1,82 @@
+{
+  "cv_file": "Python_Developer_CV_2_Years_1_1784032274035.pdf",
+  "job_folder": "121",
+  "job_id": 121,
+  "mode": "evaluate",
+  "processed_at": "2026-07-14T12:31:54.055844+00:00",
+  "pipeline": {
+    "total_seconds": 34.645,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 34.458,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 745,
+    "output_tokens": 471,
+    "total_tokens": 1953
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 449
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Your Name",
+      "email": "your.email@example.com",
+      "phone": "03122574934",
+      "location": null
+    },
+    "preferred_job_title": "Python Developer",
+    "profile_summary": "Python Developer with 2 years of experience specializing in backend development. Proficient in Django, FastAPI, and REST API implementation with a strong foundation in SQL databases.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "BS Computer Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": null,
+        "role": "Python Developer",
+        "duration": "2 years",
+        "description": "Developed and maintained web applications, APIs, and database queries, while managing bug fixes and deployments."
+      }
+    ],
+    "skills": [
+      "Python",
+      "Django",
+      "FastAPI",
+      "Flask",
+      "Oracle",
+      "MySQL",
+      "REST APIs",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git",
+      "Linux"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Expertise in all required web frameworks (Django, Flask, FastAPI)",
+      "Meets minimum experience and education requirements",
+      "Strong database and API skill set"
+    ],
+    "weaknesses": [
+      "No mentioned experience with AWS cloud infrastructure"
+    ],
+    "recommendation": "Strong Match",
+    "summary": "The candidate meets all mandatory requirements, including the 2-year experience threshold and proficiency in the required Python frameworks. Only the nice-to-have AWS skill is missing."
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "cv_file": "Umama_Wahid-_Resume_1785932131607.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:52.194709+00:00",
+  "pipeline": {
+    "total_seconds": 60.488,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.389,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1593,
+    "output_tokens": 1021,
+    "total_tokens": 3456
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3324
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Umama Wahid",
+      "email": "wahidumama@gmail.com",
+      "phone": "+923324646030",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Marketing professional with an MSc in International Marketing and a BBA. Experienced in brand strategy, academic coordination, and entrepreneurship across consulting and education sectors.",
+    "education": [
+      {
+        "institution": "Sheffield Hallam University UK",
+        "degree": "MSc in International Marketing",
+        "graduation_year": null
+      },
+      {
+        "institution": "Lahore School of Economics Lahore",
+        "degree": "BBA (Hons) in Marketing",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Kinnaird College for Women Lahore",
+        "degree": "Intermediate",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Beaconhouse School System Liberty Campus",
+        "degree": "Matriculation (Science Group)",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TallyMarks Consulting Pvt. Ltd",
+        "role": "Marketing Strategist",
+        "duration": "Jan 2026 – Present",
+        "description": "Designed marketing strategies and campaigns to develop brand identity and target audience connection."
+      },
+      {
+        "company": "The Millennium Universal College",
+        "role": "Academic Coordinator/Lecturer",
+        "duration": "Dec 2023 – Sep 2025",
+        "description": "Managed academic programs, lectured in Culture Studies and English, and provided student counseling."
+      },
+      {
+        "company": "Harris Academy",
+        "role": "Academic Assistant",
+        "duration": "May 2023 – Dec 2023",
+        "description": "Assisted in lecture planning and conducted academic workshops."
+      },
+      {
+        "company": "MZSkin",
+        "role": "Finance and Marketing Assistant",
+        "duration": "Nov 2022 – Feb 2023",
+        "description": "Handled AP/AR processes, developed budgets, and created marketing content."
+      },
+      {
+        "company": "Meals on the Wheels",
+        "role": "Founder/Operator",
+        "duration": "Jan 2021 – Sep 2021",
+        "description": "Operated food startup, managing quality control, social media, and customer service."
+      },
+      {
+        "company": "Naqeebz Marketing Agency",
+        "role": "Intern",
+        "duration": "Sep 2021",
+        "description": "Developed detailed marketing plans including tactics, timelines, and budgets."
+      }
+    ],
+    "skills": [
+      "Marketing Strategy",
+      "Communication",
+      "Market Research",
+      "Brand Development",
+      "Content Creation",
+      "Program Coordination",
+      "Academic Advising",
+      "Public Speaking",
+      "Social Media Management",
+      "Email Marketing",
+      "CRM Tools",
+      "Microsoft Office Suite",
+      "Stata",
+      "R",
+      "Canva",
+      "Google Workspace",
+      "Budget Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 35,
+    "technical_match": 30,
+    "experience_match": 40,
+    "overall_score": 35,
+    "strengths": [
+      "Strong academic credentials with a Master's in International Marketing",
+      "Entrepreneurial experience founding a startup",
+      "Broad skill set covering both research and content creation"
+    ],
+    "weaknesses": [
+      "Lacks the required 5-7 years of professional marketing experience",
+      "No evidence of managing a professional team (people management)",
+      "Missing critical technical requirements: GA4 and ad platform reporting"
+    ],
+    "recommendation": "Reject",
+    "summary": "While the candidate has a strong educational background in marketing, they lack the seniority, leadership experience, and specific technical tool proficiency (GA4/Ad platforms) required for a Manager-level role."
+  }
+}

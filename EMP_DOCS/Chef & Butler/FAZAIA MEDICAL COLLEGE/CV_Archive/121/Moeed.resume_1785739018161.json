@@ -1,0 +1,89 @@
+{
+  "cv_file": "Moeed.resume_1785739018161.pdf",
+  "job_folder": "121",
+  "job_id": 121,
+  "mode": "evaluate",
+  "processed_at": "2026-08-03T06:38:06.387292+00:00",
+  "pipeline": {
+    "total_seconds": 62.803,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.323,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1322,
+    "output_tokens": 542,
+    "total_tokens": 2981
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Software Engineer",
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 3012
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Moeed Uddin",
+      "email": "moeeduddin1731@gmail.com",
+      "phone": "+92 319 2531629",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Software Engineer",
+    "profile_summary": "Recent Computer Science graduate with a strong foundation in front-end development and database management. Experienced in building AI-powered applications using Python and Flask, with demonstrated leadership in university event management.",
+    "education": [
+      {
+        "institution": "FAST NUCES",
+        "degree": "Bachelor of Science in Computer Science",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Logiciel Pvt. Ltd",
+        "role": "Solutions Engineer",
+        "duration": "2026 - Present",
+        "description": "Monitored equity trade orders via FIX protocol and utilized SQL for database querying and operational analysis."
+      }
+    ],
+    "skills": [
+      "C",
+      "C++",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Bootstrap",
+      "React.js",
+      "Oracle SQL",
+      "MySQL",
+      "Python",
+      "Flask",
+      "YOLOv8",
+      "LSTM",
+      "ReactNative"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 50,
+    "experience_match": 20,
+    "overall_score": 35,
+    "strengths": [
+      "Relevant CS degree",
+      "Hands-on project experience with Python and Flask",
+      "Proficiency in SQL and relational databases"
+    ],
+    "weaknesses": [
+      "Lacks professional experience with Python frameworks",
+      "Does not meet the minimum 2-year experience requirement",
+      "No mentioned experience with AWS cloud infrastructure"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a recent graduate who possesses the basic technical building blocks (Python/Flask) through academic projects but lacks the professional seniority and advanced framework expertise required for this role."
+  }
+}

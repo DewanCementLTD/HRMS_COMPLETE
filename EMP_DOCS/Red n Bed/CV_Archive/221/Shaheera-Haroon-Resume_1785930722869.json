@@ -1,0 +1,128 @@
+{
+  "cv_file": "Shaheera-Haroon-Resume_1785930722869.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:55:35.883611+00:00",
+  "pipeline": {
+    "total_seconds": 57.064,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.906,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2134,
+    "output_tokens": 1058,
+    "total_tokens": 4144
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Brand Manager",
+    "sections_found": [
+      "achievements",
+      "education",
+      "header"
+    ],
+    "text_chars": 6215
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shaheera Haroon",
+      "email": "shaheera.haroon@gmail.com",
+      "phone": "+92-342-3992494",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Brand Manager",
+    "profile_summary": "Senior strategic Brand Manager and P&L owner with extensive experience in portfolio management and growth leadership. Expert in driving revenue and margin uplift through data-driven planning and cross-functional team leadership across diverse industries.",
+    "education": [
+      {
+        "institution": "Institute of Business Administration (IBA)",
+        "degree": "MS - Management (Strategy & Operations)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Bahria University",
+        "degree": "Master of Business Administration (Marketing)",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Bahria University",
+        "degree": "Bachelor of Business Administration (Finance)",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Syngenta",
+        "role": "Assistant Portfolio Manager (Seedcare & Biologicals)",
+        "duration": "2024 – Present",
+        "description": "Manages end-to-end portfolio strategy and P&L, delivering 6% YoY revenue growth and 3.2% gross margin improvement through pricing optimization and 360° integrated campaigns."
+      },
+      {
+        "company": "Syngenta",
+        "role": "Assistant Manager – Market Research & Data Analytics",
+        "duration": "2023 - 2024",
+        "description": "Led market segmentation and NPI concept testing, converting consumer insights into targeting strategies that delivered 1-2% market share growth."
+      },
+      {
+        "company": "Engro Fertilizers Limited",
+        "role": "Commercial Planner",
+        "duration": "2022 – 2023",
+        "description": "Optimized profitability and budgeting, generating PKR 400 million in cost savings and developing automated commercial dashboards via Qlik."
+      },
+      {
+        "company": "Engro Fertilizers Limited",
+        "role": "Marketing & Sales Planner",
+        "duration": "2018 – 2021",
+        "description": "Contributed to the launch of Engro NP Plus (PKR 3 billion revenue in Year 1) and led SAP S/4 HANA commercial implementation."
+      },
+      {
+        "company": "Martin Dow Limited",
+        "role": "Senior Officer – Communications & CSR",
+        "duration": "2016 – 2017",
+        "description": "Executed brand communication strategies and managed social media platforms to increase engagement and brand awareness."
+      },
+      {
+        "company": "Maple Pharmaceuticals Private Limited",
+        "role": "Marketing Officer",
+        "duration": "2015 – 2016",
+        "description": "Supported brand planning, innovation launches, and the development of digital marketing content."
+      }
+    ],
+    "skills": [
+      "Marketing Strategy",
+      "Campaign Management",
+      "Digital & Social Media Marketing",
+      "Event Planning & Promotion",
+      "Stakeholder Management",
+      "Cross Functional Collaboration",
+      "Budget Management",
+      "Advertising & Media Planning",
+      "Microsoft Office",
+      "SPSS",
+      "SAP",
+      "Google Sheet",
+      "Smart Sheet",
+      "P&L Management",
+      "Market Research"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 85,
+    "experience_match": 100,
+    "overall_score": 75,
+    "strengths": [
+      "Extensive experience in brand and campaign management",
+      "Strong analytical and data-driven approach to marketing",
+      "Proven track record of managing agencies and digital communications"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a Specialist role",
+      "No explicit mention of Canva or Meta Business Suite"
+    ],
+    "recommendation": "Overqualified",
+    "summary": "The candidate possesses all required skills and far exceeds the minimum experience and education requirements. However, their profile is that of a senior strategic leader (Brand/Portfolio Manager) rather than an execution-focused Marketing Specialist."
+  }
+}

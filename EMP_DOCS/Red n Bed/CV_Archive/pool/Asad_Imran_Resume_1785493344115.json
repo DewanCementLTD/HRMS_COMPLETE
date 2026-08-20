@@ -1,0 +1,101 @@
+{
+  "cv_file": "Asad_Imran_Resume_1785493344115.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:30.169720+00:00",
+  "pipeline": {
+    "total_seconds": 44.882,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 44.454,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1288,
+    "output_tokens": 594,
+    "total_tokens": 2844
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Marketer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3544
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "ASAD IMRAN",
+      "email": "asadaliimran15@gmail.com",
+      "phone": "0336-8220297",
+      "location": "North Nazimabad, Karachi"
+    },
+    "preferred_job_title": "Marketer",
+    "profile_summary": "Business graduate specializing in Marketing with a strong foundation in digital marketing, market research, and e-commerce. Experienced in lead generation and campaign optimization using tools like Meta Ads, Google Ads, and Power BI.",
+    "education": [
+      {
+        "institution": "Shaheed Zulfiqar Ali Bhutto Institute of Technology (SZABIST)",
+        "degree": "Bachelors in Business Administration",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "The Premier College",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Little Folks School",
+        "degree": "Matriculation (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Property Bank",
+        "role": "Marketing and Sales Executive",
+        "duration": null,
+        "description": "Handled lead generation, client communication, and real estate market research while supporting marketing campaigns and sales reporting."
+      },
+      {
+        "company": "Alpha Global",
+        "role": "Customer Service Representative",
+        "duration": null,
+        "description": "Managed customer inquiries and complaints via calls and messages to ensure smooth service coordination and satisfaction."
+      },
+      {
+        "company": "7 Figures",
+        "role": "Intern",
+        "duration": null,
+        "description": "Optimized Meta Ads, launched digital marketing campaigns, and conducted competitor analysis and research."
+      },
+      {
+        "company": "Audionic",
+        "role": "Management Trainee Officer (PR & Digital Marketing)",
+        "duration": null,
+        "description": "Supports PR and digital marketing activities, campaign execution, and brand communication initiatives."
+      }
+    ],
+    "skills": [
+      "MS Office",
+      "Content Writing",
+      "Shopify Website Development",
+      "Power BI",
+      "Digital Marketing",
+      "Meta Ads",
+      "Google Ads",
+      "YouTube Ads",
+      "PPC",
+      "STATA",
+      "Research Analysis",
+      "Urdu",
+      "English"
+    ]
+  }
+}

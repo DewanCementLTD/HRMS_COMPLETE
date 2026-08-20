@@ -1,0 +1,107 @@
+{
+  "cv_file": "zohaib_resume_1783667460552.pdf",
+  "job_folder": "102",
+  "job_id": 102,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T07:12:05.923461+00:00",
+  "pipeline": {
+    "total_seconds": 61.923,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.563,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2085,
+    "output_tokens": 774,
+    "total_tokens": 4255
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 4368
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zohaib Farooqui",
+      "email": "zohaibbabar22@gmail.com",
+      "phone": "+92 330 825 9265",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Full Stack Developer with 2 years of experience specializing in Python FastAPI backends, Flutter mobile apps, and React.js frontends. Expert in AI-integrated systems, including RAG pipelines and vector databases.",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Software Engineer",
+        "duration": "November 2025 – Present",
+        "description": "Developed an AI Leave Management System using FastAPI, Oracle, and MySQL. Implemented facial recognition via FAISS and managed Linux server deployment."
+      },
+      {
+        "company": "Cropmentum",
+        "role": "Associate Software Engineer",
+        "duration": "June 2025 – November 2025",
+        "description": "Built Flutter applications using Clean Architecture and implemented RAG pipelines with Qdrant and LLAMACPP for document retrieval."
+      },
+      {
+        "company": "360 Expert Solution",
+        "role": "Trainee React.js Developer",
+        "duration": "June 2024 – July 2024",
+        "description": "Developed responsive web interfaces and reusable UI components using React.js and integrated REST APIs."
+      }
+    ],
+    "skills": [
+      "Python",
+      "FastAPI",
+      "RESTful API",
+      "PostgreSQL",
+      "MySQL",
+      "Oracle",
+      "Docker",
+      "Git",
+      "React.js",
+      "Next.js",
+      "Flutter",
+      "Dart",
+      "TensorFlow Lite",
+      "FAISS",
+      "Qdrant",
+      "RAG",
+      "Linux",
+      "JWT",
+      "Unit Testing",
+      "Agile"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 70,
+    "overall_score": 85,
+    "strengths": [
+      "Direct experience with FastAPI",
+      "Strong database proficiency (SQL/NoSQL)",
+      "Advanced AI/ML skills (RAG, Vector DBs)",
+      "Proficient with Docker and Git"
+    ],
+    "weaknesses": [
+      "Professional experience is closer to the minimum (1 year) than the preferred (2-5 years) range",
+      "No explicit mention of major cloud platforms (AWS/Azure/GCP)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds technical requirements with strong FastAPI and database skills. While his professional tenure is relatively short, his project complexity and BSCS degree make him an excellent fit."
+  }
+}

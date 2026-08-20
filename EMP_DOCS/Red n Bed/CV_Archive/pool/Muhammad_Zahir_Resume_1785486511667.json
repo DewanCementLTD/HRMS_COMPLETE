@@ -1,0 +1,80 @@
+{
+  "cv_file": "Muhammad_Zahir_Resume_1785486511667.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:19.711471+00:00",
+  "pipeline": {
+    "total_seconds": 39.585,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 39.555,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 970,
+    "output_tokens": 472,
+    "total_tokens": 2352
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "summary"
+    ],
+    "text_chars": 2683
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zahir",
+      "email": "mzahirsoomro10@gmail.com",
+      "phone": "92-313-3877452",
+      "location": "Hyderabad, Sindh, Pakistan"
+    },
+    "preferred_job_title": "SEO Specialist",
+    "profile_summary": "SEO specialist with over three years of experience in digital marketing. Expert in on-page, off-page, and technical SEO, keyword research, and WordPress design to drive organic traffic and enhance online visibility.",
+    "education": [
+      {
+        "institution": "Govt Mirza Qaleech Baigh School Hydrabad",
+        "degree": "Metriculation (Science Group)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Govt College Kalimori Hydrabad",
+        "degree": "Intermediate (Pre-Engineering Group)",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt College University Hydrabad",
+        "degree": "Bachelor BS(hons) in Mathematics",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "WordPress Blogging",
+        "role": "Content Creator & Digital Marketer",
+        "duration": "3 years",
+        "description": "Managed multiple blogs, producing SEO-optimized content, implementing technical SEO strategies, and utilizing Google Analytics to increase traffic and audience engagement."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "SEO Specialist",
+      "On Page SEO",
+      "Off Page SEO",
+      "Technical SEO",
+      "SEO Audit",
+      "Local SEO",
+      "Keyword Research",
+      "Competition Analysis",
+      "Guest Posts",
+      "Outreach",
+      "Niche Edits",
+      "WordPress Designer",
+      "Content Creation",
+      "Google Analytics"
+    ]
+  }
+}

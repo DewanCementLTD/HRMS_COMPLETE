@@ -1,0 +1,135 @@
+{
+  "cv_file": "Waleed_Khan_1785931098839.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:02:09.528758+00:00",
+  "pipeline": {
+    "total_seconds": 61.84,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.714,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2251,
+    "output_tokens": 1132,
+    "total_tokens": 4424
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": "Manager",
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 7253
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Waleed Khan",
+      "email": "waleedakbar81@gmail.com",
+      "phone": "+92346-3518586",
+      "location": "N.Nazimabad, Karachi"
+    },
+    "preferred_job_title": "Marketing and Communications Manager",
+    "profile_summary": "Senior marketing and communications leader with over 10 years of experience across corporate, government, and non-profit sectors. Expert in driving large-scale digital strategies, brand visibility, and high-profile event management.",
+    "education": [
+      {
+        "institution": "Institute of Business Management",
+        "degree": "MBA Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Iqra University, Karachi",
+        "degree": "BS Media Sciences",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Google",
+        "degree": "Certification Digital Marketing",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dolmen Group",
+        "role": "Manager Digital Marketing and Communications",
+        "duration": "2023 - Present",
+        "description": "Executes comprehensive branding and PR strategies, manages 30+ annual signature events, and optimizes website content and user experience to drive revenue growth."
+      },
+      {
+        "company": "Charter for Compassion Pakistan",
+        "role": "Marketing and Communications Manager",
+        "duration": "Jan 2023 - Nov 2023",
+        "description": "Led digital marketing efforts and community-driven campaigns, achieving 90% growth in online engagement and 85% improvement in brand perception."
+      },
+      {
+        "company": "DM International",
+        "role": "Head of Marketing and Communications",
+        "duration": "Apr 2022 - Jan 2023",
+        "description": "Developed nationwide integrated marketing strategies and managed website launches, generating PKR 2.1 million in sales."
+      },
+      {
+        "company": "Ministry of Climate Change, Government of Pakistan",
+        "role": "Deputy Project Director Media & Communications",
+        "duration": "Sep 2020 - Mar 2022",
+        "description": "Managed a PKR 125 billion budget for national media and branding strategies for the Ten Billion Tree Tsunami Program."
+      },
+      {
+        "company": "Society for I AM KARACHI (IAK)",
+        "role": "Program Coordinator & Social Media Manager",
+        "duration": "May 2017 - Sep 2020",
+        "description": "Implemented social media strategies to enhance brand visibility and managed USAID/UKAID funded project activities."
+      },
+      {
+        "company": "Magma Digital",
+        "role": "Social Media & Client Service Executive",
+        "duration": "Mar 2016 - Apr 2017",
+        "description": "Managed client social media accounts and campaigns, collaborating with creative teams to deliver performance reports."
+      },
+      {
+        "company": "SWALLOW POWER ENGINEERING",
+        "role": "Marketing Officer",
+        "duration": "Nov 2014 - Mar 2016",
+        "description": "Planned marketing campaigns, organized corporate events, and created content for marketing collaterals."
+      }
+    ],
+    "skills": [
+      "Brand Strategy Development",
+      "Integrated Marketing Campaigns",
+      "Event Management",
+      "Client Service",
+      "Communication Strategy",
+      "CSR Project Development",
+      "Monitoring & Evaluation",
+      "Social Media Management & Analytics",
+      "Public Relations",
+      "MS Office",
+      "Project Planning",
+      "Reporting",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Premiere Pro"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 100,
+    "experience_match": 100,
+    "overall_score": 85,
+    "strengths": [
+      "Extensive experience in social media management and content strategy",
+      "Proven track record of managing large budgets and high-profile campaigns",
+      "Strong technical proficiency in Adobe Creative Suite and MS Office"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a Specialist role",
+      "Likely to find routine tasks like scheduling and query routing under-stimulating"
+    ],
+    "recommendation": "Overqualified",
+    "summary": "The candidate exceeds all requirements, possessing a decade of leadership experience compared to the 2 years requested. While technically a perfect match, his seniority suggests he is better suited for a Managerial role than a Specialist position."
+  }
+}

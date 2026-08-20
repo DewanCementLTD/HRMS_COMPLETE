@@ -1,0 +1,125 @@
+{
+  "cv_file": "Hammad_CV_1785485520494.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:29.850674+00:00",
+  "pipeline": {
+    "total_seconds": 66.501,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 66.462,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1594,
+    "output_tokens": 875,
+    "total_tokens": 3965
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Manager",
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 5323
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Hammad",
+      "email": "engr.hammadahmedkhan@gmail.com",
+      "phone": "+92 3131170974",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager",
+    "profile_summary": "Experienced Digital Marketing Manager and Team Lead specializing in B2B/B2C growth. Expert in programmatic SEO, Meta Ads, and conversion rate optimization across SaaS and e-commerce sectors.",
+    "education": [
+      {
+        "institution": "NED University",
+        "degree": "Bachelor’s in Electrical & Electronics Engineering",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "D.J Sindh Govt. Science College",
+        "degree": "Intermediate",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Buturab Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "UrApp Technologies",
+        "role": "Digital Marketing Manager",
+        "duration": "Aug 2024 - Present",
+        "description": "Leads B2B/B2C growth through sales, CRM/CMS oversight, Meta Ads, and semantic/programmatic SEO with content funnels."
+      },
+      {
+        "company": "Gaditek (PureDome)",
+        "role": "Digital Marketing Team Lead",
+        "duration": "Nov 2022 - July 2024",
+        "description": "Led global digital marketing for PureDome, managing Meta campaigns, CRO, programmatic SEO, and B2B lead generation."
+      },
+      {
+        "company": "CloudStaff Technologies",
+        "role": "Search Engine Optimization Team Lead",
+        "duration": "Jan 2022 - Nov 2022",
+        "description": "Led SEO team focusing on technical audits, GMB optimization, and organic growth using GA4, GSC, and Ahrefs."
+      },
+      {
+        "company": "Crystallite (PVT) Limited",
+        "role": "Digital Marketing Specialist",
+        "duration": "Jan 2020 - Jan 2022",
+        "description": "Enhanced SEO for SaaS and e-commerce clients, managed Shopify/WooCommerce stores, and developed backlinking strategies."
+      }
+    ],
+    "skills": [
+      "Search Engine Optimization",
+      "Social Media Marketing",
+      "Email Marketing",
+      "E-Commerce Brand Building",
+      "Shopify Store Management",
+      "Data Analytics",
+      "Conversion Rate Optimization (CRO)",
+      "Online Reputation Management (ORM)",
+      "Lead Generation",
+      "Google Analytics",
+      "Google Search Console",
+      "Google Tag Manager",
+      "Google AdWords",
+      "Ahrefs",
+      "Semrush",
+      "Mangools",
+      "Meta Business Suite",
+      "Meta Ads Manager",
+      "Meta Ads Library",
+      "TikTok Shop",
+      "Jira",
+      "MozBar",
+      "Canva",
+      "SEO & SMM Audits",
+      "Creative Content Creation",
+      "CRM & CMS Management",
+      "Programmatic SEO",
+      "Content Marketing",
+      "Influencer Marketing",
+      "B2B & B2C Marketing",
+      "GMB Optimization",
+      "Business Development",
+      "Ubersuggest",
+      "Hotjar",
+      "Looker Studio",
+      "Mixpanel",
+      "HubSpot",
+      "ContactOut",
+      "Apollo"
+    ]
+  }
+}

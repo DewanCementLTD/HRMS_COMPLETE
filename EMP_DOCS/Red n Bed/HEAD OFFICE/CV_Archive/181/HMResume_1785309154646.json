@@ -1,0 +1,105 @@
+{
+  "cv_file": "HMResume_1785309154646.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:13.772142+00:00",
+  "pipeline": {
+    "total_seconds": 61.799,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.679,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1604,
+    "output_tokens": 836,
+    "total_tokens": 3801
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 4226
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hijab Malik",
+      "email": "hijabm23@gmail.com",
+      "phone": "+92 334 1122932",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Brand Management or Marketing Management",
+    "profile_summary": "Experienced marketing and communications professional with a strong background in brand management across Pakistan and MENA regions. Expert in strategic planning, multi-million dollar budget optimization, and leading cross-functional teams to drive market share.",
+    "education": [
+      {
+        "institution": "Iqra University, Karachi, Pakistan",
+        "degree": "Bachelor of Media Sciences (Majors in Advertising)",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Colish",
+        "role": "Brand Manager | Social Media & Traditional Marketing",
+        "duration": "June 2023 - Present",
+        "description": "Leads brand portfolios in Pakistan and MENA, executing product launches and market expansion while managing multi-million dollar budgets to maximize ROI."
+      },
+      {
+        "company": "DigiSequence",
+        "role": "Communications Team Lead",
+        "duration": "2022 - 2023",
+        "description": "Managed interdepartmental and external communications, ensured brand messaging consistency, and led employee wellbeing initiatives."
+      },
+      {
+        "company": "Appollo Houseware",
+        "role": "Brand Manager | Online & Offline Marketing",
+        "duration": "2021 - 2022",
+        "description": "Executed ATL and BTL marketing campaigns, tracked brand sales performance, and collaborated with creative teams for content production."
+      },
+      {
+        "company": "Woot",
+        "role": "Account & Business Development Manager",
+        "duration": "2020 - 2021",
+        "description": "Managed marketing and communication strategies for a diverse client portfolio including PepsiCo, Spontex, and ICI Pakistan."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Marketing Strategy",
+      "Budget Management",
+      "ROI Optimization",
+      "Content Creation",
+      "Digital Campaign Management",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Premiere",
+      "Market Analysis",
+      "Communication",
+      "Project Management",
+      "ATL/BTL Marketing",
+      "Data-Driven Optimisation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 70,
+    "experience_match": 80,
+    "overall_score": 78,
+    "strengths": [
+      "Based in Karachi",
+      "Proven experience managing multi-million dollar budgets",
+      "Direct people management experience as Team Lead",
+      "Strong background in integrated (ATL/BTL/Digital) campaigns"
+    ],
+    "weaknesses": [
+      "Total professional experience (~4-5 years) is slightly below the 5-7 year requirement",
+      "No explicit mention of GA4 or specific ad platform reporting tools"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "Hijab is a highly compatible local candidate with the required leadership experience and a strong track record in brand management. While she falls slightly short of the total years of experience and lacks explicit GA4 keywords, her Google Digital Marketing certification and budget management skills make her a top contender."
+  }
+}

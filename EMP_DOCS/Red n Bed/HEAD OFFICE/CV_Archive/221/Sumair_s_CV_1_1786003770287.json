@@ -1,0 +1,132 @@
+{
+  "cv_file": "Sumair_s_CV_1_1786003770287.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:44.804869+00:00",
+  "pipeline": {
+    "total_seconds": 61.382,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.737,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1487,
+    "output_tokens": 1069,
+    "total_tokens": 3643
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 3484
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Sumair",
+      "email": "sumairfaisal1130@gmail.com",
+      "phone": "03225964308",
+      "location": "Garden East, Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Versatile digital marketing professional with a strong background in social media management, performance marketing, and lead generation. Meta Certified Associate with proven success in driving ROAS and enhancing online brand presence across diverse industries.",
+    "education": [
+      {
+        "institution": "University of Bolton",
+        "degree": "Business Management And Marketing (Top-up / Bachelors final Year)",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Extreme Commerce College",
+        "degree": "Business Management And Marketing (HND)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Guards Public College",
+        "degree": "Commerce (Intermediate)",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TechMark",
+        "role": "Digital Marketer (Remote)",
+        "duration": "Jan 2024 - Aug 2024",
+        "description": "Managed social media campaigns, Google Ads, and SEO, generating 3-5 daily leads through data-driven strategic planning and content curation."
+      },
+      {
+        "company": "Winway International School",
+        "role": "Marketing Executive",
+        "duration": "Mar 2023 - Nov 2023",
+        "description": "Executed Facebook and Instagram campaigns, managed content planning, and optimized website technical performance to improve online visibility."
+      },
+      {
+        "company": "US Enterprises",
+        "role": "Operations Manager",
+        "duration": "Nov 2021 - Jun 2023",
+        "description": "Oversaw daily operations, managed Daraz E-commerce store, and utilized Facebook marketing to drive traffic and sales."
+      },
+      {
+        "company": "perfect international agency",
+        "role": "Assistant Manager",
+        "duration": "Jun 2020 - Jul 2021",
+        "description": "Supported daily operations and collaborated with management to ensure efficient workflow and task execution."
+      },
+      {
+        "company": "Kaif communication",
+        "role": "Salesperson",
+        "duration": "Jul 2019 - Jul 2020",
+        "description": "Focused on driving sales and contributing to overall company revenue growth."
+      },
+      {
+        "company": "Gourmet Twist",
+        "role": "Performance Marketer (Remote)",
+        "duration": null,
+        "description": "Achieved 4.5 ROAS using social media, email marketing, GMB management, and Shopify CRO."
+      },
+      {
+        "company": "Next trip Holidays travel",
+        "role": "Social Media Manager (Remote)",
+        "duration": null,
+        "description": "Developed online identity and engaged audiences through strategic digital presence and graphic design."
+      }
+    ],
+    "skills": [
+      "Facebook ads",
+      "Social media marketing",
+      "Canva Designing",
+      "Google PPC",
+      "Account Management",
+      "Customer Relationship",
+      "Digital Marketing",
+      "Search Engine Optimization (SEO)",
+      "Semrush",
+      "Ubersuggest",
+      "Instantly.ai",
+      "Buffer",
+      "Google Analytics"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Meta Certified Digital Marketing Associate",
+      "Proficient in Canva and Buffer for content scheduling",
+      "Proven track record in lead generation and ROAS",
+      "Experience across multiple social platforms (FB, IG)"
+    ],
+    "weaknesses": [
+      "Bachelor's degree is currently in progress (expected 2025)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an excellent fit, possessing the exact technical stack required (Meta, Canva, Buffer) and over 2 years of relevant marketing experience. His certification and proven results in lead generation make him highly qualified for the Marketing Specialist role."
+  }
+}

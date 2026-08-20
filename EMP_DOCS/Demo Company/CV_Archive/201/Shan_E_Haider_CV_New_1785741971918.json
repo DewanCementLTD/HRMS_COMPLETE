@@ -1,0 +1,95 @@
+{
+  "cv_file": "Shan_E_Haider_CV_New_1785741971918.pdf",
+  "job_folder": "201",
+  "job_id": 201,
+  "mode": "evaluate",
+  "processed_at": "2026-08-03T07:27:09.826806+00:00",
+  "pipeline": {
+    "total_seconds": 52.578,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 52.388,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1572,
+    "output_tokens": 621,
+    "total_tokens": 3419
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 2931
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "SYED SHAN E HAIDER JAFRI",
+      "email": "shanehaiderj@gmail.com",
+      "phone": "+92335-3063585",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entry-level Software Engineering student with a foundational background in electrical engineering. Experienced in basic full-stack development and IT operations through a short-term internship.",
+    "education": [
+      {
+        "institution": "Indus University",
+        "degree": "BS Software Engineering",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Karachi Technical Board",
+        "degree": "DAE (Electrical Engineering)",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dow University Of Health Sciences",
+        "role": "Internship",
+        "duration": "09/2023 – 11/2023",
+        "description": "Supported the IT department with requirement analysis, software design, coding, testing, deployment, and technical documentation."
+      }
+    ],
+    "skills": [
+      "Python",
+      "C/C++",
+      "Java",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git",
+      "VS Code",
+      "Linux",
+      "SQL",
+      "Problem-Solving",
+      "Teamwork",
+      "Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 40,
+    "experience_match": 15,
+    "overall_score": 30,
+    "strengths": [
+      "Relevant academic degree in Software Engineering",
+      "Possesses core language skills (JavaScript, Python, SQL)",
+      "Familiarity with Git and Linux"
+    ],
+    "weaknesses": [
+      "Missing critical frameworks: React.js, Node.js, TypeScript",
+      "Does not meet minimum 1-year experience requirement",
+      "Still an undergraduate student"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an undergraduate student who lacks the professional experience and specific full-stack framework expertise (React/Node) required for this role."
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "cv_file": "Ameeque_Mallick_Mr._-_Resume_1785485520473.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:29.097146+00:00",
+  "pipeline": {
+    "total_seconds": 66.138,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.28,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1571,
+    "output_tokens": 862,
+    "total_tokens": 3853
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4622
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ameeque Mallick",
+      "email": "ameequemallick72@gmail.com",
+      "phone": "0311-1836887",
+      "location": "Block 16, F.B. area, Karachi"
+    },
+    "preferred_job_title": "Digital Marketing Specialist",
+    "profile_summary": "Digital Marketing Specialist with 5 years of experience in developing data-driven campaigns and managing Meta Ads. Expert in social media management, PR strategies, and content creation to drive brand growth and public relationships.",
+    "education": [
+      {
+        "institution": "UIT University",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Preston University",
+        "degree": "BSCS (IT)",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Johor Degree College for Boys",
+        "degree": "HSC, Pre-Engineering",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "West London Grammar School",
+        "degree": "SSC, Computer Science",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Information Technology Services",
+        "role": "Assistant Manager – Digital Marketing Department",
+        "duration": "May 2022 – Present",
+        "description": "Led a team of 10 in executing social media ad campaigns and lead-generation strategies. Managed LinkedIn Ads, brand ambassador programs, and data analytics reporting."
+      },
+      {
+        "company": "Information Technology Services",
+        "role": "Assistant Manager – Communication Department",
+        "duration": "June 2021 – May 2022",
+        "description": "Managed editorial board appointments and author engagement via the Ambassador program. Trained team members and implemented digital ID systems for data integrity."
+      },
+      {
+        "company": "Freelancer",
+        "role": "Digital Marketing",
+        "duration": "October 2017 – Present",
+        "description": "Delivers SEO-optimized content creation and manages social media portfolios and ad placements to enhance client online presence."
+      },
+      {
+        "company": "Trajital",
+        "role": "Digital Marketing Assistant",
+        "duration": "February – April 2021",
+        "description": "Developed engaging digital content and managed social media accounts. Specialized in high-conversion bidding strategies on Upwork."
+      },
+      {
+        "company": "Modest Clothing",
+        "role": "Digital Marketing Intern",
+        "duration": "November – December 2021",
+        "description": "Executed Social Media Optimization (SMO) initiatives and coordinated brand photoshoots to improve brand visibility and narrative."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "LinkedIn Marketing",
+      "Content Marketing",
+      "Influencer Marketing",
+      "Digital Advertising",
+      "Google Analytics",
+      "A/B testing",
+      "Meta Ads",
+      "SEO",
+      "Email Marketing",
+      "Data Analytics",
+      "SEM",
+      "Microsoft Office",
+      "HTML",
+      "CSS",
+      "CRM",
+      "Marketing Automation",
+      "Photo and Video Editing",
+      "Brand Management",
+      "Public Speaking",
+      "PR Management",
+      "Leadership",
+      "Communication",
+      "Problem-Solving",
+      "Adaptability",
+      "Critical Thinking",
+      "Time Management"
+    ]
+  }
+}

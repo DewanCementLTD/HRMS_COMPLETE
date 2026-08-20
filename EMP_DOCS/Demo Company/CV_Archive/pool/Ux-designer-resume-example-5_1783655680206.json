@@ -1,0 +1,90 @@
+{
+  "cv_file": "Ux-designer-resume-example-5_1783655680206.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-10T03:55:28.266727+00:00",
+  "pipeline": {
+    "total_seconds": 44.582,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 44.559,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1169,
+    "output_tokens": 595,
+    "total_tokens": 2716
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3288
+  },
+  "metrics": {
+    "metrics": {
+      "contact_info": {
+        "name": "John Huber",
+        "email": "email@email.com",
+        "phone": "890-555-0401",
+        "location": "New York, USA"
+      },
+      "preferred_job_title": "UX Designer",
+      "profile_summary": "Proactive UX Designer with 7+ years of experience delivering end-to-end web and mobile products for the FinTech sector. Expert in bridging the gap between stakeholders and developers using a strong technical foundation and design toolset.",
+      "education": [
+        {
+          "institution": "Pratt Institute",
+          "degree": "Masters Degree in Human Computer Interaction (HCI)",
+          "graduation_year": "2022"
+        },
+        {
+          "institution": "Pratt Institute",
+          "degree": "Bachelor's Degree in Interaction Design",
+          "graduation_year": "2020"
+        }
+      ],
+      "experience": [
+        {
+          "company": "Real Vision Group",
+          "role": "UX Designer",
+          "duration": "Oct 2024 — Present",
+          "description": "Collaborates with product managers to gather requirements and establish design guidelines. Redesigned mobile UIs for Android and iOS, reducing the app abandonment rate by 35%."
+        },
+        {
+          "company": "S&P Global",
+          "role": "UX Designer",
+          "duration": "Feb 2022 — Sep 2024",
+          "description": "Developed wireframes, site maps, and hi-fi prototypes. Utilized site analytics and A/B testing to increase CTR by 27% for a product serving 100,000+ financial professionals."
+        },
+        {
+          "company": "Status",
+          "role": "Junior UX Designer",
+          "duration": "Nov 2020 — Jan 2022",
+          "description": "Created case studies, personas, and user flow maps. Performed usability testing and layout adjustments that led to a 37% increase in successful task completion."
+        }
+      ],
+      "skills": [
+        "HTML5",
+        "CSS",
+        "JavaScript",
+        "Adobe Suite",
+        "Photoshop",
+        "Illustrator",
+        "Sketch",
+        "InVision",
+        "Balsamiq",
+        "Time management",
+        "Self-motivated",
+        "Effective communicator",
+        "Team oriented"
+      ]
+    }
+  }
+}

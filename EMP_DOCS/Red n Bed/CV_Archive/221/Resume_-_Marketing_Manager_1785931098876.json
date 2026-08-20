@@ -1,0 +1,120 @@
+{
+  "cv_file": "Resume_-_Marketing_Manager_1785931098876.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:07.412551+00:00",
+  "pipeline": {
+    "total_seconds": 83.548,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.377,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1817,
+    "output_tokens": 920,
+    "total_tokens": 4314
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": "Integrated Marketing Manager",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header"
+    ],
+    "text_chars": 5424
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ayesha Imran",
+      "email": "iayesha071@gmail.com",
+      "phone": "+92 324 4212293",
+      "location": "Lahore, Pakistan"
+    },
+    "preferred_job_title": "Integrated Marketing Manager",
+    "profile_summary": "Results-driven marketing professional with over 7 years of experience in integrated marketing strategies. Expert in digital marketing, content strategy, and performance analytics with a proven track record of driving brand growth and lead generation.",
+    "education": [
+      {
+        "institution": "University of the Punjab",
+        "degree": "BS (Hons.) Management (Marketing & Finance)",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Not specified (Dubai, UAE)",
+        "role": "Head of Marketing & Growth",
+        "duration": "Jul 2023 - Present",
+        "description": "Leads integrated marketing strategies, multi-channel campaigns, and social media leadership for international IT clients, managing budgets and agency relationships."
+      },
+      {
+        "company": "Not specified (USA Remote)",
+        "role": "Digital Media Marketing Manager",
+        "duration": "Apr 2019 - Jan 2025",
+        "description": "Executed digital marketing strategies, performance campaigns (Google/Meta Ads), and CRM automation via HubSpot to drive qualified leads."
+      },
+      {
+        "company": "Not specified (Lahore, Pakistan)",
+        "role": "Digital Media Specialist",
+        "duration": "Feb 2018 - Mar 2019",
+        "description": "Managed paid and organic digital campaigns and conducted competitor analysis to reduce acquisition costs by 35%."
+      },
+      {
+        "company": "Not specified (Lahore, Pakistan)",
+        "role": "Social Media Specialist",
+        "duration": "Aug 2017 - Jan 2018",
+        "description": "Managed social media channels and content strategies, collaborating with influencers for brand promotions."
+      },
+      {
+        "company": "Not specified (Lahore, Pakistan)",
+        "role": "Marketing Communications Executive",
+        "duration": "Jan 2017 - Jul 2017",
+        "description": "Planned integrated marketing campaigns and developed content for digital and offline channels."
+      }
+    ],
+    "skills": [
+      "Integrated Marketing Strategy",
+      "SEO",
+      "PPC",
+      "SEM",
+      "Social Media Strategy",
+      "Community Management",
+      "Content Strategy",
+      "PR",
+      "Performance Marketing",
+      "Google Analytics",
+      "HubSpot",
+      "Budget Management",
+      "Agency Management",
+      "Market Research",
+      "Meta Ads",
+      "Google Ads",
+      "WordPress",
+      "Canva",
+      "ChatGPT",
+      "Microsoft Office",
+      "Looker Studio"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 100,
+    "overall_score": 98,
+    "strengths": [
+      "Extensive experience in social media management and content strategy",
+      "Proficient in all 'nice-to-have' tools (Canva, Meta Ads, MS Office)",
+      "Strong background in agency coordination and performance reporting",
+      "Exceeds minimum experience and education requirements"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Specialist-level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match who exceeds all requirements. They possess senior-level expertise in social media, content coordination, and data-driven reporting, making them highly capable of executing the job duties."
+  }
+}

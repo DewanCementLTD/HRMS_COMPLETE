@@ -1,0 +1,118 @@
+{
+  "cv_file": "FARAH_Final_CV_1785309154606.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:09.345469+00:00",
+  "pipeline": {
+    "total_seconds": 72.534,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.711,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1388,
+    "output_tokens": 890,
+    "total_tokens": 3896
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Associate Marketing Manager",
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 2743
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Farah Anwer",
+      "email": "farahanvver@gmail.com",
+      "phone": "03162063677",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Associate Marketing Manager",
+    "profile_summary": "Marketing professional with over 7 years of experience in brand management, PR, and digital strategy. Expert in executing 360° campaigns and influencer marketing for major consumer brands. Bronze Effie Award winner with a strong foundation in advertising.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Media Sciences (Advertising)",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Bahria College",
+        "degree": "Intermediate (Engineering)",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Bahria College",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dolmen Real Estate Group",
+        "role": "Associate Marketing Manager",
+        "duration": "2021 – Present",
+        "description": "Leads brand collaborations and corporate PR communications for campaigns, events, and shoots across Dolmen City and Malls."
+      },
+      {
+        "company": "Ideas by GulAhmed",
+        "role": "Assistant Manager Digital E-Commerce & PR Marketing",
+        "duration": "2020 – 2021",
+        "description": "Managed content planning, brand shoots, and executed PR and social media campaigns."
+      },
+      {
+        "company": "Mullen Lowe Rauf Group (Pvt.) Ltd.",
+        "role": "Media Executive",
+        "duration": "March 2019 – January 2021",
+        "description": "Strategized and executed brand campaigns, managing media, corporate communications, and influencer digital marketing."
+      },
+      {
+        "company": "Walnut Communications Pakistan",
+        "role": "Corporate Communication & PR Trainee",
+        "duration": "October 2018 – January 2019",
+        "description": "Managed blogger and e-page outreach through digital coverage and on-ground events."
+      },
+      {
+        "company": "Crea8ive Bench",
+        "role": "Intern Graphic Designer",
+        "duration": "August 2017 – October 2017",
+        "description": "Created graphics for international clothing brands and website assets."
+      }
+    ],
+    "skills": [
+      "Corporate Communication",
+      "Branding",
+      "PR",
+      "Influencer Marketing",
+      "Digital Strategy",
+      "Media Outreach",
+      "Social Media",
+      "Google Analytics",
+      "Graphic Design"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 80,
+    "technical_match": 85,
+    "experience_match": 70,
+    "overall_score": 78,
+    "strengths": [
+      "Bronze Effie Award winner",
+      "Google Analytics Certified",
+      "Extensive 360° campaign experience",
+      "Proven track record with major consumer brands"
+    ],
+    "weaknesses": [
+      "No explicit evidence of managing direct reports",
+      "Lack of specific mention of ROI/CAC/LTV reporting"
+    ],
+    "recommendation": "Interview",
+    "summary": "Strong candidate with the required years of experience and technical certifications. While PR and brand strengths are evident, people management and budget reporting capabilities should be verified during the interview."
+  }
+}

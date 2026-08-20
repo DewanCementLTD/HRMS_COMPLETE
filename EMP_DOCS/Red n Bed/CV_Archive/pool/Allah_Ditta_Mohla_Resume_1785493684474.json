@@ -1,0 +1,79 @@
+{
+  "cv_file": "Allah_Ditta_Mohla_Resume_1785493684474.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:29:09.700931+00:00",
+  "pipeline": {
+    "total_seconds": 43.077,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 42.928,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1517,
+    "output_tokens": 537,
+    "total_tokens": 3021
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Performance Marketing Manager",
+    "sections_found": [
+      "certifications",
+      "header"
+    ],
+    "text_chars": 4434
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "ALLAH DITTA MOHLA",
+      "email": "allahdittamohla9@gmail.com",
+      "phone": "+923303835509",
+      "location": "Faisalabad, Pakistan"
+    },
+    "preferred_job_title": "Performance Marketing Manager",
+    "profile_summary": "Results-driven Performance Marketing Manager with 5 years of experience leading paid media strategy across Meta, Google, and TikTok. Expert in the GCC and Southeast Asian markets, managing budgets over $50K/month with a proven track record of delivering ROAS up to 6.5x.",
+    "education": [],
+    "experience": [
+      {
+        "company": "Freelance",
+        "role": "Performance Marketing Specialist",
+        "duration": "February 2026 – Present",
+        "description": "Directs paid media strategy and execution for GCC and Southeast Asia clients, managing account architecture, conversion tracking, and budget allocation across Meta, Google, and TikTok."
+      },
+      {
+        "company": "Nexus Digital Media",
+        "role": "Senior Performance Marketing Specialist",
+        "duration": null,
+        "description": "Managed multi-platform budgets for Dubai-based clients in real estate and e-commerce, achieving 5.3x ROAS and reducing CPL by 34% through bid strategy refinement and SKAG restructuring."
+      },
+      {
+        "company": "Greendot Media",
+        "role": "Performance Marketer",
+        "duration": null,
+        "description": "Led Meta Ads for fashion e-commerce, achieving 6.5x ROAS via Advantage+ Shopping, full-funnel retargeting, and rigorous creative testing sprints."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Advantage+ Shopping",
+      "Conversions API",
+      "Google Ads",
+      "Search Ads",
+      "Display Ads",
+      "Performance Max",
+      "TikTok Ads",
+      "GA4",
+      "Google Tag Manager",
+      "Meta Pixel",
+      "Full-funnel architecture",
+      "SKAG restructuring",
+      "Creative testing",
+      "Audience segmentation",
+      "Budget scaling",
+      "Budget Management",
+      "Stakeholder Reporting"
+    ]
+  }
+}

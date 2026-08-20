@@ -1,0 +1,100 @@
+{
+  "cv_file": "Muhammad_1785494612860.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:44:51.265029+00:00",
+  "pipeline": {
+    "total_seconds": 55.567,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 55.185,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1360,
+    "output_tokens": 660,
+    "total_tokens": 3250
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4241
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ashir Umer",
+      "email": "m.ashirumer0@gmail.com",
+      "phone": "+92 318 2042070",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Graphic Designer | Visual Strategist",
+    "profile_summary": "Senior Graphic Designer with 3+ years of experience architecting visual brand ecosystems. Expert in combining traditional design principles with AI-assisted workflows to deliver scalable, high-impact solutions for institutional and commercial clients.",
+    "education": [
+      {
+        "institution": null,
+        "degree": "BS Media Science (Visual Effects & Animation)",
+        "graduation_year": "2029"
+      },
+      {
+        "institution": "Govt. Superior Science College",
+        "degree": "Intermediate — Pre-Medical",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Rose Heaven Educational World",
+        "degree": "Matriculation",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ziauddin University",
+        "role": "Graphic Designer & Creative Asset Lead",
+        "duration": "2023 – Present",
+        "description": "Architected visual brand ecosystems for institutional events and campaigns, integrating AI workflows to accelerate production and ensuring brand consistency across print and digital channels."
+      },
+      {
+        "company": "Shoqeen.pk",
+        "role": "Creative Designer — E-Commerce & Brand Merchandise",
+        "duration": "2022 (6 Months)",
+        "description": "Developed sports merchandise branding and marketing visuals for international clients, utilizing AI tools for moodboarding and concept generation."
+      },
+      {
+        "company": "Muhammad Ali Jinnah University (MAJU)",
+        "role": "Graphic Design Intern",
+        "duration": "2022 – 2023",
+        "description": "Supported institutional branding through the design of campus visual assets, social media graphics, and promotional materials."
+      }
+    ],
+    "skills": [
+      "Adobe Illustrator",
+      "Adobe Photoshop",
+      "Adobe InDesign",
+      "Adobe After Effects",
+      "Adobe Premiere Pro",
+      "Figma",
+      "Canva",
+      "Adobe Firefly",
+      "Midjourney",
+      "Leonardo AI",
+      "Runway ML",
+      "Generative Fill",
+      "AI Moodboarding",
+      "Brand Identity Systems",
+      "Visual Campaign Strategy",
+      "Print & Digital Production",
+      "Typography & Layout",
+      "Motion Graphics",
+      "UI/UX Design Principles",
+      "Art Direction",
+      "Generative AI Pipelines"
+    ]
+  }
+}

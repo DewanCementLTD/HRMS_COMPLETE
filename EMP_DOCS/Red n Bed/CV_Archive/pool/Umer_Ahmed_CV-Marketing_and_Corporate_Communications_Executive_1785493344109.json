@@ -1,0 +1,90 @@
+{
+  "cv_file": "Umer_Ahmed_CV-Marketing_and_Corporate_Communications_Executive_1785493344109.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:24:53.087413+00:00",
+  "pipeline": {
+    "total_seconds": 49.618,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.572,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1319,
+    "output_tokens": 573,
+    "total_tokens": 3090
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 4130
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Umer Ahmed",
+      "email": "umerlp123@gmail",
+      "phone": "03312712741",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing and Corporate Communications Specialist",
+    "profile_summary": "Marketing and Corporate Communications Specialist with 3+ years of experience driving brand growth through SEO, strategic campaigns, and corporate storytelling. Expert in digital marketing and stakeholder engagement across B2B, B2C, and B2G sectors.",
+    "education": [
+      {
+        "institution": "NED University of Engineering and Technology",
+        "degree": "BS in Economics & Finance",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "VIDIZMO",
+        "role": "Product Marketing Executive",
+        "duration": "November 2023 – Current",
+        "description": "Develops SEO-optimized content, landing pages, and social media strategies to drive leads. Creates sales enablement materials and press releases, utilizing A/B testing for campaign optimization."
+      },
+      {
+        "company": "Contech Corp",
+        "role": "Senior Content Strategist",
+        "duration": "April 2022 – October 2023",
+        "description": "Managed content strategies and audits for over 100 clients. Led a team of writers and editors to establish brand voices and execute high-impact content campaigns."
+      }
+    ],
+    "skills": [
+      "MS Word",
+      "Excel",
+      "PowerPoint",
+      "Power BI",
+      "SEMRush",
+      "Ahrefs",
+      "Google Keyword Planner",
+      "Google Search Console",
+      "Grammarly",
+      "Hemingway Editor",
+      "Google Analytics",
+      "Hotjar",
+      "Canva",
+      "Figma",
+      "Adobe Express",
+      "Azure DevOps",
+      "Asana",
+      "Trello",
+      "SEO/Keyword Research",
+      "Marketing Funnel Design",
+      "Campaign Analysis",
+      "Content Creation and Optimization",
+      "Analytics and Data Interpretation",
+      "Branding and Messaging Consistency",
+      "Multi-Channel Marketing",
+      "Strategic and analytical mindset",
+      "Communication and storytelling",
+      "Project management",
+      "Stakeholder collaboration"
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "cv_file": "Muhamamd_Asad_Resume-2_1785493684468.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:29:55.676741+00:00",
+  "pipeline": {
+    "total_seconds": 46.558,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.502,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 761,
+    "output_tokens": 583,
+    "total_tokens": 2412
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Graphic Designer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header"
+    ],
+    "text_chars": 1142
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD ASAD AMEER",
+      "email": "asadameer2626@gmail.com",
+      "phone": "+92 313 1073622",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Graphic Designer",
+    "profile_summary": "Versatile creative professional with expertise in graphic design, video editing, and animation. Experienced in delivering visual content across multiple agencies and seeking performance-driven growth in challenging environments.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Graduation",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate – Science",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Matriculation – Science",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Rholab",
+        "role": "Senior Graphics Designer",
+        "duration": "2024 - Present",
+        "description": null
+      },
+      {
+        "company": "The Sign Factory",
+        "role": "Graphics Designer - Video Editor - Animator",
+        "duration": "2024 - Present",
+        "description": null
+      },
+      {
+        "company": "Encyclomedia Hub",
+        "role": "Graphics Designer - Video Editor",
+        "duration": "2022 - 2023",
+        "description": null
+      },
+      {
+        "company": "Mighty Marketing",
+        "role": "Graphics Designer - Video Editor",
+        "duration": "2021 - 2022",
+        "description": null
+      },
+      {
+        "company": "The Flaws Photography",
+        "role": "Photography - Video Editor",
+        "duration": "2019 - 2022",
+        "description": null
+      }
+    ],
+    "skills": [
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Premiere Pro",
+      "Adobe After Effects",
+      "Figma",
+      "Graphic Designing",
+      "Video Editing",
+      "Video Animation",
+      "Photography",
+      "Videography"
+    ]
+  }
+}

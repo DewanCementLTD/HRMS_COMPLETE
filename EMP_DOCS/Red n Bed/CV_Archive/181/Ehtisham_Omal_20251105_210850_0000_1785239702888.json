@@ -1,0 +1,126 @@
+{
+  "cv_file": "Ehtisham_Omal_20251105_210850_0000_1785239702888.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:59.180075+00:00",
+  "pipeline": {
+    "total_seconds": 82.734,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 82.606,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1641,
+    "output_tokens": 1024,
+    "total_tokens": 4479
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Marketing Specialist",
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 4236
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ehtisham Aslam",
+      "email": "ehtishamaslam66@gmail.com",
+      "phone": "+92312 4990199",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Marketing Specialist",
+    "profile_summary": "Performance-driven marketing professional with approximately 5 years of experience specializing in paid media and digital strategy. Proven track record in managing multi-platform ad campaigns and currently leading a marketing team to optimize ROI and brand visibility.",
+    "education": [
+      {
+        "institution": "Karachi University Business School (KUBS)",
+        "degree": "MBA/M.Phil Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Karachi University Business School (KUBS)",
+        "degree": "BBA Marketing",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Govt. Degree College Majeed S.R.E",
+        "degree": "Intermediate",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Usman Grammar School",
+        "degree": "Matriculation in science",
+        "graduation_year": "2013"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Omal By Komal",
+        "role": "Marketing Team Lead",
+        "duration": "Dec 2024 - Present",
+        "description": "Leads marketing campaigns, supervises content creation, manages influencer ROI, and oversees budget allocation across Meta, Google, Snapchat, and TikTok."
+      },
+      {
+        "company": "Carpe diem",
+        "role": "Media buyer",
+        "duration": "Apr 2024 - Dec 2024",
+        "description": "Developed and executed Meta/Google ad strategies, performed A/B testing, and provided data-driven insights to maximize client ROI."
+      },
+      {
+        "company": "Sidat Hyder Morshid Associate",
+        "role": "Communication Officer",
+        "duration": "Oct 2022 - Mar 2024",
+        "description": "Created high-quality content and managed paid social media campaigns, utilizing quantitative and qualitative data to identify trends."
+      },
+      {
+        "company": "The Digitizer",
+        "role": "Meta ads executive",
+        "duration": "Sep 2021 - Oct 2022",
+        "description": "Optimized Meta ad campaigns and implemented Meta Pixel for accurate tracking, retargeting, and performance measurement."
+      },
+      {
+        "company": "Daraz.pk",
+        "role": "Digital Store Management",
+        "duration": "Jun 2019 - Aug 2021",
+        "description": "Managed product listings with SEO optimization, conducted market research, and oversaw end-to-end order fulfillment and logistics."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Snapchat Ads",
+      "TikTok Ads",
+      "ROI Analysis",
+      "Content Strategy",
+      "SEO",
+      "Market Research",
+      "A/B Testing",
+      "Meta Pixel",
+      "Budget Allocation",
+      "Team Leadership",
+      "Social Media Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 85,
+    "experience_match": 50,
+    "overall_score": 65,
+    "strengths": [
+      "Expertise in multi-platform paid advertising",
+      "Strong academic background in Marketing (BBA/MBA)",
+      "Current experience in a leadership role"
+    ],
+    "weaknesses": [
+      "Does not meet the 2-3 year people management requirement",
+      "GA4 not explicitly mentioned",
+      "Total experience is on the lower end of the 5-7 year requirement"
+    ],
+    "recommendation": "Interview with caution",
+    "summary": "Strong technical performance marketer with a solid academic foundation. While he lacks the extensive management tenure required, his current role as Team Lead and deep expertise in paid channels make him a viable candidate for a growth-oriented manager role."
+  }
+}

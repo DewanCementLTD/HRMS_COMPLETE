@@ -1,0 +1,85 @@
+{
+  "cv_file": "Shahmeer_CV_1785493684471.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:25.057803+00:00",
+  "pipeline": {
+    "total_seconds": 51.449,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.435,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1037,
+    "output_tokens": 583,
+    "total_tokens": 2853
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3093
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "SHAHMEER AKHTAR",
+      "email": "akhtarshahmeer30@gmail.com",
+      "phone": "0334-2097600",
+      "location": "Karachi, Sindh"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Operations and client management professional with a BBA and expertise in supply chain and international e-commerce support. Skilled in inventory control, GRN processing, and cross-functional coordination to enhance service quality and client satisfaction.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration (BBA)",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "KRAVEMART",
+        "role": "Inventory Supervisor",
+        "duration": "Nov 2025 – Present",
+        "description": "Manages inventory put-away, GRN processing, and stock reconciliation. Oversees damaged inventory tracking and prepares daily operational reports via Google Sheets."
+      },
+      {
+        "company": "PINNACLE ENTERPRISE",
+        "role": "Customer Success Architect",
+        "duration": "May 2022 – Oct 2025",
+        "description": "Provided international e-commerce support for Goggles4u, coordinating with production and logistics to resolve order issues and improve customer retention."
+      },
+      {
+        "company": "TRIBE CONSULTING",
+        "role": "Customer Support Executive",
+        "duration": "March 2021 – April 2022",
+        "description": "Resolved pharmaceutical campaign queries and managed work orders and case tracking using internal ERP systems."
+      },
+      {
+        "company": "THE LEAD FORUM",
+        "role": "Customer Service Representative",
+        "duration": "Jan 2020 – Feb 2021",
+        "description": "Managed client accounts and lead generation for Durable Medical Equipment campaigns, consistently meeting performance and service targets."
+      }
+    ],
+    "skills": [
+      "Supply Chain",
+      "Inventory Control",
+      "GRN Processing",
+      "Stock Reconciliation",
+      "Customer Support",
+      "Client Management",
+      "Cross-Functional Collaboration",
+      "ERP Systems",
+      "Analytical Skills",
+      "Problem-Solving",
+      "MS Office",
+      "Google Sheets"
+    ]
+  }
+}

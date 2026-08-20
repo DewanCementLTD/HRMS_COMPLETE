@@ -1,0 +1,107 @@
+{
+  "cv_file": "Kamran_Ahmed_CV_Digital_marketing_1785486511646.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:04.689891+00:00",
+  "pipeline": {
+    "total_seconds": 70.841,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 55.799,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1400,
+    "output_tokens": 684,
+    "total_tokens": 3192
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 4,
+    "ocr_pages": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 4306
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamran Ahmed",
+      "email": "Kamran.ahmed1221@gmail.com",
+      "phone": "0341-2395654",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Executive",
+    "profile_summary": "Digital Marketing Executive and Affiliate Marketer with over 2 years of experience specializing in SEO and data-driven growth strategies. Expert in boosting SERP visibility and implementing technical optimizations to drive measurable website traffic.",
+    "education": [
+      {
+        "institution": "Iqra University Gulshan campus",
+        "degree": "Bachelors in Computer Science",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Govt. Degree Collage Gulzar-e-Hijri",
+        "degree": "Intermediate (Pre-Engineering)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Comet's Educational System",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2013"
+      }
+    ],
+    "experience": [
+      {
+        "company": "WebAffinity",
+        "role": "SEO Executive",
+        "duration": "June 2021 - Current",
+        "description": "Executes keyword research, On-page/Off-page optimization, and website audits via Ahrefs. Improves rankings using Google EEAT guidelines, implements schema markup, and manages team task publication."
+      },
+      {
+        "company": "Gaditek (Project Infinity)",
+        "role": "Affiliate Digital Marketer",
+        "duration": "March - May 2021",
+        "description": "Three months of experience focusing on affiliate marketing strategies."
+      },
+      {
+        "company": "YAR Collective",
+        "role": "Creative production",
+        "duration": "June - Sept 2019",
+        "description": "Three months of experience with a startup incubated by NEST IO."
+      },
+      {
+        "company": "Spotcomm",
+        "role": "Network Assistant",
+        "duration": "May - August 2018",
+        "description": "Three months of experience in the tech department of Indiraaj Waadi."
+      }
+    ],
+    "skills": [
+      "Keyword Research",
+      "ON Page Optimization",
+      "OFF Page Optimization",
+      "Data Analysis",
+      "Content Marketing",
+      "Social Media Marketing",
+      "Market Research",
+      "Project Management",
+      "Affiliate Marketing",
+      "Google Analytics",
+      "HTML",
+      "Digital Media marketing",
+      "Email Marketing",
+      "SERP Analysis",
+      "SEMrush",
+      "Ahrefs",
+      "Schema Markup",
+      "Google EEAT guidelines"
+    ]
+  }
+}

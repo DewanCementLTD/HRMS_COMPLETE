@@ -1,0 +1,113 @@
+{
+  "cv_file": "Muhammad_Ali-2_1785493344122.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:47.856753+00:00",
+  "pipeline": {
+    "total_seconds": 62.512,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 62.139,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1136,
+    "output_tokens": 799,
+    "total_tokens": 3299
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Community Manager",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3073
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ali",
+      "email": "muhammadaun1@hotmail.com",
+      "phone": "+92.331.2603198",
+      "location": "Gulistan-e-Johar, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Community Manager",
+    "profile_summary": "Experienced Community and Social Media Manager with a strong background in PR, influencer management, and graphic design. Proven track record of managing diverse client portfolios across banking, pharmaceuticals, and retail sectors.",
+    "education": [
+      {
+        "institution": "Arena Multimedia Gulistan E Johar",
+        "degree": "Diploma in Graphic Designing",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Defence Authority Degree College",
+        "degree": "Bachelors in Commerce",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Spectrum Communications",
+        "role": "Community Manager",
+        "duration": "Apr 2024 - Present",
+        "description": "Manages community engagement for clients including Al Baraka Bank, CCL Pharmaceuticals, EFU Life Assurance, and Lucky Core Industries."
+      },
+      {
+        "company": "Lakson Group of company",
+        "role": "Social Media Manager",
+        "duration": "Jun 2022 - Oct 2023",
+        "description": "Managed social media for in-house brands and led PR and launch activities for Bistro and Shawaya."
+      },
+      {
+        "company": "Brandboosters",
+        "role": "Social Media Executive",
+        "duration": "Sep 2021 - Dec 2021",
+        "description": "Handled community management, ideation, and campaign execution for 10 diverse clients in a fast-paced agency environment."
+      },
+      {
+        "company": "Ocean Mall",
+        "role": "Social Media Executive",
+        "duration": "Feb 2017 - Aug 2019",
+        "description": "Covered mall events and celebrity spotting, maintained brand PR, and managed customer coordination via social media."
+      },
+      {
+        "company": "Team Reactivate",
+        "role": "Social Media Executive",
+        "duration": "Feb 2017 - Aug 2019",
+        "description": "Managed social media operations for Ocean Mall."
+      },
+      {
+        "company": "Telesource Communications",
+        "role": "Customer Service Representative",
+        "duration": "Nov 2015 - Jan 2016",
+        "description": "Provided customer service support."
+      },
+      {
+        "company": "Starlinks",
+        "role": "Graphic Designer",
+        "duration": "Jan 2015 - Jan 2016",
+        "description": "Created celebrity posters for social networks to enhance the PR of celebrity clients."
+      }
+    ],
+    "skills": [
+      "Social Media Handling",
+      "Public Speaking",
+      "PR Management",
+      "Influencer Management",
+      "Image Consulting",
+      "Front Office Support",
+      "Conservation Awareness",
+      "Celebrity Management",
+      "Self-Motivation",
+      "Detail-Oriented",
+      "Adobe Illustrator",
+      "Adobe Photoshop"
+    ]
+  }
+}

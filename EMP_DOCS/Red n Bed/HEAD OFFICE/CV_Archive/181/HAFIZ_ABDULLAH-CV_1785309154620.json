@@ -1,0 +1,123 @@
+{
+  "cv_file": "HAFIZ_ABDULLAH-CV_1785309154620.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:14.572094+00:00",
+  "pipeline": {
+    "total_seconds": 76.672,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 75.926,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1453,
+    "output_tokens": 963,
+    "total_tokens": 4152
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Manager",
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 2214
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hafiz Abdullah Memon",
+      "email": "engr.noumanmemon@gmail.com",
+      "phone": "(+92) 3337265937",
+      "location": "Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": "Manager Marketing & Sales",
+    "profile_summary": "Experienced Marketing and Sales Manager specializing in the textile industry with a focus on international market expansion. Proven track record in revenue growth and strategic partnerships across USA, Europe, and Middle Eastern markets.",
+    "education": [
+      {
+        "institution": "Mehran University of Engineering and Technology (MUET)",
+        "degree": "Bachelors of Engineering (B.E) Textile",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "C&S Degree College",
+        "degree": "Higher Secondary School Certificate",
+        "graduation_year": "2007"
+      },
+      {
+        "institution": "Govt GKH high school",
+        "degree": "Secondary School Certificate",
+        "graduation_year": "2005"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Gul Ahmed Textile Mills",
+        "role": "Manager Marketing",
+        "duration": "10/2023 – Present",
+        "description": "Overseeing marketing operations for USA, Europe, UK, KSA, and Australia regions."
+      },
+      {
+        "company": "KAM International",
+        "role": "Manager Marketing",
+        "duration": "03/2021 – 10/2023",
+        "description": "Managed USA Division marketing for major clients including Biglots, T&C, and JLA."
+      },
+      {
+        "company": "Yunus Textile Mill",
+        "role": "Marketing Executive",
+        "duration": "10/2020 – 03/2021",
+        "description": "Executed marketing activities specifically for Target USA."
+      },
+      {
+        "company": "Yunus Textile Mill",
+        "role": "Sr Merchandiser",
+        "duration": "11/2016 – 10/2020",
+        "description": "Led merchandising operations for Target USA."
+      },
+      {
+        "company": "Alkaram Textile Mill",
+        "role": "Merchandiser (Domestic)",
+        "duration": "11/2013 – 10/2016",
+        "description": "Managed domestic merchandising and sales."
+      },
+      {
+        "company": "Yunus Textile Mill",
+        "role": "Quality Assurance Engineer (Wet Processing)",
+        "duration": "03/2012 – 03/2013",
+        "description": "Ensured quality standards in wet processing operations."
+      }
+    ],
+    "skills": [
+      "Product Positioning",
+      "Pricing Strategy",
+      "Brand Development",
+      "Client Relationship Management",
+      "Communication",
+      "Textile Market Trends",
+      "Supply Chain Coordination",
+      "Problem-Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 10,
+    "experience_match": 50,
+    "overall_score": 35,
+    "strengths": [
+      "Strong B2B international marketing experience",
+      "Proven tenure in managerial roles",
+      "Deep expertise in the textile sector"
+    ],
+    "weaknesses": [
+      "Complete lack of mentioned digital marketing tools (GA4, ad platforms)",
+      "Experience is B2B/Export focused rather than consumer brand integrated campaigns",
+      "Degree is in Engineering, not Marketing or Business Administration"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a seasoned B2B textile marketing professional but lacks the critical digital marketing technical skills (GA4, ad reporting) and consumer-facing brand experience required for this role."
+  }
+}

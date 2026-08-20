@@ -1,0 +1,109 @@
+{
+  "cv_file": "Hassaan_Khan_-_Resume_1785309154641.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:52.104213+00:00",
+  "pipeline": {
+    "total_seconds": 67.696,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.597,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1357,
+    "output_tokens": 803,
+    "total_tokens": 3760
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2955
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hassaan Khan",
+      "email": "hassaankhan04@gmail.com",
+      "phone": "+92 331 2414855",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing & Communications Professional",
+    "profile_summary": "Results-driven marketing professional with approximately 6 years of experience specializing in brand management and digital strategy. Proven track record in leading cross-functional teams and executing integrated campaigns for consumer brands.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelors in Media Sciences, Major (Advertising/ Marketing)",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Institute of Business Management",
+        "degree": "Certification in Digital Marketing",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Kass Cosmetics",
+        "role": "Brand Manager",
+        "duration": "August 2025 - Current",
+        "description": "Developing brand strategies for skincare, managing digital campaigns, and overseeing product launches and creative content."
+      },
+      {
+        "company": "ARY Digital Network",
+        "role": "Product Manager",
+        "duration": "July 2024 - July 2025",
+        "description": "Led digital product lifecycle management, defining vision and strategy to drive innovation and business objectives."
+      },
+      {
+        "company": "Junaid Jamshed (PVT) LTD",
+        "role": "Assistant Brand Manager",
+        "duration": "February 2023 - June 2024",
+        "description": "Executed end-to-end campaign shoots, conducted market research, and managed social media content calendars."
+      },
+      {
+        "company": "Cambridge Garment Industries",
+        "role": "Assistant Brand Manager",
+        "duration": "April 2019 - January 2023",
+        "description": "Managed strategic planning, budgeting, and execution of nationwide ATL, BTL, and digital campaigns."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Adaptability",
+      "Product Management",
+      "Brand Management",
+      "Marketing Strategy",
+      "Leadership",
+      "Adobe Illustrator",
+      "Adobe Photoshop",
+      "Digital Marketing",
+      "Market Research",
+      "ATL/BTL Campaigns"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 60,
+    "experience_match": 90,
+    "overall_score": 78,
+    "strengths": [
+      "Strong consumer brand background (Cosmetics, Fashion)",
+      "Experience with integrated ATL/BTL/Digital campaigns",
+      "Local to Karachi",
+      "Relevant seniority and leadership experience"
+    ],
+    "weaknesses": [
+      "No explicit mention of GA4 or specific ad platform reporting tools",
+      "Lack of detailed ROI/CAC/LTV reporting metrics"
+    ],
+    "recommendation": "Interview",
+    "summary": "Highly compatible candidate with strong brand management experience in the consumer sector. While missing explicit mentions of GA4, his overall profile and local presence make him a strong fit."
+  }
+}

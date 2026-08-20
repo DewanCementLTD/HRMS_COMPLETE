@@ -1,0 +1,129 @@
+{
+  "cv_file": "Shahriyar_Baig_DMCV_NEW_Updated_1786003770281.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:44.737821+00:00",
+  "pipeline": {
+    "total_seconds": 61.329,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.742,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2305,
+    "output_tokens": 966,
+    "total_tokens": 4418
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5726
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shahriyar Baig",
+      "email": "Sharyar_baig@yahoo.com",
+      "phone": "03442607511",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Experienced Digital Marketer and Entrepreneur with an MBA and extensive background in social media management and campaign strategy. Specialized in Meta ads and content orchestration across international markets including USA, UK, and UAE.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master of Business Administration (MBA)",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Matriculation",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "ERP College",
+        "role": "Social Media Marketing Manager & Strategist",
+        "duration": "Jan 2023 - Dec 2023",
+        "description": "Managed SM platforms and Meta ads; coordinated with design/content teams for calendars and assets across TikTok, Snapchat, and YouTube."
+      },
+      {
+        "company": "ERP Group of Companies",
+        "role": "SMMM & Strategist",
+        "duration": "Jan 2023 - Dec 2023",
+        "description": "Managed SM platforms, led effective teams with HR, and promoted the college at major events like Techno fest 23."
+      },
+      {
+        "company": "Foundation School/Hira Institute",
+        "role": "Digital Marketing Strategist & Trainer",
+        "duration": "2021 - 2023",
+        "description": "Provided digital marketing strategy and training services onsite and remotely."
+      },
+      {
+        "company": "Falaknaz Group",
+        "role": "Digital Marketing Manager & Strategist",
+        "duration": "June 2022 - Jan 2023",
+        "description": "Created and managed social media platforms and ad campaigns in coordination with the design team."
+      },
+      {
+        "company": "Digital Hub",
+        "role": "Digital & Design Executive",
+        "duration": "2018 - 2021",
+        "description": "Managed all social media platforms and executed ad campaigns over a 2.5-year period."
+      }
+    ],
+    "skills": [
+      "Social Media Marketing",
+      "Digital Campaign Strategy",
+      "Meta Business Suite",
+      "Facebook Pixel",
+      "Google Analytics",
+      "MS Excel",
+      "MS Word",
+      "Adobe Photoshop",
+      "Content Planning",
+      "Team Management",
+      "Public Speaking",
+      "Creative Planning"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Extensive experience with Meta Business Suite and ad campaigns",
+      "Proven track record with TikTok, Instagram, and Facebook",
+      "Strong academic background with an MBA",
+      "Experience coordinating with design teams for content calendars"
+    ],
+    "weaknesses": [
+      "No explicit mention of UTM tracking specifically",
+      "No mention of Canva (though Photoshop is listed)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an overqualified match who exceeds the minimum experience and education requirements. He has direct experience in all core job functions, including content scheduling, Meta ads management, and cross-functional coordination with designers."
+  }
+}

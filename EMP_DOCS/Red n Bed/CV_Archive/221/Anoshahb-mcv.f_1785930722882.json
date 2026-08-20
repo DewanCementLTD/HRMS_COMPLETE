@@ -1,0 +1,126 @@
+{
+  "cv_file": "Anoshahb-mcv.f_1785930722882.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:38.116515+00:00",
+  "pipeline": {
+    "total_seconds": 73.377,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 73.171,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1761,
+    "output_tokens": 926,
+    "total_tokens": 4337
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 4353
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Anoshah Baloch",
+      "email": "anoshahbaloch1@gmail.com",
+      "phone": "+971 50 721 0559",
+      "location": "Dubai, UAE"
+    },
+    "preferred_job_title": "Social Media Manager",
+    "profile_summary": "Social media and brand marketing specialist with a finance-trained analytical background. Expert in AI-driven content operations, brand positioning, and multi-platform campaign management.",
+    "education": [
+      {
+        "institution": "University of Wollongong Dubai",
+        "degree": "BCom, Finance Major",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Nixor College",
+        "degree": "Higher Secondary Education",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "CREW",
+        "role": "AI Marketing, Operations & Analytics Intern",
+        "duration": "Jul 2026 - Present",
+        "description": "Supports Shopify analytics, website performance tracking, and social media metrics for client brands."
+      },
+      {
+        "company": "University of Wollongong Dubai",
+        "role": "AI Marketing Team Lead",
+        "duration": "Spring 2026",
+        "description": "Led a 7-person team to build an AI marketing stack and launched multi-channel campaigns on Instagram and TikTok."
+      },
+      {
+        "company": "Afnan Perfumes",
+        "role": "Marketing Strategist",
+        "duration": "2025",
+        "description": "Developed Gen Z rebranding strategy and competitive analysis, winning the client brief."
+      },
+      {
+        "company": "@alizey.db",
+        "role": "Social Media Manager",
+        "duration": "2023 - Present",
+        "description": "Grew personal lifestyle/beauty accounts using algorithm-driven strategies and CapCut editing."
+      },
+      {
+        "company": "Nixor College Productions",
+        "role": "Brand & Content Direction",
+        "duration": "2022 - 2024",
+        "description": "Directed visual branding and social campaigns for six large-scale student productions."
+      }
+    ],
+    "skills": [
+      "Social Media Strategy",
+      "Content Creation",
+      "Brand Positioning",
+      "Audience Segmentation",
+      "Campaign Planning",
+      "Influencer Marketing",
+      "Email Marketing",
+      "Community Management",
+      "KPI Tracking",
+      "Google Gemini",
+      "NotebookLM",
+      "Google Opal",
+      "ChatGPT",
+      "Claude",
+      "Canva",
+      "CapCut",
+      "Notion",
+      "Figma",
+      "Meta Business Suite",
+      "Consumer Research",
+      "Data Analysis",
+      "Shopify Analytics",
+      "Excel",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 75,
+    "overall_score": 87,
+    "strengths": [
+      "Advanced AI tool proficiency for content and research",
+      "Strong analytical skills from finance background",
+      "Direct experience with Instagram, TikTok, and Meta Business Suite",
+      "Proven ability to conduct competitor and market research"
+    ],
+    "weaknesses": [
+      "Lack of full-time corporate experience",
+      "Degree is in Finance rather than Marketing/Communications"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly capable candidate who exceeds technical requirements. While experience is primarily internship and project-based, the candidate demonstrates professional-level execution in social media management, AI integration, and data-driven reporting."
+  }
+}

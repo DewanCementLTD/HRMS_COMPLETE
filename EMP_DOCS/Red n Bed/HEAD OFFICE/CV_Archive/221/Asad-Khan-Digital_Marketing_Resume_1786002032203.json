@@ -1,0 +1,101 @@
+{
+  "cv_file": "Asad-Khan-Digital_Marketing_Resume_1786002032203.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:45:46.353549+00:00",
+  "pipeline": {
+    "total_seconds": 55.794,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 55.707,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 938,
+    "output_tokens": 691,
+    "total_tokens": 2906
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Executive",
+    "sections_found": [
+      "education",
+      "experience",
+      "summary"
+    ],
+    "text_chars": 924
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "M. Asad Khan",
+      "email": "ak03402598051@gmail.com",
+      "phone": "+92 3402598051",
+      "location": "Clifton Block 8"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Dedicated SEO and SMM professional with 2 years of experience driving digital marketing strategies. Expert in enhancing online visibility, engagement, and conversion rates through analytics and social media optimization.",
+    "education": [
+      {
+        "institution": "DHACSS Degree College",
+        "degree": "Intermediate",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "DHACSS SKBZ Campus",
+        "degree": "Intermediate",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Digi Skill",
+        "degree": "Digital Marketing Certified",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techversol Inc",
+        "role": "SEO And Social Media Marketing Executive",
+        "duration": "April 2024 - Present",
+        "description": "Leading SEO and social media marketing efforts to improve brand reach and search rankings."
+      },
+      {
+        "company": "Aida Digital Marketing",
+        "role": "Digital Marketing Executive",
+        "duration": "December 2022 - March 2024",
+        "description": "Implemented digital marketing strategies to enhance online visibility and increase conversion rates."
+      },
+      {
+        "company": "Comtech Associate",
+        "role": "Digital Marketing Intern",
+        "duration": "July 2022 - October 2022",
+        "description": "Gained foundational experience in digital marketing operations."
+      }
+    ],
+    "skills": [
+      "Search Engine Optimization",
+      "Facebook Ads",
+      "Communication",
+      "Canva",
+      "Social Media Marketing",
+      "Instagram Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 75,
+    "technical_match": 85,
+    "experience_match": 80,
+    "overall_score": 78,
+    "strengths": [
+      "Direct experience in SMM and SEO",
+      "Proficiency in Canva",
+      "Meets minimum years of experience"
+    ],
+    "weaknesses": [
+      "Lacks required Bachelor's degree",
+      "No explicit mention of TikTok or UTM tracking"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate possesses strong technical skills in SMM and SEO and meets the experience threshold, although they lack the formal Bachelor's degree required by the JD."
+  }
+}

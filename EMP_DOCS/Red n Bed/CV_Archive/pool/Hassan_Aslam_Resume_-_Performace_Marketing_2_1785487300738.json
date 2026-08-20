@@ -1,0 +1,115 @@
+{
+  "cv_file": "Hassan_Aslam_Resume_-_Performace_Marketing_2_1785487300738.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:43:13.503546+00:00",
+  "pipeline": {
+    "total_seconds": 70.395,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.24,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1663,
+    "output_tokens": 901,
+    "total_tokens": 4017
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "summary"
+    ],
+    "text_chars": 5590
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hassan Aslam",
+      "email": "hassanalimuhammad592@gmail.com",
+      "phone": "+92 3211227457",
+      "location": "lakhani Plaza, Saddar, Khi"
+    },
+    "preferred_job_title": "Performance Marketing Specialist",
+    "profile_summary": "Performance marketing specialist with 7+ years of experience in PPC and Meta campaigns. Expert in scaling e-commerce and lead generation businesses through data-driven strategies and ROI-focused optimization.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelor of Business Administration - BBA",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Computer Science",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TCS Private Limited",
+        "role": "Sr. Asst Manager Performance Marketing",
+        "duration": "Jan 2026 – Present",
+        "description": "Manages full-funnel performance marketing campaigns for TCS Sentiments Express and STUDIO by TCS across Google, Meta, and TikTok Ads."
+      },
+      {
+        "company": "Cubix Inc.",
+        "role": "Performance Marketing Specialist",
+        "duration": "Feb 2023 – Sep 2025",
+        "description": "Executed Google and Meta Ads campaigns for B2B e-commerce brands, focusing on lead generation, audience segmentation, and ROAS efficiency."
+      },
+      {
+        "company": "Nelscape",
+        "role": "Senior PPC Specialist",
+        "duration": "Oct 2021 – Dec 2022",
+        "description": "Managed lead-generation PPC campaigns for eBook brands, optimizing conversion rates, CPL, and landing page user experience."
+      },
+      {
+        "company": "Digital Eggheads",
+        "role": "Paid Media Specialist",
+        "duration": "Feb 2021 - Sep 2021",
+        "description": "Optimized Google and Meta Ads across multiple brands to drive qualified traffic and ROI through data-driven strategies."
+      },
+      {
+        "company": "InnovaTech Solutions",
+        "role": "PPC Specialist",
+        "duration": "Mar 2020 - Jan 2021",
+        "description": "Managed performance-driven PPC campaigns for RSP brands in the USA and UK, focusing on lead generation and sales funnel alignment."
+      },
+      {
+        "company": "Webmended",
+        "role": "Sr PPC Executive",
+        "duration": "Jan 2019 - Jan 2020",
+        "description": "Led Google Ads for affiliate brands, utilizing networks like ShareASale and CJ to identify and scale profitable opportunities."
+      },
+      {
+        "company": "Webmended",
+        "role": "PPC Executive",
+        "duration": "Oct 2017 - Jan 2019",
+        "description": "Assisted in developing paid campaigns, conducting keyword research, and managing Expanded Text Ads to improve quality scores."
+      }
+    ],
+    "skills": [
+      "Full-Funnel Google Ads Strategy",
+      "Social Media Marketing",
+      "Keyword Research",
+      "Search Intent Targeting",
+      "Conversion Tracking",
+      "Data Attribution",
+      "Ad Copywriting",
+      "A/B Testing",
+      "Budget Allocation",
+      "Bid Optimization",
+      "Performance Analysis",
+      "ROAS Scaling",
+      "Meta Ads",
+      "TikTok Ads",
+      "Google Analytics",
+      "Lead Generation",
+      "Affiliate Marketing",
+      "English",
+      "Urdu"
+    ]
+  }
+}

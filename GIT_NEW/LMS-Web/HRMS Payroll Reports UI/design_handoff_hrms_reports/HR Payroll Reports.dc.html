@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<style>
+  body { margin: 0; }
+  ::selection { background: #c7d2fe; }
+</style>
+</helmet>
+<div data-screen-label="HR Payroll Reports" style="min-height:100vh;background:#f5f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+  <div style="background:linear-gradient(135deg,#0a111f 0%,#151f34 55%,#0a111f 100%);padding:40px 48px 34px;">
+    <div style="max-width:1360px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+      <div>
+        <h1 style="margin:0;color:#ffffff;font-size:27px;font-weight:700;letter-spacing:-0.01em;">HR &amp; Payroll Reports</h1>
+        <p style="margin:8px 0 0;color:#aab1c4;font-size:14px;">Company- and branch-scoped reports with print-ready output</p>
+      </div>
+      <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#dfe3ee;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:999px;white-space:nowrap;">Chef &amp; Butler Co · All Branches</span>
+    </div>
+  </div>
+
+  <div style="max-width:1360px;margin:0 auto;padding:30px 48px 72px;display:flex;flex-direction:column;gap:30px;">
+
+    <sc-if value="{{noSelection}}" hint-placeholder-val="{{true}}">
+    <section>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px;">
+        <h2 style="margin:0;font-size:15px;font-weight:700;color:#111827;">Payroll Reports</h2>
+        <span style="font-size:12.5px;color:#9ca3af;">Monetary reports built from the salary process</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px;">
+        <sc-for list="{{payrollCards}}" as="item" hint-placeholder-count="7">
+          <button onClick="{{item.onSelect}}" style="text-align:left;cursor:pointer;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .15s ease;background:{{item.bg}};border:1px solid {{item.border}};box-shadow:{{item.shadow}};" style-hover="box-shadow:0 4px 14px rgba(15,23,42,0.08);">
+            <span style="width:34px;height:34px;border-radius:10px;background:{{item.iconBg}};color:{{item.iconColor}};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="3" height="6" rx="1" fill="currentColor"></rect><rect x="6.5" y="5" width="3" height="10" rx="1" fill="currentColor"></rect><rect x="12" y="1" width="3" height="14" rx="1" fill="currentColor"></rect></svg>
+            </span>
+            <span style="font-size:13.5px;font-weight:700;color:#1f2937;line-height:1.3;">{{item.title}}</span>
+            <span style="font-size:12px;color:#6b7280;line-height:1.4;">{{item.desc}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+
+    <section>
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px;">
+        <h2 style="margin:0;font-size:15px;font-weight:700;color:#111827;">General Reports</h2>
+        <span style="font-size:12.5px;color:#9ca3af;">Non-monetary HR and attendance reports</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px;">
+        <sc-for list="{{generalCards}}" as="item" hint-placeholder-count="2">
+          <button onClick="{{item.onSelect}}" style="text-align:left;cursor:pointer;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:all .15s ease;background:{{item.bg}};border:1px solid {{item.border}};box-shadow:{{item.shadow}};" style-hover="box-shadow:0 4px 14px rgba(15,23,42,0.08);">
+            <span style="width:34px;height:34px;border-radius:10px;background:{{item.iconBg}};color:{{item.iconColor}};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="4.6" r="2.6" fill="none"></circle><path d="M2.3 14.5c0-3.4 2.5-6 5.7-6s5.7 2.6 5.7 6" fill="none"></path></svg>
+            </span>
+            <span style="font-size:13.5px;font-weight:700;color:#1f2937;line-height:1.3;">{{item.title}}</span>
+            <span style="font-size:12px;color:#6b7280;line-height:1.4;">{{item.desc}}</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <sc-if value="{{hasSelection}}" hint-placeholder-val="{{false}}">
+      <section style="display:flex;flex-direction:column;gap:16px;">
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+          <div>
+            <button onClick="{{closeSelection}}" style="background:none;border:none;color:#6b7280;font-size:12.5px;font-weight:600;cursor:pointer;padding:0 0 8px;display:flex;align-items:center;gap:5px;white-space:nowrap;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"></path></svg>
+              Back to reports
+            </button>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <h3 style="margin:0;font-size:17px;font-weight:700;color:#111827;">{{selectedMeta.title}}</h3>
+              <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:{{selectedMeta.badgeBg}};color:{{selectedMeta.badgeColor}};">{{selectedMeta.badgeLabel}}</span>
+            </div>
+            <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">{{selectedMeta.desc}}</p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;position:relative;">
+            <button onClick="{{toggleExport}}" style="background:#fff;border:1px solid #d1d5db;color:#374151;font-size:13px;font-weight:600;padding:9px 14px;border-radius:10px;display:flex;gap:6px;align-items:center;cursor:pointer;">Export ▾</button>
+            <sc-if value="{{exportOpen}}" hint-placeholder-val="{{false}}">
+              <div style="position:absolute;top:44px;right:112px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(15,23,42,.12);padding:6px;display:flex;flex-direction:column;min-width:140px;z-index:10;">
+                <span style="padding:8px 10px;font-size:12.5px;font-weight:600;color:#374151;border-radius:8px;cursor:pointer;" style-hover="background:#f3f4f6;">Export as Excel</span>
+                <span style="padding:8px 10px;font-size:12.5px;font-weight:600;color:#374151;border-radius:8px;cursor:pointer;" style-hover="background:#f3f4f6;">Export as PDF</span>
+                <span style="padding:8px 10px;font-size:12.5px;font-weight:600;color:#374151;border-radius:8px;cursor:pointer;" style-hover="background:#f3f4f6;">Print</span>
+              </div>
+            </sc-if>
+            <button style="background:{{accentColor}};color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:10px;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;" style-hover="opacity:0.9;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="9" width="12" height="8" rx="1"></rect><path d="M6 9V4h12v5"></path></svg>
+              Generate Report ({{selectedCountLabel}})
+            </button>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);">
+          <sc-if value="{{showScopeChips}}" hint-placeholder-val="{{true}}">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-bottom:1px solid #f1f2f4;padding:11px 18px;background:#fafafb;border-radius:16px 16px 0 0;">
+              <span style="display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path></svg>
+                Scope
+              </span>
+              <span style="display:inline-flex;align-items:center;gap:5px;background:#eef2ff;border:1px solid #e0e7ff;color:#3730a3;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;">Chef &amp; Butler</span>
+              <span style="display:inline-flex;align-items:center;gap:5px;background:#ecfdf5;border:1px solid #d1fae5;color:#065f46;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;">All Branches</span>
+              <span style="font-size:11px;color:#b0b4bd;">follows the sidebar selection</span>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;flex-wrap:wrap;gap:16px;padding:18px 18px 14px;align-items:flex-end;">
+            <sc-for list="{{primaryFields}}" as="f" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:5px;min-width:{{f.minWidth}};">
+                <label style="font-size:10.5px;font-weight:700;color:#8a8f99;text-transform:uppercase;letter-spacing:.05em;">{{f.label}}</label>
+                <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{true}}">
+                  <select style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:500;background:#fff;color:#1f2937;">
+                    <sc-for list="{{f.options}}" as="opt" hint-placeholder-count="3">
+                      <option value="{{opt.value}}">{{opt.label}}</option>
+                    </sc-for>
+                  </select>
+                </sc-if>
+                <sc-if value="{{f.isText}}" hint-placeholder-val="{{false}}">
+                  <input placeholder="{{f.placeholder}}" style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;color:#1f2937;"></input>
+                </sc-if>
+                <sc-if value="{{f.isNumber}}" hint-placeholder-val="{{false}}">
+                  <input type="number" placeholder="{{f.placeholder}}" style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;color:#1f2937;"></input>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 18px 18px;border-top:1px solid #f4f4f5;flex-wrap:wrap;">
+            <sc-if value="{{hasMoreFields}}" hint-placeholder-val="{{false}}">
+              <button onClick="{{toggleMore}}" style="background:#fafafe;border:1px solid #e6e6f5;color:{{accentColor}};font-size:12.5px;font-weight:700;cursor:pointer;padding:7px 12px;border-radius:9px;display:flex;align-items:center;gap:5px;white-space:nowrap;">{{moreLabel}}</button>
+            </sc-if>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <button style="background:#fff;border:1px solid #d1d5db;color:#4b5563;font-size:13px;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>
+                Reset
+              </button>
+              <button style="background:{{accentColor}};border:none;color:#fff;font-size:13px;font-weight:700;padding:8px 16px;border-radius:10px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;" style-hover="opacity:0.9;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Apply
+              </button>
+            </div>
+          </div>
+
+          <sc-if value="{{showMoreFilters}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;border-top:1px dashed #eef0f2;padding:16px 18px 18px;">
+              <sc-for list="{{secondaryFields}}" as="f" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:5px;min-width:{{f.minWidth}};">
+                  <label style="font-size:10.5px;font-weight:700;color:#8a8f99;text-transform:uppercase;letter-spacing:.05em;">{{f.label}}</label>
+                  <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{true}}">
+                    <select style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:500;background:#fff;color:#1f2937;">
+                      <sc-for list="{{f.options}}" as="opt" hint-placeholder-count="3">
+                        <option value="{{opt.value}}">{{opt.label}}</option>
+                      </sc-for>
+                    </select>
+                  </sc-if>
+                  <sc-if value="{{f.isText}}" hint-placeholder-val="{{false}}">
+                    <input placeholder="{{f.placeholder}}" style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;color:#1f2937;"></input>
+                  </sc-if>
+                  <sc-if value="{{f.isNumber}}" hint-placeholder-val="{{false}}">
+                    <input type="number" placeholder="{{f.placeholder}}" style="width:100%;border:1px solid #dfe1e6;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;color:#1f2937;"></input>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;">
+                <input type="checkbox" checked="{{allSelected}}" onChange="{{toggleSelectAll}}"></input>
+                <span style="white-space:nowrap;">Select All Visible ({{filteredCount}})</span>
+              </label>
+              <sc-if value="{{hasSelectedRows}}" hint-placeholder-val="{{false}}">
+                <span style="background:#e0e7ff;color:#3730a3;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;">{{selectedRowCount}} selected</span>
+              </sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:7px 12px;min-width:230px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input value="{{query}}" onChange="{{onQueryChange}}" placeholder="Search code or name..." style="border:none;outline:none;font-size:12.5px;width:100%;background:transparent;"></input>
+            </div>
+          </div>
+
+          <sc-if value="{{hasRows}}" hint-placeholder-val="{{true}}">
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+                <thead>
+                  <tr style="background:#f9fafb;border-bottom:1px solid #e5e7eb;">
+                    <th style="width:42px;padding:{{tdPad}};text-align:center;"></th>
+                    <sc-for list="{{columns}}" as="col" hint-placeholder-count="5">
+                      <th style="padding:{{thPad}};font-size:11px;font-weight:700;color:#4b5563;white-space:nowrap;text-align:{{col.align}}">{{col.label}}</th>
+                    </sc-for>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{rows}}" as="row" hint-placeholder-count="4">
+                    <tr onClick="{{row.onToggle}}" style="cursor:pointer;background:{{row.rowBg}};border-bottom:1px solid #f3f4f6;">
+                      <td style="padding:{{tdPad}};text-align:center;" onClick="{{stopProp}}">
+                        <input type="checkbox" checked="{{row.checked}}" onChange="{{row.onToggle}}"></input>
+                      </td>
+                      <sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="5">
+                        <td style="padding:{{tdPad}};white-space:nowrap;text-align:{{cell.align}};{{cell.monoStyle}}{{cell.boldStyle}}{{cell.colorStyle}}">{{cell.text}}</td>
+                      </sc-for>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+          <sc-if value="{{noRows}}" hint-placeholder-val="{{false}}">
+            <div style="padding:56px 20px;text-align:center;color:#9ca3af;">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 10px;display:block;"><rect x="5" y="3" width="14" height="18" rx="2"></rect><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="12" x2="15" y2="12"></line></svg>
+              <p style="font-size:13.5px;font-weight:600;color:#6b7280;margin:0;">No records found for these filters.</p>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 1000}, &quot;accentColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#4f46e5&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#4f46e5&quot;, &quot;#0f766e&quot;, &quot;#b45309&quot;, &quot;#334155&quot;], &quot;section&quot;: &quot;Appearance&quot;}, &quot;density&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;comfortable&quot;, &quot;tsType&quot;: &quot;'comfortable' | 'compact'&quot;, &quot;options&quot;: [&quot;comfortable&quot;, &quot;compact&quot;], &quot;section&quot;: &quot;Appearance&quot;}, &quot;showScopeChips&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Behavior&quot;}}">
+const PERIODS = ['Jun-2027', 'May-2027', 'Apr-2027', 'Mar-2027'];
+const DEPARTMENTS = ['Finance', 'Sales', 'Operations', 'Human Resources', 'Production'];
+const DESIGNATIONS = ['Manager', 'Executive', 'Sr. Manager', 'Officer', 'Supervisor'];
+const DESG_GROUPS = ['Management', 'Staff', 'Worker'];
+const GRADES = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4'];
+const EMP_STATUSES = ['Permanent', 'Contract', 'Probation'];
+const DEDUCTIONS = ['Provident Fund', 'Loan Installment', 'Income Tax'];
+
+const CATALOG = [
+  { id: 'allowance-detail', title: 'Employee Allowances Detail Report', category: 'payroll', desc: 'Monthly allowance breakdown per employee, one column per allowance type' },
+  { id: 'allowance-recon', title: 'Payroll Reconciliation Detail Report (Allowance)', category: 'payroll', desc: 'Allowance variance between two periods, grouped by allowance' },
+  { id: 'deduction-detail', title: 'Employee Deduction Detail Report', category: 'payroll', desc: 'Monthly deduction breakdown per employee, one column per deduction type' },
+  { id: 'deduction-recon', title: 'Payroll Reconciliation Detail Report (Deduction)', category: 'payroll', desc: 'Deduction variance between two periods, grouped by deduction' },
+  { id: 'month-wise-deduction', title: 'Month Wise Deduction Report', category: 'payroll', desc: 'One deduction tracked across a range of months' },
+  { id: 'bank-advice', title: 'Bank Advice Report', category: 'payroll', desc: 'Disbursement schedule grouped by bank and branch with account details' },
+  { id: 'pf-detail', title: 'P.F Detail Report', category: 'payroll', desc: 'Provident Fund ledger, employer matching and account statement for one employee' },
+  { id: 'absent-supp', title: 'Employee Absent and Supplimentary Days Report', category: 'general', desc: 'Absent days and supplementary days per employee for a period' },
+  { id: 'active-employees', title: 'ALL Active Employee Detail Report', category: 'general', desc: 'Active employee roster with grade, designation, department and joining dates' },
+];
+
+const REPORT_FILTERS = {
+  'allowance-detail': ['periodRange', 'salaryData', 'employee'],
+  'deduction-detail': ['periodRange', 'salaryData', 'employee'],
+  'allowance-recon': ['periodRange', 'employee'],
+  'deduction-recon': ['periodRange', 'employee'],
+  'month-wise-deduction': ['deduction', 'periodRange', 'department', 'employee'],
+  'bank-advice': ['period', 'desgGroup', 'bankAdviceType'],
+  'pf-detail': ['employee'],
+  'absent-supp': ['period', 'department'],
+  'active-employees': ['employeeStatusType', 'designation', 'desgGroup', 'department', 'grade', 'empStatus', 'grossRange', 'employee'],
+};
+
+function opts(list, placeholder) {
+  return [{ value: '', label: placeholder }, ...list.map((l) => ({ value: l, label: l }))];
+}
+function periodOpts() { return PERIODS.map((p) => ({ value: p, label: p })); }
+
+function c(text, { align = 'left', mono = false, bold = false, color = null } = {}) {
+  return {
+    text: String(text),
+    align,
+    monoStyle: mono ? "font-family:ui-monospace,Menlo,Consolas,monospace;" : "",
+    boldStyle: bold ? "font-weight:700;" : "",
+    colorStyle: color ? `color:${color};` : "",
+  };
+}
+function money(v) { return (v == null || v === 0) ? '—' : Math.round(v).toLocaleString(); }
+function col(label, align = 'left') { return { label, align }; }
+
+const TABLES = {
+  'allowance-detail': {
+    columns: [col('Code'), col('Employee Name'), col('HRA', 'right'), col('Conveyance', 'right'), col('Medical', 'right'), col('Total', 'right')],
+    data: [
+      ['EMP-1042', 'Ayesha Raza', 18000, 4000, 2500, 24500],
+      ['EMP-1077', 'Bilal Ahmed', 15000, 3000, 2500, 20500],
+      ['EMP-1103', 'Sana Tariq', 20000, 4000, 3000, 27000],
+      ['EMP-1120', 'Omar Farooq', 16000, 3500, 2000, 21500],
+    ],
+    row: (r) => [c(r[0], { mono: true, bold: true }), c(r[1]), c(money(r[2]), { align: 'right', mono: true }), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true, bold: true, color: '#312e81' })],
+  },
+  'deduction-detail': {
+    columns: [col('Code'), col('Employee Name'), col('Provident Fund', 'right'), col('Loan Installment', 'right'), col('Income Tax', 'right'), col('Total', 'right')],
+    data: [
+      ['EMP-1042', 'Ayesha Raza', 2200, 0, 1800, 4000],
+      ['EMP-1077', 'Bilal Ahmed', 1800, 1500, 1200, 4500],
+      ['EMP-1103', 'Sana Tariq', 2400, 0, 2100, 4500],
+      ['EMP-1120', 'Omar Farooq', 1900, 800, 1500, 4200],
+    ],
+    row: (r) => [c(r[0], { mono: true, bold: true }), c(r[1]), c(money(r[2]), { align: 'right', mono: true }), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true, bold: true, color: '#312e81' })],
+  },
+  'allowance-recon': {
+    columns: [col('Allowance'), col('Code'), col('Employee Name'), col('From Period', 'right'), col('To Period', 'right'), col('Variance', 'right')],
+    data: [
+      ['HRA', 'EMP-1042', 'Ayesha Raza', 17000, 18000, 1000],
+      ['HRA', 'EMP-1077', 'Bilal Ahmed', 15000, 15000, 0],
+      ['Conveyance', 'EMP-1103', 'Sana Tariq', 3500, 4000, 500],
+      ['Medical', 'EMP-1120', 'Omar Farooq', 2000, 2000, 0],
+    ],
+    row: (r) => [c(r[0], { color: '#4b5563' }), c(r[1], { mono: true, bold: true }), c(r[2]), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true, bold: true })],
+  },
+  'deduction-recon': {
+    columns: [col('Deduction'), col('Code'), col('Employee Name'), col('From Period', 'right'), col('To Period', 'right'), col('Variance', 'right')],
+    data: [
+      ['Provident Fund', 'EMP-1042', 'Ayesha Raza', 2100, 2200, 100],
+      ['Loan Installment', 'EMP-1077', 'Bilal Ahmed', 1600, 1500, -100],
+      ['Income Tax', 'EMP-1103', 'Sana Tariq', 2000, 2100, 100],
+    ],
+    row: (r) => [c(r[0], { color: '#4b5563' }), c(r[1], { mono: true, bold: true }), c(r[2]), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true, bold: true })],
+  },
+  'month-wise-deduction': {
+    columns: [col('Code'), col('Employee Name'), col('Apr-2027', 'right'), col('May-2027', 'right'), col('Jun-2027', 'right'), col('Total', 'right')],
+    data: [
+      ['EMP-1042', 'Ayesha Raza', 2100, 2150, 2200, 6450],
+      ['EMP-1077', 'Bilal Ahmed', 1600, 1650, 1800, 5050],
+      ['EMP-1103', 'Sana Tariq', 2000, 2050, 2100, 6150],
+    ],
+    row: (r) => [c(r[0], { mono: true, bold: true }), c(r[1]), c(money(r[2]), { align: 'right', mono: true }), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true, bold: true, color: '#312e81' })],
+  },
+  'bank-advice': {
+    columns: [col('Bank / Branch'), col('Code'), col('Employee Name'), col('Account Number'), col('Salary Payable', 'right')],
+    data: [
+      ['Meezan Bank — Main Branch', 'EMP-1042', 'Ayesha Raza', '01234567890123', 82500],
+      ['Meezan Bank — Main Branch', 'EMP-1077', 'Bilal Ahmed', '01234567890456', 71200],
+      ['HBL — Gulberg Branch', 'EMP-1103', 'Sana Tariq', '00987654321098', 94800],
+      ['HBL — Gulberg Branch', 'EMP-1120', 'Omar Farooq', '00987654322211', 68900],
+    ],
+    row: (r) => [c(r[0], { color: '#4b5563' }), c(r[1], { mono: true, bold: true }), c(r[2]), c(r[3], { mono: true }), c(money(r[4]), { align: 'right', mono: true, bold: true, color: '#047857' })],
+  },
+  'active-employees': {
+    columns: [col('S.#'), col('Code'), col('Employee Name'), col('Unit'), col('Location'), col('Grade'), col('Designation'), col('Department'), col('Date of Joining'), col('Gross', 'right')],
+    data: [
+      [1, 'EMP-1042', 'Ayesha Raza', 'Head Office', 'Karachi', 'G3', 'Manager', 'Finance', '12-Mar-2019', 185000],
+      [2, 'EMP-1077', 'Bilal Ahmed', 'Head Office', 'Lahore', 'G2', 'Executive', 'Sales', '04-Jul-2021', 142000],
+      [3, 'EMP-1103', 'Sana Tariq', 'Plant 1', 'Faisalabad', 'G4', 'Sr. Manager', 'Operations', '21-Jan-2016', 210000],
+    ],
+    row: (r) => [c(r[0], { mono: true }), c(r[1], { mono: true, bold: true }), c(r[2]), c(r[3], { color: '#4b5563' }), c(r[4], { color: '#4b5563' }), c(r[5], { color: '#4b5563' }), c(r[6], { color: '#4b5563' }), c(r[7], { color: '#4b5563' }), c(r[8], { color: '#4b5563' }), c(money(r[9]), { align: 'right', mono: true, bold: true })],
+  },
+  'pf-detail': {
+    columns: [col('S.No'), col('Month / Year'), col('Actual Basic', 'right'), col('Earned Basic', 'right'), col('Actual Gross', 'right'), col('Earned Gross', 'right'), col('P.F Contribution', 'right'), col('Balance', 'right')],
+    data: [
+      [1, 'Apr-2027', 42000, 42000, 84000, 84000, 4200, 4200],
+      [2, 'May-2027', 42000, 40000, 84000, 80500, 4025, 8225],
+      [3, 'Jun-2027', 42000, 42000, 84000, 84000, 4200, 12425],
+    ],
+    row: (r) => [c(r[0], { mono: true }), c(r[1], { bold: true }), c(money(r[2]), { align: 'right', mono: true }), c(money(r[3]), { align: 'right', mono: true }), c(money(r[4]), { align: 'right', mono: true }), c(money(r[5]), { align: 'right', mono: true }), c(money(r[6]), { align: 'right', mono: true }), c(money(r[7]), { align: 'right', mono: true, bold: true, color: '#312e81' })],
+  },
+  'absent-supp': {
+    columns: [col('Sr.#'), col('Code'), col('Employee Name'), col('Designation'), col('Department'), col('Absent', 'center'), col('S.Days', 'center')],
+    data: [
+      [1, 'EMP-1042', 'Ayesha Raza', 'Manager', 'Finance', 1, 0],
+      [2, 'EMP-1077', 'Bilal Ahmed', 'Executive', 'Sales', 0, 2],
+      [3, 'EMP-1103', 'Sana Tariq', 'Sr. Manager', 'Operations', 2, 1],
+      [4, 'EMP-1120', 'Omar Farooq', 'Officer', 'HR', 0, 0],
+    ],
+    row: (r) => [c(r[0], { mono: true }), c(r[1], { mono: true, bold: true }), c(r[2]), c(r[3], { color: '#4b5563' }), c(r[4], { color: '#4b5563' }), c(r[5], { align: 'center', mono: true }), c(r[6], { align: 'center', mono: true })],
+  },
+};
+
+function fieldsFor(key, reportId) {
+  switch (key) {
+    case 'periodRange': return [
+      { label: 'Period From', required: true, isSelect: true, options: periodOpts(), minWidth: '140px' },
+      { label: 'Period To', required: true, isSelect: true, options: periodOpts(), minWidth: '140px' },
+    ];
+    case 'period': return [{ label: 'Period', required: true, isSelect: true, options: periodOpts(), minWidth: '140px' }];
+    case 'salaryData': return [{ label: 'Salary Data', isSelect: true, options: [{ value: 'C', label: 'Current' }, { value: 'P', label: 'Posted (Final)' }], minWidth: '150px' }];
+    case 'employee': return [{ label: reportId === 'pf-detail' ? 'Employee Code *' : 'Employee Code', isText: true, placeholder: 'All employees', minWidth: '170px' }];
+    case 'department': return [{ label: 'Department', isSelect: true, options: opts(DEPARTMENTS, 'All departments'), minWidth: '190px' }];
+    case 'designation': return [{ label: 'Designation', isSelect: true, options: opts(DESIGNATIONS, 'All designations'), minWidth: '190px' }];
+    case 'desgGroup': return [{ label: 'Designation Group', isSelect: true, options: opts(DESG_GROUPS, 'All Designations'), minWidth: '170px' }];
+    case 'grade': return [{ label: 'Grade', isSelect: true, options: opts(GRADES, 'All Grades'), minWidth: '150px' }];
+    case 'empStatus': return [{ label: 'Employee Status', isSelect: true, options: opts(EMP_STATUSES, 'All Statuses'), minWidth: '170px' }];
+    case 'grossRange': return [
+      { label: 'Gross From', isNumber: true, placeholder: '0', minWidth: '130px' },
+      { label: 'Gross To', isNumber: true, placeholder: '999999', minWidth: '130px' },
+    ];
+    case 'deduction': return [{ label: 'Deduction *', isSelect: true, options: opts(DEDUCTIONS, 'Select deduction…'), minWidth: '190px' }];
+    case 'bankAdviceType': return [{ label: 'Advice Type', isSelect: true, options: [{ value: 'IN', label: 'Included' }, { value: 'OT', label: 'Other' }], minWidth: '150px' }];
+    case 'employeeStatusType': return [{ label: 'Employees', isSelect: true, options: [{ value: 'A', label: 'All Active' }, { value: 'C', label: 'Confirmed' }, { value: 'U', label: 'Un-Confirmed' }], minWidth: '150px' }];
+    default: return [];
+  }
+}
+
+class Component extends DCLogic {
+  state = {
+    selectedReportId: null,
+    query: '',
+    selectedKeys: {},
+    showMoreFilters: false,
+    exportOpen: false,
+  };
+
+  selectReport = (id) => this.setState({ selectedReportId: id, query: '', selectedKeys: {}, showMoreFilters: false, exportOpen: false });
+  closeSelection = () => this.setState({ selectedReportId: null });
+  toggleExport = () => this.setState((s) => ({ exportOpen: !s.exportOpen }));
+  toggleMore = () => this.setState((s) => ({ showMoreFilters: !s.showMoreFilters }));
+  onQueryChange = (e) => this.setState({ query: e.target.value });
+  stopProp = (e) => e.stopPropagation();
+
+  toggleRow = (key) => this.setState((s) => {
+    const next = { ...s.selectedKeys };
+    if (next[key]) delete next[key]; else next[key] = true;
+    return { selectedKeys: next };
+  });
+
+  toggleSelectAll = () => this.setState((s) => {
+    const table = TABLES[s.selectedReportId];
+    if (!table) return s;
+    const filtered = this.filteredRawRows(table, s.query);
+    const allSel = filtered.length > 0 && filtered.every((r) => s.selectedKeys[r[0] + '']);
+    const next = { ...s.selectedKeys };
+    filtered.forEach((r) => { if (allSel) delete next[r[0] + '']; else next[r[0] + ''] = true; });
+    return { selectedKeys: next };
+  });
+
+  filteredRawRows(table, query) {
+    if (!query.trim()) return table.data;
+    const q = query.toLowerCase();
+    return table.data.filter((r) => r.some((v) => String(v).toLowerCase().includes(q)));
+  }
+
+  renderVals() {
+    const accentColor = this.props.accentColor ?? '#4f46e5';
+    const density = this.props.density ?? 'comfortable';
+    const showScopeChips = this.props.showScopeChips ?? true;
+    const { selectedReportId, query, selectedKeys, showMoreFilters, exportOpen } = this.state;
+
+    const cardStyle = (item) => {
+      const selected = item.id === selectedReportId;
+      const isPayroll = item.category === 'payroll';
+      const tint = isPayroll ? accentColor : '#64748b';
+      return {
+        ...item,
+        onSelect: () => this.selectReport(item.id),
+        bg: selected ? `color-mix(in srgb, ${tint} 8%, white)` : '#ffffff',
+        border: selected ? tint : '#e5e7eb',
+        shadow: selected ? `0 0 0 1px ${tint}` : '0 1px 2px rgba(15,23,42,.04)',
+        iconBg: `color-mix(in srgb, ${tint} ${selected ? 90 : 12}%, white)`,
+        iconColor: selected ? '#ffffff' : tint,
+      };
+    };
+    const payrollCards = CATALOG.filter((i) => i.category === 'payroll').map(cardStyle);
+    const generalCards = CATALOG.filter((i) => i.category === 'general').map(cardStyle);
+
+    const activeMeta = CATALOG.find((c2) => c2.id === selectedReportId) || null;
+    const hasSelection = !!activeMeta;
+    const noSelection = !activeMeta;
+
+    let selectedMeta = null, fieldGroups = [], primaryFields = [], secondaryFields = [], hasMoreFields = false;
+    let columns = [], rows = [], hasRows = false, noRows = true, filteredCount = 0, selectedRowCount = 0, hasSelectedRows = false, allSelected = false;
+
+    if (activeMeta) {
+      const isPayroll = activeMeta.category === 'payroll';
+      selectedMeta = {
+        title: activeMeta.title,
+        desc: activeMeta.desc,
+        badgeLabel: isPayroll ? 'Payroll' : 'General',
+        badgeBg: isPayroll ? `color-mix(in srgb, ${accentColor} 12%, white)` : '#f1f5f9',
+        badgeColor: isPayroll ? accentColor : '#475569',
+      };
+
+      const groups = REPORT_FILTERS[selectedReportId] || [];
+      const primaryGroups = groups.slice(0, 3);
+      const secondaryGroups = groups.slice(3);
+      primaryFields = primaryGroups.flatMap((k) => fieldsFor(k, selectedReportId));
+      secondaryFields = secondaryGroups.flatMap((k) => fieldsFor(k, selectedReportId));
+      hasMoreFields = secondaryFields.length > 0;
+
+      const table = TABLES[selectedReportId];
+      columns = table.columns;
+      const filtered = this.filteredRawRows(table, query);
+      filteredCount = filtered.length;
+      allSelected = filtered.length > 0 && filtered.every((r) => selectedKeys[r[0] + '']);
+      rows = filtered.map((r) => {
+        const key = r[0] + '';
+        const checked = !!selectedKeys[key];
+        return {
+          key,
+          checked,
+          rowBg: checked ? '#eef2ff' : '#ffffff',
+          onToggle: () => this.toggleRow(key),
+          cells: table.row(r),
+        };
+      });
+      hasRows = rows.length > 0;
+      noRows = !hasRows;
+      selectedRowCount = Object.keys(selectedKeys).length;
+      hasSelectedRows = selectedRowCount > 0;
+    }
+
+    const tdPad = density === 'compact' ? '7px 14px' : '10px 16px';
+    const thPad = density === 'compact' ? '8px 14px' : '10px 16px';
+
+    return {
+      payrollCards, generalCards,
+      noSelection, hasSelection, selectedMeta, closeSelection: this.closeSelection,
+      primaryFields, secondaryFields, hasMoreFields,
+      showMoreFilters, moreLabel: showMoreFilters ? '− Fewer filters' : '+ More filters', toggleMore: this.toggleMore,
+      showScopeChips,
+      columns, rows, hasRows, noRows, filteredCount,
+      allSelected, toggleSelectAll: this.toggleSelectAll,
+      selectedRowCount, hasSelectedRows,
+      selectedCountLabel: selectedRowCount > 0 ? String(selectedRowCount) : 'All',
+      query, onQueryChange: this.onQueryChange,
+      exportOpen, toggleExport: this.toggleExport,
+      closeSelection: this.closeSelection,
+      stopProp: this.stopProp,
+      accentColor, tdPad, thPad,
+    };
+  }
+}
+</script>
+</body>
+</html>

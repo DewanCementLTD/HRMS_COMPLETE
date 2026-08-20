@@ -1,0 +1,112 @@
+{
+  "cv_file": "Ahsan_resume-07.pdf-1_1785493344113.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:49.420963+00:00",
+  "pipeline": {
+    "total_seconds": 64.213,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.715,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1264,
+    "output_tokens": 819,
+    "total_tokens": 3496
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "references",
+      "skills"
+    ],
+    "text_chars": 3833
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ahsan Abid",
+      "email": "ahsanabidd826@gmail.com",
+      "phone": "+923043541088",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Social Media Brand Executive",
+    "profile_summary": "Results-driven digital marketing professional with expertise in social media strategy, brand growth, and email marketing. Proven track record of driving organic growth and managing cross-functional teams to enhance brand visibility.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "BBA",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Aisha Bawany College",
+        "degree": "Intermediate",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Defence Athorithy Sheikh Khalifa Bin Zayed High School",
+        "degree": "Matriculation",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mirage Minds",
+        "role": "Social Media Brand Executive",
+        "duration": "2025 - Present",
+        "description": "Developed multi-platform content strategies, drove 40% organic growth via YouTube and Pinterest, and led cross-functional teams to maintain brand consistency."
+      },
+      {
+        "company": "Technofog Private Limited",
+        "role": "Social Media Executive",
+        "duration": "2024 - 2024",
+        "description": "Executed social media strategies to increase visibility, managed content across five major platforms, and analyzed performance metrics for stakeholders."
+      },
+      {
+        "company": "Startups Pakistan",
+        "role": "Digital Marketing Executive",
+        "duration": "2023 - 2024",
+        "description": "Managed e-commerce product listings and resolved long-standing interpersonal customer issues."
+      },
+      {
+        "company": "Sybrid Lakson Group of Companies",
+        "role": "Customer Service Representative (Chat Support)",
+        "duration": "2022 - 2022",
+        "description": "Provided real-time chat support, addressed product inquiries, and resolved customer concerns promptly."
+      },
+      {
+        "company": "Curve Digital Solutions",
+        "role": "Email Marketing Specialist / Social Media Marketing",
+        "duration": "2021 - 2021",
+        "description": "Optimized email campaigns via A/B testing, developed social media content, and reported on ROI and Google Analytics."
+      },
+      {
+        "company": "TRG IBEX Global",
+        "role": "Customer Service Representative (Email - Chat Support)",
+        "duration": "2021 - 2021",
+        "description": "Handled customer support for FoodPanda PK, focusing on conflict resolution and accurate product information delivery."
+      }
+    ],
+    "skills": [
+      "Marketing Strategy",
+      "Slack",
+      "Jira",
+      "Branding",
+      "Shopify",
+      "YouTube",
+      "Pinterest",
+      "Content Strategy",
+      "SEO",
+      "Email Marketing",
+      "Digital Marketing",
+      "Copywriting",
+      "Research",
+      "Data Analysis",
+      "Project Management",
+      "Hootsuite",
+      "Meta Business"
+    ]
+  }
+}

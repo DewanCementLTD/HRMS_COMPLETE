@@ -1,0 +1,117 @@
+{
+  "cv_file": "Sumair_s_CV_1_1785486930499.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:37:59.367408+00:00",
+  "pipeline": {
+    "total_seconds": 71.495,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.459,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1203,
+    "output_tokens": 870,
+    "total_tokens": 3591
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 3484
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Sumair",
+      "email": "sumairfaisal1130@gmail.com",
+      "phone": "03225964308",
+      "location": "Garden East, Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Versatile professional with expertise in digital marketing, operations, and sales. Proven track record in lead generation, social media strategy, and e-commerce management, supported by a Meta certification.",
+    "education": [
+      {
+        "institution": "University of Bolton",
+        "degree": "Business Management And Marketing (Top-up / Bachelors final Year)",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Extreme Commerce College",
+        "degree": "Business Management And Marketing (HND)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Guards Public College",
+        "degree": "Commerce (Intermediate)",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TechMark",
+        "role": "Digital Marketer (Remote)",
+        "duration": "January 2024 - August 2024",
+        "description": "Managed social media campaigns, Google Ads, and SEO, generating 3-5 daily leads through data-driven strategic planning and content curation."
+      },
+      {
+        "company": "Winway International School",
+        "role": "Marketing Executive",
+        "duration": "Mar 2023 - November 2023",
+        "description": "Executed Facebook and Instagram campaigns and optimized website technical performance and content planning to improve online visibility."
+      },
+      {
+        "company": "US Enterprises",
+        "role": "Operations Manager",
+        "duration": "Nov 2021 - Jun 2023",
+        "description": "Oversaw daily operations, managed Daraz e-commerce store, and utilized Facebook marketing to drive traffic and sales."
+      },
+      {
+        "company": "perfect international agency",
+        "role": "Assistant Manager",
+        "duration": "Jun 2020 - Jul 2021",
+        "description": "Supported daily operations and collaborated with the managerial team to ensure efficient workflow and task execution."
+      },
+      {
+        "company": "Kaif communication",
+        "role": "Salesperson",
+        "duration": "Jul 2019 - Jul 2020",
+        "description": "Focused on driving sales and contributing to the company's overall commercial success."
+      },
+      {
+        "company": "Gourmet Twist",
+        "role": "Performance Marketer (Remote)",
+        "duration": null,
+        "description": "Generated 4.5 ROAS through social media, email marketing, GMB management, and Shopify CRO."
+      },
+      {
+        "company": "Next trip Holidays travel",
+        "role": "Social Media Manager (Remote)",
+        "duration": null,
+        "description": "Developed online identity and audience engagement through strategic digital presence and graphic design."
+      }
+    ],
+    "skills": [
+      "Facebook ads",
+      "Social media marketing",
+      "Canva Designing",
+      "Google PPC",
+      "Account Management",
+      "Customer Relationship",
+      "Team oriented",
+      "Quick-learner",
+      "Digital Marketing",
+      "Search Engine Optimization (SEO)",
+      "Semrush",
+      "Ubersuggest",
+      "Instantly.ai",
+      "Buffer",
+      "Google Analytics"
+    ]
+  }
+}

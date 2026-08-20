@@ -1,0 +1,109 @@
+{
+  "cv_file": "Nabeel_Ashiq_-_Resume.pdf_1785931098849.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:53.893216+00:00",
+  "pipeline": {
+    "total_seconds": 72.427,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.758,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2152,
+    "output_tokens": 811,
+    "total_tokens": 4686
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 6730
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "NABEEL ASHIQ",
+      "email": "nabeel.ashiq@gmail.com",
+      "phone": "0300-2324034",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior Advertising Account Director with over 10 years of experience managing diverse brands. Expert in 360-degree campaign execution, strategic communication, and leading cross-functional teams in fast-paced environments.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "National College",
+        "degree": "B.Com",
+        "graduation_year": "2008"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Manhattan International",
+        "role": "Account Director",
+        "duration": "2017 - Current",
+        "description": "Leads advertising and digital campaigns from planning to execution, managing client relationships and coordinating creative, social media, and production teams."
+      },
+      {
+        "company": "Elevation PVT LTD",
+        "role": "Assistant Manager- Client Services",
+        "duration": "2016 - 2017",
+        "description": "Managed in-store branding for P&G, Walls, and Unilever to increase consumption and brand visibility."
+      },
+      {
+        "company": "The Sign Media",
+        "role": "Outdoor Media Planner",
+        "duration": "2014 - 2016",
+        "description": "Developed marketing strategies, handled media buying and planning, and coordinated OOH media releases."
+      },
+      {
+        "company": "Hawk Advertising & Communication Consultants",
+        "role": "Client Service & Marketing Executive",
+        "duration": "2011 - 2013",
+        "description": "Executed campaign briefs, monitored competitor activities, and prepared activity review reports for clients."
+      }
+    ],
+    "skills": [
+      "Client Relationship Management",
+      "Brand Communication",
+      "Advertising Campaign Management",
+      "Business Development",
+      "Media Planning",
+      "Media Buying",
+      "ATL",
+      "OOH",
+      "Leadership",
+      "Negotiation",
+      "Time Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 50,
+    "experience_match": 95,
+    "overall_score": 65,
+    "strengths": [
+      "Extensive experience with global brands like Unilever and P&G",
+      "Strong leadership and 360-degree campaign management skills",
+      "Proven track record in high-level account direction"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a Specialist role",
+      "No explicit mention of tactical tools like Canva or Meta Business Suite",
+      "Experience is more strategic/managerial than tactical/operational"
+    ],
+    "recommendation": "Overqualified",
+    "summary": "The candidate is a highly seasoned advertising professional who exceeds all minimum requirements. However, his profile is that of a Director rather than a Specialist; he may find the tactical requirements of social media scheduling and asset coordination beneath his current seniority level."
+  }
+}

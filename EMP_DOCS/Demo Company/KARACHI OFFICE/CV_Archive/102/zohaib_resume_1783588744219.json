@@ -1,0 +1,99 @@
+{
+  "cv_file": "zohaib_resume_1783588744219.pdf",
+  "job_folder": "102",
+  "job_id": 102,
+  "processed_at": "2026-07-09T09:20:09.955981+00:00",
+  "pipeline": {
+    "total_seconds": 62.477,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 62.378,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1971,
+    "output_tokens": 719,
+    "total_tokens": 4013
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 4368
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD ZOHAIB FAROOQUI",
+      "email": "zohaibbabar22@gmail.com",
+      "phone": "+92 330 825 9265",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full Stack and Flutter Developer",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Software Engineer",
+        "duration": "November 2025 – Present",
+        "description": "Developed an AI Leave Management System using FastAPI, Oracle, and MySQL. Implemented facial recognition via FAISS and deployed the system on Linux production servers."
+      },
+      {
+        "company": "Cropmentum",
+        "role": "Associate Software Engineer",
+        "duration": "June 2025 – November 2025",
+        "description": "Built cross-platform Flutter applications using Clean Architecture and BLoC. Integrated TensorFlow Lite for on-device ML and implemented RAG pipelines using Qdrant."
+      },
+      {
+        "company": "360 Expert Solution",
+        "role": "Trainee React.js Developer",
+        "duration": "June 2024 – July 2024",
+        "description": "Developed responsive web interfaces and reusable UI components using React.js and JavaScript, integrating REST APIs within an Agile environment."
+      }
+    ],
+    "skills": [
+      "Python",
+      "FastAPI",
+      "PostgreSQL",
+      "MySQL",
+      "Oracle",
+      "Docker",
+      "Git",
+      "React.js",
+      "Flutter",
+      "TensorFlow Lite",
+      "FAISS",
+      "Qdrant",
+      "RAG",
+      "Linux"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 95,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Strong proficiency in FastAPI",
+      "Experience with multiple SQL databases (PostgreSQL, MySQL, Oracle)",
+      "Hands-on experience with Docker and AI/ML libraries",
+      "Relevant BSCS degree"
+    ],
+    "weaknesses": [
+      "No explicit mention of Django or Flask",
+      "Professional experience is on the lower end of the requested 2-5 year range"
+    ],
+    "recommendation": "Strongly recommend for interview",
+    "summary": "The candidate is a high-match for the Python Developer role, possessing the required degree and strong expertise in FastAPI, RESTful APIs, and database management. He also brings valuable nice-to-have skills in Docker and AI/ML."
+  }
+}

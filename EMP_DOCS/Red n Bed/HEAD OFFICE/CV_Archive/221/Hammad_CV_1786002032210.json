@@ -1,0 +1,120 @@
+{
+  "cv_file": "Hammad_CV_1786002032210.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:44:06.649792+00:00",
+  "pipeline": {
+    "total_seconds": 77.182,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 77.075,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1878,
+    "output_tokens": 929,
+    "total_tokens": 4269
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Manager",
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 5323
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Hammad",
+      "email": "engr.hammadahmedkhan@gmail.com",
+      "phone": "+92 3131170974",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager",
+    "profile_summary": "Senior digital marketing professional with over 4 years of experience specializing in SEO, SMM, and B2B/B2C growth. Proven track record in leading teams and executing data-driven campaigns to increase organic traffic and lead generation.",
+    "education": [
+      {
+        "institution": "NED University",
+        "degree": "BE in Electrical & Electronics Engineering",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "D.J Sindh Govt. Science College",
+        "degree": "Intermediate",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Buturab Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "UrApp Technologies",
+        "role": "Digital Marketing Manager",
+        "duration": "Aug 2024 - Present",
+        "description": "Leading B2B/B2C growth through Meta ads, semantic/programmatic SEO, and the development of TOFU/MOFU/BOFU content funnels."
+      },
+      {
+        "company": "Gaditek - PureDome",
+        "role": "Digital Marketing Team Lead",
+        "duration": "Nov 2022 - July 2024",
+        "description": "Led global digital marketing efforts focusing on Meta campaigns, CRO, SEO, and B2B lead generation using Apollo and SimilarWeb."
+      },
+      {
+        "company": "CloudStaff Technologies",
+        "role": "SEO Team Lead",
+        "duration": "Jan 2022 - Nov 2022",
+        "description": "Managed technical SEO audits, GMB optimization, and organic SMM growth using Meta Business Suite."
+      },
+      {
+        "company": "Crystallite (PVT) Limited",
+        "role": "Digital Marketing Specialist",
+        "duration": "Jan 2020 - Jan 2022",
+        "description": "Executed SEO and SMM strategies for SAAS and e-commerce clients, optimizing Shopify/WooCommerce stores and managing Meta assets."
+      }
+    ],
+    "skills": [
+      "Search Engine Optimization",
+      "Social Media Marketing",
+      "Email Marketing",
+      "Meta Business Suite",
+      "Meta Ads Manager",
+      "TikTok Shop",
+      "Canva",
+      "Google Analytics",
+      "Google Search Console",
+      "Google Tag Manager",
+      "Ahrefs",
+      "Semrush",
+      "Conversion Rate Optimization",
+      "Lead Generation",
+      "CRM & CMS Management",
+      "Content Marketing",
+      "B2B & B2C Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 92,
+    "strengths": [
+      "Expert proficiency in Meta Business Suite and Canva",
+      "Extensive experience in social media growth and content strategy",
+      "Strong analytical skills with GA4 and GSC"
+    ],
+    "weaknesses": [
+      "Educational background is in Engineering rather than Marketing",
+      "May be overqualified for a Specialist-level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds the minimum experience and technical requirements. He possesses all the 'nice-to-have' skills and has a proven history of managing the exact platforms and tasks required for the Marketing Specialist role."
+  }
+}

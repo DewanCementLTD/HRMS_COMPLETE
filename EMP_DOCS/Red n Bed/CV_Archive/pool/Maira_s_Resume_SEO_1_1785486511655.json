@@ -1,0 +1,84 @@
+{
+  "cv_file": "Maira_s_Resume_SEO_1_1785486511655.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:29:40.901754+00:00",
+  "pipeline": {
+    "total_seconds": 46.591,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.327,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1048,
+    "output_tokens": 560,
+    "total_tokens": 2675
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "education",
+      "header"
+    ],
+    "text_chars": 2450
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Maira Ahmed",
+      "email": "maira.ahmed169@gmail.com",
+      "phone": "+92 317 2752780",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Senior SEO Executive",
+    "profile_summary": "Experienced SEO professional with a proven track record of driving organic traffic growth and improving search engine rankings. Proficient in keyword research, technical SEO, and comprehensive on-page and off-page optimization strategies.",
+    "education": [
+      {
+        "institution": "Bahria University, Karachi",
+        "degree": "Bachelor's in Computer Science",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Bahria College, Majeed SRE",
+        "degree": "Intermediate in Pre-Engineering",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "IO Digital",
+        "role": "Senior SEO Executive",
+        "duration": "10/2023 - Present",
+        "description": "Manages SEO for high-profile projects including Zong and Eighteen Pakistan, focusing on performance reporting, competitor analysis, and technical site audits."
+      },
+      {
+        "company": "Creatifsoft",
+        "role": "SEO Executive",
+        "duration": "08/2021 - 09/2023",
+        "description": "Developed link-building strategies, conducted keyword research, and performed site audits. Collaborated with cross-functional teams to optimize landing pages and increase conversions."
+      },
+      {
+        "company": "VenYou Adventure Club",
+        "role": "Social Media Marketing Intern",
+        "duration": "04/2021 - 06/2021",
+        "description": "Researched industry trends and audience preferences to create engaging social media content and monthly content calendars."
+      }
+    ],
+    "skills": [
+      "HTML/CSS",
+      "On-Page SEO",
+      "Off-Page SEO",
+      "Technical SEO",
+      "WordPress",
+      "Backlinking",
+      "Audit Reports",
+      "Performance Reporting",
+      "Keyword Research",
+      "Analytical Skills",
+      "Time Management"
+    ]
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "cv_file": "EMPDOCS_test_resume0.pdf",
+  "job_folder": "1",
+  "job_id": 1,
+  "processed_at": "2026-07-09T08:31:09.527233+00:00",
+  "pipeline": {
+    "total_seconds": 47.047,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.563,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1179,
+    "output_tokens": 669,
+    "total_tokens": 2661
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2944
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Saad Bin Khalid",
+      "email": "saadkhalid1604@gmail.com",
+      "phone": "+92 336 305 2865",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full-stack web developer",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Beaconhouse School System",
+        "degree": "A-Levels, Computer Science",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "International Trading Company",
+        "role": "Office Assistant",
+        "duration": "2020 — Present",
+        "description": "Managed administrative tasks, client quotations, billing statements, and digital transaction records."
+      }
+    ],
+    "skills": [
+      "Python",
+      "JavaScript",
+      "TypeScript",
+      "C",
+      "C++",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Express",
+      "Tailwind CSS",
+      "HTML",
+      "CSS",
+      "REST API",
+      "Artificial Intelligence",
+      "Data Structures & Algorithms",
+      "OOP",
+      "Operating Systems",
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Git",
+      "VS Code",
+      "WSL",
+      "Vercel",
+      "Docker"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 80,
+    "experience_match": 5,
+    "overall_score": 35,
+    "strengths": [
+      "Possesses the exact required tech stack (React, Next.js)",
+      "Strong academic performance",
+      "Experience with full-stack project deployment"
+    ],
+    "weaknesses": [
+      "Complete lack of professional software engineering experience",
+      "Currently a student, not a senior-level professional",
+      "Professional experience is in administration, not development"
+    ],
+    "recommendation": "Reject for Senior role; potentially consider for an Internship or Junior position.",
+    "summary": "The candidate has the required technical skills (React/Next.js) through academic projects, but is an undergraduate student with no professional SE experience, making them entirely unsuitable for a Senior Software Engineer role."
+  }
+}

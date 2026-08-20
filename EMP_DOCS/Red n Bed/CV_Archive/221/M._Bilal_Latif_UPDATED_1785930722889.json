@@ -1,0 +1,130 @@
+{
+  "cv_file": "M._Bilal_Latif_UPDATED_1785930722889.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:54:51.371238+00:00",
+  "pipeline": {
+    "total_seconds": 81.492,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 81.306,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2370,
+    "output_tokens": 1050,
+    "total_tokens": 5279
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 5587
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Bilal Latif",
+      "email": "mlatifbilal86@gmail.com",
+      "phone": "+92 332 3069620",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior marketing and creative professional with over 10 years of experience in brand management and digital content strategy. Expert in visual storytelling and multi-channel media execution with a track record of award-winning campaigns.",
+    "education": [
+      {
+        "institution": "Institute of Business Administration (IBA)",
+        "degree": "Diploma in Strategic Marketing",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Dadabhoy Institute of Higher Education",
+        "degree": "Bachelor of Social & Media Science",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "Karachi School of Art",
+        "degree": "Diploma in Visual Arts",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Deluxe Holidays",
+        "role": "Sr. Marketing Lead – Creative Brand",
+        "duration": "Nov 2024 – Present",
+        "description": "Oversees media execution and creative planning to ensure brand consistency and alignment across content plans."
+      },
+      {
+        "company": "TheBigChips Films & Design",
+        "role": "Sr. Marketing Executive – Creative/Client",
+        "duration": "Aug 2023 – Sep 2024",
+        "description": "Managed client relationships, developed marketing strategies, and conducted business reviews for assigned accounts."
+      },
+      {
+        "company": "MEDZnMORE Pvt. Ltd",
+        "role": "Marketing Lead – Brand & Creative",
+        "duration": "Jan 2022 – Jun 2023",
+        "description": "Led brand campaigns and media execution, reporting on marketing outcomes. Recipient of the 2023 Effie Award."
+      },
+      {
+        "company": "HUM Network Limited",
+        "role": "Design Lead – Interactive Dept",
+        "duration": "Feb 2021 – Dec 2021",
+        "description": "Executed promotional materials for digital platforms including Facebook, YouTube, Instagram, and Twitter."
+      },
+      {
+        "company": "Citizens Police Liaison Committee (CPLC)",
+        "role": "Media Cell Manager",
+        "duration": "Feb 2014 – Jan 2021",
+        "description": "Managed media communication activities across press, TV, radio, and social media channels."
+      },
+      {
+        "company": "GS Communications",
+        "role": "Associate Creative Manager",
+        "duration": "Mar 2012 – Feb 2014",
+        "description": "Directed the production of visual and audio materials for advertising and web communication."
+      },
+      {
+        "company": "Badar Expo Solutions",
+        "role": "Creative / Social Media Executive",
+        "duration": "Oct 2010 – Jan 2012",
+        "description": "Designed social media posts and managed design campaigns to increase audience engagement."
+      }
+    ],
+    "skills": [
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Premiere",
+      "Filmmaking",
+      "Photography",
+      "Communication",
+      "Time Management",
+      "Brand Management",
+      "Digital Marketing",
+      "Advertising",
+      "Content Strategy"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 80,
+    "experience_match": 100,
+    "overall_score": 90,
+    "strengths": [
+      "Extensive creative production and design expertise",
+      "Proven track record with award-winning campaigns",
+      "Deep experience in multi-platform social media management"
+    ],
+    "weaknesses": [
+      "No explicit mention of UTM tracking, Meta Business Suite, or Excel",
+      "Potentially overqualified for a Specialist level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly experienced creative marketing leader who far exceeds the minimum experience and education requirements. While he lacks explicit mention of specific tracking tools, his portfolio and leadership history make him an exceptional candidate."
+  }
+}

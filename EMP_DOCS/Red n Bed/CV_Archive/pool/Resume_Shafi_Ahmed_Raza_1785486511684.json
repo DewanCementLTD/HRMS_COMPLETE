@@ -1,0 +1,120 @@
+{
+  "cv_file": "Resume_Shafi_Ahmed_Raza_1785486511684.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:31:40.968732+00:00",
+  "pipeline": {
+    "total_seconds": 62.692,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.179,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2025,
+    "output_tokens": 778,
+    "total_tokens": 4166
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 6,
+    "ocr_pages": [
+      5,
+      6
+    ],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header"
+    ],
+    "text_chars": 6103
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shafi Ahmed Raza",
+      "email": "Shafiahmed.net@gmail.com",
+      "phone": "+92 3198128242",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Results-driven digital marketing professional with expertise in SEO, paid advertising, and social media management. Proven track record in managing e-commerce stores and driving lead generation through strategic Meta and Google Ads.",
+    "education": [
+      {
+        "institution": "Virtual University",
+        "degree": "Bachelors in Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Formen Govt. College",
+        "degree": "Intermediate",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Rakhshinda Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Think Higher Consultants",
+        "role": "Team Lead Digital Marketer",
+        "duration": "August 2024 – Present",
+        "description": "Leads paid marketing campaigns, social media strategy, SEO blogging, and email marketing automations using Mailchimp and Brevo."
+      },
+      {
+        "company": "altMedia.pk",
+        "role": "Sr. Digital Marketing Manager",
+        "duration": "July 2023 – August 2024",
+        "description": "Managed paid campaigns, social media reach, and SEO for clients to drive business growth and sales."
+      },
+      {
+        "company": "Graphic Creators",
+        "role": "Sales Executive",
+        "duration": "Dec 2022 – July 2023",
+        "description": "Promoted graphic design products via Twitter and Instagram to achieve sales targets and study buyer psychology."
+      },
+      {
+        "company": "Freelance Work",
+        "role": "Self-Employed (Freelancer)",
+        "duration": "Dec 2020 – Aug 2022",
+        "description": "Created and marketed Shopify stores, performed SEO for WordPress/Shopify, and managed Meta ads for various clients."
+      }
+    ],
+    "skills": [
+      "Paid ad campaigns",
+      "Social Media Management",
+      "Shopify Store Creation",
+      "WordPress Website Creation",
+      "Facebook Ads",
+      "Google Ads",
+      "Tiktok Ads",
+      "LinkedIn Ads",
+      "Email Marketing",
+      "Mailchimp",
+      "Mailer lite",
+      "Brevo",
+      "Outlook",
+      "SEO",
+      "Keyword Research",
+      "On-page SEO",
+      "Off-page SEO",
+      "Google Analytics",
+      "Google Search Console",
+      "GMB",
+      "Bing Places",
+      "Competitor Analysis",
+      "Technical SEO",
+      "CRM Management",
+      "CMS Management",
+      "MS-Office",
+      "Canva",
+      "Leadership",
+      "Communication",
+      "Problem Solving",
+      "Time management",
+      "Adaptability",
+      "Critical thinking"
+    ]
+  }
+}

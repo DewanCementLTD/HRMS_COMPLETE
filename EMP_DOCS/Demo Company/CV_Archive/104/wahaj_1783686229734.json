@@ -1,0 +1,94 @@
+{
+  "cv_file": "wahaj_1783686229734.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:24:56.661200+00:00",
+  "pipeline": {
+    "total_seconds": 56.595,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.956,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1009,
+    "output_tokens": 555,
+    "total_tokens": 2598
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 1000
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammd Wahqj Sheikh",
+      "email": "wahgjsheikhwajjuu@gmail.com",
+      "phone": "03390080634",
+      "location": "Lucknow Society, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entry-level professional with experience in sales and quality control. Possesses basic skills in web design and graphics, with a background in customer service and record maintenance.",
+    "education": [
+      {
+        "institution": "Karachi Board",
+        "degree": "Matric",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Waada Digital Pvt Ltd",
+        "role": "Call Center Agent",
+        "duration": null,
+        "description": "Focused on customer service and driving sales growth."
+      },
+      {
+        "company": "Eros Pharma Pvt Ltd",
+        "role": "QC File Maintenance",
+        "duration": null,
+        "description": "Managed BMR and BPO records and maintained quality control files."
+      }
+    ],
+    "skills": [
+      "Web Design",
+      "MS Word",
+      "MS Excel",
+      "Graphics Design",
+      "Logo Design",
+      "Sales Strategies",
+      "Marketing",
+      "Urdu",
+      "English"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 5,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Basic familiarity with web design",
+      "Customer service experience"
+    ],
+    "weaknesses": [
+      "Lacks all mandatory technical skills (JavaScript, TypeScript, Node.js, React, SQL, Git)",
+      "Does not possess the required Bachelor's degree in Computer Science",
+      "No professional software engineering experience"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is entirely unqualified for the Software Engineer position, lacking the necessary education, technical stack, and professional experience."
+  }
+}

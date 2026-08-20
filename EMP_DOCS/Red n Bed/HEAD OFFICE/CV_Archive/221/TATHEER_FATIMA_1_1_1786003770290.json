@@ -1,0 +1,97 @@
+{
+  "cv_file": "TATHEER_FATIMA_1_1_1786003770290.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:38.032762+00:00",
+  "pipeline": {
+    "total_seconds": 54.501,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.348,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 929,
+    "output_tokens": 599,
+    "total_tokens": 2627
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 1258
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tatheer Fatima",
+      "email": "tatheer.fatima.mughal@gmail.com",
+      "phone": "0340 2389700",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Social Media Marketing",
+    "profile_summary": "Results-driven Social Media Manager with expertise in community growth, ad campaigns, and content creation. Skilled in aligning social strategies with broader marketing goals to drive brand growth.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelors",
+        "graduation_year": null
+      },
+      {
+        "institution": "Illinois University",
+        "degree": "Digital Marketing Course",
+        "graduation_year": null
+      },
+      {
+        "institution": "Gulshan College",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "The Educators",
+        "degree": "Matriculation",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ali Builders & Developers",
+        "role": "Social Media Executive",
+        "duration": null,
+        "description": "Managed social media accounts to increase followers, executed Facebook ad campaigns using Meta Ads Manager, and collaborated across teams to align campaigns with marketing goals."
+      }
+    ],
+    "skills": [
+      "Microsoft Office",
+      "Canva",
+      "Research",
+      "Meta Ads Manager",
+      "Social Media Management",
+      "Content Creation",
+      "Ad Campaign Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 80,
+    "technical_match": 85,
+    "experience_match": 60,
+    "overall_score": 75,
+    "strengths": [
+      "Direct experience with Meta Ads Manager",
+      "Proficiency in Canva",
+      "Experience in community growth and content strategy"
+    ],
+    "weaknesses": [
+      "Total years of experience not explicitly stated",
+      "No mention of TikTok or UTM tracking"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate possesses the core technical skills required, including Meta tools and Canva. While the 2-year experience requirement is not explicitly confirmed by dates, their role as a Social Media Executive aligns well with the JD."
+  }
+}

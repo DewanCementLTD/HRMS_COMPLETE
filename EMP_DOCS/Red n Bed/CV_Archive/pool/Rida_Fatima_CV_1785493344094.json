@@ -1,0 +1,135 @@
+{
+  "cv_file": "Rida_Fatima_CV_1785493344094.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:24:02.661578+00:00",
+  "pipeline": {
+    "total_seconds": 77.317,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 76.949,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2071,
+    "output_tokens": 989,
+    "total_tokens": 4755
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 7632
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Rida Fatima Anmool",
+      "email": "rida.fatima.anmool@gmail.com",
+      "phone": "0334-3-226-226",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with a BS in Accounting and Finance and a diverse background in financial analysis, sustainability reporting, and digital marketing. Experienced in technical services at ICAP and entrepreneurial social media management, combining analytical rigor with AI-enhanced marketing skills.",
+    "education": [
+      {
+        "institution": "SZABIST University Karachi",
+        "degree": "BS Accounting and Finance",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "DA Degree College for Women",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "KIDS University",
+        "degree": "Secondary School Certificate",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Base Montessori",
+        "degree": "Primary Education",
+        "graduation_year": "2006"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ocean1 (Pvt) Ltd",
+        "role": "Customer Service Representative",
+        "duration": "Current",
+        "description": "Consults clients on study abroad solutions, guides university applications for UK, Canada, and Australia, and manages client records and inquiries."
+      },
+      {
+        "company": "Anmol Shati",
+        "role": "Social Media Manager",
+        "duration": "Current",
+        "description": "Manages social media strategy, influencer partnerships, and customer experience while overseeing procurement and clothing collection design."
+      },
+      {
+        "company": "Institute of Chartered Accountants of Pakistan (ICAP)",
+        "role": "Technical Services Officer",
+        "duration": "September 2023 - June 2024",
+        "description": "Analyzed circular debt, implemented SDGs, managed GHG emissions reporting, and represented Pakistan as Chairperson in the AOSSG."
+      },
+      {
+        "company": "BMA Investments Advisors",
+        "role": "Investment Analyst",
+        "duration": "July 2023 - August 2023",
+        "description": "Conducted financial forecasting and prepared Fund Manager Reports (FMRs) based on prevailing economic conditions."
+      },
+      {
+        "company": "Institute of Chartered Accountants of Pakistan (ICAP)",
+        "role": "Technical service intern",
+        "duration": "4 months",
+        "description": "Reviewed audit certificate requirements and compared IESBA 2022 and ICAP 2019 Codes of Ethics."
+      },
+      {
+        "company": "PAIR Investment Company Limited (PICL)",
+        "role": "Finance Intern",
+        "duration": "6 weeks",
+        "description": "Handled PSID generation, sales tax calculations, voucher checks, and bank reconciliations."
+      },
+      {
+        "company": "Ambreen Shati Beauty Salon",
+        "role": "Receptionist and Social Media Manager",
+        "duration": "2018 - 2023",
+        "description": "Optimized social media presence, resolved client inquiries, and managed inventory and stock flow."
+      }
+    ],
+    "skills": [
+      "Quickbooks",
+      "Power BI",
+      "Google Analytics",
+      "Paid Ads",
+      "MS Word",
+      "MS Excel",
+      "MS Access",
+      "MS PowerPoint",
+      "Data Analysis",
+      "Data Visualization",
+      "Marketing Analysis",
+      "Predictive Modelling",
+      "Strategic Decision Making",
+      "Trend Analysis",
+      "Campaign Development",
+      "Consumer Behavior Analysis",
+      "GenAI",
+      "Social Media Marketing",
+      "Content Development",
+      "Market Research",
+      "Report Writing",
+      "Competitive Analysis",
+      "Copywriting",
+      "SEO Optimization",
+      "Financial Forecasting",
+      "Sustainability Reporting",
+      "Audit Compliance"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "cv_file": "Abdul_wasio_Resume_1785493344124.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:26.234552+00:00",
+  "pipeline": {
+    "total_seconds": 41.028,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.528,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 874,
+    "output_tokens": 469,
+    "total_tokens": 2291
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2397
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abdul Wasio",
+      "email": "abdulwasio1234@gmail.com",
+      "phone": "03154314890",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Social Media Manager",
+    "profile_summary": "Creative and data-driven Social Media Manager and Marketer specializing in brand building through authentic storytelling. Expert in content strategy, analytics, and managing paid campaigns across Meta, LinkedIn, and TikTok.",
+    "education": [
+      {
+        "institution": "Iqra university",
+        "degree": "Bachelor (Media Science)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Govt. Degree College, Sukkur",
+        "degree": "Intermediate",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "C Level Tech",
+        "role": "Social Media Marketing",
+        "duration": "Feb 2025 - PRESENT",
+        "description": "Develops comprehensive social media strategies and multi-platform content. Optimizes Meta, LinkedIn, and TikTok Ads to drive visibility, engagement, and lead generation."
+      },
+      {
+        "company": "Legendesk",
+        "role": "Social Media Manager",
+        "duration": "Jan 2023 – Dec 2024",
+        "description": "Planned targeted strategies and produced platform-specific content. Managed paid ad campaigns and evaluated performance analytics to refine strategy and enhance effectiveness."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Meta Ads",
+      "TikTok Ads",
+      "metricool",
+      "Hootsuite",
+      "Social Media Strategy",
+      "Content Creation",
+      "Canva",
+      "Social Media Marketing",
+      "LinkedIn Ads",
+      "English",
+      "Urdu"
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "cv_file": "Resume_-_Youmna_Rehman_-Marketing_Professional_1785486511680.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:31:21.612169+00:00",
+  "pipeline": {
+    "total_seconds": 59.032,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.996,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 989,
+    "output_tokens": 616,
+    "total_tokens": 2724
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3008
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Youmna Rehman",
+      "email": "youmnarehman25@gmail.com",
+      "phone": "+923432901561",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Professional",
+    "profile_summary": "Marketing professional with approximately two years of experience and an MBA in Marketing. Skilled in strategic planning, lead generation, and digital campaigns with a strong focus on client management and brand visibility.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA-Marketing",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Jinnah University for Women",
+        "degree": "BS-English Linguistics",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Google (Coursera)",
+        "degree": "Foundations of Digital Marketing and E-commerce",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Karachi School of Arts",
+        "degree": "Interior Designing",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Impetus Systems (FlowHCM)",
+        "role": "Marketing Professional",
+        "duration": "November 2022 - Present",
+        "description": "Drives customer acquisition via outbound marketing and digital campaigns. Manages HubSpot CRM, executes corporate events, handles client negotiations, and trains new team members."
+      },
+      {
+        "company": "Skyray Venture",
+        "role": "Client Management Officer",
+        "duration": "May 2022 - July 2022",
+        "description": "Managed client communications and feedback, resolved complaints, generated leads through Upwork, and published articles on WordPress."
+      },
+      {
+        "company": "Skyray Venture",
+        "role": "Partnership Management Intern",
+        "duration": "February 2022 - May 2022",
+        "description": "Conducted outreach to potential partners and assisted in the development of partnership proposals and agreements."
+      }
+    ],
+    "skills": [
+      "Microsoft Office",
+      "Digital Marketing",
+      "Canva",
+      "Learning Agility",
+      "Email Marketing",
+      "Research",
+      "Content Writing",
+      "Team Collaboration",
+      "HubSpot CRM",
+      "Lead Generation",
+      "Client Management",
+      "WordPress"
+    ]
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "cv_file": "HASNAIN_ALI_BANANI_-_CV_1785931098842.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:03:29.230768+00:00",
+  "pipeline": {
+    "total_seconds": 76.546,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 76.446,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1854,
+    "output_tokens": 978,
+    "total_tokens": 4570
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4700
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hasnain Ali Banani",
+      "email": "hasnainalii@hotmail.com",
+      "phone": "+92-331-2910867",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior marketing and creative professional with an MBA and extensive experience in strategic planning and team leadership. Expert in digital content creation, brand growth, and graphic design across various media platforms.",
+    "education": [
+      {
+        "institution": "Muhammad Ali Jinnah University",
+        "degree": "Master of Business Administration (MBA), Marketing",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "Bachelors of Hons in Media Studies",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Al Rauf Group",
+        "role": "Creative and Marketing Manager",
+        "duration": "04/2025 – Present",
+        "description": "Leads creative team in developing marketing campaigns across digital and print media, optimizing ROI through data-driven strategies."
+      },
+      {
+        "company": "AAJ News (The Business Recorder Group)",
+        "role": "Digital Content Supervisor",
+        "duration": "10/2022 – 04/2025",
+        "description": "Managed digital reporters and editors, creating multi-media content and implementing social media advertising campaigns."
+      },
+      {
+        "company": "PRIED (FREELANCE)",
+        "role": "Project Coordinator",
+        "duration": "12/2022 – 12/2024",
+        "description": "Coordinated between reporters and organization, executing pitch ideas and tracking project impact."
+      },
+      {
+        "company": "BOL News",
+        "role": "Digital Content / Assignment Head",
+        "duration": "01/2017 – 09/2022",
+        "description": "Led a large team of 150+ digital experts and reporters, overseeing storyboards and quality standards."
+      },
+      {
+        "company": "Daily Trade and Finance Newspaper",
+        "role": "Sub Editor",
+        "duration": "01/2015 – 06/2015",
+        "description": "Performed copy editing, headline writing, and proofreading for news stories."
+      },
+      {
+        "company": "New Chief Computers",
+        "role": "Graphic Designer",
+        "duration": "01/2010 – 01/2015",
+        "description": "Utilized CorelDraw, Illustrator, and Photoshop for graphic design and offline service sales."
+      }
+    ],
+    "skills": [
+      "Strategic marketing planning",
+      "Creative content development",
+      "Digital marketing",
+      "Social media management",
+      "Brand strategy",
+      "Data analysis",
+      "AI Prompt Building",
+      "Research & Forecasting",
+      "Data mining",
+      "Graphic Design",
+      "Customer Management",
+      "Community Management",
+      "Influencer Collaboration",
+      "Trend Analysis",
+      "CorelDraw",
+      "Illustrator",
+      "Photoshop",
+      "Premiere"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Advanced leadership experience",
+      "Strong graphic design technical skills",
+      "MBA in Marketing",
+      "Comprehensive digital content expertise"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Specialist role",
+      "No explicit mention of UTM tracking or Excel"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "An overqualified candidate with extensive leadership and creative experience. Possesses all required skills and exceeds education and experience minimums."
+  }
+}

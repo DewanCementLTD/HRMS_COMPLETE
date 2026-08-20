@@ -1,0 +1,87 @@
+{
+  "cv_file": "Abid_Ali_-_CV_1785485520460.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:06.402545+00:00",
+  "pipeline": {
+    "total_seconds": 43.77,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 42.574,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 863,
+    "output_tokens": 554,
+    "total_tokens": 2334
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 1938
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "ABID ALI",
+      "email": "abidali.ysn@gmail.com",
+      "phone": "+923118969807",
+      "location": "Garden West, Karachi"
+    },
+    "preferred_job_title": "Marketer",
+    "profile_summary": "BBA graduate in Marketing and Sales with expertise in sales copywriting and digital presence. Specializes in crafting engaging content and enhancing customer experience to drive brand growth through a blend of creativity and strategy.",
+    "education": [
+      {
+        "institution": "Sukkur IBA University",
+        "degree": "Bachelor of Business Administration (Marketing and Sales)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Govt Boys College Gilgit",
+        "degree": "FSC pre-engineering",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "7figures.pk",
+        "role": "Sales Marketer",
+        "duration": "2024 - PRESENT",
+        "description": "Led sales and marketing strategies to boost revenue growth and managed lead generation campaigns to improve sales funnels and brand presence."
+      },
+      {
+        "company": "Snowcap Adventures",
+        "role": "SEO Content Writer",
+        "duration": "2023 - 2024",
+        "description": "Conducted market research and created engaging content, executing targeted marketing campaigns that increased lead generation by 25%."
+      },
+      {
+        "company": "Bwritest",
+        "role": "Marketing Associate",
+        "duration": "2022 - 2023",
+        "description": "Implemented SEO strategies increasing website traffic by 30% and collaborated with sales teams to develop effective promotional materials and collateral."
+      }
+    ],
+    "skills": [
+      "Organizational Skills",
+      "Customer Service",
+      "Teamwork",
+      "Time Management",
+      "Leadership",
+      "Effective Communication",
+      "Marketing",
+      "English",
+      "Urdu",
+      "Burushaski",
+      "Shina",
+      "Sales Copywriting",
+      "SEO",
+      "Content Writing",
+      "Lead Generation",
+      "Market Research"
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "cv_file": "Mohammad_s_Resume_1786003304717.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:26.025024+00:00",
+  "pipeline": {
+    "total_seconds": 196.788,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 195.872,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1220,
+    "output_tokens": 596,
+    "total_tokens": 2998
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Supply Chain Executive",
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 1887
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mohammad Azam Siddiqui",
+      "email": "azamsiddiqui551@gmail.com",
+      "phone": "0333-8214456",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Supply Chain Executive",
+    "profile_summary": "Disciplined Supply Chain professional with expertise in ocean export pricing and inland management. Experienced in international logistics coordination and CRM for global markets.",
+    "education": [
+      {
+        "institution": "Greenwich University",
+        "degree": "BBA - Supply Chain",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Seagold (Private) Limited",
+        "role": "Senior Executive - Ocean Export Pricing/ Inland Management",
+        "duration": "05/2021 - Present",
+        "description": "Manages freight pricing and logistics for European, North American, and Middle Eastern markets; coordinates between shippers and agents."
+      },
+      {
+        "company": "Bank Alfalah Limited",
+        "role": "Internee",
+        "duration": "05/2016 - 06/2016",
+        "description": "Served as a strategic member of an HR project."
+      },
+      {
+        "company": "Helium Pakistan",
+        "role": "Brand Ambassador",
+        "duration": "10/2015 - 11/2015",
+        "description": "Represented Gillette during brand activation drives in Karachi."
+      }
+    ],
+    "skills": [
+      "Team player",
+      "Problem solving",
+      "Adaptability",
+      "Communication",
+      "Multi-tasking"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 10,
+    "overall_score": 5,
+    "strengths": [
+      "Professional corporate experience",
+      "Strong communication skills"
+    ],
+    "weaknesses": [
+      "No experience in social media management",
+      "Lack of required marketing tools (Meta Business Suite, Canva)",
+      "Educational background is in Supply Chain, not Marketing"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a Supply Chain specialist with no relevant experience or technical skills for a Marketing Specialist role."
+  }
+}

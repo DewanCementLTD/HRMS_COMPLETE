@@ -1,0 +1,130 @@
+{
+  "cv_file": "FGR_HOM_Updated_CV_-_1125_1785309154618.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:22.695308+00:00",
+  "pipeline": {
+    "total_seconds": 85.328,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 84.029,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1933,
+    "output_tokens": 1083,
+    "total_tokens": 4931
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "summary"
+    ],
+    "text_chars": 5459
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Fawad Ghulam Rasool",
+      "email": "fawad.ghulam@gmail.com",
+      "phone": "+92 333 3343 421",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Seasoned marketing professional with over 21 years of experience specializing in advertising, BTL, and brand management. Expert in leading integrated campaigns and managing large-scale client services across diverse sectors. Proven track record in team leadership and strategic budget execution.",
+    "education": [
+      {
+        "institution": "Kasbit University Karachi",
+        "degree": "Master of Business Administration & Information Technology",
+        "graduation_year": "2007"
+      },
+      {
+        "institution": "National Government College Karachi",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": "1999"
+      },
+      {
+        "institution": "National Government College Karachi",
+        "degree": "HSSC In Commerce",
+        "graduation_year": "1995"
+      },
+      {
+        "institution": "Gulistan Shah Abdul Latif boys Secondary School",
+        "degree": "Matriculation",
+        "graduation_year": "1992"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Out N about Advertising Agency",
+        "role": "Head of Marketing & Client Service Manager",
+        "duration": "Jan 2017 - Present",
+        "description": "Leads integrated marketing initiatives, manages annual and quarterly budgets, and utilizes web analytics to drive brand growth and customer satisfaction."
+      },
+      {
+        "company": "Chiniot General Hospital",
+        "role": "Head of Marketing & Business Development",
+        "duration": "Jan 2016 - Aug 2016",
+        "description": "Executed BTL marketing campaigns, revamped brand image through strategic signage, and increased patient footfall by 15%."
+      },
+      {
+        "company": "Out N about Advertising Agency",
+        "role": "Senior Marketing & Business Development Manager",
+        "duration": "Nov 2007 - Dec 2015",
+        "description": "Managed product launches and integrated media kits across FMCG, telecom, and retail sectors, focusing on BTL, OOH, and digital signage."
+      },
+      {
+        "company": "Adobe Advertising & Digital Printing Agency",
+        "role": "Marketing & Operations Manager",
+        "duration": "Apr 2006 - Oct 2007",
+        "description": "Revamped business structure and managed BTL activations and signage fabrication for various corporate clients."
+      },
+      {
+        "company": "Interwood Furniture Company",
+        "role": "Marketing & Sales Executive",
+        "duration": "Oct 2004 - Feb 2006",
+        "description": "Managed retail sales for premium furniture and oversaw outdoor media placements including hoardings and pylons."
+      },
+      {
+        "company": "Mobilink Telecom",
+        "role": "Sales & Customer Service Executive",
+        "duration": "Jul 2003 - Jan 2004",
+        "description": "Handled corporate sales, institutional client acquisition, and frontline customer support."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Leadership",
+      "BTL Marketing",
+      "OOH Advertising",
+      "Web Analytics",
+      "Budget Management",
+      "Digital Marketing",
+      "Client Relationship Management",
+      "Event Management",
+      "Teamwork",
+      "Creativity"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 60,
+    "experience_match": 95,
+    "overall_score": 80,
+    "strengths": [
+      "Extensive leadership and people management experience",
+      "Deep expertise in BTL/OOH and integrated campaigns",
+      "Strong local market knowledge in Karachi",
+      "Proven budget and agency management skills"
+    ],
+    "weaknesses": [
+      "Lack of explicit mention of GA4 and specific ad platform reporting tools",
+      "Heavy emphasis on traditional/BTL media over modern digital performance marketing"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "Highly experienced marketing leader with a massive track record in the Karachi market. While he possesses the leadership and strategic skills required, a technical interview is needed to verify proficiency in GA4 and digital reporting."
+  }
+}

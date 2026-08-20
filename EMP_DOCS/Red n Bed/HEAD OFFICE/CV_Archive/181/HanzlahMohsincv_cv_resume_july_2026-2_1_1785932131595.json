@@ -1,0 +1,107 @@
+{
+  "cv_file": "HanzlahMohsincv_cv_resume_july_2026-2_1_1785932131595.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:37.993108+00:00",
+  "pipeline": {
+    "total_seconds": 43.656,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.088,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1585,
+    "output_tokens": 706,
+    "total_tokens": 3105
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Graphic Designer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2371
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hanzlah Mohsin",
+      "email": "hanzlahmohsin4@gmail.com",
+      "phone": "+92 342 8052434",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Graphic Designer",
+    "profile_summary": "Experienced graphic designer with over 7 years of expertise in branding, digital media, and print design. Specialized in Adobe Illustrator and interactive designs with a track record of mentoring junior designers.",
+    "education": [
+      {
+        "institution": "Islamia University of Bahawalpur",
+        "degree": "BS Zoology",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Punjab Group of Colleges",
+        "degree": "Intermediate Science",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "National Garrison Secondary School",
+        "degree": "Matric Science",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Wave link media",
+        "role": "Graphic Designer",
+        "duration": "01/12/2021 - 28/05/2025",
+        "description": "Produced modern content and event visuals aligned with brand identity. Led custom gaming and mascot logo design and managed end-to-end design processes using Adobe Illustrator."
+      },
+      {
+        "company": "Infinity Designers",
+        "role": "Graphic Designer",
+        "duration": null,
+        "description": "Provided creative branding and visual communication solutions to strengthen business brand presence."
+      }
+    ],
+    "skills": [
+      "Adobe Illustrator",
+      "Photoshop",
+      "Figma",
+      "Adobe XD",
+      "After Effects",
+      "2D Design",
+      "3D Design",
+      "Branding",
+      "Visual Communication",
+      "Digital Media",
+      "Print Design"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 15,
+    "technical_match": 10,
+    "experience_match": 20,
+    "overall_score": 15,
+    "strengths": [
+      "Strong visual branding and design expertise",
+      "Local to Karachi",
+      "Experience mentoring junior designers"
+    ],
+    "weaknesses": [
+      "Lacks required degree in Marketing or Business Administration",
+      "No experience with GA4 or ad platform reporting",
+      "No experience in budget management, ROI/CAC/LTV tracking, or overall marketing strategy",
+      "Professional profile is creative/execution-focused rather than managerial/strategic"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly skilled Graphic Designer but does not possess the strategic marketing management experience, analytical technical skills (GA4), or educational background required for the Marketing Manager role."
+  }
+}

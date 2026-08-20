@@ -1,0 +1,81 @@
+{
+  "cv_file": "TATHEER_FATIMA_1_1_1785486930503.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:39:22.550412+00:00",
+  "pipeline": {
+    "total_seconds": 128.587,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 123.514,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 645,
+    "output_tokens": 416,
+    "total_tokens": 1845
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header"
+    ],
+    "text_chars": 1258
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tatheer Fatima",
+      "email": "tatheer.fatima.mughal@gmail.com",
+      "phone": "0340 2389700",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Social Media Marketing",
+    "profile_summary": "Results-driven Social Media Manager experienced in growing online communities and executing targeted ad campaigns. Skilled in content creation and using data-driven insights to align social strategies with brand growth goals.",
+    "education": [
+      {
+        "institution": "The Educators",
+        "degree": "Matriculation",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Gulshan College",
+        "degree": "Intermediate",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelors",
+        "graduation_year": null
+      },
+      {
+        "institution": "Illinois University",
+        "degree": "Digital Marketing Course",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ali Builders & Developers",
+        "role": "Social Media Executive",
+        "duration": null,
+        "description": "Increased social media presence through engaging content and managed Facebook ad campaigns via Meta Ads Manager to optimize performance and align with overall marketing goals."
+      }
+    ],
+    "skills": [
+      "Microsoft Office",
+      "Canva",
+      "Research",
+      "Social Media Management",
+      "Facebook Ads",
+      "Meta Ads Manager",
+      "Content Creation",
+      "Digital Marketing"
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "cv_file": "NG_HR_052026_1785931098852.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:43.753095+00:00",
+  "pipeline": {
+    "total_seconds": 62.287,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.588,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1679,
+    "output_tokens": 812,
+    "total_tokens": 3875
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3942
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Navid Godil",
+      "email": "navidgodil@gmail.com",
+      "phone": "+92-332-3512202",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "HR Professional",
+    "profile_summary": "Senior HR Professional with extensive expertise in Talent Acquisition, Performance Management, and HR Operations. Proven track record in aligning HR initiatives with business goals across banking and academic sectors.",
+    "education": [
+      {
+        "institution": "IBA Karachi",
+        "degree": "MBA - HRM",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "IBA Karachi",
+        "degree": "PGD – HRM",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Ilma University",
+        "degree": "Master’s – HRM",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "B.Com",
+        "graduation_year": "2007"
+      }
+    ],
+    "experience": [
+      {
+        "company": "National Bank of Pakistan",
+        "role": "Unit Head – HR & Administration (AVP)",
+        "duration": "Aug 2025 – Mar 2026",
+        "description": "Served as HR & Admin Business Partner for Risk Management Group, managing performance, onboarding, and employee data."
+      },
+      {
+        "company": "Institute of Business Administration (IBA), Karachi",
+        "role": "HR Business Partner – Corporate Functions",
+        "duration": "Feb 2014 – Jul 2025",
+        "description": "Managed end-to-end talent acquisition, payroll coordination, policy development, and employer branding efforts."
+      },
+      {
+        "company": "Vikor Pharma (Pvt.) Ltd., Karachi",
+        "role": "Assistant Manager – HR & Administration",
+        "duration": "Aug 2011 – Feb 2014",
+        "description": "Handled HR operations, payroll processing, and general office administration including vendor and inventory management."
+      }
+    ],
+    "skills": [
+      "Talent Acquisition",
+      "Performance Management",
+      "HR Policy & Compliance",
+      "Compensation and Benefits",
+      "Employee Relations",
+      "HRIS",
+      "Microsoft Dynamics",
+      "PeopleSoft",
+      "Training & Development",
+      "Data Analytics",
+      "Payroll",
+      "Stakeholder Management",
+      "MS Office Suite",
+      "Google Workspace"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Strong administrative and organizational skills",
+      "High level of academic achievement",
+      "Extensive corporate experience"
+    ],
+    "weaknesses": [
+      "No professional experience in marketing",
+      "Lack of social media management skills",
+      "No experience with UTM tracking, Meta Business Suite, or Canva"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly qualified HR professional but possesses no relevant skills or experience for a Marketing Specialist role."
+  }
+}

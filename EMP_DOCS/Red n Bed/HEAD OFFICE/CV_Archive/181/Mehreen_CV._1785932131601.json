@@ -1,0 +1,111 @@
+{
+  "cv_file": "Mehreen_CV._1785932131601.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:37.668925+00:00",
+  "pipeline": {
+    "total_seconds": 61.675,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.575,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1252,
+    "output_tokens": 814,
+    "total_tokens": 3456
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 2441
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mehreen",
+      "email": "Mehr.fq@gmail.com",
+      "phone": "03072986899",
+      "location": "Clifton, Block 2, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with a background in customer service, operations management, and executive support. Strong expertise in CRM systems, operational efficiency, and client relations.",
+    "education": [
+      {
+        "institution": "DA college for women",
+        "degree": "BS in Business commerce",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Crown Group",
+        "role": "Executive Assistant to MD",
+        "duration": "June 2025 - Current",
+        "description": "Manages executive workflows, confidential documentation, and high-level corporate coordination."
+      },
+      {
+        "company": "Global International Limited",
+        "role": "Customer care representative",
+        "duration": "Oct 2024 - June 2025",
+        "description": "Maintained CRM documentation and improved internal processes by analyzing recurring customer concerns."
+      },
+      {
+        "company": "Ability",
+        "role": "Customer Care Representative",
+        "duration": "Feb 2024 - Sept 2024",
+        "description": "Managed inbound order placements and provided proactive business solutions to customer inquiries."
+      },
+      {
+        "company": "Dmaxx Properties",
+        "role": "Real Estate Sales Executive",
+        "duration": "Oct 2023 - Feb 2024",
+        "description": "Handled real estate negotiations and consulted clients on market conditions and legal requirements."
+      },
+      {
+        "company": "IBEX (Food Panda APAC)",
+        "role": "Senior Customer Services",
+        "duration": "March 2021 - Jan 2022",
+        "description": "Assessed customer needs and resolved order status and post-order issues."
+      },
+      {
+        "company": "IAvari Towers",
+        "role": "Assistant Operations Manager",
+        "duration": "Jan 2019 - June 2020",
+        "description": "Led operational teams, increasing efficiency by 20% and customer satisfaction by 25% through data analysis."
+      }
+    ],
+    "skills": [
+      "CRM",
+      "Complaint Handling",
+      "Service Coordination",
+      "Negotiation",
+      "Data Analysis",
+      "Administrative Excellence",
+      "Customer Service",
+      "Operational Leadership"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 0,
+    "experience_match": 15,
+    "overall_score": 10,
+    "strengths": [
+      "Relevant degree in Business Commerce",
+      "Experience in operational leadership",
+      "Strong customer-facing communication skills"
+    ],
+    "weaknesses": [
+      "Zero professional marketing experience",
+      "No knowledge of GA4 or ad platform reporting",
+      "No experience managing marketing budgets or integrated campaigns"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a customer service and operations professional with no relevant experience in marketing strategy, digital advertising, or brand management."
+  }
+}

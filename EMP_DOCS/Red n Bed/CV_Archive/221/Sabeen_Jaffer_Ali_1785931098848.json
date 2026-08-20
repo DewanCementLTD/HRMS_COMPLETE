@@ -1,0 +1,119 @@
+{
+  "cv_file": "Sabeen_Jaffer_Ali_1785931098848.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:13.379275+00:00",
+  "pipeline": {
+    "total_seconds": 79.46,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 79.306,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2192,
+    "output_tokens": 1020,
+    "total_tokens": 5018
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Senior Brand Manager",
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 6130
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sabeen Jaffer Ali",
+      "email": "jaffer.sabeen@gmail.com",
+      "phone": "0092-333-216-8416",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Senior Brand Manager",
+    "profile_summary": "Senior Brand Manager with over 14 years of experience in luxury beauty, skincare, and cosmetics. Expert in executing 360° integrated marketing campaigns and managing multi-million dollar budgets to drive double-digit sales growth.",
+    "education": [
+      {
+        "institution": "Shaheed Zulfikar Ali Bhutto Institute of Science and Technology (SZABIST)",
+        "degree": "BS – Advertising",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Eleganz Luxury Pvt Ltd",
+        "role": "Senior Brand Manager",
+        "duration": "Nov 2023 – Present",
+        "description": "Managed $1M A&P budget and led 360° campaigns for luxury brands, achieving 35% annual growth and launching Pakistan's first Dolce & Gabbana Beauty Boutique."
+      },
+      {
+        "company": "Eleganz Luxury Pvt Ltd",
+        "role": "Brand Manager",
+        "duration": "Nov 2020 – Nov 2023",
+        "description": "Executed nationwide in-store activations and digital campaigns, monitoring market trends and KPIs to optimize performance and increase gross sales."
+      },
+      {
+        "company": "Crescent Star Group of Companies",
+        "role": "Retail Marketing Manager",
+        "duration": "Dec 2017 – Mar 2019",
+        "description": "Designed trade promotions and merchandising strategies for luxury cosmetics and fast food franchises, increasing sell-out by 55%."
+      },
+      {
+        "company": "Multitech Marketing Services",
+        "role": "Assistant Brand Manager",
+        "duration": "Jun 2015 – Nov 2017",
+        "description": "Managed brand performance for Bourjois Makeup across 45 outlets and delivered sales training for 70 beauty advisors."
+      },
+      {
+        "company": "G Force Communications",
+        "role": "Vice-Captain, Media Planning",
+        "duration": "Apr 2011 – Apr 2015",
+        "description": "Managed media buying and ATL/BTL activities for Dawlance and Olivia Makeup, achieving 27% sales growth."
+      },
+      {
+        "company": "Time & Space Media",
+        "role": "Media Executive — Print Media",
+        "duration": "Sep 2010 – Feb 2011",
+        "description": "Executed print media campaigns with budgets over PKR 7M for consumer brands including Caresse and Nurpur."
+      }
+    ],
+    "skills": [
+      "Brand Strategy",
+      "Annual Planning",
+      "Product Positioning",
+      "Integrated Marketing Campaigns",
+      "Trade Marketing",
+      "Retail Activation",
+      "E-commerce Content Management",
+      "Budget Management",
+      "ROI Reporting",
+      "Consumer Insights",
+      "Market Trend Analysis",
+      "Creative Development",
+      "Agency Coordination",
+      "KPI Tracking",
+      "Team Leadership",
+      "Media Buying",
+      "ATL/BTL"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 85,
+    "experience_match": 100,
+    "overall_score": 70,
+    "strengths": [
+      "Extensive luxury brand expertise",
+      "Proven track record of driving significant sales growth",
+      "Expertise in 360° campaign management and agency coordination"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a tactical specialist role",
+      "No explicit mention of Canva or Meta Business Suite"
+    ],
+    "recommendation": "Overqualified",
+    "summary": "The candidate is a highly seasoned marketing leader who far exceeds the requirements of a Marketing Specialist. While they possess all the necessary skills to execute the tasks, their seniority level suggests they may be overqualified for this specific role."
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "cv_file": "Adnan_Anwer_Ali_CV_GTM_1_1785930722858.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:29.757978+00:00",
+  "pipeline": {
+    "total_seconds": 65.623,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 64.833,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1646,
+    "output_tokens": 819,
+    "total_tokens": 3942
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3735
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Adnan Anwer Ali",
+      "email": "adnan.jiwani@gmail.com",
+      "phone": "0332-3148262",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior growth-focused digital marketing professional with extensive expertise in SEO, PPC, and social media. Proven track record in scaling digital products and leading teams across diverse industries including SaaS and E-commerce.",
+    "education": [
+      {
+        "institution": "IQRA University",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Govt. Commerce College",
+        "degree": "B.Com",
+        "graduation_year": "2008"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Gaditek",
+        "role": "Assistant Manager Digital Marketing",
+        "duration": "May 2015 – Jan 2026",
+        "description": "Managed global SEO, email, content, and PPC for PureVPN. Optimized sales funnels and led a 5-member team focusing on automation and analytics."
+      },
+      {
+        "company": "Folio3",
+        "role": "Team Lead Digital Marketing",
+        "duration": "Feb 2014 – Apr 2015",
+        "description": "Managed B2B SEO for NetSuite and Salesforce, executing keyword research, website audits, and performance reporting."
+      },
+      {
+        "company": "Right Solution",
+        "role": "SEO Team Lead",
+        "duration": "Jun 2010 – Jan 2014",
+        "description": "Led on-page/off-page SEO and social media marketing for branded campaigns, including Logo Design Guru and DesignMantic."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "PPC",
+      "Social Media",
+      "Analytics",
+      "Copy Writing",
+      "Content Marketing",
+      "CRO",
+      "Lead Gen",
+      "Marketing Automation",
+      "Ahrefs",
+      "Semrush",
+      "Looker",
+      "GA4",
+      "GSC",
+      "Mailchimp",
+      "Google Ads",
+      "Hotjar",
+      "Meta Ads Library",
+      "Power BI",
+      "Clarity",
+      "Claude",
+      "ChatGPT",
+      "Lovable",
+      "LinkedIn Sales Navigator",
+      "Apollo"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Extensive experience in Meta Ads and social media growth",
+      "Strong data-driven mindset with proven ROAS and revenue achievements",
+      "Advanced proficiency in marketing analytics and automation tools"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a Specialist role",
+      "No explicit mention of Canva or TikTok specifically"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is a highly seasoned digital marketer who far exceeds the minimum requirements. His expertise in Meta ads, content strategy, and reporting makes him an ideal, albeit overqualified, fit for the role."
+  }
+}

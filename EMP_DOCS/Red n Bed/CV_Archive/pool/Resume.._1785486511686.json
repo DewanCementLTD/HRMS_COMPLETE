@@ -1,0 +1,92 @@
+{
+  "cv_file": "Resume.._1785486511686.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:53.588341+00:00",
+  "pipeline": {
+    "total_seconds": 40.939,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.918,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 735,
+    "output_tokens": 546,
+    "total_tokens": 2169
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 1281
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ali Rao",
+      "email": "aliraoi9300@gmail.com",
+      "phone": "03201240245",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Search Engine Optimization",
+    "profile_summary": "Entry-level professional with a BS in Computer Science and Google certifications in Digital Marketing and Business Intelligence. Skilled in keyword research, on-page optimization, and technical SEO.",
+    "education": [
+      {
+        "institution": "Dawood University of Engineering & Technology",
+        "degree": "Bachelors in Computer Science (BSCS)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Nabi Bagh Govt College",
+        "degree": "Pre Engineering",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Google",
+        "degree": "Professional Certificate in Digital Marketing & E-commerce",
+        "graduation_year": null
+      },
+      {
+        "institution": "Google",
+        "degree": "Professional Certificate in Business Intelligence",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "National Conference 2022",
+        "role": "Volunteer",
+        "duration": "2022",
+        "description": "Volunteered at the national conference held at Dawood University of Engineering and Technology."
+      },
+      {
+        "company": "IDEAS_2022 Pakistan Arms for Peace",
+        "role": "Volunteer",
+        "duration": "2022",
+        "description": "Volunteered at the IDEAS_2022 event in Karachi."
+      },
+      {
+        "company": "Saylani Mass IT Grand Test",
+        "role": "Volunteer",
+        "duration": "2022",
+        "description": "Volunteered at the grand test event at National Stadium."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Front-end Development",
+      "Digital Marketing",
+      "Verbal Communication",
+      "Written Communication",
+      "Interpersonal Skills",
+      "English",
+      "Urdu"
+    ]
+  }
+}

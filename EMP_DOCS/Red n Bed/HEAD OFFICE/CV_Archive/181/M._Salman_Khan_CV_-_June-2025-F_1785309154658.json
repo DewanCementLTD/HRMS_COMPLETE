@@ -1,0 +1,148 @@
+{
+  "cv_file": "M._Salman_Khan_CV_-_June-2025-F_1785309154658.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:16:14.975667+00:00",
+  "pipeline": {
+    "total_seconds": 67.44,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.276,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 3916,
+    "output_tokens": 1280,
+    "total_tokens": 6315
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 5,
+    "ocr_pages": [],
+    "detected_job_title": "Brand Manager",
+    "sections_found": [
+      "achievements",
+      "education",
+      "header",
+      "references",
+      "summary"
+    ],
+    "text_chars": 13146
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Salman Khan",
+      "email": "salmankhansk@hotmail.com",
+      "phone": "+92 336 0309837",
+      "location": "PECHS BLK III, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Brand Manager",
+    "profile_summary": "Seasoned marketing professional with 12 years of experience across FMCG and B2B sectors. Expert in data-driven brand strategies, integrated digital campaigns, and market entry, with a proven track record of driving measurable growth and leading marketing functions.",
+    "education": [
+      {
+        "institution": "Middlesex University, London",
+        "degree": "Master of Business Administration (MBA, Marketing)",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Preston University, Karachi",
+        "degree": "Bachelor of Business Administration (BBA, Marketing)",
+        "graduation_year": "2010"
+      },
+      {
+        "institution": "Institute of Business Administration (IBA), Karachi",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Indus Valley School of Art and Architecture (IVS), Karachi",
+        "degree": "Diploma in Creative Advertising",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Unity Foods Ltd.",
+        "role": "Brand Manager",
+        "duration": "2025 - Present",
+        "description": "Manages yearly brand plans, budgets, and ROI optimization. Leads product innovation and digital strategies to drive website traffic and conversions."
+      },
+      {
+        "company": "Garibsons Pvt. Ltd.",
+        "role": "Brand Manager",
+        "duration": "2023 - 2024",
+        "description": "Executed integrated ATL, BTL, and digital campaigns. Managed creative and PR agencies to increase customer loyalty and online sales."
+      },
+      {
+        "company": "Ata Food Pvt. Ltd.",
+        "role": "Head of Marketing",
+        "duration": "2020 - 2023",
+        "description": "Oversaw comprehensive brand strategy, P&L analysis, and digital transformation. Led international expansion into the UAE and managed organic/paid Meta and Google Ads."
+      },
+      {
+        "company": "Greaves Pakistan",
+        "role": "Deputy Manager Marketing",
+        "duration": "2017 - 2020",
+        "description": "Developed B2B/B2C communication tools and digital strategies, resulting in a 40% increase in lead generation."
+      },
+      {
+        "company": "Interwood Mobel Pvt. Ltd.",
+        "role": "Deputy Manager Marketing",
+        "duration": "2016 - 2017",
+        "description": "Led corporate communication for office furniture, focusing on strategic partnerships and annual brand planning."
+      },
+      {
+        "company": "Bottomline Pvt. Ltd",
+        "role": "Sr. Planner Strategy & Activation",
+        "duration": "2014 - 2016",
+        "description": "Developed multi-channel brand plans and activation strategies for top-tier clients like Engro Foods and GSK."
+      },
+      {
+        "company": "CPM UK Ltd",
+        "role": "Tactical & Merchandising Officer",
+        "duration": "2013 - 2014",
+        "description": "Conducted in-store activations and merchandising for ASDA to boost brand awareness and sales."
+      },
+      {
+        "company": "Empact Activation Pvt. Ltd",
+        "role": "Project Manager",
+        "duration": "2010 - 2012",
+        "description": "Managed BTL campaigns and operational planning for Unilever and Lakson Tobacco brands."
+      }
+    ],
+    "skills": [
+      "Google Analytics",
+      "Google Ads",
+      "Meta Ads (Facebook/Instagram)",
+      "Power BI",
+      "Tableau",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Facebook Business Manager",
+      "LinkedIn Campaign Manager",
+      "Brand Strategy",
+      "Budget Management",
+      "Agency Management",
+      "ATL/BTL Marketing",
+      "P&L Analysis",
+      "Lead Generation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 98,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 97,
+    "strengths": [
+      "Extensive 12-year experience exceeding the 5-7 year requirement",
+      "Proven leadership as Head of Marketing and Brand Manager",
+      "Certified in GA4 and Google Ads",
+      "Strong local presence in Karachi",
+      "Expertise in both B2B and B2C integrated campaigns"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a mid-level Marketing Manager role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, possessing all must-have technical skills (GA4, Ad platforms) and significantly exceeding the experience and education requirements. His history of managing budgets, teams, and agencies aligns perfectly with the role's responsibilities."
+  }
+}

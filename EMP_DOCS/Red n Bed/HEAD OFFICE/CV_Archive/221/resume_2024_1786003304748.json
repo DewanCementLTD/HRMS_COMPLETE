@@ -1,0 +1,114 @@
+{
+  "cv_file": "resume_2024_1786003304748.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:55.620758+00:00",
+  "pipeline": {
+    "total_seconds": 73.35,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 73.262,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1321,
+    "output_tokens": 859,
+    "total_tokens": 3750
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "summary"
+    ],
+    "text_chars": 3195
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shan Chaudhry",
+      "email": "shan337849@gmail.com",
+      "phone": "+923422124538",
+      "location": "Karachi Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing / Ads Expert",
+    "profile_summary": "Performance marketing specialist with 4 years of experience specializing in Facebook and TikTok ads. Proven track record of managing $10M+ in spend and significantly improving ROAS and CPA for diverse clients.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelors of Arts",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Govt Degree Collage",
+        "degree": "Intermediate",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "New Roomi Secondary School",
+        "degree": "Matriculation",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ace Inception",
+        "role": "Senior Facebook & Tiktok Ads Expert",
+        "duration": "2023-2024",
+        "description": "Managed international ad campaigns on Facebook and TikTok, led content creation teams, and collaborated with web developers."
+      },
+      {
+        "company": "Revenue Express",
+        "role": "Facebook & Tiktok Ads Expert",
+        "duration": "2022-2023",
+        "description": "Handled media buying, performance tracking, and budget management while developing strategic media plans for clients."
+      },
+      {
+        "company": "Ondaworks",
+        "role": "Facebook & Tiktok Ads Expert",
+        "duration": "2021-2022",
+        "description": "Optimized campaigns resulting in a 40% revenue increase, 60% CPA decrease, and 70% ROAS increase."
+      },
+      {
+        "company": "Neon Marketing",
+        "role": "Facebook & Tiktok Ads Expert",
+        "duration": "2020-2021",
+        "description": "Executed and managed advertising campaigns for various brands and independent clients."
+      }
+    ],
+    "skills": [
+      "Social Media Marketing",
+      "Media buying",
+      "Facebook Ads",
+      "Tiktok Ads",
+      "Snapchat Ads",
+      "Google Ads",
+      "Ecommerce",
+      "Shopify",
+      "Advertising Strategy",
+      "Photography",
+      "Videography",
+      "Campaign management",
+      "Leadership",
+      "Creative Problem Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 75,
+    "technical_match": 85,
+    "experience_match": 90,
+    "overall_score": 80,
+    "strengths": [
+      "Exceptional track record in paid social acquisition",
+      "Experience managing high-budget campaigns ($10M+)",
+      "Strong data-driven results (CPA/ROAS optimization)"
+    ],
+    "weaknesses": [
+      "Lack of explicit experience in organic content scheduling and community management",
+      "Degree is in Arts rather than a specialized Marketing/Communications field"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is a highly skilled performance marketer who exceeds the experience requirements. While their profile leans heavily toward paid ads rather than organic content management, their ability to drive revenue and lead content teams makes them a strong fit."
+  }
+}

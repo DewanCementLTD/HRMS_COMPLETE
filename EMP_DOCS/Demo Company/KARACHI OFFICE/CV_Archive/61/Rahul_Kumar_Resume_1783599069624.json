@@ -1,0 +1,111 @@
+{
+  "cv_file": "Rahul_Kumar_Resume_1783599069624.pdf",
+  "job_folder": "61",
+  "job_id": 61,
+  "mode": "evaluate",
+  "processed_at": "2026-07-09T12:12:11.761120+00:00",
+  "pipeline": {
+    "total_seconds": 58.996,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.463,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1630,
+    "output_tokens": 717,
+    "total_tokens": 3622
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Junior Ai Engineer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4061
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Rahul Kumar",
+      "email": "932004rahul@gmail.com",
+      "phone": null,
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Junior AI Engineer",
+    "profile_summary": "3rd-year AI undergraduate with expertise in ML pipelines, autonomous agents, and computer vision. Strong proficiency in Python, GenAI, and AI automation, with a proven track record in hackathons and technical leadership.",
+    "education": [
+      {
+        "institution": "SZABIST University",
+        "degree": "Bachelor of Artificial Intelligence (BSAI)",
+        "graduation_year": "2027"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Technocas",
+        "role": "AI Automation Engineer",
+        "duration": "April 2026 – Present",
+        "description": "Engineered automated project-management and CRM workflows using LangChain and Zapier to streamline internal operations and data pipelines."
+      },
+      {
+        "company": "NAVTTC PMYSDP (IBA Karachi)",
+        "role": "Selected Trainee",
+        "duration": "February 2026 – Present",
+        "description": "Completed an intensive AI diploma focusing on CNN/RNN/ANN, MLOps, and production-grade deployment."
+      }
+    ],
+    "skills": [
+      "Python",
+      "SQL",
+      "CNN",
+      "RNN",
+      "ANN",
+      "YOLOv8",
+      "Transformers",
+      "RAG",
+      "Agentic AI",
+      "FLAN-T5",
+      "Multilingual Chatbots",
+      "Prompt Engineering",
+      "NumPy",
+      "Pandas",
+      "Scikit-learn",
+      "PyTorch",
+      "LangChain",
+      "AutoGPT",
+      "Zapier",
+      "CI/CD Pipelines",
+      "Data Preprocessing",
+      "Model Training & Validation",
+      "Hyperparameter Tuning",
+      "Feature Engineering",
+      "Computer Vision",
+      "NLP",
+      "Speech (ASR/TTS)",
+      "Time-Series Classification"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 20,
+    "experience_match": 5,
+    "overall_score": 12,
+    "strengths": [
+      "Strong automation capabilities",
+      "Knowledge of CI/CD pipelines",
+      "High technical aptitude in AI/ML"
+    ],
+    "weaknesses": [
+      "No experience in software testing or QA methodologies",
+      "Lack of proficiency in QA tools (e.g., Selenium, JUnit, Pytest)",
+      "Career trajectory is focused on AI Engineering, not Quality Assurance"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly skilled AI/ML specialist but possesses no relevant experience or training for a QA role."
+  }
+}

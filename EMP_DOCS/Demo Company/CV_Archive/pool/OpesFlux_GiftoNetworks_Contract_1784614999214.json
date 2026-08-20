@@ -1,0 +1,52 @@
+{
+  "cv_file": "OpesFlux_GiftoNetworks_Contract_1784614999214.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-21T06:23:46.911465+00:00",
+  "pipeline": {
+    "total_seconds": 24.367,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 23.766,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1088,
+    "output_tokens": 237,
+    "total_tokens": 1909
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 2509
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zohaib",
+      "email": "hello@opesflux.devsandvisuals.com",
+      "phone": "+44 7490 350688",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entrepreneur and founder of Devs and Visuals. Specializes in software service provision and the development of the OpesFlux Warehouse Management System (WMS).",
+    "education": [],
+    "experience": [
+      {
+        "company": "Devs and Visuals",
+        "role": "Founder",
+        "duration": null,
+        "description": "Founded and manages a software service provider, developing and offering the OpesFlux Warehouse Management System (WMS) platform."
+      }
+    ],
+    "skills": [
+      "Software Service Provision",
+      "Warehouse Management Systems (WMS)",
+      "Platform Management",
+      "Entrepreneurship"
+    ]
+  }
+}

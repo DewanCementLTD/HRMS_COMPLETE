@@ -1,0 +1,136 @@
+{
+  "cv_file": "Abdul_Rafey_CV_1785239702855.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:58.126082+00:00",
+  "pipeline": {
+    "total_seconds": 212.892,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 206.104,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 3644,
+    "output_tokens": 1079,
+    "total_tokens": 5652
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 6,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 14417
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abdul Rafey",
+      "email": "abdulrafey.siddiq@gmail.com",
+      "phone": "+92 (332) 2790395",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Sales, Marketing, and Business Development",
+    "profile_summary": "Versatile professional with over 14 years of experience across operations, business development, and corporate training. Holds an MBA/M.Phil in Marketing and possesses strong skills in stakeholder management and strategic partnerships.",
+    "education": [
+      {
+        "institution": "Indus University - Karachi",
+        "degree": "MBA / M.Phil in Marketing",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Indus University - Karachi",
+        "degree": "B. Tech(Hons.) in Mechanical Technology",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Government College of Technology, S.I.T.E, Karachi",
+        "degree": "DAE in Mechanical Technology",
+        "graduation_year": "2011"
+      }
+    ],
+    "experience": [
+      {
+        "company": "The Hunar Foundation",
+        "role": "Deputy Manager",
+        "duration": "Feb 2021 – Present",
+        "description": "Manages corporate partnerships and revenue generation, securing PKR 20M+ annually. Scaled training capacity by 59% and diversified recruitment through online and offline marketing channels."
+      },
+      {
+        "company": "Community Health Solutions",
+        "role": "Assistant Manager",
+        "duration": "Nov 2020 – Apr 2021",
+        "description": "Optimized fleet management and resource allocation. Managed vendor relations and implemented data-driven cost reduction strategies."
+      },
+      {
+        "company": "SBB Dewan University",
+        "role": "Assistant Registrar",
+        "duration": "Feb 2019 – Nov 2020",
+        "description": "Administered student lifecycle management and drafted university policies to streamline administrative processes."
+      },
+      {
+        "company": "Aman Tech Foundation",
+        "role": "Senior Instructor",
+        "duration": "Apr 2017 – Feb 2019",
+        "description": "Developed technical curricula for AutoCAD and PTC Creo. Mentored students and aligned training content with industry market needs."
+      },
+      {
+        "company": "Hamdard University",
+        "role": "Administrative Assistant",
+        "duration": "Nov 2015 – May 2017",
+        "description": "Coordinated faculty activities and managed student support services."
+      },
+      {
+        "company": "Imran Crown & Cork (PVT) Ltd",
+        "role": "Assistant Plant Manager",
+        "duration": "Feb 2011 – Aug 2015",
+        "description": "Supervised plant operations and enforced ISO quality control protocols to optimize production efficiency."
+      }
+    ],
+    "skills": [
+      "Business Development",
+      "Strategic Partnerships",
+      "Stakeholder Management",
+      "Contract Negotiation",
+      "Lead Generation",
+      "Marketing Strategy",
+      "Digital Marketing",
+      "Brand Management",
+      "Market Research",
+      "SEO",
+      "Content Coordination",
+      "Campaign Management",
+      "Power BI",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Communication",
+      "Project Coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 40,
+    "experience_match": 30,
+    "overall_score": 40,
+    "strengths": [
+      "Advanced academic qualification (MBA/M.Phil in Marketing)",
+      "Strong business development and partnership track record",
+      "Local presence in Karachi",
+      "Excellent communication and stakeholder management skills"
+    ],
+    "weaknesses": [
+      "Lacks direct experience managing consumer brand marketing budgets",
+      "No mentioned proficiency in GA4 or specific ad platform reporting",
+      "Professional experience is primarily in TVET/Education/Operations rather than integrated marketing management",
+      "No evidence of managing external creative agencies"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "While the candidate has the required academic background in Marketing and strong general management skills, he lacks the specific professional experience of running integrated consumer campaigns and the mandatory technical proficiency in GA4 and ad platform reporting."
+  }
+}

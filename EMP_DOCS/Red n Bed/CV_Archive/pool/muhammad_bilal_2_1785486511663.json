@@ -1,0 +1,95 @@
+{
+  "cv_file": "muhammad_bilal_2_1785486511663.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:22.471474+00:00",
+  "pipeline": {
+    "total_seconds": 46.031,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.011,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1100,
+    "output_tokens": 555,
+    "total_tokens": 2728
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3462
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Bilal Sheikh",
+      "email": "connectbilal38@gmail.com",
+      "phone": "0318-2788286",
+      "location": null
+    },
+    "preferred_job_title": "SEO Executive",
+    "profile_summary": "Results-driven SEO Executive with expertise in improving organic search rankings and website traffic. Proficient in technical SEO, content strategy, and data analysis across B2B, e-commerce, and blogging domains.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "B.COM",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techno Cloud Pvt. Ltd.",
+        "role": "SEO Executive",
+        "duration": "July 2022-Present",
+        "description": "Implemented SEO strategies for B2B and e-commerce sites. Conducted technical audits, keyword research, and link-building to increase organic traffic, domain authority, and conversion rates."
+      },
+      {
+        "company": "Ozbix Development House",
+        "role": "Junior SEO Executive",
+        "duration": "August 2021-July 2022",
+        "description": null
+      }
+    ],
+    "skills": [
+      "Keyword Research and Analysis",
+      "On-page Optimization",
+      "Off-page Optimization",
+      "Technical SEO Audits",
+      "Content Strategy and Development",
+      "Link Building and Outreach",
+      "Competitor Analysis",
+      "Data Analysis and Reporting",
+      "Google Analytics",
+      "Google Search Console",
+      "Ahrefs",
+      "Moz",
+      "Semrush",
+      "Screaming Frog",
+      "Social Media Marketing",
+      "Mobile SEO",
+      "Voice Search Optimization",
+      "UX",
+      "CRO",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Schema Markup"
+    ]
+  }
+}

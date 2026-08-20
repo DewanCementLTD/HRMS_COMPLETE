@@ -1,0 +1,107 @@
+{
+  "cv_file": "Muqadas_Ejaz_CV_1786003304735.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:01.569844+00:00",
+  "pipeline": {
+    "total_seconds": 48.748,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.653,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1077,
+    "output_tokens": 697,
+    "total_tokens": 2776
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1626
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muqadas Ejaz",
+      "email": "ejazmuqadas86@gamil.com",
+      "phone": "03357590837",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing",
+    "profile_summary": "Final-year BBA student and entrepreneur with a background in digital marketing and content creation. Experienced in driving organic social media traffic and managing a small business.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "BBA-H",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Army Public College",
+        "degree": "Intermediate",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Karachi Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Diginers",
+        "role": "Digital Marketing Executive",
+        "duration": "Oct 2024 - Dec 2024",
+        "description": "Executed online marketing plans to increase website traffic and enhanced social media visibility."
+      },
+      {
+        "company": "Diginers",
+        "role": "Digital Marketing Intern",
+        "duration": "Aug 2024 - Oct 2024",
+        "description": "Supported digital marketing initiatives and content creation."
+      },
+      {
+        "company": "Mavme",
+        "role": "Founder",
+        "duration": "Nov 2024 - Present",
+        "description": "Launched a handmade decor business, performing market analysis and creating engaging social media content."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Canva",
+      "CapCut",
+      "Problem solving",
+      "Time management",
+      "Writing",
+      "Digital Marketing",
+      "Market Analysis",
+      "Content Creation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 50,
+    "experience_match": 20,
+    "overall_score": 40,
+    "strengths": [
+      "Relevant educational background (BBA)",
+      "Proficiency in Canva and CapCut",
+      "Entrepreneurial initiative"
+    ],
+    "weaknesses": [
+      "Does not meet the 2-year minimum experience requirement",
+      "Lack of mentioned experience with Meta Business Suite and Excel",
+      "No evidence of UTM tracking or reporting skills"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a motivated student with basic digital marketing skills, but lacks the professional seniority and specific technical experience required for this role."
+  }
+}

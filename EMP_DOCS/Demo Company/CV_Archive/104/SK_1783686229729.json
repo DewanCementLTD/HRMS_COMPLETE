@@ -1,0 +1,107 @@
+{
+  "cv_file": "SK_1783686229729.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:25:00.658864+00:00",
+  "pipeline": {
+    "total_seconds": 60.692,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.069,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1468,
+    "output_tokens": 684,
+    "total_tokens": 3413
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2944
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Saad Bin Khalid",
+      "email": "saadkhalid1604@gmail.com",
+      "phone": "+92 336 305 2865",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full-stack Web Developer",
+    "profile_summary": "High-achieving Computer Science student with a strong foundation in full-stack development and AI. Proficient in building scalable web applications using React, Node.js, and TypeScript with a record of academic excellence.",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science",
+        "graduation_year": null
+      },
+      {
+        "institution": "Beaconhouse School System",
+        "degree": "A-Levels, Computer Science",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "International Trading Company",
+        "role": "Office Assistant",
+        "duration": "2020 — Present",
+        "description": "Handled administrative tasks, client quotations, billing statements, and maintained digital transaction records."
+      }
+    ],
+    "skills": [
+      "Python",
+      "JavaScript",
+      "TypeScript",
+      "C",
+      "C++",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Express",
+      "Tailwind CSS",
+      "HTML",
+      "CSS",
+      "REST API",
+      "Artificial Intelligence",
+      "Data Structures & Algorithms",
+      "OOP",
+      "Operating Systems",
+      "PostgreSQL",
+      "MySQL",
+      "MongoDB",
+      "Git",
+      "VS Code",
+      "WSL",
+      "Vercel",
+      "Docker"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 95,
+    "experience_match": 30,
+    "overall_score": 65,
+    "strengths": [
+      "Perfect alignment with must-have technical stack (JS, TS, Node, React, SQL, Git)",
+      "Strong academic performance (Dean's List, 3.87 CGPA)",
+      "Practical project experience with full-stack deployment and AI"
+    ],
+    "weaknesses": [
+      "Lack of professional software engineering industry experience",
+      "Degree is currently in progress (not yet completed)"
+    ],
+    "recommendation": "Interview for Junior/Intern",
+    "summary": "The candidate is a technical match for the role's requirements, possessing all must-have skills and several nice-to-haves. While lacking professional experience, their academic record and project portfolio demonstrate high potential."
+  }
+}

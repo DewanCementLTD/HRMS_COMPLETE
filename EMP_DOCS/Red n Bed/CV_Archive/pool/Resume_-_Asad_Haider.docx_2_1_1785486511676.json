@@ -1,0 +1,70 @@
+{
+  "cv_file": "Resume_-_Asad_Haider.docx_2_1_1785486511676.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:38.184734+00:00",
+  "pipeline": {
+    "total_seconds": 25.161,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 24.025,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 496,
+    "output_tokens": 303,
+    "total_tokens": 1327
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 2,
+    "ocr_pages": [
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 520
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Asad Haider",
+      "email": null,
+      "phone": "03282669006",
+      "location": "11/E Jahangir Road, Jamshed Quarters"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entry-level professional with a certification in digital marketing and practical experience in social media management. Recently completed intermediate education and seeks a growth-oriented role in a competitive environment.",
+    "education": [
+      {
+        "institution": "Islamia Govt Science College",
+        "degree": "Inter",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Fatimiyah Boys School",
+        "degree": "Matric",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "World Travel Makers",
+        "role": "Social Media Manager",
+        "duration": "3 months",
+        "description": "Managed social media platforms and digital presence for the organization."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Digital Marketing",
+      "English",
+      "Urdu"
+    ]
+  }
+}

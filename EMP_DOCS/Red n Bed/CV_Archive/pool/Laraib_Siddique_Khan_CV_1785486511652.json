@@ -1,0 +1,134 @@
+{
+  "cv_file": "Laraib_Siddique_Khan_CV_1785486511652.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:12.495986+00:00",
+  "pipeline": {
+    "total_seconds": 78.584,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 78.004,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1315,
+    "output_tokens": 1041,
+    "total_tokens": 4065
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3650
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Laraib Siddique Khan",
+      "email": "laraibkhanlaraibkhan8@gmail.com",
+      "phone": "+92330-6219939",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager",
+    "profile_summary": "Early-career marketing professional with a strong background in digital strategy, brand management, and market research. Experienced in executing paid campaigns, SEO/SMM, and product launches across diverse sectors. Skilled in content creation and cross-functional project coordination.",
+    "education": [
+      {
+        "institution": "University of Engineering and Technology, Lahore",
+        "degree": "Bachelors in Business Administration in Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Institute of Business Administration, Karachi",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techgenics",
+        "role": "Digital Marketing Manager",
+        "duration": "2022-2024",
+        "description": "Managed social media presence, executed Google Ads and PPC campaigns, and developed content for web and social platforms."
+      },
+      {
+        "company": "Digital AceTech",
+        "role": "Digital Marketing Assistant",
+        "duration": "Dec-2021",
+        "description": "Supported promotional activities, conducted marketing research, and produced SEO-friendly content."
+      },
+      {
+        "company": "Pak Electron Limited (PEL)",
+        "role": "Marketing Intern",
+        "duration": "Aug-2021",
+        "description": "Developed new product launch strategies, managed ATL/BTL activities, and designed USPs, storyboards, and pricing."
+      },
+      {
+        "company": "Desi TV USA",
+        "role": "Business Development and Marketing Assistant",
+        "duration": "Nov-2020",
+        "description": "Oversaw marketing initiatives and utilized digital research to identify new markets and increase customer value."
+      },
+      {
+        "company": "Digital AceTech",
+        "role": "Digital Marketing Intern",
+        "duration": "July-2020",
+        "description": "Researched digital trends and competitor strategies while creating social media content."
+      },
+      {
+        "company": "Ohealo Psychotherapy",
+        "role": "Marketing Consultant",
+        "duration": "Oct-2020",
+        "description": "Advised on promotional strategies and content planning for blogs and social media."
+      },
+      {
+        "company": "Nestle Pakistan",
+        "role": "Project Management Intern",
+        "duration": "Aug-2019",
+        "description": "Supported digital project execution, tracked timelines and budgets, and applied project management methodologies."
+      },
+      {
+        "company": "State Bank of Pakistan",
+        "role": "Intern",
+        "duration": "Jan-2022",
+        "description": "Liaised between NFLP-Y and educational institutes to promote financial inclusion and social change."
+      },
+      {
+        "company": "Namal Klub for Arts and Media (NKAM)",
+        "role": "Marketing Director",
+        "duration": "2019-2021",
+        "description": "Promoted university-level events."
+      },
+      {
+        "company": "Namal university of Mianwalli",
+        "role": "Teacher Assistant",
+        "duration": "2019-2020",
+        "description": "Developed lecture plans and graded student assignments and quizzes."
+      },
+      {
+        "company": "Namal Klub for Arts and Media (NKAM)",
+        "role": "Member of Management Team",
+        "duration": "2018-2019",
+        "description": "Collaborated with team members and attended professional development workshops."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Product Marketing",
+      "Market Research",
+      "Content Writing",
+      "SEO",
+      "SMM",
+      "Google Ads",
+      "PPC",
+      "Shopify",
+      "WordPress",
+      "C++",
+      "Project Management",
+      "ATL/BTL Marketing"
+    ]
+  }
+}

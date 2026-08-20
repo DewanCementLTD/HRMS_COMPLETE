@@ -1,0 +1,118 @@
+{
+  "cv_file": "ALISHBA_KHAN_resume_1785932131594.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:58.345833+00:00",
+  "pipeline": {
+    "total_seconds": 64.679,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 62.309,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1806,
+    "output_tokens": 813,
+    "total_tokens": 3989
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 3,
+    "ocr_pages": [
+      3
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4691
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Alishba Khan",
+      "email": "alishbakhan2036@gmail.com",
+      "phone": "+92- 331-3349453",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Performance Marketer and Social Media Manager with 3+ years of experience specializing in Meta Ads and lead generation. Proven track record in scaling social platforms and optimizing paid campaigns for ROI.",
+    "education": [
+      {
+        "institution": "Virtual University of Karachi",
+        "degree": "BS in Information Technology",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Aptech Computer Education",
+        "degree": "Advanced Higher Diploma in Software Engineering",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Synergy Integrated Solutions",
+        "role": "Operational Manager",
+        "duration": "Feb 2024 – Present",
+        "description": "Managed business operations, coordinated cross-departmental workflows, and supervised team tasks. Supported digital marketing efforts including SEO and content coordination."
+      },
+      {
+        "company": "HSI Consultants",
+        "role": "Ads Specialist",
+        "duration": null,
+        "description": "Planned and managed Meta Ads campaigns for lead generation, focusing on audience research, funnel optimization, and reducing cost per lead."
+      },
+      {
+        "company": "Edumentor",
+        "role": "Social Media Manager & Marketer",
+        "duration": null,
+        "description": "Managed end-to-end social media operations, developed content calendars, and successfully monetized the company's YouTube channel within 7 months."
+      },
+      {
+        "company": "HSI Consultants",
+        "role": "Video Content Creator",
+        "duration": null,
+        "description": "Created promotional video concepts and scripts aligned with brand messaging for education consultancy marketing."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Meta Ads",
+      "Performance Marketing",
+      "Campaign Optimization",
+      "SEO",
+      "Lead Generation",
+      "Content Strategy",
+      "Google Analytics",
+      "Reporting & Insights",
+      "Keyword Research",
+      "Competitor Analysis",
+      "On-Page SEO",
+      "Off-Page SEO",
+      "Google Search Console",
+      "Content Marketing",
+      "SMM"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 75,
+    "experience_match": 30,
+    "overall_score": 47,
+    "strengths": [
+      "Strong expertise in Meta Ads and lead generation",
+      "Proven ability to grow and monetize social channels",
+      "Local candidate based in Karachi"
+    ],
+    "weaknesses": [
+      "Lacks required 5-7 years of experience",
+      "Education is in IT/Software Engineering rather than Marketing/Business",
+      "No evidence of managing marketing budgets, CAC/LTV reporting, or high-level strategy"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a strong tactical specialist in paid social and content, but lacks the seniority, educational background, and strategic management experience required for a Marketing Manager role."
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "cv_file": "Ibrahim_Ali_Azhar_Bhatti_1786002032215.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:44:03.235226+00:00",
+  "pipeline": {
+    "total_seconds": 68.824,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.471,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1862,
+    "output_tokens": 682,
+    "total_tokens": 3870
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 4,
+    "ocr_pages": [
+      4
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5183
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ibrahim Ali Azhar Bhatti",
+      "email": "ibrahimaz899@gmail.com",
+      "phone": "03362243906",
+      "location": "PECHS Block 2, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "High-achieving BBA Marketing graduate with honors, specializing in digital marketing, CRM implementation, and process automation. Proven ability to drive social media engagement and translate data into actionable marketing insights.",
+    "education": [
+      {
+        "institution": "Bahria University, Karachi",
+        "degree": "Bachelor of Business Administration (BBA) in Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Al Majd international school Dammam, Saudi Arabia",
+        "degree": "High School Diploma",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Faysal Bank",
+        "role": "Social Media Officer",
+        "duration": "December 2024 - Present",
+        "description": "Manages social media accounts and PR across LinkedIn, Instagram, and Facebook; increased engagement by 20% and maintained a 95% customer satisfaction rate."
+      },
+      {
+        "company": "Speedup Cars",
+        "role": "MIS Intern",
+        "duration": "September 2023 - October 2023",
+        "description": "Developed process flow charts, automated customer databases, and implemented CRM and attendance systems."
+      }
+    ],
+    "skills": [
+      "Google Ads",
+      "Facebook Ads",
+      "Instagram Ads",
+      "LinkedIn Ads",
+      "SEM",
+      "Google Analytics",
+      "Adjust",
+      "MMPs",
+      "CRM implementation",
+      "Google Tag Manager",
+      "SEMrush",
+      "Excel",
+      "Canva",
+      "Zapier",
+      "Content creation",
+      "Stakeholder communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 95,
+    "experience_match": 30,
+    "overall_score": 65,
+    "strengths": [
+      "Perfect educational alignment (BBA Marketing)",
+      "Strong proficiency in Meta Ads, Canva, and Excel",
+      "Hands-on experience with social media PR and engagement"
+    ],
+    "weaknesses": [
+      "Does not meet the minimum 2-year experience requirement",
+      "Very limited professional tenure"
+    ],
+    "recommendation": "Consider for Junior role",
+    "summary": "The candidate is technically over-qualified in terms of tools and education but lacks the professional seniority required for a Specialist role."
+  }
+}

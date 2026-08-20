@@ -1,0 +1,112 @@
+{
+  "cv_file": "Varsha_Kumari_1785932943575.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:30:16.272856+00:00",
+  "pipeline": {
+    "total_seconds": 69.517,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 69.429,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1432,
+    "output_tokens": 850,
+    "total_tokens": 3919
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Iba Certified Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "summary"
+    ],
+    "text_chars": 3695
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Varsha Kumari",
+      "email": "maheshwarivarsha210@gmail.com",
+      "phone": "03403646452",
+      "location": "MBCHS, Kornagi Khi"
+    },
+    "preferred_job_title": "IBA Certified Digital Marketer",
+    "profile_summary": "IBA-certified Marketing and Social Media Executive with over 3 years of experience driving brand growth. Expert in digital strategy, content management, and PR across diverse industries.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master’s in Business Administration (Marketing)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelors in Business Administration",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Timezone Watches International",
+        "role": "Social Media/Marketing Executive",
+        "duration": "May 2026 - Present",
+        "description": "Executes social media and integrated brand campaigns to drive engagement and revenue. Manages product launches, PR, and content strategy."
+      },
+      {
+        "company": "Do Advertising Agency",
+        "role": "Sr. Marketing Executive",
+        "duration": "Jan 2023 - Dec 2023",
+        "description": "Developed OOH and BTL marketing strategies, managed vendor relationships, and conducted market research."
+      },
+      {
+        "company": "Dany Technologies - Audionic The Sound Master",
+        "role": "International Sales Executive",
+        "duration": "June 2021 - Jan 2022",
+        "description": "Focused on lead generation and customer relationship building in African regions, handling export documentation."
+      },
+      {
+        "company": "Symmetry Group",
+        "role": "Sales Representative",
+        "duration": "Jan 2022 - Feb 2022",
+        "description": "Sold online marketplace subscriptions to manufacturers and exporters, focusing on client ROI."
+      },
+      {
+        "company": "My Water Private Limited",
+        "role": "Customer Service/ Sales Representative",
+        "duration": "Sep 2020 - June 2021",
+        "description": "Managed customer inquiries, lead generation, and trained new employees on customer management policies."
+      }
+    ],
+    "skills": [
+      "Marketing Strategies",
+      "Brand Management",
+      "Communication",
+      "Collaboration",
+      "Campaign Management",
+      "SEO",
+      "Google Analytics",
+      "Google Ads",
+      "Conversion Optimization",
+      "Semrush SMM",
+      "Semrush Content Marketing",
+      "Campaign Manager 360"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 95,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Strong academic credentials (MBA)",
+      "Extensive professional certifications from IBA and Google",
+      "Direct experience in social media and brand strategy"
+    ],
+    "weaknesses": [
+      "No explicit mention of Canva or Meta Business Suite"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds the minimum education and experience requirements, offering a blend of strategic MBA knowledge and technical digital marketing certifications perfectly aligned with the role."
+  }
+}

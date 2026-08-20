@@ -1,0 +1,94 @@
+{
+  "cv_file": "Muhammad_Hamza_CV_1785494612878.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:48.031457+00:00",
+  "pipeline": {
+    "total_seconds": 63.04,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.027,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 831,
+    "output_tokens": 576,
+    "total_tokens": 2482
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Php / Web Developer",
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1885
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD HAMZA",
+      "email": "hamza.hsc12@gmail.com",
+      "phone": "0336-2332135",
+      "location": "Saddar Town, Karachi"
+    },
+    "preferred_job_title": "Php / Web Developer",
+    "profile_summary": "Aspiring web developer and BSc Accounting & Finance student specializing in PHP back-end development and front-end fundamentals. Combines technical skills with practical experience in customer support and finance to deliver business-oriented software solutions.",
+    "education": [
+      {
+        "institution": "MAJU University",
+        "degree": "BSc Accounting & Finance",
+        "graduation_year": "2028"
+      },
+      {
+        "institution": "Aptech",
+        "degree": "3 Year Diploma in Software Engineering (ADSE)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Aptech–IIC",
+        "degree": "Diploma in Web Development",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Pace College",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Excellence School",
+        "degree": "Matriculation",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "K-Trade Securities Limited",
+        "role": "Finance Intern",
+        "duration": "Jul 2025 – Sep 2025",
+        "description": "Assisted the finance department in maintaining reports and analyzing financial data within a brokerage environment."
+      },
+      {
+        "company": "Musk-Al-Mahal",
+        "role": "Customer Support Representative",
+        "duration": "Jul 2023 – Sep 2024",
+        "description": "Managed customer inquiries, improved retention through effective communication, and conducted onboarding sessions for new staff."
+      }
+    ],
+    "skills": [
+      "PHP",
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "MySQL",
+      "Front-End & Back-End Integration",
+      "Customer Support",
+      "Financial Analysis",
+      "English",
+      "Urdu"
+    ]
+  }
+}

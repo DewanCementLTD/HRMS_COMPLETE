@@ -1,0 +1,90 @@
+{
+  "cv_file": "M_Ahsan_Siddiqui_-_Graphic_Designer_Resume_1785494612858.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:44:44.700179+00:00",
+  "pipeline": {
+    "total_seconds": 49.036,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.618,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1147,
+    "output_tokens": 592,
+    "total_tokens": 2832
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3493
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ahsan Siddiqui",
+      "email": "muhammadahsansid@gmail.com",
+      "phone": "+92 324 829 7527",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Graphic Designer | Video Editor",
+    "profile_summary": "Innovative Graphic Designer and Video Editor with extensive experience in print and digital media for international markets. Specialized in creating high-impact visual assets for social media, events, and UI/UX, with a proven track record of improving brand consistency and engagement.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Master of Computer Science",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor of Science",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Superbutler",
+        "role": "Creative Associate / Social Media and Design Specialist",
+        "duration": "Mar 2023 - Present",
+        "description": "Led digital content creation and UI design using Figma, improving brand consistency by 40% and boosting social media engagement by 30-50%."
+      },
+      {
+        "company": "Brand Expo",
+        "role": "Graphic Designer",
+        "duration": "Oct 2022 - Dec 2022",
+        "description": "Produced static and animated videos and event graphics for IDEAS Expo 2022, ensuring technical specifications for print and brand alignment."
+      },
+      {
+        "company": "Freelance",
+        "role": "Graphic Designer",
+        "duration": "July 2019 - Present",
+        "description": "Delivered customized logos, brochures, and website layouts for diverse clients, managing end-to-end design processes from research to final delivery."
+      }
+    ],
+    "skills": [
+      "Adobe Illustrator",
+      "Adobe Photoshop",
+      "Adobe Premiere Pro",
+      "Adobe After Effects",
+      "Wondershare Filmora",
+      "CapCut",
+      "Figma",
+      "Google Workspace",
+      "AI Tools",
+      "Creativity",
+      "Communication",
+      "Adaptability",
+      "Collaboration",
+      "Problem-solving",
+      "Time-management",
+      "Attention-to-detail"
+    ]
+  }
+}

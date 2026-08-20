@@ -1,0 +1,97 @@
+{
+  "cv_file": "CV_4_Farrukh_Qureshi_1783761419803.pdf",
+  "job_folder": "107",
+  "job_id": 107,
+  "mode": "evaluate",
+  "processed_at": "2026-07-11T09:18:17.790792+00:00",
+  "pipeline": {
+    "total_seconds": 70.808,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.625,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 983,
+    "output_tokens": 631,
+    "total_tokens": 2565
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1140
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Farrukh Qureshi",
+      "email": "farrukh.qureshi@email.com",
+      "phone": "+92 301 2223344",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior IT leader with 12 years of experience in ERP strategy and application portfolio management. Expert in vendor governance and leading large technical teams within the manufacturing sector.",
+    "education": [
+      {
+        "institution": "Lahore University of Management Sciences (LUMS)",
+        "degree": "MBA",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "FAST-NUCES",
+        "degree": "BS Computer Science",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Meridian Group of Companies",
+        "role": "IT Director",
+        "duration": "Jan 2019 – Present",
+        "description": "Oversees enterprise application portfolio including ERP, HRIS, and CRM; manages PKR 80M budget and a team of 12; establishes vendor governance policies."
+      },
+      {
+        "company": "Al-Fateh Manufacturing",
+        "role": "Senior Manager, Applications",
+        "duration": "Mar 2013 – Dec 2018",
+        "description": "Directed ERP rollout across three manufacturing plants and managed a team of six application analysts."
+      }
+    ],
+    "skills": [
+      "Oracle ERP",
+      "SAP",
+      "Enterprise Architecture",
+      "Vendor Governance",
+      "IT Budgeting",
+      "Team Leadership",
+      "ITIL",
+      "Business Process Re-engineering",
+      "PMP"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Extensive ERP experience (Oracle/SAP)",
+      "Strong vendor governance and budgeting skills",
+      "ITIL Expert certification",
+      "Significant leadership experience"
+    ],
+    "weaknesses": [
+      "Overqualified for a Manager-level role",
+      "SQL not explicitly mentioned"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "An exceptionally qualified candidate who exceeds all minimum requirements. While currently at a Director level, his deep expertise in ERP administration and vendor management makes him a perfect technical fit."
+  }
+}

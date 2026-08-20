@@ -1,0 +1,10 @@
+{
+  "cv_file": "Faizan_Resume_-_MSL_By_Getz_Pharma_1785309154603.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "failed_at": "2026-07-29T07:13:53.717978+00:00",
+  "error": "ORA-12899: value too large for column \"HRMS\".\"RECRUITMENT_APPLICATIONS\".\"MOBILE\" (actual: 29, maximum: 20)\nHelp: https://docs.oracle.com/error-help/db/ora-12899/",
+  "archived_pdf": "C:\\Erp_Systems\\HRMS_LMS_APP\\EMP_DOCS\\Red n Bed\\HEAD OFFICE\\CV_Archive\\181\\Faizan_Resume_-_MSL_By_Getz_Pharma_1785309154603.pdf",
+  "eval_json": "C:\\Erp_Systems\\HRMS_LMS_APP\\EMP_DOCS\\Red n Bed\\HEAD OFFICE\\CV_Archive\\181\\Faizan_Resume_-_MSL_By_Getz_Pharma_1785309154603.json",
+  "note": "Evaluation JSON + archived PDF are intact. Fix the DB issue and replay this record into RECRUITMENT_* tables."
+}

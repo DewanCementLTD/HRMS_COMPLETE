@@ -1,0 +1,108 @@
+{
+  "cv_file": "Ali_Muhammad_Resume_1785930722884.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:29.442973+00:00",
+  "pipeline": {
+    "total_seconds": 64.981,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 64.4,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1442,
+    "output_tokens": 800,
+    "total_tokens": 3736
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Lead",
+    "sections_found": [
+      "experience",
+      "header"
+    ],
+    "text_chars": 3338
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ali Muhammad",
+      "email": "alimuhammadmain@gmail.com",
+      "phone": "+92 315 2108320",
+      "location": null
+    },
+    "preferred_job_title": "Customer Success & Sales Specialist",
+    "profile_summary": "Customer-focused professional with a background in customer support, team leadership, and B2B sales within the tech and digital services industry. Skilled in lead generation and client lifecycle management with a foundational background in graphic design.",
+    "education": [
+      {
+        "institution": "Govt Degree Boys College Johar Campus",
+        "degree": "Intermediate in Commerce",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "The Guardians Cambridge School",
+        "degree": "Matriculation in Computer Science",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Fixels Media LLC",
+        "role": "Sales Executive",
+        "duration": "May 2026 – Present",
+        "description": "Generates and qualifies leads for digital solutions, pitches and closes B2B deals, and manages CRM records."
+      },
+      {
+        "company": "Fixels Media LLC",
+        "role": "Shift Lead",
+        "duration": "Nov 2025 – April 2026",
+        "description": "Managed shift operations, mentored team members, and handled escalated customer issues to ensure satisfaction."
+      },
+      {
+        "company": "Fixels Media LLC",
+        "role": "Customer Support Representative",
+        "duration": "Nov 2024 – Oct 2025",
+        "description": "Provided professional multi-channel support, resolved customer inquiries, and focused on client retention."
+      },
+      {
+        "company": "Skyfit Technologies",
+        "role": "Graphic Designer",
+        "duration": "May 2024 - Nov 2024",
+        "description": "Created UI/UX designs, branding materials, and multimedia content for social media and websites."
+      }
+    ],
+    "skills": [
+      "Sales & B2B Negotiation",
+      "Lead Generation",
+      "Team Leadership & Management",
+      "Customer Relationship Management",
+      "Microsoft Office",
+      "Adobe Creative Suite",
+      "Problem-Solving",
+      "Strategic Planning",
+      "Communication",
+      "Adaptability",
+      "Computer Literacy",
+      "Graphic Designing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 40,
+    "experience_match": 20,
+    "overall_score": 30,
+    "strengths": [
+      "Proficiency in Adobe Creative Suite for asset creation",
+      "Strong B2B communication and lead generation skills",
+      "Experience in team leadership"
+    ],
+    "weaknesses": [
+      "Lacks required Bachelor's degree",
+      "No experience with UTM tracking, Meta Business Suite, or content scheduling",
+      "Professional trajectory is focused on Sales/Support rather than Marketing"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate lacks the mandatory educational qualifications and specific social media marketing experience required for the role, despite having useful graphic design skills."
+  }
+}

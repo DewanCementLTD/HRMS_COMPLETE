@@ -1,0 +1,116 @@
+{
+  "cv_file": "Ahsan_Asif_Resume_1785239702865.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:56:20.976212+00:00",
+  "pipeline": {
+    "total_seconds": 55.468,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 53.839,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1447,
+    "output_tokens": 871,
+    "total_tokens": 3329
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Brand Manager",
+    "sections_found": [
+      "education",
+      "experience",
+      "summary"
+    ],
+    "text_chars": 2770
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ahsan Khan",
+      "email": "mahsankhan59@gmail.com",
+      "phone": "+92346-2819972",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Assistant Brand Manager",
+    "profile_summary": "Creative and data-driven marketing professional specializing in luxury fashion branding and AI-powered content strategy. Expert in managing cross-platform digital campaigns and influencer partnerships to drive engagement and growth.",
+    "education": [
+      {
+        "institution": "ILMA University",
+        "degree": "BBA in Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Institute of Business Management (IOBM)",
+        "degree": "Certified Digital Marketer",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Institute of Digital Marketing (IDM Pakistan)",
+        "degree": "Advance Digital Marketing Certification",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Asim Jofa",
+        "role": "Assistant Manager and Team Lead",
+        "duration": "Jan 2024 - Present",
+        "description": "Leads cross-platform social strategy and influencer collaborations for luxury fashion collections; analyzes KPIs and reports performance to leadership."
+      },
+      {
+        "company": "Carpe Diem",
+        "role": "Social Media Expert",
+        "duration": "Oct 2023 - Jan 2024",
+        "description": "Developed social media strategies, created engaging content, and performed LinkedIn B2B prospecting to enhance online visibility."
+      },
+      {
+        "company": "Chase Value",
+        "role": "Assistant Brand Manager / Senior Digitizer",
+        "duration": "June 2023 - Oct 2023",
+        "description": "Handled market research, design creation, production handling, and costing."
+      },
+      {
+        "company": "Keller",
+        "role": "Digital Marketing Specialist",
+        "duration": "Nov 2022 - Oct 2023",
+        "description": "Executed paid campaigns across Facebook, Instagram, and Google Ads; optimized SEO and backlink strategies to increase organic traffic."
+      }
+    ],
+    "skills": [
+      "Project Management",
+      "Team Leadership",
+      "Graphic Design",
+      "Market Research",
+      "Lead Generation",
+      "Data Analysis",
+      "Google Analytics",
+      "Social Media Marketing",
+      "PR/Influencer Management",
+      "AI Integration (Midjourney, Heygen, ChatGPT)",
+      "Metricool",
+      "ManyChat",
+      "SEO"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 50,
+    "technical_match": 85,
+    "experience_match": 30,
+    "overall_score": 55,
+    "strengths": [
+      "Advanced AI tool proficiency",
+      "Strong digital marketing and social media expertise",
+      "Experience in luxury consumer branding",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "Significant lack of total years of experience (approx 2 vs required 5-7)",
+      "No evidence of budget ownership or ROI/CAC/LTV reporting",
+      "Limited people management duration"
+    ],
+    "recommendation": "Underqualified",
+    "summary": "The candidate possesses excellent technical skills in digital marketing and AI, but lacks the seniority and strategic financial experience (budgeting/ROI) required for a full Marketing Manager role."
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "cv_file": "Sadia_Ashraf_CV_1785931098825.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:00:35.477466+00:00",
+  "pipeline": {
+    "total_seconds": 41.403,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 41.304,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 966,
+    "output_tokens": 608,
+    "total_tokens": 2403
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "summary"
+    ],
+    "text_chars": 1324
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sadia Ashraf",
+      "email": "Imamsadia772@gmail.com",
+      "phone": "0317-0228508",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced professional with a background in education and office administration. Strong expertise in coordination, general administration, and communication within academic environments.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Master in Philosophy",
+        "graduation_year": null
+      },
+      {
+        "institution": "Abdullah Government College",
+        "degree": "B.A",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Scholar Grammar School",
+        "role": "Teacher",
+        "duration": "August 2013 - March 2017",
+        "description": "Provided educational instruction to students."
+      },
+      {
+        "company": "Malik Jee Coaching Centre",
+        "role": "Office Coordinator",
+        "duration": "January 2019 - September 2024",
+        "description": "Managed cash dealings, parent correspondence, and general administrative tasks."
+      },
+      {
+        "company": "Native School",
+        "role": "Teacher & Coordinator",
+        "duration": "January 2021 - September 2024",
+        "description": "Coordinated teacher duties, organized campus functions, and handled general administration and queries."
+      }
+    ],
+    "skills": [
+      "Office Management",
+      "Administration",
+      "Coordination",
+      "Cash Handling",
+      "Event Planning",
+      "Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Strong administrative and coordination background",
+      "Advanced academic qualification (MPhil)"
+    ],
+    "weaknesses": [
+      "No experience in digital marketing or social media management",
+      "Lacks required technical skills (Meta Business Suite, Canva, UTM tracking)",
+      "Education is not in Marketing or Mass Communication"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate has extensive experience in education and administration but possesses no relevant marketing skills or experience required for this role."
+  }
+}

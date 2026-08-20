@@ -1,0 +1,111 @@
+{
+  "cv_file": "Noman_Dawood.pdf_1_.pdf_1786003304739.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:40.558645+00:00",
+  "pipeline": {
+    "total_seconds": 74.702,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 74.485,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1866,
+    "output_tokens": 805,
+    "total_tokens": 4254
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "skills"
+    ],
+    "text_chars": 5604
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Noman Dawood",
+      "email": "nomandawood22@gmail.com",
+      "phone": "+92-315-446-2904",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Expert",
+    "profile_summary": "Digital Marketing Specialist with 7 years of experience specializing in paid search, SEO, and lead generation. Proven track record in growing organic traffic and leveraging analytics for data-driven strategies.",
+    "education": [
+      {
+        "institution": "Preston University, Karachi",
+        "degree": "Bachelor of Business Administration (BBA) in Marketing",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Govt. Comprehensive Higher Sec School, Karachi",
+        "degree": "HSSC, Pre-Engineering",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Cubix",
+        "role": "Senior Digital Marketing Executive",
+        "duration": "2023 - Present",
+        "description": "Develops comprehensive digital marketing strategies, oversees content creation, optimizes SEO, and manages PPC advertising and email marketing."
+      },
+      {
+        "company": "ND Marketing Services",
+        "role": "Digital Marketing Specialist",
+        "duration": "2018 - 2022",
+        "description": "Implemented SEO strategies, managed PPC budgets, and utilized Google Analytics to identify growth opportunities and report on KPIs."
+      },
+      {
+        "company": "Naveena Denim Mills",
+        "role": "Digital Marketing Manager",
+        "duration": "2018 - 2018",
+        "description": "Managed digital marketing initiatives and oversaw product marketing strategies."
+      },
+      {
+        "company": "ADECCO",
+        "role": "Marketing Internship",
+        "duration": "2016 - 2018",
+        "description": "Assisted in strategic planning, market analysis, and the creation of social media campaigns and promotional materials."
+      }
+    ],
+    "skills": [
+      "Wordpress",
+      "HTML",
+      "Illustrator",
+      "PPC",
+      "SEO",
+      "Google Analytics",
+      "Google Ads",
+      "Social Media Marketing",
+      "SEM",
+      "Strategic Planning",
+      "Project Management",
+      "Marketing Strategy",
+      "Online Advertising",
+      "Graphic Design"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 88,
+    "experience_match": 100,
+    "overall_score": 93,
+    "strengths": [
+      "Extensive 7-year experience in digital marketing",
+      "Strong technical proficiency in SEO and PPC",
+      "Relevant BBA in Marketing degree",
+      "Graphic design capabilities with Illustrator"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok or Meta Business Suite",
+      "Potentially overqualified for a basic Specialist role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Candidate is a highly skilled digital marketer who exceeds the minimum experience and education requirements. Their expertise in SEO, PPC, and content strategy makes them an ideal fit for the role."
+  }
+}

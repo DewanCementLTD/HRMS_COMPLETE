@@ -1,0 +1,123 @@
+{
+  "cv_file": "HYDER_ALI_1785309154647.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:16.035480+00:00",
+  "pipeline": {
+    "total_seconds": 61.344,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.212,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2474,
+    "output_tokens": 1014,
+    "total_tokens": 4633
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 6638
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hyder Ali Rafi Ahmad",
+      "email": "hyderr.ali@gmail.com",
+      "phone": "+92-345-2093652",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Marketing Communications Leader",
+    "profile_summary": "Award-winning Marketing Communications Leader with over 13 years of experience in data-driven strategies across traditional and digital platforms. Expert in leading cross-functional teams, optimizing budgets for ROI, and executing high-impact integrated campaigns.",
+    "education": [
+      {
+        "institution": "Mohammad Ali Jinnah University",
+        "degree": "MBA – Marketing",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "One Group",
+        "role": "Head of Marketing",
+        "duration": "Dec. ’24 to Present",
+        "description": "Leads end-to-end marketing for Square One Mall and Esquires Coffee; achieved 17.3% YoY footfall increase and 42.2% revenue growth through strategic annual calendars and budget management."
+      },
+      {
+        "company": "VML Pakistan",
+        "role": "Associate Account Director",
+        "duration": "Oct. ’20 to Dec. ’24",
+        "description": "Managed digital and conventional advertising for Colgate Palmolive and MoneyGram; oversaw SEO, SEM, and paid campaigns across META, YouTube, and TikTok."
+      },
+      {
+        "company": "Brandlogics Pakistan",
+        "role": "Account Manager",
+        "duration": "Feb. ’20 to Jun. ‘20",
+        "description": "Managed large-scale events and activations for clients including British Petroleum and UBL Bank."
+      },
+      {
+        "company": "Shark Advertising Pakistan",
+        "role": "Associate Account Director",
+        "duration": "Oct. ’17 to Sept. ’19",
+        "description": "Provided brand consultancy and executed marketing campaigns for Bayer, Careem, and Philip Morris International."
+      },
+      {
+        "company": "DDB Pakistan",
+        "role": "Account Manager",
+        "duration": "Aug. ‘13 to Sept. ‘17",
+        "description": "Managed diverse portfolios including Unilever and Johnson & Johnson, handling TV, print, and outdoor advertising within strict budgets."
+      },
+      {
+        "company": "Recorder Television Network",
+        "role": "Senior Marketing & Sales Executive",
+        "duration": "Feb. ‘13 to Jul. ‘13",
+        "description": "Developed and sold commercial air-time proposals to major clients like L’Oreal and Nestle."
+      },
+      {
+        "company": "Ideal Communications",
+        "role": "Brand Activation Manager",
+        "duration": "Feb. ‘08 to Feb. ‘09",
+        "description": "Managed activation campaigns and annual calendars for National Foods and Continental Biscuits."
+      }
+    ],
+    "skills": [
+      "AI Tools",
+      "Google Analytics",
+      "META Business Suite",
+      "Strategic Planning",
+      "Creative Planning",
+      "Public Relations",
+      "Leadership",
+      "Marketing Research",
+      "SEO",
+      "SEM",
+      "Paid Digital Marketing",
+      "Organic Digital Marketing",
+      "Budget Management",
+      "ROI Tracking"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 98,
+    "technical_match": 95,
+    "experience_match": 100,
+    "overall_score": 97,
+    "strengths": [
+      "Extensive leadership experience (Head of Marketing)",
+      "Proven track record with award-winning campaigns (Effie, Dragons of Asia)",
+      "Strong technical proficiency in GA and ad platforms",
+      "Deep experience in both agency and brand-side management"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Manager-level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, exceeding the experience requirements with 13+ years of expertise. He possesses all must-have skills (GA, ad reporting, communication) and a proven history of managing teams and budgets to drive significant revenue growth."
+  }
+}

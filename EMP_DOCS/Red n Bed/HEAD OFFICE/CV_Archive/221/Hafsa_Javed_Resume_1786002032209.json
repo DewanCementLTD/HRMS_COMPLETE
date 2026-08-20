@@ -1,0 +1,121 @@
+{
+  "cv_file": "Hafsa_Javed_Resume_1786002032209.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:43:22.208828+00:00",
+  "pipeline": {
+    "total_seconds": 75.911,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 75.79,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1687,
+    "output_tokens": 945,
+    "total_tokens": 3901
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Officer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3534
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hafsa Javed",
+      "email": "javed.hafsa@gmail.com",
+      "phone": "03478758808",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Officer",
+    "profile_summary": "Marketing professional with an MBA and experience in digital strategy and content creation. Proficient in social media management, Canva design, and SEO, with additional experience in HR operations.",
+    "education": [
+      {
+        "institution": "SZABIST - Karachi Campus",
+        "degree": "Master of Business Administration (Marketing and Supply Chain)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "SZABIST - Karachi Campus",
+        "degree": "Bachelors of Arts in Business Studies",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "The City School, PAF Chapter",
+        "degree": "A levels - Commerce",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "The City School, PAF Chapter",
+        "degree": "O levels - Commerce",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Texitech",
+        "role": "Digital Marketing Officer",
+        "duration": "07/2023 – Present",
+        "description": "Manages social media scheduling, content creation via Canva Pro, PPC reporting, email marketing, and maintains the consumer content calendar."
+      },
+      {
+        "company": "Salaam Takaful Limited",
+        "role": "Executive Officer, HR",
+        "duration": "01/2022 – 02/2023",
+        "description": "Coordinated employee engagement and employer branding, utilizing Canva for job ads and event posters."
+      },
+      {
+        "company": "Dubai Islamic Bank Pakistan Limited",
+        "role": "HR Coordinator",
+        "duration": "01/2022 – 05/2023",
+        "description": "Handled recruitment processing, interview scheduling, and internal transfer database management."
+      },
+      {
+        "company": "Puma Energy Pakistan",
+        "role": "Customer Service Representative (Internship)",
+        "duration": "05/2021 – 12/2021",
+        "description": "Completed a 4-week internship focused on Business Support Management."
+      },
+      {
+        "company": "First Women Bank Limited",
+        "role": "Internship",
+        "duration": "02/2021 – 05/2021",
+        "description": "Completed a 6-week internship based on Retail Banking."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Copywriting",
+      "Digital Marketing",
+      "MS PowerPoint",
+      "Canva Pro",
+      "MS Excel",
+      "Graphic Designing",
+      "MS Word",
+      "SEO Optimization"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 90,
+    "experience_match": 70,
+    "overall_score": 82,
+    "strengths": [
+      "Direct experience with content calendars and social media scheduling",
+      "Proficiency in Canva and MS Excel",
+      "Strong academic background with an MBA in Marketing"
+    ],
+    "weaknesses": [
+      "Direct marketing experience is approximately 1 year, falling short of the 2-year minimum requirement"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "The candidate is a strong technical match, possessing all the 'nice-to-have' skills and direct experience in the core tasks of the role. While total professional experience exceeds 2 years, specific marketing experience is slightly lower than requested."
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "cv_file": "resume3_1783586916280.pdf",
+  "job_folder": "1",
+  "job_id": 1,
+  "processed_at": "2026-07-09T08:50:08.035921+00:00",
+  "pipeline": {
+    "total_seconds": 56.558,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 55.892,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1452,
+    "output_tokens": 696,
+    "total_tokens": 3292
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 4368
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zohaib Farooqui",
+      "email": "zohaibbabar22@gmail.com",
+      "phone": "+92 330 825 9265",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full Stack and Flutter Developer",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Software Engineer",
+        "duration": "November 2025 – Present",
+        "description": "Developed a full-stack AI Leave Management System using Flutter, React.js, and FastAPI with Oracle/MySQL databases."
+      },
+      {
+        "company": "Cropmentum",
+        "role": "Associate Software Engineer",
+        "duration": "June 2025 – November 2025",
+        "description": "Built cross-platform Flutter applications and implemented a RAG pipeline using Qdrant and LLAMACPP."
+      },
+      {
+        "company": "360 Expert Solution",
+        "role": "Trainee React.js Developer",
+        "duration": "June 2024 – July 2024",
+        "description": "Created responsive web interfaces and reusable UI components using React.js and REST APIs."
+      }
+    ],
+    "skills": [
+      "React.js",
+      "Next.js",
+      "Flutter",
+      "Python",
+      "FastAPI",
+      "TypeScript",
+      "Tailwind CSS",
+      "Oracle",
+      "MySQL",
+      "PostgreSQL",
+      "Firebase",
+      "FAISS",
+      "Qdrant",
+      "RAG",
+      "Docker",
+      "Git"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 95,
+    "experience_match": 30,
+    "overall_score": 60,
+    "strengths": [
+      "Strong proficiency in required React and Next.js stack",
+      "Advanced AI/ML integration experience (RAG, Vector DBs)",
+      "Full-stack capability across mobile and web"
+    ],
+    "weaknesses": [
+      "Lacks the professional seniority required for a Senior role",
+      "Recent graduate with limited years of full-time experience"
+    ],
+    "recommendation": "Reject for Senior role; highly recommend for Junior or Mid-level Full Stack position.",
+    "summary": "The candidate possesses the exact technical stack requested (React/Next.js) and impressive AI project experience, but is a recent graduate and does not meet the seniority requirements."
+  }
+}

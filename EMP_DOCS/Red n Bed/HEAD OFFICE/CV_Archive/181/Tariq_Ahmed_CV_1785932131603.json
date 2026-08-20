@@ -1,0 +1,150 @@
+{
+  "cv_file": "Tariq_Ahmed_CV_1785932131603.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:19:04.004406+00:00",
+  "pipeline": {
+    "total_seconds": 78.617,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 78.504,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2629,
+    "output_tokens": 1263,
+    "total_tokens": 5431
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "languages"
+    ],
+    "text_chars": 7750
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tariq Ahmed",
+      "email": "Tariqhouth143@gmail.com",
+      "phone": "+92 334 3533528",
+      "location": "Pakistan | United Arab Emirates"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile creative professional with over 15 years of experience in graphic design, digital marketing, and brand identity. Expert in ATL/BTL advertising and social media management across UAE and Pakistan markets.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": "2006"
+      },
+      {
+        "institution": "Noor College of Professional Education (NCPE)",
+        "degree": "Diploma in Information Technology (DIT)",
+        "graduation_year": null
+      },
+      {
+        "institution": "K.M.A",
+        "degree": "Graphic Designing (Short course)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "GWP (Global Web Platforms), Dubai",
+        "role": "Sr. Creative Associate",
+        "duration": "Aug 2020 - Present",
+        "description": "Leads design, brand identity, and digital print. Manages social media campaigns and improves website visibility through SEO, email, and SMS marketing."
+      },
+      {
+        "company": "Digitech House, Karachi",
+        "role": "Assistant Manager - (Design-Social-Digital Marketing)",
+        "duration": "Sep 2018 - July 2020",
+        "description": "Handled design and content marketing activities, web editing, and social media campaign management."
+      },
+      {
+        "company": "Saba Garments, Ajman",
+        "role": "Digital Designer/Social Media",
+        "duration": "Jan 2018 - Aug 2018",
+        "description": "Conceptualized product designs and created promotional materials for digital and print branding."
+      },
+      {
+        "company": "The Kidz Factory Entertainment, Abu Dhabi",
+        "role": "Designer/Digital Marketing/Social Media/Photography",
+        "duration": "Mar 2017 - Nov 2017",
+        "description": "Managed event activities, online/offline branding, and social media marketing."
+      },
+      {
+        "company": "InfoTech Square, Karachi",
+        "role": "Graphic Designer / Social Media Executive",
+        "duration": "Oct 2012 - Feb 2017",
+        "description": "Developed marketing programs including brochures and newsletters; managed social media and website updates."
+      },
+      {
+        "company": "Five Star International, Karachi",
+        "role": "Graphic Designer / Social Media Executive",
+        "duration": "May 2012 - Sep 2012",
+        "description": "Focused on online/offline branding and client communication."
+      },
+      {
+        "company": "Celeritas Solutions, Karachi",
+        "role": "Assistant Manager - Freelance",
+        "duration": "April 2011 - Nov 2011",
+        "description": "Managed design and web marketing teams and oversaw shopping cart website administration."
+      },
+      {
+        "company": "Tradekey (Pvt.) Ltd, Karachi",
+        "role": "SEO Officer",
+        "duration": "July 2008 - Jan 2011",
+        "description": "Executed on-page keyword optimization and provided live support to international clients."
+      },
+      {
+        "company": "Crest Data Card, Karachi",
+        "role": "Designer / Computer Operator",
+        "duration": "July 2006 - Nov 2007",
+        "description": "Designed ATM and loyalty cards and maintained client databases."
+      }
+    ],
+    "skills": [
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe Firework",
+      "Adobe Captivate",
+      "SEO",
+      "Social Media Marketing",
+      "Content Writing",
+      "ATL/BTL Advertising",
+      "WordPress",
+      "Magento",
+      "OpenCart",
+      "Event Management",
+      "Brand Identity",
+      "Email Marketing",
+      "SMS Marketing",
+      "Team Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 30,
+    "experience_match": 50,
+    "overall_score": 40,
+    "strengths": [
+      "Extensive creative and graphic design expertise",
+      "Strong background in ATL/BTL advertising",
+      "Experienced in multi-channel content execution",
+      "Long history of digital marketing implementation"
+    ],
+    "weaknesses": [
+      "No mention of GA4 or ad platform reporting",
+      "Lacks evidence of budget ownership and ROI/CAC/LTV tracking",
+      "Experience is focused on creative execution rather than strategic marketing management",
+      "No clear track record of managing integrated paid campaigns"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly skilled Creative/Digital Designer but lacks the strategic, analytical, and budgetary management experience required for a Marketing Manager role."
+  }
+}

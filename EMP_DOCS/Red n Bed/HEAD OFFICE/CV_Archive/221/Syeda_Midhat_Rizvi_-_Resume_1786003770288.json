@@ -1,0 +1,107 @@
+{
+  "cv_file": "Syeda_Midhat_Rizvi_-_Resume_1786003770288.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:37.849775+00:00",
+  "pipeline": {
+    "total_seconds": 54.412,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 53.766,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1510,
+    "output_tokens": 831,
+    "total_tokens": 3402
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills"
+    ],
+    "text_chars": 3884
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syeda Midhat Rizvi",
+      "email": "midhatrizvi786@gmail.com",
+      "phone": "+92-335-0943611",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketing / Marketing Specialist",
+    "profile_summary": "High-achieving marketing professional currently pursuing an MBA with a strong foundation in BBA Marketing. Expert in content creation, copywriting, and market research with experience in social media planning and agency collaboration.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "MBA (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "BBA (Marketing)",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Freelancer",
+        "role": "Content and Academic writing",
+        "duration": "September 2021 – Present",
+        "description": "Providing professional content and academic writing services."
+      },
+      {
+        "company": "Archroma Pakistan Ltd",
+        "role": "Marketing Intern",
+        "duration": "July 2021 – August 2021",
+        "description": "Conducted market research for new products, developed digital presence strategies, and created brochures and client experience videos."
+      },
+      {
+        "company": "Pak Electron Limited",
+        "role": "Marketing Intern",
+        "duration": "June 2021 – July 2021",
+        "description": "Analyzed POSM performance, conducted market visits, and developed a full media plan including TVC/DVC storyboards and radio content."
+      },
+      {
+        "company": "ALAF Digital",
+        "role": "Content Writer – Contractual",
+        "duration": "August 2020 – October 2020",
+        "description": "Developed monthly social media plans, wrote captions, and collaborated with graphic designers for video advertisements."
+      }
+    ],
+    "skills": [
+      "Marketing Analytics",
+      "MS Excel",
+      "MS Word",
+      "MS PowerPoint",
+      "SPSS",
+      "Content Writing",
+      "Copywriting",
+      "Social Media Planning",
+      "Market Research",
+      "Media Planning"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 60,
+    "experience_match": 40,
+    "overall_score": 55,
+    "strengths": [
+      "Strong academic credentials in Marketing",
+      "Proven ability to create social media content and plans",
+      "Experience collaborating with designers for visual assets",
+      "Proficient in MS Excel"
+    ],
+    "weaknesses": [
+      "Lacks the minimum 2 years of full-time professional experience",
+      "No explicit mention of Meta Business Suite, Canva, or UTM tracking",
+      "Experience is primarily internship and freelance based"
+    ],
+    "recommendation": "Consider for Junior Role",
+    "summary": "The candidate is a strong academic performer with relevant internship experience in content creation and social media planning. While they lack the required 2 years of full-time experience and specific tool proficiency (Meta Business Suite/Canva), their foundational skills make them a viable candidate for a junior-level position."
+  }
+}

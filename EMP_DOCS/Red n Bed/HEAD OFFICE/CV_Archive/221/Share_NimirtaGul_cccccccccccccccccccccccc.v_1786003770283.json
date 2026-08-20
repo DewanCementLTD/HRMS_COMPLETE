@@ -1,0 +1,108 @@
+{
+  "cv_file": "Share_NimirtaGul_cccccccccccccccccccccccc.v_1786003770283.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:10:44.926813+00:00",
+  "pipeline": {
+    "total_seconds": 61.519,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.897,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1135,
+    "output_tokens": 710,
+    "total_tokens": 3129
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 1619
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Nimirta",
+      "email": "nimirtagulnimirta@gmail.com",
+      "phone": "03023864014",
+      "location": "Clifton Karachi"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Entry-level marketing professional with a BBA in Marketing and current MBA student. Possesses foundational skills in SEO, Google Ads, and social media marketing to drive brand reach.",
+    "education": [
+      {
+        "institution": "SZABIST University Karachi Campus",
+        "degree": "Master of Business Administration (MBA)",
+        "graduation_year": null
+      },
+      {
+        "institution": "SZABIST University Hyderabad Campus",
+        "degree": "BBA Majors in Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "The Institute of Management and Entrepreneurship",
+        "degree": "Digital Marketing course",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Time Institute of Management Entrepreneurship",
+        "role": "Coordinator training",
+        "duration": "2 months",
+        "description": "Coordinated training programs."
+      },
+      {
+        "company": "Faysal Bank",
+        "role": "General Banking Intern",
+        "duration": "2023",
+        "description": "Supported general banking operations."
+      },
+      {
+        "company": "Leopard Courier company",
+        "role": "Retail sales Intern",
+        "duration": "2022",
+        "description": "Handled retail sales activities."
+      },
+      {
+        "company": "Girls in Marketing",
+        "role": "Digital Marketing Intern",
+        "duration": "Oct 2024",
+        "description": "Completed a remote digital marketing internship program."
+      }
+    ],
+    "skills": [
+      "WordPress",
+      "Google Analytics",
+      "Google Ads",
+      "AI tools in Marketing",
+      "Social Media Marketing",
+      "Communication",
+      "Teamwork"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 60,
+    "experience_match": 20,
+    "overall_score": 40,
+    "strengths": [
+      "Relevant academic degree in Marketing",
+      "Knowledge of Google Ads and Analytics",
+      "Continuous learning through certifications and MBA"
+    ],
+    "weaknesses": [
+      "Does not meet the minimum 2-year experience requirement",
+      "Experience consists primarily of short-term internships",
+      "No explicit mention of Canva or Meta Business Suite"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate has the required educational background but lacks the professional experience and specific tool proficiency required for a Specialist level role."
+  }
+}

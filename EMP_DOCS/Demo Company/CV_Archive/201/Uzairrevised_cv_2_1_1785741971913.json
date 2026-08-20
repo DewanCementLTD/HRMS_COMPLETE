@@ -1,0 +1,137 @@
+{
+  "cv_file": "Uzairrevised_cv_2_1_1785741971913.pdf",
+  "job_folder": "201",
+  "job_id": 201,
+  "mode": "evaluate",
+  "processed_at": "2026-08-03T07:27:43.127176+00:00",
+  "pipeline": {
+    "total_seconds": 85.845,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 85.623,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1542,
+    "output_tokens": 1050,
+    "total_tokens": 4479
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "references",
+      "skills"
+    ],
+    "text_chars": 2964
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "M. Uzair Abbasi",
+      "email": "uzair.primary@gmail.com",
+      "phone": "+92 – 334- 3259164",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Computer Science graduate with a diverse professional background in backend development, AI automation, and aviation operations. Proficient in Python, React, and SQL with experience building REST APIs and RAG systems.",
+    "education": [
+      {
+        "institution": "Hamdard University, Karachi",
+        "degree": "BS(Computer Science)",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "Aisha Bawani Govt. Degree College, Karachi",
+        "degree": "HSC (Pre-Engineering)",
+        "graduation_year": "2007"
+      },
+      {
+        "institution": "Nasra School Malir Campus, Karachi",
+        "degree": "SSC (Science)",
+        "graduation_year": "2005"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ignite and Infinite",
+        "role": "Junior Backend Developer",
+        "duration": "Oct 2025-May 2026",
+        "description": "Developed backend systems using Python, FastAPI, and PostgreSQL. Built REST APIs, RAG systems, and AI workflows using OpenAI and Groq LLM."
+      },
+      {
+        "company": "Gerry's Dnata",
+        "role": "Traffic Assistant",
+        "duration": "Feb 2023-July 2025",
+        "description": "Managed airline operations and check-in processes using Altea, Sprint, and Sabre DCS."
+      },
+      {
+        "company": "Gerry's Dnata",
+        "role": "Cargo Agent",
+        "duration": "Aug 2022-Feb 2023",
+        "description": "Coordinated cargo logistics, documentation, and tracking."
+      },
+      {
+        "company": "Pehel911",
+        "role": "Customer Service Representative",
+        "duration": "May 2022-Jul 2022",
+        "description": "Handled customer inquiries and escalated technical issues."
+      },
+      {
+        "company": "TCS",
+        "role": "Internee",
+        "duration": "Jul 2021-Oct 2021",
+        "description": "Assisted in software troubleshooting and network maintenance."
+      },
+      {
+        "company": "Nexus Corporation",
+        "role": "Content Writer",
+        "duration": "Feb 2021-Apr 2021",
+        "description": "Developed SEO-friendly content and technical articles."
+      },
+      {
+        "company": "Regal Limousine of Washington DC, USA",
+        "role": "Software Assistant",
+        "duration": "Jun 2016-Jan 2018",
+        "description": "Supported software updates and database management."
+      }
+    ],
+    "skills": [
+      "Java",
+      "JavaScript",
+      "C++",
+      "Python",
+      "SQL",
+      "Docker",
+      "AWS",
+      "FastAPI",
+      "React",
+      "Next.js",
+      "AI Automation",
+      "RAG",
+      "OpenAI",
+      "Backend Development",
+      "Computer Architecture"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 55,
+    "technical_match": 60,
+    "experience_match": 40,
+    "overall_score": 52,
+    "strengths": [
+      "Relevant BS in Computer Science",
+      "Proficiency in Python, React, and SQL",
+      "Experience with modern AI/LLM integration and AWS/Docker"
+    ],
+    "weaknesses": [
+      "Missing must-have Node.js and TypeScript skills",
+      "Highly fragmented career path with significant non-technical gaps",
+      "Limited professional software engineering tenure"
+    ],
+    "recommendation": "Conditional",
+    "summary": "The candidate has the required educational background and several key technical skills (Python, React, SQL), but lacks Node.js and TypeScript. His professional experience is inconsistent and largely outside of software engineering."
+  }
+}

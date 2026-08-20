@@ -1,0 +1,107 @@
+{
+  "cv_file": "Ibrahim_Ali_Azhar_Bhatti_1785485520502.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:39.122782+00:00",
+  "pipeline": {
+    "total_seconds": 57.724,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.434,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1578,
+    "output_tokens": 695,
+    "total_tokens": 3580
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 4,
+    "ocr_pages": [
+      4
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5183
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ibrahim Ali Azhar Bhatti",
+      "email": "ibrahimaz899@gmail.com",
+      "phone": "03362243906",
+      "location": "PECHS Block 2, Karachi"
+    },
+    "preferred_job_title": "Digital Marketing & CRM Specialist",
+    "profile_summary": "Cum Laude BBA graduate specializing in digital marketing, process automation, and CRM implementation. Experienced in leveraging Google Ads and analytics to drive customer engagement and translate data into actionable marketing strategies.",
+    "education": [
+      {
+        "institution": "Bahria University, Karachi",
+        "degree": "Bachelor of Business Administration (BBA) in Marketing",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Al Majd international school Dammam, Saudi Arabia",
+        "degree": "High School Diploma",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Faysal Bank",
+        "role": "Social Media Officer",
+        "duration": "December 2024 - Present",
+        "description": "Manages social media accounts and PR across LinkedIn, Instagram, Facebook, and Play Store; increased engagement by 20% and implemented CRM and attendance systems."
+      },
+      {
+        "company": "Speedup Cars",
+        "role": "MIS Intern",
+        "duration": "September 2023 - October 2023",
+        "description": "Automated customer databases, created process flow charts, and implemented CRM and attendance systems while managing vendors and billing processes."
+      },
+      {
+        "company": "Al Mustafa Foundation",
+        "role": "Social Intern",
+        "duration": "June 2021",
+        "description": "Contributed 40 hours of community service, including tree planting and distributing supplies to homeless individuals."
+      },
+      {
+        "company": "Bahria University Events Management Club",
+        "role": "Director, Art Department",
+        "duration": "September 2019 - August 2022",
+        "description": "Managed event budgets and theme creation, coordinating stakeholders for major events including CEO Summit 2022 and Convocation 2022."
+      }
+    ],
+    "skills": [
+      "Google Ads",
+      "Facebook Ads",
+      "Instagram Ads",
+      "LinkedIn Ads",
+      "SEM",
+      "SEO",
+      "Google Analytics",
+      "Adjust",
+      "MMPs",
+      "Google Tag Manager",
+      "SEMrush",
+      "Advanced Excel",
+      "Google Sheets",
+      "Zapier",
+      "CRM Implementation",
+      "Customer Database Management",
+      "Stakeholder Communication",
+      "PR Management",
+      "Content Creation",
+      "Canva",
+      "Microsoft Office Suite",
+      "PowerPoint"
+    ]
+  }
+}

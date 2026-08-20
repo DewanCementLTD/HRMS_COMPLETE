@@ -1,0 +1,140 @@
+{
+  "cv_file": "Kanza_Digital_Marketer_1785309154650.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:15:32.817324+00:00",
+  "pipeline": {
+    "total_seconds": 58.438,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.311,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2109,
+    "output_tokens": 1071,
+    "total_tokens": 4181
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 6718
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kanza Ahmed Siddiqui",
+      "email": "kahmedsiddiqui11@gmail.com",
+      "phone": "+92 323602035",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer / WordPress Designer",
+    "profile_summary": "Digital marketing professional with over four years of experience specializing in social media, content creation, and website management. Strong background in visual design and instructional leadership in digital marketing and graphic design.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor’s Degree in Islamic Studies with Computer Technology",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Freelancer",
+        "role": "Digital Marketing, Social Media Marketing, Web Designer and Graphic Designer",
+        "duration": "2021 – Present",
+        "description": "Executed graphic design, whiteboard animations, and Meta marketing campaigns to increase brand visibility and business growth for various clients."
+      },
+      {
+        "company": "Aptech Metro Star Gate",
+        "role": "Digital Marketing Instructor",
+        "duration": "Oct 2025 – Present",
+        "description": "Teaches SEO, SEM, social media, and content strategy using Google Ads, Meta Business Suite, and WordPress."
+      },
+      {
+        "company": "Marketing Satisfaction",
+        "role": "Social Media Manager",
+        "duration": "5 Months",
+        "description": "Developed WordPress website, managed social media content, and led a design-focused team."
+      },
+      {
+        "company": "IMST Institute",
+        "role": "Graphic Design Instructor",
+        "duration": "3 Months",
+        "description": "Taught advanced techniques in Adobe Photoshop, Illustrator, InDesign, and CorelDraw."
+      },
+      {
+        "company": "Nusrat Welfare Organization",
+        "role": "Head of IT Operation",
+        "duration": "1 year 7 Months",
+        "description": "Led IT operations and mentored graphic designers while managing social media and organizational branding."
+      },
+      {
+        "company": "TVM Solution",
+        "role": "Graphic Designer and Social Media Manager",
+        "duration": "3 Months",
+        "description": "Created promotional visuals and monitored social media analytics to optimize outreach."
+      },
+      {
+        "company": "Digital Checkmate",
+        "role": "Animator, Video Editor, and Graphic Designer",
+        "duration": "1 year",
+        "description": "Produced promotional materials, whiteboard animations, and managed agency social media platforms."
+      },
+      {
+        "company": "Online Tailoring Business",
+        "role": "Photo Editor",
+        "duration": "1 year",
+        "description": "Enhanced visual branding through photo composition and editorial image editing."
+      },
+      {
+        "company": "YouTube Channel",
+        "role": "Whiteboard Animator and Video Editor",
+        "duration": "1 year",
+        "description": "Developed content strategies and produced high-quality animation videos and thumbnails."
+      }
+    ],
+    "skills": [
+      "Digital Strategy",
+      "Social Media Marketing",
+      "Analytics & Reporting",
+      "UI Design",
+      "Graphic Design",
+      "Video Editing",
+      "SEO",
+      "SEM",
+      "Google Ads",
+      "Meta Business Suite",
+      "WordPress",
+      "Canva",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Adobe InDesign",
+      "CorelDraw"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 60,
+    "experience_match": 30,
+    "overall_score": 42,
+    "strengths": [
+      "Exceptional creative and visual content production skills",
+      "Broad knowledge of digital marketing tools (Meta, Google Ads, WordPress)",
+      "Experience in mentoring and leading small teams"
+    ],
+    "weaknesses": [
+      "Lacks required degree in Marketing or Business Administration",
+      "Insufficient total years of professional marketing management experience (5-7 years required)",
+      "No evidence of budget ownership or reporting on ROI/CAC/LTV"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a highly skilled digital content creator and specialist but lacks the strategic management experience, educational background, and financial accountability required for a Marketing Manager role."
+  }
+}

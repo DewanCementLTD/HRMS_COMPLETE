@@ -1,0 +1,119 @@
+{
+  "cv_file": "Muhammad_Ahsan_-_Resume_1785932131610.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:07.293566+00:00",
+  "pipeline": {
+    "total_seconds": 89.175,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 89.073,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1735,
+    "output_tokens": 871,
+    "total_tokens": 4108
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Manager",
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4157
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ahsan",
+      "email": "Mohammadahsan.salim@gmail.com",
+      "phone": "+923030599779",
+      "location": "Buffer Zone, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager",
+    "profile_summary": "Results-driven Digital Marketing Manager with 6 years of experience specializing in SEO and performance marketing. Proven track record in lead generation and ROI optimization across UAE, UK, and US markets.",
+    "education": [
+      {
+        "institution": "Ilma University",
+        "degree": "Bachelor of Science in Software Engineering",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Jinnah Government College",
+        "degree": "Intermediate in Pre-Engineering",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Emeriosoft",
+        "role": "Digital Marketing Manager",
+        "duration": "2022 – Present",
+        "description": "Manages multi-channel PPC and SEO strategies for international markets, reducing CPA by 30% and utilizing GA4 and Looker Studio for data-driven growth."
+      },
+      {
+        "company": "Cloud Innovators Solution",
+        "role": "SEO Team Lead",
+        "duration": "2021 – 2022",
+        "description": "Led the SEO team to improve organic traffic by 90% through technical audits, keyword research, and optimized workflows."
+      },
+      {
+        "company": "Worldke",
+        "role": "SEO Executive",
+        "duration": "2021",
+        "description": "Executed end-to-end SEO strategies, including keyword research and link building to increase search visibility and organic impressions."
+      },
+      {
+        "company": "Digit Creator",
+        "role": "Junior SEO Executive",
+        "duration": "2020 – 2021",
+        "description": "Supported SEO campaigns via on-page optimization, content enhancements, and outreach for guest posting."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Google Ads",
+      "Meta Ads",
+      "PPC Strategy",
+      "Keyword Research",
+      "Competitor Analysis",
+      "Social Media Marketing",
+      "Conversion Rate Optimization",
+      "GA4",
+      "Performance Analytics",
+      "Lead Generation",
+      "ROI Optimization",
+      "Content Strategy",
+      "Link Building",
+      "WordPress",
+      "Shopify",
+      "SEMrush",
+      "Ahrefs",
+      "Moz",
+      "Google Search Console",
+      "Looker Studio",
+      "Canva"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 80,
+    "technical_match": 95,
+    "experience_match": 70,
+    "overall_score": 82,
+    "strengths": [
+      "Expertise in GA4 and ad platform reporting",
+      "Strong track record of ROI and lead generation",
+      "Local candidate based in Karachi",
+      "Comprehensive technical SEO and PPC skill set"
+    ],
+    "weaknesses": [
+      "Degree is in Software Engineering rather than Marketing/Business",
+      "People management experience (~1 year) is below the 2-3 year requirement"
+    ],
+    "recommendation": "Interview",
+    "summary": "Highly technical candidate with strong performance marketing skills and local availability. While lacking the specific degree and full management tenure, his ROI-focused results make him a strong fit."
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "cv_file": "cv.pdf_1785239702884.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:57:51.862715+00:00",
+  "pipeline": {
+    "total_seconds": 71.299,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 71.139,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1641,
+    "output_tokens": 891,
+    "total_tokens": 4181
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3983
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abdul Mooied",
+      "email": "abdulmooied766@gmail.com",
+      "phone": "+92-3228263-572",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Results-driven Digital Marketing and Brand Strategist specializing in performance marketing and brand building. Expert in scaling eCommerce brands and optimizing ROI through data-driven, full-funnel strategies.",
+    "education": [
+      {
+        "institution": "IBA",
+        "degree": "Bachelor of Marketing",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ndure Pakistan",
+        "role": "Senior Marketing Manager",
+        "duration": "2024 – 2025",
+        "description": "Managed 360° nationwide marketing strategies, coordinating social media, performance, and influencer initiatives to align with launch calendars and sales targets."
+      },
+      {
+        "company": "Lama Retail",
+        "role": "Marketing Manager",
+        "duration": "2024 – 2025",
+        "description": "Led full-funnel marketing across digital and retail channels, developing high-impact campaigns to improve brand visibility and customer acquisition."
+      },
+      {
+        "company": "Wavy Talk",
+        "role": "Brand Strategist",
+        "duration": "2024 – 2025",
+        "description": "Developed brand positioning, messaging frameworks, and data-driven content strategies focused on community growth and brand credibility."
+      },
+      {
+        "company": "Tymo Beauty",
+        "role": "Marketing Executive / Brand Manager",
+        "duration": "2023 – 2025",
+        "description": "Executed integrated eCommerce campaigns and optimized advertising budgets, reducing CPL by 30% through data-driven targeting."
+      },
+      {
+        "company": "Applause Digital Soft",
+        "role": "Digital Marketing Specialist",
+        "duration": "2022 – 2025",
+        "description": "Scaled ad campaigns with 10x ROI using Meta and Google Ads, focusing on brand building and performance marketing."
+      }
+    ],
+    "skills": [
+      "Brand Building & Positioning",
+      "Performance Marketing",
+      "Meta Ads",
+      "Google Ads",
+      "TikTok Ads",
+      "Brand Management",
+      "Content Strategy",
+      "Social Media Management",
+      "Consumer Psychology",
+      "Market Research",
+      "Funnel Optimization",
+      "Campaign Analytics",
+      "ROI Optimization",
+      "CAC",
+      "LTV"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 85,
+    "experience_match": 40,
+    "overall_score": 60,
+    "strengths": [
+      "Strong technical proficiency in performance marketing (Meta, Google, TikTok)",
+      "Experience with consumer brands (Ndure, Tymo Beauty)",
+      "Strong academic background from IBA",
+      "Proven ability to optimize ROI, CAC, and LTV"
+    ],
+    "weaknesses": [
+      "Does not meet the 5-7 year experience requirement (approx. 3 years)",
+      "No explicit mention of GA4 proficiency",
+      "Lack of clear evidence regarding people management duration"
+    ],
+    "recommendation": "Consider for Mid-level",
+    "summary": "The candidate is technically strong in digital and performance marketing with relevant consumer brand experience. However, they lack the required seniority and proven people management experience requested for this Managerial role."
+  }
+}

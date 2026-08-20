@@ -1,0 +1,102 @@
+{
+  "cv_file": "Alizy_cv_1785493344118.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:23:37.055420+00:00",
+  "pipeline": {
+    "total_seconds": 51.847,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.339,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 866,
+    "output_tokens": 598,
+    "total_tokens": 2679
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages"
+    ],
+    "text_chars": 2325
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Aliza Rasheed",
+      "email": "alizarasheedofficial@gmail.com",
+      "phone": "0333-2090575",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Motivated Media Sciences student with practical experience in content writing, marketing support, and digital page management. Skilled in developing creative brand assets and maintaining consistent brand tone across various platforms.",
+    "education": [
+      {
+        "institution": "Bahria University Karachi",
+        "degree": "BS Media Sciences",
+        "graduation_year": null
+      },
+      {
+        "institution": "Army Public College Saddar",
+        "degree": "Pre-Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "Army Public School Faisal",
+        "degree": "Computer Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Flame & Fire Pizza (University Branding Project)",
+        "role": "Lead Content Creator & Page Manager",
+        "duration": null,
+        "description": "Co-launched and managed digital presence, produced promotional media assets, and optimized engagement strategies."
+      },
+      {
+        "company": "X Space",
+        "role": "Global Sales Representative",
+        "duration": null,
+        "description": "Managed global client communication, sales outreach, and relationship building to achieve sales goals."
+      },
+      {
+        "company": "Spectrum Y&R – Creative Department",
+        "role": "Content Writing Intern",
+        "duration": null,
+        "description": "Developed creative content, taglines, and captions for campaigns while ensuring brand tone consistency."
+      },
+      {
+        "company": "Zohaib Qadeer Couture",
+        "role": "Assistant – Marketing",
+        "duration": null,
+        "description": "Coordinated marketing and content planning, managed social media schedules, and supported campaign execution."
+      }
+    ],
+    "skills": [
+      "Content Writing",
+      "Copywriting",
+      "Taglines",
+      "Creative Concepts",
+      "Social Media Content Creation",
+      "Page Management",
+      "Marketing Support",
+      "Sales Support",
+      "Client Communication",
+      "Teamwork",
+      "Collaboration",
+      "Time Management",
+      "Creativity",
+      "Problem Solving",
+      "MS Office",
+      "English",
+      "Urdu"
+    ]
+  }
+}

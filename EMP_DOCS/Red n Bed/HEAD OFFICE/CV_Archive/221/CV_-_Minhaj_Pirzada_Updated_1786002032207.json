@@ -1,0 +1,95 @@
+{
+  "cv_file": "CV_-_Minhaj_Pirzada_Updated_1786002032207.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:51.142296+00:00",
+  "pipeline": {
+    "total_seconds": 46.746,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 46.648,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 909,
+    "output_tokens": 587,
+    "total_tokens": 2581
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Social Media Manager",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages"
+    ],
+    "text_chars": 927
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Minhaj Pirzada",
+      "email": "minhaj.tipu22@gmail.com",
+      "phone": "+923330240054",
+      "location": null
+    },
+    "preferred_job_title": "Social Media Manager",
+    "profile_summary": "Experienced Digital Marketing Manager specializing in performance strategies and customer experience. Proficient in social media campaigns, email marketing, and analytics to drive growth.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor's of Science",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "Virtual University of Pakistan",
+        "degree": "Diploma in Digital marketing",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "A & I Group",
+        "role": "Social Media Manager",
+        "duration": "2020-2022",
+        "description": "Created and managed paid social media campaigns to drive traffic, leads, and conversions."
+      },
+      {
+        "company": "Lingo School of Languages",
+        "role": "Digital Marketing Specialist",
+        "duration": "2023-2024",
+        "description": null
+      }
+    ],
+    "skills": [
+      "Facebook ads",
+      "Google ads",
+      "PPC",
+      "Instagram ads",
+      "Social media marketing",
+      "Email marketing",
+      "WordPress",
+      "Creative content creation",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 80,
+    "experience_match": 90,
+    "overall_score": 85,
+    "strengths": [
+      "Strong expertise in paid social media advertising",
+      "Exceeds minimum experience requirement",
+      "Relevant academic and professional certifications"
+    ],
+    "weaknesses": [
+      "No explicit mention of TikTok, UTM tracking, or Meta Business Suite",
+      "Lack of specific mention of Canva or Excel"
+    ],
+    "recommendation": "Strong Candidate",
+    "summary": "The candidate is a well-qualified digital marketer with direct experience in social media management and paid campaigns, aligning well with the core requirements of the Marketing Specialist role."
+  }
+}

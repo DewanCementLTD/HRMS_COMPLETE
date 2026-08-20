@@ -1,0 +1,117 @@
+{
+  "cv_file": "Areebah_Mirza_DM_1786002032201.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:04.283972+00:00",
+  "pipeline": {
+    "total_seconds": 69.304,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.339,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1169,
+    "output_tokens": 748,
+    "total_tokens": 3225
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2179
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Areeba Ali Mirza",
+      "email": "areebah.mirza13@gmail.com",
+      "phone": "03101160022",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Recent Computer Science graduate with over 2 years of experience blending technical development with digital marketing. Strong background in social media management, content planning, and Agile project coordination.",
+    "education": [
+      {
+        "institution": "Sir Syed University of Engineering and Technology",
+        "degree": "Bachelors in Computer Science",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "GOVT degree college for boys and girls, SRE MAJEED",
+        "degree": "Intermediate in general science",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Nexaaro",
+        "role": "Social media marketing manager",
+        "duration": null,
+        "description": "Managed Facebook, Instagram, and LinkedIn platforms."
+      },
+      {
+        "company": "Bruno’s Pasta",
+        "role": "Content planner and marketer",
+        "duration": null,
+        "description": "Created and managed the content planner."
+      },
+      {
+        "company": "Tbdotz",
+        "role": "Project management intern",
+        "duration": null,
+        "description": "Implemented Agile methodologies, project coordination, planning, and task tracking."
+      },
+      {
+        "company": "SEO INTERNATIONAL CONFERENCE (SIC’24)",
+        "role": "Social media marketing team member",
+        "duration": null,
+        "description": "Collaborated on social media marketing initiatives for the conference."
+      },
+      {
+        "company": "Freelancing",
+        "role": "Content marketer and blog writer",
+        "duration": null,
+        "description": "Provided professional content marketing and blog writing services."
+      }
+    ],
+    "skills": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "PHP",
+      "Bootstrap",
+      "On-page SEO",
+      "Content marketing",
+      "Facebook Ads",
+      "Content planning",
+      "Social media marketing",
+      "Project Management",
+      "Agile"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 70,
+    "experience_match": 60,
+    "overall_score": 65,
+    "strengths": [
+      "Direct experience managing FB and IG",
+      "Proven content planning capabilities",
+      "Strong technical SEO and web development foundation"
+    ],
+    "weaknesses": [
+      "Degree is in Computer Science, not Marketing/Communications",
+      "No explicit mention of Meta Business Suite, Canva, or Excel"
+    ],
+    "recommendation": "Consider for interview",
+    "summary": "The candidate has the practical social media and content experience required, though they lack the specific degree and tool certifications requested."
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "cv_file": "AmeerAli_17_CV_1785485520475.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:01.327808+00:00",
+  "pipeline": {
+    "total_seconds": 38.347,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 37.51,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 718,
+    "output_tokens": 435,
+    "total_tokens": 1995
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "summary"
+    ],
+    "text_chars": 1260
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "AMEER ALI",
+      "email": "ameeraly2019@gmail.com",
+      "phone": "0315-2440867",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Aspiring Digital Marketer with practical experience in social media management, CRM, and content creation. Skilled in optimizing online campaigns and brand management to drive user engagement and business growth.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master of Business Administration in Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Cambridge Garments",
+        "role": "Customer Experience Executive",
+        "duration": "April 2023 – present",
+        "description": "Dedicated to enhancing customer satisfaction and delivering excellent service, including the management of Facebook and Instagram accounts."
+      },
+      {
+        "company": "TMD INTERNATIONAL INC.",
+        "role": "Sales and Marketing Trainee",
+        "duration": "Oct 2022 - March 2023",
+        "description": "Worked closely with clients to analyze needs and provide solutions that met or exceeded expectations."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Brand Management",
+      "Social Media Management",
+      "Customer Relationship Management",
+      "Video Editing",
+      "Graphic Design",
+      "Content Creation",
+      "Social Media Advertising",
+      "E-commerce"
+    ]
+  }
+}

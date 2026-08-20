@@ -1,0 +1,90 @@
+{
+  "cv_file": "Bilal_Qayyum_Resume_v2_1785493684442.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:29:15.858270+00:00",
+  "pipeline": {
+    "total_seconds": 49.233,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.141,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1025,
+    "output_tokens": 597,
+    "total_tokens": 2756
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3160
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bilal Qayyum",
+      "email": "Bilaalqayyum200@gmail.com",
+      "phone": "0316-2579344",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Sales & Customer Success Specialist",
+    "profile_summary": "Customer Success professional with over 3 years of experience in international customer relations, logistics, and sales cycles. Expert in leveraging CRM systems and empathetic problem-solving to drive client retention and exceptional service standards.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "B.Com",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Govt Premier College",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Study Schooling System",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "INQ Star (SMC-Pvt.) Limited",
+        "role": "Customer Service Representative",
+        "duration": "Jan 2024 – Present",
+        "description": "Manages international customer inquiries and onboarding using CRM and Dealership Cloud systems. Collaborates with Sales and Finance teams to optimize customer journey touchpoints and maximize conversion rates."
+      },
+      {
+        "company": "Khaty International (Pvt.) Ltd.",
+        "role": "Sales Executive / Truck Dispatching & Logistics",
+        "duration": "Jan 2022 – Dec 2023",
+        "description": "Coordinated international freight dispatch and managed business client accounts. Handled complex dispatch documentation and resolved high-pressure escalations to maintain long-term customer partnerships."
+      }
+    ],
+    "skills": [
+      "Customer Success & Support",
+      "Client Retention",
+      "Relationship Management",
+      "Complaint Resolution",
+      "First Contact Resolution (FCR)",
+      "CRM Navigation",
+      "Dealership Cloud Systems",
+      "MS Office Suite",
+      "Excel",
+      "Word",
+      "Fluent English",
+      "Active Listening",
+      "Problem-Solving",
+      "Negotiation",
+      "Cross-Functional Team Collaboration",
+      "Logistics Coordination",
+      "Time Management",
+      "Quality Assurance (QA) Standards",
+      "Process Optimization"
+    ]
+  }
+}

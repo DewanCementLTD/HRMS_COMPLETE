@@ -1,0 +1,128 @@
+{
+  "cv_file": "Salman.Tai-1_1785930722856.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:55:56.991947+00:00",
+  "pipeline": {
+    "total_seconds": 80.843,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 80.724,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2178,
+    "output_tokens": 1027,
+    "total_tokens": 5084
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Brand And Marketing Specialist",
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4862
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Salman Tai",
+      "email": "msalmantai@gmail.com",
+      "phone": "+92 316 020 4948",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Brand and Marketing specialist",
+    "profile_summary": "Senior marketing professional with over 12 years of experience in brand management, consumer insights, and strategic communications. Expert in launching brands and executing 360-degree marketing plans across retail, building materials, and financial sectors.",
+    "education": [
+      {
+        "institution": "Institute of Business Administration, Karachi",
+        "degree": "Masters of Business Administration (Marketing and Advertising)",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "NED University of Engineering & Technology",
+        "degree": "Bachelors of Engineering (Civil Engineering)",
+        "graduation_year": "2008"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Sabdullahome",
+        "role": "Senior Manager Marketing",
+        "duration": "10/2024 – Present",
+        "description": "Leads all marketing and brand promotion, including media management, event planning, and budget oversight."
+      },
+      {
+        "company": "Al-Noor Lasani",
+        "role": "Deputy Manager Marketing",
+        "duration": "10/2020 – 09/2024",
+        "description": "Managed brand promotion, media, and communications, including the management of the Karachi Design Studio."
+      },
+      {
+        "company": "Al-Noor Lasani",
+        "role": "Assistant Manager Marketing",
+        "duration": "10/2018 – 09/2020",
+        "description": "Developed 360-degree marketing plans and digital strategies to amplify brand outreach on social media."
+      },
+      {
+        "company": "Al-Noor Lasani",
+        "role": "Sales Executive",
+        "duration": "11/2015 – 09/2018",
+        "description": "Handled promotional planning, dealership network management, and market analysis for export and local markets."
+      },
+      {
+        "company": "Master Tiles",
+        "role": "Sales Executive",
+        "duration": "03/2015 – 10/2015",
+        "description": "Managed dealership networks in the South region and implemented market sizing programs."
+      },
+      {
+        "company": "Iris Communications",
+        "role": "Research Executive",
+        "duration": "09/2012 – 11/2014",
+        "description": "Managed qualitative and quantitative research projects for FMCG, telecom, and banking clients."
+      },
+      {
+        "company": "Bank Al-Habib Ltd.",
+        "role": "Management Trainee",
+        "duration": "11/2011 – 08/2012",
+        "description": "Completed management training program."
+      }
+    ],
+    "skills": [
+      "Market intelligence",
+      "Sales Analysis",
+      "Consumer Insights",
+      "Brand Management",
+      "Brand and Product Launches",
+      "Corporate Communications",
+      "PR",
+      "Digital Marketing",
+      "Events Management",
+      "BTL Activations",
+      "Strategic Planning"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 60,
+    "experience_match": 100,
+    "overall_score": 75,
+    "strengths": [
+      "Extensive brand management and strategic leadership experience",
+      "Strong academic credentials with an MBA in Marketing",
+      "Proven track record of successful brand launches"
+    ],
+    "weaknesses": [
+      "Significantly overqualified for a coordinator-level role",
+      "Lacks explicit mention of tactical tools like Canva or Meta Business Suite"
+    ],
+    "recommendation": "Overqualified",
+    "summary": "The candidate is a highly experienced marketing leader who far exceeds the minimum experience and education requirements. While capable of performing the tasks, his seniority suggests he may be overqualified for the tactical execution focus of this role."
+  }
+}

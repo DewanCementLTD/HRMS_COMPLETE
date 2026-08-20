@@ -1,0 +1,129 @@
+{
+  "cv_file": "Muhammad_Rameez_-_SRK_-_Resume_-_Journalism_-_2024_1_1785932131599.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:08.667954+00:00",
+  "pipeline": {
+    "total_seconds": 70.324,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.183,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1732,
+    "output_tokens": 958,
+    "total_tokens": 4216
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 3358
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sardar Rameez Khan",
+      "email": "sardarrameezkhan@yahoo.com",
+      "phone": "+92-346-2396050",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced journalist and content creator with over 9 years of professional experience in research and writing. Recently pivoted into digital marketing with technical training in SEO, GA4, and paid advertising.",
+    "education": [
+      {
+        "institution": "Federal Urdu University of Arts, Science & Technology",
+        "degree": "BS in Mass Communication",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Govt. National College (BIEK)",
+        "degree": "Intermediate in Commerce",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Dream Land Secondary School (BSEK)",
+        "degree": "Matriculation in Science",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Freelance",
+        "role": "Digital Media Executive",
+        "duration": "2021 - Present",
+        "description": "Executes digital content strategy, SEO, and social media management using Google Analytics, Meta Ads, and Google Ads."
+      },
+      {
+        "company": "Freelance",
+        "role": "Freelance Journalist",
+        "duration": "2019 - Present",
+        "description": "Produces blogs and columns on political and non-political current affairs."
+      },
+      {
+        "company": "Daily Evening Special Newspaper",
+        "role": "Staff Reporter",
+        "duration": "2020 - 2021",
+        "description": "Conducted field reporting, interviews, and investigative copywriting."
+      },
+      {
+        "company": "Geo News",
+        "role": "Monitoring Officer",
+        "duration": "2016 - 2018",
+        "description": "Monitored news channels, created headlines, and handled international desk news translations."
+      },
+      {
+        "company": "Geo News",
+        "role": "Election Trainee Reporter",
+        "duration": "2015",
+        "description": "Field reporting and team supervision during LGE Karachi coverage."
+      },
+      {
+        "company": "Aaj News",
+        "role": "Researcher Internee",
+        "duration": "2015",
+        "description": "Conducted research and copywriting in Urdu."
+      }
+    ],
+    "skills": [
+      "Copywriting",
+      "Content Writing",
+      "SEO",
+      "Google Analytics (GA4)",
+      "Google Ads",
+      "Meta Ads",
+      "Communication",
+      "Public Relations",
+      "Canva",
+      "Hootsuite",
+      "Buffer",
+      "Capcut",
+      "AI Tools",
+      "Researching"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 60,
+    "experience_match": 20,
+    "overall_score": 35,
+    "strengths": [
+      "Strong communication and writing background",
+      "Possesses required technical knowledge of GA4 and ad platforms",
+      "Based in Karachi"
+    ],
+    "weaknesses": [
+      "Lacks 5-7 years of dedicated marketing experience",
+      "No evidence of managing marketing budgets or reporting ROI/CAC/LTV",
+      "Insufficient people management experience for a Managerial role",
+      "Background is primarily journalism, not consumer brand marketing"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a skilled journalist with recent digital marketing certifications. While they meet the 'must-have' technical tool requirements, they lack the professional seniority, strategic marketing experience, and leadership track record required for a Marketing Manager position."
+  }
+}

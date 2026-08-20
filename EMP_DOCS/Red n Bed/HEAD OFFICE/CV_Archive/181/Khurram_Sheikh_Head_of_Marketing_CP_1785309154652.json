@@ -1,0 +1,131 @@
+{
+  "cv_file": "Khurram_Sheikh_Head_of_Marketing_CP_1785309154652.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:16:22.771930+00:00",
+  "pipeline": {
+    "total_seconds": 90.561,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 90.479,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2031,
+    "output_tokens": 1067,
+    "total_tokens": 5015
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 5525
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Khurram Sheikh",
+      "email": "khurram-124@hotmail.com",
+      "phone": "+92 331 2324512",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Head of Marketing",
+    "profile_summary": "Seasoned marketing leader with 16+ years of experience in brand reinvention and digital transformation across retail, F&B, and e-commerce. Expert in scaling online sales and turning around loss-making businesses into profitable operations.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA, Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Bahria University",
+        "degree": "BBA, Marketing",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "United Retail (IBL Group)",
+        "role": "Head of Marketing, Sales & Business",
+        "duration": "May 2025 - Present",
+        "description": "Leads brand reinvention for multi-brand retail/F&B portfolio, achieving 151% sales growth and managing 60+ team members."
+      },
+      {
+        "company": "Habitt",
+        "role": "Sr. Lead Manager Marketing & E-commerce",
+        "duration": "Jan 2021 - Apr 2025",
+        "description": "Scaled e-commerce sales from 1M to 25M PKR monthly and increased website traffic to 500k users via performance marketing."
+      },
+      {
+        "company": "IBL Operations",
+        "role": "Brand Manager",
+        "duration": "Apr 2019 - Dec 2020",
+        "description": "Led brand strategy and expanded Tarzz distribution to 500 retail outlets nationwide."
+      },
+      {
+        "company": "Habitt",
+        "role": "Deputy Manager Marketing",
+        "duration": "Sep 2014 - Apr 2019",
+        "description": "Executed integrated marketing campaigns to drive store traffic and brand visibility."
+      },
+      {
+        "company": "Future Tech",
+        "role": "Corporate Manager",
+        "duration": "Jan 2014 - Sep 2014",
+        "description": "Managed corporate sales and supported the launch of Apple Authorized Stores in major cities."
+      },
+      {
+        "company": "TradeKey",
+        "role": "Sr. Customer Retention Officer",
+        "duration": "Jul 2012 - Dec 2013",
+        "description": "Managed account relationships and customer retention initiatives."
+      },
+      {
+        "company": "Bahria University",
+        "role": "Manager Student Affairs",
+        "duration": "Mar 2009 - Jun 2012",
+        "description": "Coordinated student engagement, recruitment, and institutional events."
+      }
+    ],
+    "skills": [
+      "Brand Reinvention",
+      "Multi-Brand Leadership",
+      "Retail Marketing",
+      "F&B Marketing",
+      "E-commerce Growth",
+      "Campaign Strategy",
+      "Digital Transformation",
+      "AI Automation",
+      "n8n",
+      "Make.com",
+      "Power Automate",
+      "CRM",
+      "Shopify",
+      "Google Ads",
+      "GA4",
+      "SEMrush",
+      "Mailchimp",
+      "Power BI",
+      "Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 100,
+    "overall_score": 98,
+    "strengths": [
+      "Extensive leadership experience managing 60+ staff",
+      "Proven track record of massive e-commerce scaling",
+      "Expertise in GA4 and performance marketing",
+      "Strong background in brand turnaround and ROI"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Manager-level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Candidate exceeds all requirements, offering senior-level leadership, deep technical proficiency in GA4/Ads, and a demonstrated ability to drive massive revenue growth for consumer brands in Karachi."
+  }
+}

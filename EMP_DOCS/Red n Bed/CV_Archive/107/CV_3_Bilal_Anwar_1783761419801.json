@@ -1,0 +1,87 @@
+{
+  "cv_file": "CV_3_Bilal_Anwar_1783761419801.pdf",
+  "job_folder": "107",
+  "job_id": 107,
+  "mode": "evaluate",
+  "processed_at": "2026-07-11T09:17:47.241190+00:00",
+  "pipeline": {
+    "total_seconds": 40.262,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.041,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 885,
+    "output_tokens": 514,
+    "total_tokens": 2167
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 843
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bilal Anwar",
+      "email": "bilal.anwar@email.com",
+      "phone": "+92 333 9876543",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Technology Management Role",
+    "profile_summary": "Marketing professional with 4 years of experience in digital campaigns and brand management. Currently seeking to transition into a technology management career path.",
+    "education": [
+      {
+        "institution": "Institute of Business Administration, Karachi",
+        "degree": "BBA Marketing",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "BrightWave Media",
+        "role": "Marketing Executive",
+        "duration": "Feb 2021 – Present",
+        "description": "Executed digital ad campaigns and coordinated with creative vendors for production and print materials."
+      },
+      {
+        "company": "Palm Retail Co.",
+        "role": "Marketing Associate",
+        "duration": "Jun 2019 – Jan 2021",
+        "description": "Supported seasonal promotional planning and in-store activations."
+      }
+    ],
+    "skills": [
+      "Digital marketing",
+      "campaign analytics",
+      "content strategy",
+      "MS Excel",
+      "project coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Vendor coordination experience",
+      "Professional communication"
+    ],
+    "weaknesses": [
+      "No ERP or SQL experience",
+      "Lack of technical degree (BBA instead of CS/IS)",
+      "No application management experience",
+      "Insufficient years of relevant experience"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a marketing professional with no technical background in ERP systems, SQL, or application management, making them entirely unqualified for this role."
+  }
+}

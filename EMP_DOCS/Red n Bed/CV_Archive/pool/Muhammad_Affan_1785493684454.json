@@ -1,0 +1,102 @@
+{
+  "cv_file": "Muhammad_Affan_1785493684454.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:03.588382+00:00",
+  "pipeline": {
+    "total_seconds": 53.795,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.033,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 636,
+    "output_tokens": 645,
+    "total_tokens": 2241
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 987
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Affan",
+      "email": "afantodaye@outlook.com",
+      "phone": "03412320038",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Services Specialist",
+    "profile_summary": "Experienced customer service and sales professional with a strong background in client relations and digital marketing. Skilled in lead generation and social media management with a career spanning multiple service-oriented roles.",
+    "education": [
+      {
+        "institution": "Aptech Karachi",
+        "degree": "Certified Computer Programming",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Abnotix Solutions",
+        "role": "Senior Sales Executive",
+        "duration": "Aug 2023 - Present",
+        "description": "Driving sales growth and managing executive-level sales operations."
+      },
+      {
+        "company": "Cenit Inc.",
+        "role": "Customer Services Representative",
+        "duration": "Jun 2019 - Aug 2023",
+        "description": "Provided high-quality customer support and managed client relations."
+      },
+      {
+        "company": "Navitronix Pvt. Ltd.",
+        "role": "Assistant Manager Customer Services",
+        "duration": "May 2018 - Jun 2019",
+        "description": "Supervised customer service teams and optimized service delivery."
+      },
+      {
+        "company": "Xtreme Solutions Pvt. Ltd.",
+        "role": "Customer Services Representative",
+        "duration": "Aug 2016 - May 2018",
+        "description": "Handled customer inquiries and resolved service-related issues."
+      },
+      {
+        "company": "Evaluation Grid Pvt. Ltd.",
+        "role": "Project Assistant",
+        "duration": "Sept 2013 - Aug 2016",
+        "description": "Assisted in project coordination and administrative support."
+      }
+    ],
+    "skills": [
+      "Digital Sales & Marketing",
+      "Google Ads",
+      "Meta Ads",
+      "Social Media Management",
+      "Lead Generation",
+      "Canva",
+      "Video Editing",
+      "English",
+      "Urdu"
+    ]
+  }
+}

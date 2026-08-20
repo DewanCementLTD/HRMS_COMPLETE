@@ -1,0 +1,122 @@
+{
+  "cv_file": "Sohail_Azeem_CV_1783686229730.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:24:58.663170+00:00",
+  "pipeline": {
+    "total_seconds": 58.694,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.042,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2945,
+    "output_tokens": 944,
+    "total_tokens": 4930
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages"
+    ],
+    "text_chars": 9915
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sohail Azeem",
+      "email": "yasohail@gmail.com",
+      "phone": "0301-1103903",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Data Analyst / Power BI Developer",
+    "profile_summary": "Senior BI professional with over 9 years of experience in data modeling, ETL processes, and analytical reporting. Expert in Power BI and SQL Server, with a strong track record of delivering business intelligence solutions in the telecom and industrial sectors.",
+    "education": [
+      {
+        "institution": "Hochschule Bremerhaven",
+        "degree": "BSC (Process Engineering)",
+        "graduation_year": "2010"
+      },
+      {
+        "institution": "Goethe Institute Karachi",
+        "degree": "ZDaF (German language course)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Degree Science College Gulshan-e-Iqbal",
+        "degree": "HSC (Pre-Engineering)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Happy Home Secondary School",
+        "degree": "SSC (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Deputy Manager – IT Department",
+        "duration": "Feb 2024 – Present",
+        "description": "Developed Power BI dashboards and implemented RLS using Oracle Database; managed ETL processes and automated report refresh schedules."
+      },
+      {
+        "company": "K-Electric",
+        "role": "Assistant Manager – Key Accounts & Net Metering Department",
+        "duration": "Aug 2022 – Jan 2024",
+        "description": "Created BI reports from SAP HANA, developed KPI scorecards, and applied Star Schema modeling for customer recovery and billing analysis."
+      },
+      {
+        "company": "Zong CMPak Ltd.",
+        "role": "Power BI Developer & Data Analyst – PMO Department",
+        "duration": "Dec 2015 – Apr 2022",
+        "description": "Built outage monitoring dashboards using SQL Server and Power BI to track telecom infrastructure performance."
+      },
+      {
+        "company": "Powertech Engineering Solutions",
+        "role": "Data Analyst – PMO Department",
+        "duration": "Jun 2012 – Jun 2015",
+        "description": "Implemented ETL pipelines using Azure Data Factory, Synapse Analytics, and Azure SQL for large-scale data warehouse solutions."
+      }
+    ],
+    "skills": [
+      "Power BI",
+      "SQL Server",
+      "Oracle Database",
+      "Power Query",
+      "DAX",
+      "ETL Processes",
+      "Data Modeling",
+      "Row-Level Security (RLS)",
+      "Dashboard Development",
+      "SAP",
+      "Azure SQL",
+      "Synapse Analytics",
+      "Azure Data Factory",
+      "JSON"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 20,
+    "experience_match": 15,
+    "overall_score": 15,
+    "strengths": [
+      "Expertise in SQL and database management",
+      "Strong data engineering and ETL background",
+      "Extensive experience with enterprise-level BI tools"
+    ],
+    "weaknesses": [
+      "No experience with JavaScript, TypeScript, Node.js, or React",
+      "No evidence of Git or CI/CD pipeline usage",
+      "Background is in Data Analytics, not Full Stack Software Engineering"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly skilled Data Analyst and BI Developer, but they lack the essential full-stack development skills (React, Node.js, TypeScript) required for this Software Engineer role."
+  }
+}

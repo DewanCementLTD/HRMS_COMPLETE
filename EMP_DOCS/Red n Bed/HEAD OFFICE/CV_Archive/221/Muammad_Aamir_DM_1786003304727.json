@@ -1,0 +1,153 @@
+{
+  "cv_file": "Muammad_Aamir_DM_1786003304727.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:03:39.964630+00:00",
+  "pipeline": {
+    "total_seconds": 90.567,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 89.721,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2148,
+    "output_tokens": 1187,
+    "total_tokens": 5313
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 5056
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hafiz Muhammad Aamir Zaman",
+      "email": "aamirzaman20@gmail.com",
+      "phone": "(+92) 345-3194155",
+      "location": "Buffer Zone, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager | Social Media Marketing Specialist",
+    "profile_summary": "Accomplished Digital Marketing Specialist with over 4 years of experience in e-commerce and lead generation. Expert in driving high ROI through Meta Ads and AI-driven optimization.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "MBA (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "DIHE",
+        "degree": "B. Com",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt. Degree College",
+        "degree": "I.Com",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "Private",
+        "degree": "Matriculation",
+        "graduation_year": "2008"
+      },
+      {
+        "institution": "Iqra Roza Tul Jannah",
+        "degree": "Hifz-ul-Quran",
+        "graduation_year": "2005"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Zaitslab",
+        "role": "Social Media Marketer (lead)",
+        "duration": "2024 to present",
+        "description": "Leads FB and Instagram ad campaigns, utilizes AI for optimization, conducts competitor analysis, and manages lead qualification and reporting."
+      },
+      {
+        "company": "Zaitslab",
+        "role": "Digital Media Marketer",
+        "duration": "2021 to 2024",
+        "description": "Managed paid and organic strategies across FB, IG, TikTok, WhatsApp, and Telegram; performed A/B testing and audience monitoring."
+      },
+      {
+        "company": "Daraz",
+        "role": "Digital Marketer",
+        "duration": "2020 to 2023",
+        "description": "Optimized product visibility and listing strategies on Daraz, resulting in 20% monthly sales growth."
+      },
+      {
+        "company": "Yunus Textile Mills limited",
+        "role": "Internal Audit Senior",
+        "duration": "2021 to 2023",
+        "description": "Assessed internal controls, identified gaps, and trained audit team members."
+      },
+      {
+        "company": "Yunus Textile Mills limited",
+        "role": "Internal Audit Officer",
+        "duration": "2017 to 2021",
+        "description": "Verified payments and monitored local sales and goods transfers."
+      },
+      {
+        "company": "Excel Tex Industries (Pvt.) Ltd.",
+        "role": "Executive Officer Stock & Operations",
+        "duration": "2015 to 2017",
+        "description": "Managed bank/cash vouchers, ledgers, and material receipts."
+      },
+      {
+        "company": "AL-Madina Oil Industries (Pvt.) Ltd.",
+        "role": "Store In-charge",
+        "duration": "2014 to 2015",
+        "description": "Prepared stock reports and supervised raw materials and finished goods."
+      },
+      {
+        "company": "Raza Communication",
+        "role": "Cashier",
+        "duration": "2011 to 2015",
+        "description": "Handled cash transactions and resolved customer issues."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Facebook Marketing",
+      "Instagram Marketing",
+      "TikTok Marketing",
+      "AI Tools",
+      "Advanced Excel",
+      "MS Office",
+      "Competitor Analysis",
+      "A/B Testing",
+      "Lead Generation",
+      "Shopify",
+      "Daraz",
+      "ROI Optimization",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 95,
+    "overall_score": 93,
+    "strengths": [
+      "Proven ROI track record",
+      "Expertise in all required social platforms (FB, IG, TikTok)",
+      "Advanced Excel skills",
+      "AI tool integration for optimization"
+    ],
+    "weaknesses": [
+      "No explicit mention of Canva",
+      "MBA degree is still in progress"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly experienced digital marketer who exceeds the minimum experience requirements. He has direct expertise in the required social platforms and technical tools, with a strong focus on data-driven results."
+  }
+}

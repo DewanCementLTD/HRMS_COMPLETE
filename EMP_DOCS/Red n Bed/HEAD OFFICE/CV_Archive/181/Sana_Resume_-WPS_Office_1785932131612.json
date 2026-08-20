@@ -1,0 +1,106 @@
+{
+  "cv_file": "Sana_Resume_-WPS_Office_1785932131612.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:27.278350+00:00",
+  "pipeline": {
+    "total_seconds": 49.501,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.374,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1293,
+    "output_tokens": 745,
+    "total_tokens": 3029
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills"
+    ],
+    "text_chars": 2298
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sana Malik",
+      "email": "sana.malik10004@gmail.com",
+      "phone": "03352173013",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Junior marketing professional specializing in social media management and content creation. Experienced in executing digital campaigns and managing social calendars for diverse brands.",
+    "education": [
+      {
+        "institution": "FUUAST",
+        "degree": "BS in Psychology",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "MangoTech",
+        "role": "Social Media Manager",
+        "duration": "Sep 2024 – Present",
+        "description": "Manages social media strategies and calendars, designs content via Canva, and executes Facebook and Instagram campaigns."
+      },
+      {
+        "company": "Sourcecode",
+        "role": "Creative Content Executive",
+        "duration": "Mar 2024 - Sep 2024",
+        "description": "Produced researched blogs, articles, and web copies, and managed social media updates."
+      },
+      {
+        "company": "SUCCESSART",
+        "role": "Social Media Marketing Intern",
+        "duration": "Nov 2023 - Feb 2024",
+        "description": "Assisted in marketing strategy implementation, content creation, and competitive market analysis."
+      },
+      {
+        "company": "NNE Web Channel",
+        "role": "Social Media Intern",
+        "duration": "Mar 2023 - Sep 2023",
+        "description": "Handled content scheduling, community engagement, performance tracking, and influencer coordination."
+      }
+    ],
+    "skills": [
+      "Social Media Strategy",
+      "Canva",
+      "Facebook Ads",
+      "Instagram Ads",
+      "Content Writing",
+      "Blog Writing",
+      "Community Management",
+      "MS Word",
+      "MS PowerPoint",
+      "MS Excel",
+      "English",
+      "Urdu",
+      "Relationship Management",
+      "Interpersonal Skills"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 30,
+    "experience_match": 10,
+    "overall_score": 20,
+    "strengths": [
+      "Local to Karachi",
+      "Hands-on experience with social media ad platforms",
+      "Content creation and design skills"
+    ],
+    "weaknesses": [
+      "Lacks required 5-7 years of experience",
+      "No people management experience",
+      "Degree is in Psychology rather than Marketing/Business",
+      "No mentioned expertise in GA4 or budget/ROI reporting"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an entry-level social media specialist. They lack the seniority, leadership experience, and advanced analytical capabilities (GA4, CAC/LTV) required for a Marketing Manager role."
+  }
+}

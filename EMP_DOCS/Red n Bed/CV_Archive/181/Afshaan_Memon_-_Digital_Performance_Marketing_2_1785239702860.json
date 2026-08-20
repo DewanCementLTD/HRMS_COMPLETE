@@ -1,0 +1,119 @@
+{
+  "cv_file": "Afshaan_Memon_-_Digital_Performance_Marketing_2_1785239702860.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:56:40.427917+00:00",
+  "pipeline": {
+    "total_seconds": 74.839,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.348,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2837,
+    "output_tokens": 979,
+    "total_tokens": 5233
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 7931
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Afshaan Ahmed Memon",
+      "email": "mr.afshan.memon@gmail.com",
+      "phone": "0334-2081668",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Performance Marketing Expert",
+    "profile_summary": "Results-driven digital marketing leader with over 12 years of experience specializing in performance marketing, SEO, and eCommerce growth. Proven track record of scaling revenue for major consumer brands through high-ROAS paid media and integrated organic strategies.",
+    "education": [
+      {
+        "institution": "Quaid-e-Awam University of Engineering, Science and Technology",
+        "degree": "BS.IT",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Asim Jofa",
+        "role": "Sr Manager Digital Performance Marketing",
+        "duration": "June 2025 - Present",
+        "description": "Leads digital growth via Google/Meta Ads and SEO for a luxury fashion brand, focusing on integrated campaigns and brand equity."
+      },
+      {
+        "company": "Gul Ahmed Ideas",
+        "role": "Digital Performance Marketing & Organic Lead",
+        "duration": "Dec 2022 - May 2025",
+        "description": "Managed full-funnel digital strategies, achieving high ROAS on Google/Meta and boosting organic traffic by 50% YoY."
+      },
+      {
+        "company": "Bay's International",
+        "role": "Manager Digital Performance Marketing",
+        "duration": "Feb 2021 - Dec 2022",
+        "description": "Led eCommerce transformation to Shopify, scaled revenue to PKR 4 billion, and managed cross-functional social, PR, and content teams."
+      },
+      {
+        "company": "Digitonics",
+        "role": "Sr. Manager Digital Marketing",
+        "duration": "Feb 2020 - Jan 2021",
+        "description": "Managed digital marketing for 100+ UK clients, leading teams of content writers and SEO specialists."
+      },
+      {
+        "company": "Alkaram Studio",
+        "role": "Digital Marketing Manager",
+        "duration": "Oct 2017 - 2020",
+        "description": "Launched eCommerce brand, implemented performance marketing with 10-15x ROAS, and managed influencer campaigns."
+      },
+      {
+        "company": "HUM Network",
+        "role": "Digital Marketing Specialist",
+        "duration": "Oct 2014 - Sept 2017",
+        "description": "Planned and managed overall SEO/SEM strategy and social content for multiple network sites."
+      }
+    ],
+    "skills": [
+      "Google Ads",
+      "Meta Ads",
+      "TikTok Ads",
+      "SEO",
+      "GA4",
+      "Google Tag Manager",
+      "Data Studio",
+      "CRO",
+      "UX",
+      "Budget Allocation",
+      "Media Buying",
+      "Team Leadership",
+      "Influencer Marketing",
+      "Email Marketing",
+      "A/B Testing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 95,
+    "overall_score": 96,
+    "strengths": [
+      "Extensive experience with top-tier Pakistani consumer brands",
+      "Expert-level proficiency in GA4 and ad platform reporting",
+      "Proven track record of scaling eCommerce revenue and ROAS",
+      "Strong leadership experience managing cross-functional teams"
+    ],
+    "weaknesses": [
+      "Educational background is in IT rather than Marketing/Business Administration"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "An over-qualified candidate with 12+ years of experience in the exact domain required. He possesses deep technical expertise in GA4 and paid media, has managed teams, and has a proven history of driving growth for large consumer brands in Karachi."
+  }
+}

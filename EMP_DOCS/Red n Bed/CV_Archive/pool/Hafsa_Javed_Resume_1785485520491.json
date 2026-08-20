@@ -1,0 +1,106 @@
+{
+  "cv_file": "Hafsa_Javed_Resume_1785485520491.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:13.231610+00:00",
+  "pipeline": {
+    "total_seconds": 60.127,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.055,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1403,
+    "output_tokens": 762,
+    "total_tokens": 3535
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Officer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3534
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hafsa Javed",
+      "email": "javed.hafsa@gmail.com",
+      "phone": "03478758808",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Officer",
+    "profile_summary": "Marketing professional with an MBA and experience in digital marketing and HR operations. Expert in social media management, content creation, and SEO, with a strong ability to drive brand engagement and corporate messaging.",
+    "education": [
+      {
+        "institution": "SZABIST - Karachi Campus",
+        "degree": "Master of Business Administration (Marketing and Supply Chain)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "SZABIST - Karachi Campus",
+        "degree": "Bachelors of Arts in Business Studies",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "The City School, PAF Chapter",
+        "degree": "A levels – Commerce",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "The City School, PAF Chapter",
+        "degree": "O levels – Commerce",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Texitech",
+        "role": "Digital Marketing Officer",
+        "duration": "07/2023 – Present",
+        "description": "Manages social media content, PPC campaigns, and email marketing. Creates promotional graphics via Canva and produces blog content based on trend research."
+      },
+      {
+        "company": "Salaam Takaful Limited",
+        "role": "Executive Officer, HR",
+        "duration": "01/2022 – 02/2023",
+        "description": "Led employee engagement initiatives, restructured job roles, managed onboarding, and designed employer branding materials."
+      },
+      {
+        "company": "Dubai Islamic Bank Pakistan Limited",
+        "role": "HR Coordinator",
+        "duration": "01/2022 – 05/2023",
+        "description": "Executed recruitment tasks, scheduled interviews, processed hiring documents, and maintained internal transfer databases."
+      },
+      {
+        "company": "Puma Energy Pakistan",
+        "role": "Customer Service Representative (Internship)",
+        "duration": "05/2021 – 12/2021",
+        "description": "Completed a 4-week internship focused on Business Support Management."
+      },
+      {
+        "company": "First Women Bank Limited",
+        "role": "Internship",
+        "duration": "02/2021 – 05/2021",
+        "description": "Completed a 6-week internship focused on Retail Banking."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Copy Writing",
+      "Digital Marketing",
+      "MS PowerPoint",
+      "Canva Pro",
+      "MS Excel",
+      "Graphic Designing",
+      "MS Word",
+      "SEO Optimization",
+      "Freelancing"
+    ]
+  }
+}

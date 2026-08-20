@@ -1,0 +1,121 @@
+{
+  "cv_file": "Faizan_Parwaiz_-_Marketing_Manager_1785239702892.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T12:00:16.974613+00:00",
+  "pipeline": {
+    "total_seconds": 122.476,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 122.351,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1732,
+    "output_tokens": 960,
+    "total_tokens": 4494
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 4475
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Faizan Parwaiz",
+      "email": "qureshi139@hotmail.com",
+      "phone": "0333-2119195",
+      "location": "Phase 6, DHA, Karachi"
+    },
+    "preferred_job_title": "Strategic Marketing Manager",
+    "profile_summary": "Strategic Marketing Manager with over 15 years of experience driving growth for top-tier consumer brands and SMEs. Expert in digital transformation, cross-functional team leadership, and executing high-ROI integrated campaigns.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master in Business Administration (Marketing)",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelors in Business Administration",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Pakitex Board Limited",
+        "role": "Deputy Marketing Manager",
+        "duration": "2025 to Present",
+        "description": "Formulates annual marketing plans to meet growth objectives and oversees the rollout of multi-channel campaigns while coordinating with external agencies."
+      },
+      {
+        "company": "East River Digital",
+        "role": "Project Manager",
+        "duration": "2022 to 2023",
+        "description": "Managed paid advertising for a diverse portfolio of major brands and secured Google Partner status through high campaign performance."
+      },
+      {
+        "company": "ARPATECH Technologies",
+        "role": "Team Lead",
+        "duration": "2019 to 2021",
+        "description": "Led digital marketing specialists in strategy and execution, managed key client accounts, and mentored team members in emerging digital tools."
+      },
+      {
+        "company": "BOL News",
+        "role": "Digital Marketing Manager",
+        "duration": "2017 to 2018",
+        "description": "Developed digital strategies for broadcasts, optimized video content for search, and managed influencer and brand partnerships."
+      },
+      {
+        "company": "ACM Gold",
+        "role": "Project Manager",
+        "duration": "2014 to 2017",
+        "description": "Managed social media community engagement and oversaw end-to-end project management for major campaigns and educational webinars."
+      },
+      {
+        "company": "Digital Tribe",
+        "role": "Digital Marketing Manager",
+        "duration": "2012 to 2014",
+        "description": "Provided data-driven insights and executed CRO initiatives that improved website conversion rates by 25%."
+      }
+    ],
+    "skills": [
+      "Content Creation",
+      "AI Tools",
+      "Social Media Marketing",
+      "Paid Advertising",
+      "SEO",
+      "SEM",
+      "CRO",
+      "Project Management",
+      "Team Leadership",
+      "Google Ads",
+      "Facebook Ads",
+      "Instagram Ads",
+      "Agency Management",
+      "Budgeting"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 98,
+    "overall_score": 94,
+    "strengths": [
+      "Extensive 15+ year track record",
+      "Experience with top-tier consumer brands (Unilever, L'Oréal)",
+      "Proven people management and team leadership",
+      "Strong academic alignment (MBA Marketing)",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "GA4 not explicitly mentioned by name, though Google Partner status and analytics experience strongly imply proficiency"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "An exceptionally qualified candidate who exceeds the experience requirements. He possesses the necessary leadership skills, academic background, and technical expertise in paid and organic growth to own the marketing function end-to-end."
+  }
+}

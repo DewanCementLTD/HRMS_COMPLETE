@@ -1,0 +1,143 @@
+{
+  "cv_file": "S._M._Salman_Anees_Resume_123_1783708847457.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-10T18:42:13.754100+00:00",
+  "pipeline": {
+    "total_seconds": 81.956,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 79.059,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1431,
+    "output_tokens": 1063,
+    "total_tokens": 4121
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 2,
+    "ocr_pages": [
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 3790
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "S. M. Salman Anees",
+      "email": "salmananees30@gmail.com",
+      "phone": "+92-348-2058008",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "English language and business studies teacher",
+    "profile_summary": "Articulate professional with extensive experience in English language teaching and business studies. Expert in linguistics, classroom management, and academic lecturing across diverse higher education institutions.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "M.Phil. Applied Linguistics",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "University of Cambridge (SPELT)",
+        "degree": "ICELT, ESOL Examination",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "MBA, Supply Chain Management",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "Karachi University",
+        "degree": "MA English (Literature & Linguistic)",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "College of Commerce & Economics (University of Karachi)",
+        "degree": "B.COM",
+        "graduation_year": "2008"
+      },
+      {
+        "institution": "College of Commerce & Economics",
+        "degree": "I.COM",
+        "graduation_year": "2006"
+      },
+      {
+        "institution": "Mighty Minds’ Academy",
+        "degree": "SSC Examination",
+        "graduation_year": "2004"
+      }
+    ],
+    "experience": [
+      {
+        "company": "National University of Modern Languages",
+        "role": "Senior English Lecturer",
+        "duration": "2019-Present",
+        "description": "Teaches courses in Essay Writing, Grammar, Phonetics, Stylistics, General Linguistics, and Business Communication."
+      },
+      {
+        "company": "Salim Habib University",
+        "role": "Visiting Faculty",
+        "duration": "2021-Present",
+        "description": "Instructs Applied Business Communication and Presentation Skills for weekend MBA students."
+      },
+      {
+        "company": "Bahria University",
+        "role": "Visiting Faculty",
+        "duration": "2019-Present",
+        "description": "Teaches Functional English and Communication Skills within the Department of Software Engineering."
+      },
+      {
+        "company": "Karachi University",
+        "role": "Visiting Faculty",
+        "duration": "2019-2022",
+        "description": "Taught English Studies and Communication Skills in the Department of Public Administration."
+      },
+      {
+        "company": "Iqra University (IUNC)",
+        "role": "Visiting Faculty",
+        "duration": "2017-2019",
+        "description": "Taught Functional English and Business studies including Economics, Marketing, and Supply Chain Management."
+      },
+      {
+        "company": "Unibroad Holding Plc",
+        "role": "RTS- Manager Admin",
+        "duration": "2014-2016",
+        "description": "Conducted ELT research and workshops and provided administrative support to business concerns in Dubai."
+      },
+      {
+        "company": "Yousuf Institute of English Language",
+        "role": "English Language Teacher",
+        "duration": "2010-Present",
+        "description": "Instructs Functional English, IELTS, TOFEL, TOEIC, PTE-Academic, OET, and CSS English."
+      },
+      {
+        "company": "Readers’ Club of English Language",
+        "role": "English Language Teacher",
+        "duration": "2010-2012",
+        "description": "Provided English language instruction."
+      }
+    ],
+    "skills": [
+      "English Language Teaching",
+      "Classroom Observation",
+      "Management & Coordination",
+      "Business Communication",
+      "Management Studies",
+      "Research Skills",
+      "Classroom Management",
+      "Peachtree",
+      "Tally",
+      "MYOB",
+      "SPSS",
+      "QuickBooks",
+      "Quicken",
+      "Sage",
+      "MS-Office"
+    ]
+  }
+}

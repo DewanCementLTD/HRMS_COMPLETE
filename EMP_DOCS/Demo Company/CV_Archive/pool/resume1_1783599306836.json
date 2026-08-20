@@ -1,0 +1,92 @@
+{
+  "cv_file": "resume1_1783599306836.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-09T12:16:01.259526+00:00",
+  "pipeline": {
+    "total_seconds": 47.968,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 47.897,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 988,
+    "output_tokens": 505,
+    "total_tokens": 2480
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Systems Programmer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "references",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2338
+  },
+  "metrics": {
+    "metrics": {
+      "contact_info": {
+        "name": "SYED AFFAN BASIT",
+        "email": "affan.basit@hotmail.com",
+        "phone": "+92 315 2979547",
+        "location": "Karachi"
+      },
+      "preferred_job_title": "Systems Programmer",
+      "profile_summary": "High-achieving Computer Science student with a 3.81 CGPA specializing in high-performance C/C++ and CUDA programming. Proficient in building low-level core architectures and optimizing parallel processing pipelines.",
+      "education": [
+        {
+          "institution": "National University of Computer & Emerging Sciences",
+          "degree": "Bachelor of Science, Computer Science",
+          "graduation_year": null
+        },
+        {
+          "institution": "Commecs College",
+          "degree": "Higher Secondary School Certificate, Pre-Engineering",
+          "graduation_year": "2023"
+        }
+      ],
+      "experience": [
+        {
+          "company": "State Bank of Pakistan",
+          "role": "Internship",
+          "duration": "Jun 2025 – Jul 2025",
+          "description": "Troubleshot the RAAST payment system to improve user experience and performed data cleaning on financial datasets using SQL."
+        },
+        {
+          "company": "Dotinfiny Solutions",
+          "role": "Content Writer",
+          "duration": "Mar 2020 – Feb 2023",
+          "description": "Implemented SEO strategies to boost content rankings, researched diverse topics, and edited articles for quality and consistency."
+        }
+      ],
+      "skills": [
+        "C",
+        "C++",
+        "Python",
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "CUDA",
+        "Bash",
+        "VS Code",
+        "Git",
+        "LaTeX",
+        "Docker",
+        "Notion",
+        "CMake",
+        "PostgreSQL",
+        "MongoDB",
+        "MySQL"
+      ]
+    }
+  }
+}

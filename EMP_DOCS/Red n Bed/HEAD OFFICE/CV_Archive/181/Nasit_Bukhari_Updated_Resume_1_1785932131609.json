@@ -1,0 +1,103 @@
+{
+  "cv_file": "Nasit_Bukhari_Updated_Resume_1_1785932131609.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:51.598250+00:00",
+  "pipeline": {
+    "total_seconds": 50.209,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.619,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1316,
+    "output_tokens": 689,
+    "total_tokens": 3042
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 3,
+    "ocr_pages": [
+      3
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2490
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Nasit Bukhari",
+      "email": "nasitbukhari0@gmail.com",
+      "phone": "+92 313 2327940",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Project & Sales Manager | Experienced Team Lead",
+    "profile_summary": "Results-oriented professional with a background in project management, sales strategy, and team leadership. Experienced in managing digital projects and leading high-performing teams to optimize operations and revenue growth.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "BS Entrepreneurship",
+        "graduation_year": null
+      },
+      {
+        "institution": "Whales College",
+        "degree": "CIE Advance Level",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "The City School",
+        "degree": "CIE Ordinary Level",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Fixels Media",
+        "role": "Project & Sales Manager",
+        "duration": "04/2026 - Present",
+        "description": "Executes end-to-end project management for media and sales campaigns, driving revenue growth through strategic outreach and client relationship optimization."
+      },
+      {
+        "company": "Techmile Solutions",
+        "role": "Team Lead - Chat Support",
+        "duration": "05/2024 - 05/2026",
+        "description": "Supervised and mentored a chat support team, monitoring performance metrics and resolving complex client escalations to maintain SLA standards."
+      }
+    ],
+    "skills": [
+      "Project Management",
+      "Sales Strategy",
+      "Team Leadership",
+      "Chat Support Operations",
+      "Customer Relations",
+      "Facebook Marketing",
+      "MS Excel",
+      "MS Word",
+      "Problem Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 35,
+    "technical_match": 20,
+    "experience_match": 40,
+    "overall_score": 30,
+    "strengths": [
+      "Local to Karachi",
+      "Proven people management experience",
+      "Relevant degree in Entrepreneurship/Business"
+    ],
+    "weaknesses": [
+      "Lacks required 5-7 years of total marketing experience",
+      "No mention of GA4 or advanced ad platform reporting",
+      "No evidence of budget management or brand strategy ownership"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate possesses leadership and sales skills but lacks the seniority and specific technical marketing expertise (GA4, ROI/CAC reporting, brand strategy) required for this role."
+  }
+}

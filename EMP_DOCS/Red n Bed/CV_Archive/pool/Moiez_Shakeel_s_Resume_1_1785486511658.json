@@ -1,0 +1,89 @@
+{
+  "cv_file": "Moiez_Shakeel_s_Resume_1_1785486511658.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:29:39.965742+00:00",
+  "pipeline": {
+    "total_seconds": 45.48,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 45.387,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 917,
+    "output_tokens": 564,
+    "total_tokens": 2490
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2421
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Moiez Shakeel",
+      "email": "em.moiez@gmail.com",
+      "phone": "03320211192",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Results-driven MBA graduate specializing in digital marketing with experience in campaign execution and social media management. Proficient in content creation, SEO, and data analytics to drive brand visibility and engagement.",
+    "education": [
+      {
+        "institution": "Curtin University",
+        "degree": "MBA",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "SZABIST Dubai",
+        "degree": "BBA",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dubai Islamic Bank",
+        "role": "Digital Marketing Executive",
+        "duration": "April 2024 – July 2024",
+        "description": "Executed digital marketing campaigns across social, email, and search engines. Created Sharia-compliant content and collaborated with product and creative teams for brand consistency."
+      },
+      {
+        "company": "OIGETIT - Fake news filter",
+        "role": "Social Media Intern",
+        "duration": "November 2020 – February 2021",
+        "description": "Developed social media strategies to enhance brand visibility. Curated content for Facebook, Twitter, and Instagram, and managed daily scheduling and community engagement."
+      },
+      {
+        "company": "Swati Golyan",
+        "role": "Digital Marketing Intern",
+        "duration": "December 2019 – February 2020",
+        "description": "Assisted in SEO, email marketing, and digital strategies. Managed content calendars and crafted optimized website content and social media ad campaigns."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Digital Strategy",
+      "Content Creation",
+      "SEO Optimization",
+      "Copywriting",
+      "Graphic Design",
+      "Advertising Platforms",
+      "Communication",
+      "Adaptability",
+      "Problem-solving",
+      "Google Digital Garage",
+      "Google Analytics",
+      "Google Ads",
+      "Hubspot Academy Social Media"
+    ]
+  }
+}

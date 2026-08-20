@@ -1,0 +1,114 @@
+{
+  "cv_file": "Mobasher_Mehmood_CV.pdf.pdf.pdf_1785930722891.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:54:29.480492+00:00",
+  "pipeline": {
+    "total_seconds": 59.467,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 59.364,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1175,
+    "output_tokens": 755,
+    "total_tokens": 3275
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2110
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mobasher Mehmood",
+      "email": "mobashermehmood786@gmail.com",
+      "phone": "03462710032",
+      "location": "Karachi, South"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Computer Science student and certified Digital Marketing professional with a strong foundation in social media management and ad campaigns. Expert in SEO, SEM, and content strategy across multiple digital platforms.",
+    "education": [
+      {
+        "institution": "Not specified",
+        "degree": "BS Computer Science",
+        "graduation_year": "In Progress"
+      },
+      {
+        "institution": "Federal Board",
+        "degree": "Intermediate (Pre-Eng)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Federal Board",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dowites 78",
+        "role": "Social Media Assistant",
+        "duration": "September 2025 - Present",
+        "description": "Providing social media assistance and management."
+      },
+      {
+        "company": "The Peak",
+        "role": "Digital Marketer",
+        "duration": "April 2025 - August 2025",
+        "description": "Executed digital marketing strategies and campaigns."
+      },
+      {
+        "company": "The Decency Events & Marketing",
+        "role": "Digital Marketing Internship",
+        "duration": "October 2024 - December 2024",
+        "description": "Completed internship focusing on digital marketing fundamentals."
+      }
+    ],
+    "skills": [
+      "MS Office",
+      "Excel",
+      "Database Management",
+      "CRM",
+      "Email Writing",
+      "Facebook Ads",
+      "Google Ads",
+      "Social Media Management",
+      "LinkedIn",
+      "Instagram",
+      "YouTube",
+      "SEO",
+      "SEM",
+      "Content Strategy",
+      "WordPress",
+      "Canva",
+      "Shopify",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 90,
+    "experience_match": 40,
+    "overall_score": 62,
+    "strengths": [
+      "Strong technical proficiency in Canva, Meta Ads, and Google Ads",
+      "Relevant certifications from Aptech and Google",
+      "Experience across multiple social media platforms"
+    ],
+    "weaknesses": [
+      "Does not meet the 2-year minimum experience requirement",
+      "Degree is in Computer Science rather than Marketing or Mass Communication"
+    ],
+    "recommendation": "Consider for Junior role",
+    "summary": "The candidate possesses nearly all the required technical skills and tool knowledge (Canva, Excel, Meta Ads), but falls short of the minimum professional experience and specific educational requirements."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "cv_file": "Black_White_Modern_Graphic_Design_CV_Resume_20241121_181659_0000_1785485520488.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:41.281759+00:00",
+  "pipeline": {
+    "total_seconds": 34.788,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 29.862,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 522,
+    "output_tokens": 388,
+    "total_tokens": 1554
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": "Sales Solution Architect",
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 476
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mahnoor Zahid",
+      "email": "mail.com",
+      "phone": null,
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Sales Solution Architect",
+    "profile_summary": "Entry-level sales professional with a background in retail and beauty advising. Experienced in visual merchandising and customer service within high-impact retail environments.",
+    "education": [
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Imtiaz Super Market",
+        "role": "Sales Advisor",
+        "duration": "2021 - 2023",
+        "description": "Served as a sales advisor."
+      },
+      {
+        "company": "SANA SAFINAZ",
+        "role": "Sales Advisor",
+        "duration": "2023 - 2024",
+        "description": "Managed sales and visual merchandising at the outlet."
+      },
+      {
+        "company": "MARIA B",
+        "role": "Beauty Advisor",
+        "duration": "2024",
+        "description": "Worked as a beauty advisor."
+      }
+    ],
+    "skills": [
+      "Sales",
+      "Visual Merchandising",
+      "Beauty Advising",
+      "Retail Sales"
+    ]
+  }
+}

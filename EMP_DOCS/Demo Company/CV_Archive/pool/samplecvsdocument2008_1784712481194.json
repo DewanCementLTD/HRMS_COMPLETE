@@ -1,0 +1,114 @@
+{
+  "cv_file": "samplecvsdocument2008_1784712481194.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-22T09:29:02.841830+00:00",
+  "pipeline": {
+    "total_seconds": 58.142,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 57.554,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1594,
+    "output_tokens": 771,
+    "total_tokens": 3619
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "references",
+      "skills"
+    ],
+    "text_chars": 5156
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Jane Austen",
+      "email": "janeausten@coldmail.com",
+      "phone": "00000 0000000 / 00000 000000",
+      "location": "Townham, Anyshire, ZZ2 9AA"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Recent History graduate with a strong foundation in creative coordination, research, and administrative support. Experienced in project management through editorial roles and professional secretarial training, with a proven ability to work under tight deadlines.",
+    "education": [
+      {
+        "institution": "University of Nottingham",
+        "degree": "BA (Hons) History (2:1)",
+        "graduation_year": "2007"
+      },
+      {
+        "institution": "Townham School, Anyshire",
+        "degree": "A-Levels and G.C.S.E’s",
+        "graduation_year": "2003"
+      },
+      {
+        "institution": "The Townham Business College",
+        "degree": "Typing & Shorthand",
+        "graduation_year": "2003"
+      }
+    ],
+    "experience": [
+      {
+        "company": "IS Business Support",
+        "role": "Telephonist",
+        "duration": "Summer 2006",
+        "description": "Handled stock and general enquiries for a leading clothes retailer using DOS software."
+      },
+      {
+        "company": "Crispins Publishing",
+        "role": "Researcher",
+        "duration": "Summer 2005",
+        "description": "Verified and compiled internet-based information for the 2006 City Events Guide."
+      },
+      {
+        "company": "Sunny Pictures Ltd.",
+        "role": "Runner and Personal Assistant",
+        "duration": "Summer 2005",
+        "description": "Provided production support to a researcher during a Channel Four shoot in Nottingham."
+      },
+      {
+        "company": "Jane Doe Interior Design",
+        "role": "Temporary Personal Assistant",
+        "duration": "Summer 2004",
+        "description": "Managed personal and business administrative matters for the principal designer."
+      },
+      {
+        "company": "Impact Magazine",
+        "role": "Editor Style pages",
+        "duration": "Monthly",
+        "description": "Managed fashion pages from concept to publication, including sourcing models and directing shoots."
+      },
+      {
+        "company": "Athletic Union",
+        "role": "Editor Charity Calendar",
+        "duration": "Project-based",
+        "description": "Coordinated a fundraising calendar, sourcing models and clothing and supervising photo shoots."
+      }
+    ],
+    "skills": [
+      "Creativity",
+      "Planning",
+      "Organising",
+      "Influencing",
+      "Advising",
+      "Interpersonal Communication",
+      "Team Working",
+      "Time Management",
+      "Typing (Pitman Intermediate)",
+      "Shorthand (Teeline)",
+      "Windows XP",
+      "Adobe Photoshop",
+      "Conversational French",
+      "Conversational Italian",
+      "Full clean driving licence"
+    ]
+  }
+}

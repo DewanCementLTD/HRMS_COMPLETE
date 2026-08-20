@@ -1,0 +1,98 @@
+{
+  "cv_file": "Talat_Hussain_CV_1785493344105.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:24:51.471395+00:00",
+  "pipeline": {
+    "total_seconds": 56.604,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.568,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1490,
+    "output_tokens": 630,
+    "total_tokens": 3255
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 4623
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Talat Hussain Dayo",
+      "email": "tallathussain78@gmail.com",
+      "phone": "(+92)3113612053",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entrepreneurial professional with 2+ years of experience founding and operating businesses. Expert in digital marketing, business development, and strategic growth, with a focus on e-commerce and SMMA sectors.",
+    "education": [
+      {
+        "institution": "Iqra University, Karachi",
+        "degree": "Bachelor of Business Administration (hons)",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Edfort College, Sukkur",
+        "degree": "Intermediate B.I.S.E, Sukkur",
+        "graduation_year": "2017"
+      },
+      {
+        "institution": "Oxford Grammar School, Sukkur",
+        "degree": "Matriculation B.I.S.E, Sukkur",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Habibi Essentials",
+        "role": "Founder / Head of Marketing",
+        "duration": "2021-2023",
+        "description": "Developed digital marketing strategies and managed social media presence. Led cross-functional teams and optimized advertising budgets, achieving a 30% increase in social following and 12% increase in conversion rates."
+      },
+      {
+        "company": "GROWBIZZ.UK",
+        "role": "Co-founder",
+        "duration": "2023-Present",
+        "description": "Co-launched a social media marketing agency specializing in UK car dealerships. Focused on business development, client acquisition, and executing visibility strategies to drive company growth."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Business Development",
+      "Client Acquisition",
+      "Project Management",
+      "Social Media Management",
+      "Market Research",
+      "Content Creation",
+      "Team Leadership",
+      "Budgeting",
+      "Google Ads",
+      "Meta Ads",
+      "Hootsuite",
+      "Sprout Social",
+      "Marketo",
+      "Pardot",
+      "Google Analytics",
+      "Tableau",
+      "CRM",
+      "HRIS",
+      "ATS",
+      "MS Word",
+      "MS Excel",
+      "MS PowerPoint",
+      "MS Outlook",
+      "Digital Image Editing"
+    ]
+  }
+}

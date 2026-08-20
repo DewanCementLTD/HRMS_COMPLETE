@@ -1,0 +1,98 @@
+{
+  "cv_file": "AHSAN_KHALID_RESUME_UPDATED_-_14-MAY-2026_1785494612855.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:44:56.523768+00:00",
+  "pipeline": {
+    "total_seconds": 61.249,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.465,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 872,
+    "output_tokens": 701,
+    "total_tokens": 2852
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1683
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ahsan Khalid",
+      "email": "mr.ahsan.ali.official@gmail.com",
+      "phone": "+923293094006, +923122132035",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Sales Marketing & Business Development",
+    "profile_summary": "Experienced professional with a strong background in sales, marketing, and business development. Skilled in market research, brand development, and digital marketing to drive revenue growth and business strategy.",
+    "education": [
+      {
+        "institution": "Virtual University of Pakistan",
+        "degree": "Bachelor's degree / Computer Science",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Government Polytechnic Institute Boys Landhi",
+        "degree": "Diploma of Associate Engineering (D.A.E) / Computer/Information Technology Administration and Management",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Goverment Boys Secondary School",
+        "degree": "Junior High/Intermediate/Middle School Education and Teaching",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Medicaids Pharmaceuticals",
+        "role": "Distribution Executive",
+        "duration": "10/2025 – 04/2026",
+        "description": "Managed pharmaceutical distribution operations."
+      },
+      {
+        "company": "EFU Life Assurance Ltd.",
+        "role": "Senior Sales Marketing & Business Development Executive",
+        "duration": "07/2025 – 10/2025",
+        "description": "Led business development and sales marketing initiatives."
+      },
+      {
+        "company": "Artistic Fabric Mills & Garment Industries",
+        "role": "Marketing Executive",
+        "duration": "03/2023 – 07/2025",
+        "description": "Executed market research, brand development, and digital marketing strategies."
+      },
+      {
+        "company": "Artistic Fabric Mills & Garment Industries",
+        "role": "Production & Planning Officer",
+        "duration": "10/2021 – 03/2023",
+        "description": "Coordinated production planning and operational workflows."
+      },
+      {
+        "company": "Artistic Fabric Mills & Garment Industries",
+        "role": "Rope Dyeing Computer Operator",
+        "duration": "06/2021 – 10/2021",
+        "description": "Operated computer systems for rope dyeing processes."
+      }
+    ],
+    "skills": [
+      "Quick Learner",
+      "Project Management Skills",
+      "Microsoft Office",
+      "Computer Skills",
+      "Teamwork",
+      "Communication Skills"
+    ]
+  }
+}

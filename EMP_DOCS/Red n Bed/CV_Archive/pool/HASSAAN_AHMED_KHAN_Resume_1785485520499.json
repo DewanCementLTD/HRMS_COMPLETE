@@ -1,0 +1,117 @@
+{
+  "cv_file": "HASSAAN_AHMED_KHAN_Resume_1785485520499.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:34.590978+00:00",
+  "pipeline": {
+    "total_seconds": 65.384,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.351,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1193,
+    "output_tokens": 802,
+    "total_tokens": 3246
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3234
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hassaan Ahmed Khan",
+      "email": "hassaan_a_khan@yahoo.com",
+      "phone": "+92-334-3319119",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing and E-commerce Specialist",
+    "profile_summary": "Experienced Digital Marketing professional specializing in e-commerce and brand growth. Proven expertise in leading digital operations, performance marketing, and content strategy for a diverse portfolio of clients.",
+    "education": [
+      {
+        "institution": "ACCA",
+        "degree": "Completed 2 Papers",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Degree Boys College, Gulzar-e-Hijri",
+        "degree": "Intermediate Pre-Engineering",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "White House Grammar School",
+        "degree": "Matriculation Computer Science",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Institute of Business Management University",
+        "degree": "Digital Marketing and E-commerce",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Google Digital Garage",
+        "degree": "Digital Marketing and Media Production",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "National Institute of Banking and Finance",
+        "degree": "Financial Literacy Training Program",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "PHMA-Institute of Knitwear Technology",
+        "degree": "Merchandising",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Skill Development Council",
+        "degree": "Event Management",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "The Digital Factory",
+        "role": "Digital Media Executive",
+        "duration": "March 2024 - Present",
+        "description": "Leads digital operations and brand campaigns for multiple clients, overseeing PR, performance marketing, and social media team management."
+      },
+      {
+        "company": "Sveston Watches Pvt Ltd",
+        "role": "Digital Marketing Executive",
+        "duration": "November 2022 - January 2024",
+        "description": "Managed SMM, content, and performance marketing. Handled Shopify, web analytics, CRM, and AI-based marketing tasks."
+      },
+      {
+        "company": "MCR Pvt Ltd (Pizza Hut Pakistan)",
+        "role": "Customer Service Representative (CSR)",
+        "duration": "April 2018 - August 2018",
+        "description": "Handled order bookings and customer complaints via phone and online channels."
+      }
+    ],
+    "skills": [
+      "Social Media Marketing",
+      "Content Marketing",
+      "Performance Marketing",
+      "Web Analytics",
+      "SEO/SEM",
+      "Paid Advertising",
+      "AI Expertise",
+      "Graphics Designing",
+      "Shopify Management",
+      "Interpersonal Communication",
+      "Leadership",
+      "Problem-Solving",
+      "CRM Management"
+    ]
+  }
+}

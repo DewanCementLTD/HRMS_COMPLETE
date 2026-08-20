@@ -1,0 +1,93 @@
+{
+  "cv_file": "Ruhma_Asad_CV._1785494612875.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:46:01.166213+00:00",
+  "pipeline": {
+    "total_seconds": 50.583,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.519,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1082,
+    "output_tokens": 613,
+    "total_tokens": 2848
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2736
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "RUHMA ASAD",
+      "email": "ruhmaasad1@gmail.com",
+      "phone": "+92 315-2033749",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Creative Digital Marketer and MBA student with experience in social media management, visual asset design, and copywriting. Proven ability to execute multi-platform campaigns for international clients in the US and UAE to boost brand visibility.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "Master of Business Administration (MBA) – Marketing",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "DHA Suffa University",
+        "degree": "Bachelor of Business Administration (BBA) – Marketing",
+        "graduation_year": "2024"
+      }
+    ],
+    "experience": [
+      {
+        "company": "UGS - United Global Solutions",
+        "role": "Digital Marketing Intern",
+        "duration": "Dec 2025 – Mar 2026",
+        "description": "Developed brand kits and managed content calendars for US and UAE clients. Handled social media accounts across Facebook, Instagram, and LinkedIn to increase engagement and visibility."
+      },
+      {
+        "company": "Learning Lab",
+        "role": "Social Media Marketing Intern",
+        "duration": "Oct 2025 – Nov 2025",
+        "description": "Managed social media presence, designed graphics, and edited video reels. Captured multimedia content during therapy sessions to drive engagement."
+      },
+      {
+        "company": "Mystic Advertising",
+        "role": "Digital Marketing Intern",
+        "duration": "Sep 2022 – Nov 2022",
+        "description": "Managed multiple social media platforms using Meta Business Suite and Creator Studio. Executed email marketing campaigns via GetResponse and maintained customer databases."
+      }
+    ],
+    "skills": [
+      "Copywriting",
+      "Social Media Marketing",
+      "Digital Media",
+      "MS Word",
+      "MS Excel",
+      "MS PowerPoint",
+      "Asana",
+      "Canva",
+      "PLS",
+      "SPSS",
+      "GetResponse",
+      "WeTransfer",
+      "Behance",
+      "Meta Business Suite",
+      "Creators Studio",
+      "Shopify",
+      "WordPress",
+      "Target oriented",
+      "Teamwork"
+    ]
+  }
+}

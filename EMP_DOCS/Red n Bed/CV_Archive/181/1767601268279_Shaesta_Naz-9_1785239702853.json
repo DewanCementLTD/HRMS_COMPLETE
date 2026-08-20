@@ -1,0 +1,143 @@
+{
+  "cv_file": "1767601268279_Shaesta_Naz-9_1785239702853.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:56:55.939883+00:00",
+  "pipeline": {
+    "total_seconds": 90.758,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 85.34,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2097,
+    "output_tokens": 1159,
+    "total_tokens": 5131
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 5,
+    "ocr_pages": [
+      5
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5868
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shaista Naz",
+      "email": "sash9077@gmail.com",
+      "phone": "+92 03458802809",
+      "location": "Near Airport, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Manager",
+    "profile_summary": "Senior marketing professional with over a decade of experience specializing in brand management and digital strategy. Proven track record in leading teams and executing integrated campaigns across retail, education, and tech sectors.",
+    "education": [
+      {
+        "institution": "PAF-KIET",
+        "degree": "MBA Marketing",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "KU",
+        "degree": "MA International Relation",
+        "graduation_year": "2006"
+      }
+    ],
+    "experience": [
+      {
+        "company": "UK Group of Companies",
+        "role": "HOD Marketing",
+        "duration": "Oct 2025 - Jan 2026",
+        "description": "Managed multiple London-based brands including MiniCabRide and Tripzee from Karachi."
+      },
+      {
+        "company": "TechTitans inc.",
+        "role": "Sr. Manager Digital Marketing",
+        "duration": "June 2025 - Oct 2025",
+        "description": "Remote digital marketing management for a US-based company in Tyler, Texas."
+      },
+      {
+        "company": "Technomide Solution",
+        "role": "HOD Marketing",
+        "duration": "Jan 2024 - Present",
+        "description": "Managing five brands; overseeing paid promotions, brand building, campaign calendars, and mentoring the marketing team."
+      },
+      {
+        "company": "KIET University",
+        "role": "Sr. Manager Marketing",
+        "duration": "June 2023 - Jan 2024",
+        "description": "Led admissions and marketing campaigns, managed budgets, and oversaw digital, print, and PR activities."
+      },
+      {
+        "company": "Rainbow Textile (Pvt.) Ltd",
+        "role": "Digital Brand & Marketing Manager",
+        "duration": "Jan 2022 - May 2023",
+        "description": "Executed PPC, SEO, and social media strategies; managed GA, Tag Manager, Shopify, and influencer collaborations."
+      },
+      {
+        "company": "Ensemble Retail Pakistan (Pvt.) Ltd",
+        "role": "Brand & Communication Manager",
+        "duration": "May 2017 - April 2020",
+        "description": "Developed e-commerce strategies, managed themed photo-shoots, and introduced BTL activities like pop-up shops."
+      },
+      {
+        "company": "1s' Bit",
+        "role": "Brand & Communication Assist. Manager",
+        "duration": "Jan 2016 - April 2017",
+        "description": "Planned branding objectives, managed digital content creation, and analyzed consumer insights for rebranding."
+      },
+      {
+        "company": "Marine Group Of Companies",
+        "role": "Marketing & Comm. Manager",
+        "duration": "Aug 2013 - Dec 2015",
+        "description": "Managed AdSense launch in Pakistan and Dubai, focusing on strategic targets and revenue generation."
+      },
+      {
+        "company": "Star Air Aviation (Pvt.) Ltd",
+        "role": "Marketing Manager",
+        "duration": "May 2012 - July 2013",
+        "description": "Responsible for BTL promotions and designing social media activities."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Strategic Marketing",
+      "Digital Marketing",
+      "Google Ads",
+      "Meta Ads",
+      "GA4",
+      "PPC",
+      "SEO",
+      "Shopify",
+      "BTL Activities",
+      "Team Leadership",
+      "Budget Management",
+      "Content Strategy",
+      "Market Research"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 95,
+    "overall_score": 93,
+    "strengths": [
+      "Extensive leadership and HOD experience",
+      "Strong technical proficiency in GA and ad platforms",
+      "Local Karachi resident",
+      "Diverse consumer brand experience"
+    ],
+    "weaknesses": [
+      "Inconsistent dating in CV (future dates listed for 2025/2026)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Candidate exceeds experience requirements with a strong background in both digital and traditional marketing, proven people management skills, and direct experience with the required technical tools."
+  }
+}

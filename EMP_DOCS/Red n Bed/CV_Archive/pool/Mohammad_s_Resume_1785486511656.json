@@ -1,0 +1,77 @@
+{
+  "cv_file": "Mohammad_s_Resume_1785486511656.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:29:36.346762+00:00",
+  "pipeline": {
+    "total_seconds": 42.067,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 41.892,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 936,
+    "output_tokens": 471,
+    "total_tokens": 2391
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Supply Chain Executive",
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 1887
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mohammad Azam Siddiqui",
+      "email": "azamsiddiqui551@gmail.com",
+      "phone": "0333-8214456",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Supply Chain Executive",
+    "profile_summary": "Disciplined Supply Chain professional with expertise in ocean export pricing and inland management. Experienced in coordinating international freight and managing high-profile client relationships across European, North American, and Middle Eastern markets.",
+    "education": [
+      {
+        "institution": "Greenwich University",
+        "degree": "BBA - Supply Chain",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Seagold (Private) Limited",
+        "role": "Senior Executive - Ocean Export Pricing/ Inland Management",
+        "duration": "05/2021 - Present",
+        "description": "Manages freight and pricing for European, North American, Oceania, and Middle East markets. Handles CRM for high-profile clients, DPP/DAP shipments, and coordinates between shippers and agents."
+      },
+      {
+        "company": "Bank Alfalah Limited",
+        "role": "Internee",
+        "duration": "05/2016 - 06/2016",
+        "description": "Served as a strategic member of the HR Project."
+      },
+      {
+        "company": "Helium Pakistan",
+        "role": "Brand Ambassador",
+        "duration": "10/2015 - 11/2015",
+        "description": "Represented Gillette during their activation drive in Karachi."
+      }
+    ],
+    "skills": [
+      "Team player",
+      "Problem solving",
+      "Adaptability",
+      "Communication",
+      "Multi-tasking",
+      "English",
+      "Urdu"
+    ]
+  }
+}

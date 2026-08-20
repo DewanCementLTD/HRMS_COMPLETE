@@ -1,0 +1,95 @@
+{
+  "cv_file": "T_1783686229732.pdf",
+  "job_folder": "104",
+  "job_id": 104,
+  "mode": "evaluate",
+  "processed_at": "2026-07-10T12:24:52.959407+00:00",
+  "pipeline": {
+    "total_seconds": 52.808,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 52.311,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1364,
+    "output_tokens": 614,
+    "total_tokens": 3201
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Management Trainee Officer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 2232
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Taha Asim",
+      "email": "taha.asim2025@gmail.com",
+      "phone": "+92 3052311920",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Management Trainee Officer",
+    "profile_summary": "Electrical Engineer specializing in power systems, industrial operations, and renewable energy. Experienced in high-voltage distribution, electrical testing, and solar project integration.",
+    "education": [
+      {
+        "institution": "NED University of Engineering & Technology",
+        "degree": "B.E. Electrical Engineering",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Peoples Steel Mills Ltd",
+        "role": "Management Trainee Officer",
+        "duration": "Aug 2025-Present",
+        "description": "Managed STATCOM development, 132kV/11kV substation operations, 5MW solar plant integration, and industrial power transformer operations."
+      },
+      {
+        "company": "Civil Aviation Authority",
+        "role": "Engineering Intern",
+        "duration": "May 2025-June 2025",
+        "description": "Conducted runway power surveys and analyzed HMI control systems for automated generators."
+      }
+    ],
+    "skills": [
+      "MATLAB",
+      "ETAP",
+      "AutoCAD",
+      "TIA Portal",
+      "Proteus",
+      "MS Excel",
+      "Substation Ops",
+      "Transformer O&M",
+      "Solar Integration",
+      "PLC",
+      "SCADA",
+      "HMI",
+      "Megger & Voc Testing",
+      "SLD Drafting"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Strong electrical engineering background",
+      "Experience with industrial automation and power systems"
+    ],
+    "weaknesses": [
+      "Complete lack of required software engineering skills (JavaScript, TypeScript, Node.js, React, SQL, Git)",
+      "No professional experience in web development",
+      "Academic background is in Electrical Engineering rather than Computer Science"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an Electrical Engineer with no relevant skills or experience for a Full Stack Software Engineer position."
+  }
+}

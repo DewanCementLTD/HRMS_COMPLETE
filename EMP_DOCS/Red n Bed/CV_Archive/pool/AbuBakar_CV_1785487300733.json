@@ -1,0 +1,84 @@
+{
+  "cv_file": "AbuBakar_CV_1785487300733.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:42:52.530096+00:00",
+  "pipeline": {
+    "total_seconds": 49.6,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 49.494,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1093,
+    "output_tokens": 532,
+    "total_tokens": 2757
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2796
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abubakar Arsal",
+      "email": "abubakararsal82@gmail.com",
+      "phone": "+92 316 1293447",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Results-driven sales and service professional with extensive experience in international B2B client management and business development. Specializes in bulk supplier coordination and graphic design sales, with strengths in pitching and client retention.",
+    "education": [
+      {
+        "institution": "Government Degree College",
+        "degree": "Intermediate (Computer Science)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "S. M. Public School",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "TradeWheel Pakistan",
+        "role": "Senior Service Delivery Officer",
+        "duration": "July 2024 – Present",
+        "description": "Manages a bulk portfolio of Chinese suppliers, coordinating service delivery and optimizing B2B processes to enhance platform efficiency and supplier retention."
+      },
+      {
+        "company": "AA Solutions",
+        "role": "Sales Executive",
+        "duration": "Dec 2023 – May 2024",
+        "description": "Pitched and secured international clients for graphic design services, independently closing orders and managing long-term client relationships."
+      },
+      {
+        "company": "Quad Solutions",
+        "role": "Sales Executive",
+        "duration": "Sep 2022 – Sep 2023",
+        "description": "Managed international clients for logo and artwork design, ensuring satisfaction and supporting sales conversions through needs analysis."
+      }
+    ],
+    "skills": [
+      "International Client Management",
+      "Sales & Pitching",
+      "Graphic Design Sales",
+      "Bulk Supplier Coordination",
+      "Client Relationship Management (CRM)",
+      "Order Closing",
+      "Problem solving",
+      "Issue management",
+      "Active listening",
+      "Persuasive communication"
+    ]
+  }
+}

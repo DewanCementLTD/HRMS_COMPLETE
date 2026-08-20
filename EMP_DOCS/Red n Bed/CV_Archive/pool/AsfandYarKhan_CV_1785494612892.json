@@ -1,0 +1,79 @@
+{
+  "cv_file": "AsfandYarKhan_CV_1785494612892.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:44:50.836066+00:00",
+  "pipeline": {
+    "total_seconds": 55.483,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 54.768,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1222,
+    "output_tokens": 515,
+    "total_tokens": 2915
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "summary"
+    ],
+    "text_chars": 3344
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Asfand Yar Khan",
+      "email": "aykhan38@gmail.com",
+      "phone": "(+92) 3123418787",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Customer service and technical support professional with over 2 years of experience. Skilled in troubleshooting, multitasking, and communicating technical information to ensure high customer satisfaction.",
+    "education": [
+      {
+        "institution": "DHA Suffa",
+        "degree": "Bachelor of Engineering Electrical Engineering",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Fixels Media",
+        "role": "Customer service representative",
+        "duration": "01/10/2024 – Current",
+        "description": "Manages customer inquiries via chat and messaging, provides technical troubleshooting, resolves bugs, and maintains interaction logs using CRM and support-ticket systems."
+      },
+      {
+        "company": "US mobile",
+        "role": "User experience analyst",
+        "duration": "08/06/2024 – 30/08/2024",
+        "description": "Handled mobile service plans, billing, and account activations. Troubleshot connectivity and device compatibility issues under high-volume pressure."
+      },
+      {
+        "company": "Ibex",
+        "role": "Customer Support Specialist",
+        "duration": "21/09/2022 – 09/06/2024",
+        "description": "Managed inbound phone, email, and chat interactions. Focused on meeting KPIs including CSAT, response time, and resolution quality."
+      }
+    ],
+    "skills": [
+      "Customer Service",
+      "Technical Support",
+      "Troubleshooting",
+      "CRM",
+      "Support-ticket systems",
+      "Account Management",
+      "Data Entry",
+      "CSAT",
+      "KPI Management",
+      "Multitasking",
+      "Problem-solving",
+      "Electrical Engineering"
+    ]
+  }
+}

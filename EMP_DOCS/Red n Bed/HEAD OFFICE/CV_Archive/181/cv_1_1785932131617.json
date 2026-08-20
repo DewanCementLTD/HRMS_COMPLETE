@@ -1,0 +1,97 @@
+{
+  "cv_file": "cv_1_1785932131617.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:35.869376+00:00",
+  "pipeline": {
+    "total_seconds": 42.166,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 37.701,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 997,
+    "output_tokens": 596,
+    "total_tokens": 2314
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": "Graphic Designer",
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 1099
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Misha Mughal",
+      "email": "mishaitx7@gmail.com",
+      "phone": "03198587531",
+      "location": "Azeem pura shah faisal colony, Karachi"
+    },
+    "preferred_job_title": "Graphic Designer",
+    "profile_summary": "Creative Graphic Designer with 2 years of experience in branding, logo design, and social media content. Proficient in Adobe Creative Suite and Canva with a focus on corporate identity.",
+    "education": [
+      {
+        "institution": "University of Allama Iqbal",
+        "degree": "B.Com",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi Sindh Board",
+        "degree": "Matriculation with Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Centosquare Company",
+        "role": "Graphic Designer",
+        "duration": "1 year",
+        "description": "Designed logos, posters, flyers, and brochures; managed branding projects including business cards, letterheads, and corporate identity."
+      },
+      {
+        "company": null,
+        "role": "Graphic Designer",
+        "duration": "1.5 years",
+        "description": "Produced high-quality designs under tight deadlines and improved workflow efficiency through organized templates and design systems."
+      }
+    ],
+    "skills": [
+      "Adobe Illustrator",
+      "Adobe Photoshop",
+      "Canva",
+      "MS Office",
+      "MS Word",
+      "PowerPoint",
+      "Branding",
+      "Logo Design",
+      "Social Media Design"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 15,
+    "experience_match": 5,
+    "overall_score": 10,
+    "strengths": [
+      "Strong visual design skills",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "Lacks marketing strategy and budget management experience",
+      "No people management experience",
+      "Missing required technical skills (GA4, ad platform reporting)",
+      "Insufficient seniority (2 years vs 5-7 years required)"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a junior Graphic Designer and does not possess the strategic marketing, leadership, or analytical experience required for a Marketing Manager role."
+  }
+}

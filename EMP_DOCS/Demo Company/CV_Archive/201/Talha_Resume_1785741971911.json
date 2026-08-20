@@ -1,0 +1,98 @@
+{
+  "cv_file": "Talha_Resume_1785741971911.pdf",
+  "job_folder": "201",
+  "job_id": 201,
+  "mode": "evaluate",
+  "processed_at": "2026-08-03T07:27:13.904805+00:00",
+  "pipeline": {
+    "total_seconds": 56.655,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 56.432,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1208,
+    "output_tokens": 665,
+    "total_tokens": 3181
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2095
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Talha Zaheer",
+      "email": "muhammadtalhaahmed555@gmail.com",
+      "phone": "+923123225445",
+      "location": "Karachi, Sindh Pakistan"
+    },
+    "preferred_job_title": ".Net Developer",
+    "profile_summary": "Junior .NET Developer with experience in ASP.NET Core MVC and .NET MAUI. Specialized in enterprise software, RPA projects, and backend systems with a strong foundation in OOP and SQL Server.",
+    "education": [
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "Bachelor of Science: Software Engineering",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "IT Concepts",
+        "role": "Junior Software Engineer",
+        "duration": "February 2026 – Present",
+        "description": "Develops and maintains ASP.NET applications, implements new requirements, and manages SQL Server databases."
+      },
+      {
+        "company": "Awesome Technologies Pvt Ltd",
+        "role": ".NET Developer (Intern → Full-Time)",
+        "duration": "April 2025 – January 2026",
+        "description": "Developed scalable backend solutions, improved RPA projects, and enhanced UI/UX for ASP.NET client applications."
+      }
+    ],
+    "skills": [
+      "Object Oriented Programming",
+      "ASP.NET Core MVC",
+      "Microsoft SQL Server",
+      "Entity Framework Core",
+      ".NET MAUI",
+      "Rest APIs",
+      "JWT Authentication",
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "Git",
+      "Azure DevOps",
+      "Bootstrap",
+      "Kendo UI",
+      "JQuery",
+      "Agile Methodologies",
+      "Analytical Thinking",
+      "Problem Solving"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 30,
+    "experience_match": 70,
+    "overall_score": 45,
+    "strengths": [
+      "Strong SQL Server and backend experience",
+      "Relevant degree in Software Engineering",
+      "Proficiency in Git and Agile"
+    ],
+    "weaknesses": [
+      "Missing core required stack: React.js, Node.js, TypeScript, and Python",
+      "Primary expertise is in .NET ecosystem rather than the requested Full-Stack JS/Python stack"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "While the candidate is a competent Software Engineer with the required education and experience level, their technical stack (.NET) does not align with the mandatory requirements (React, Node, Python)."
+  }
+}

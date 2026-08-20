@@ -1,0 +1,115 @@
+{
+  "cv_file": "A.Kamran_N_1_1785930722860.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:35.583155+00:00",
+  "pipeline": {
+    "total_seconds": 71.451,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.658,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2128,
+    "output_tokens": 868,
+    "total_tokens": 4648
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 6600
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sheikh Abdullah Kamran",
+      "email": "sabdullahkamran@gmail.com",
+      "phone": "+92 332 3490219",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior marketing leader with over 7 years of experience in integrated brand campaigns, digital growth, and retail strategy. Expert in GTM execution across FMCG and B2C sectors with a strong focus on data-driven ROI optimization.",
+    "education": [
+      {
+        "institution": "Technical University of Munich",
+        "degree": "Master's in Consumer Sciences",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Master's in Business Administration (MBA)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelors in Business Administration (BBA-Hons.)",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Modernity (Pvt.) Ltd.",
+        "role": "Marketing Manager",
+        "duration": "March 2025 - Present",
+        "description": "Architected the marketing function from the ground up, managing talent acquisition, workflow setup, and external agencies to deliver brand-aligned growth strategies."
+      },
+      {
+        "company": "C1 Productions (Pvt.) Ltd.",
+        "role": "Project Manager - Brands",
+        "duration": "March 2023 - February 2025",
+        "description": "Led creative and brand teams in executing strategic campaigns for multiple clients across FMCG, F&B, and textile sectors."
+      },
+      {
+        "company": "Technical University of Munich",
+        "role": "Research Assistant - Project Lead",
+        "duration": "October 2021 - December 2022",
+        "description": "Developed social media strategies and ad campaigns, improving targeting by 15% and achieving 2x ROAS while managing strategic communication."
+      },
+      {
+        "company": "Guls Studio (Pvt.) Ltd.",
+        "role": "Marketing Executive",
+        "duration": "October 2017 - August 2019",
+        "description": "Managed BTL planning, print and outdoor media agencies, and collaborated with creative design for event branding."
+      }
+    ],
+    "skills": [
+      "Adobe Creative Suite",
+      "Asana",
+      "Slack",
+      "Canva",
+      "Digital Marketing",
+      "Hootsuite",
+      "HubSpot",
+      "IBM SPSS Statistics",
+      "Microsoft Office Suite",
+      "Team Gantt",
+      "R Studio"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Extensive experience in digital growth and brand management",
+      "Proficiency in required tools like Canva and MS Office",
+      "Strong academic background with multiple advanced degrees"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Specialist-level role"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate far exceeds the minimum experience and education requirements. They possess a comprehensive technical toolkit including Canva and social media management experience, making them an ideal fit despite being overqualified."
+  }
+}

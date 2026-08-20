@@ -1,0 +1,105 @@
+{
+  "cv_file": "Murium_Resumev7_1786003304737.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:19.779675+00:00",
+  "pipeline": {
+    "total_seconds": 63.451,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.336,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1514,
+    "output_tokens": 773,
+    "total_tokens": 3760
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education"
+    ],
+    "text_chars": 3494
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Murium Arif",
+      "email": "muriumakhtar28@gmail.com",
+      "phone": "+92 (317) 2082031",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Marketing professional currently pursuing a BBA in Marketing with experience in account management and social media strategy. Skilled in creative strategy and managing high-profile brand accounts.",
+    "education": [
+      {
+        "institution": "Shaheed Zulfiqar Ali Bhutto Institute of Science and Technology (SZABIST)",
+        "degree": "BBA (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "St. Josephs College for Women",
+        "degree": "Intermediate (Pre Medical)",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Bodybeat Group",
+        "role": "Assistant Account Manager",
+        "duration": "Aug 2023 – Present",
+        "description": "Managed key accounts for Unilever and Phillip Morris, leading creative strategies and project management lifecycles to meet brand objectives."
+      },
+      {
+        "company": "Cnergyico Byco",
+        "role": "Marketing Intern",
+        "duration": "Jun 2023 – Jul 2023",
+        "description": "Conducted market research and executed a digital campaign focused on corporate internships to support brand development."
+      },
+      {
+        "company": "Al Zamel Industries",
+        "role": "Social Media Manager",
+        "duration": "Jan 2023 – Jun 2023",
+        "description": "Developed Meta platform presence through audience research and content strategies, utilizing analytics to optimize engagement."
+      },
+      {
+        "company": "Soar Sure To Success",
+        "role": "Educationist",
+        "duration": "March 2021 – Nov 2021",
+        "description": "Designed curriculum and classroom management strategies for 400 students to improve engagement and achievement."
+      }
+    ],
+    "skills": [
+      "Public relations",
+      "Canva",
+      "Client Servicing",
+      "Creative Strategy",
+      "Videography",
+      "Budgeting",
+      "Campaign Execution",
+      "Video editing",
+      "Market Research",
+      "Social Media Analytics"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 75,
+    "technical_match": 80,
+    "experience_match": 60,
+    "overall_score": 72,
+    "strengths": [
+      "Direct experience with Meta platforms",
+      "Proficiency in Canva",
+      "Experience managing high-tier global brands",
+      "Relevant academic background in Marketing"
+    ],
+    "weaknesses": [
+      "Total professional marketing experience is under the 2-year minimum",
+      "No explicit mention of UTM tracking or TikTok scheduling"
+    ],
+    "recommendation": "Consider",
+    "summary": "The candidate is a strong technical match with relevant agency experience and the required degree, though they fall slightly short of the minimum years of experience."
+  }
+}

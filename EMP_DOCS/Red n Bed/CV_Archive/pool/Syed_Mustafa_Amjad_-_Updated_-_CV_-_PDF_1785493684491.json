@@ -1,0 +1,108 @@
+{
+  "cv_file": "Syed_Mustafa_Amjad_-_Updated_-_CV_-_PDF_1785493684491.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:32:24.675888+00:00",
+  "pipeline": {
+    "total_seconds": 64.123,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.96,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1206,
+    "output_tokens": 796,
+    "total_tokens": 3444
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header"
+    ],
+    "text_chars": 3299
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Mustafa Amjad",
+      "email": "amjadmustafa313@gmail.com",
+      "phone": "0310-2400162",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "E-commerce and Customer Support Professional",
+    "profile_summary": "E-commerce and customer support professional with 3+ years of experience in online retail operations and team leadership. Expert in enhancing customer experience (CX), managing order processing, and resolving complex escalations. Skilled in CRM systems and cross-functional collaboration to drive operational efficiency.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Affiliate Degree in Commerce",
+        "graduation_year": null
+      },
+      {
+        "institution": "Institute of Cost and Management Accountants of Pakistan",
+        "degree": "Cost and Management Accountancy",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Degree Boys College, Gulistan-e-Johar",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Shaheen Public School",
+        "degree": "Matriculation (Science)",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "GROOVY",
+        "role": "Customer Support Specialist",
+        "duration": "June 2026 – Present",
+        "description": "Provides multi-channel support via email, chat, and phone, resolving product and account issues while maintaining detailed CRM records."
+      },
+      {
+        "company": "J. Junaid Jamshed Pvt Ltd",
+        "role": "E-Commerce Executive",
+        "duration": "Jan 2025 – May 2026",
+        "description": "Managed customer inquiries, oversaw order processing and deliveries, and efficiently handled product returns and refunds."
+      },
+      {
+        "company": "GROOVY",
+        "role": "Customer Support Team Leader",
+        "duration": "May 2024 – Nov 2024",
+        "description": "Supervised support team, managed complex escalations, monitored performance metrics, and streamlined support processes."
+      },
+      {
+        "company": "GROOVY",
+        "role": "Customer Support Executive",
+        "duration": "Dec 2023 – May 2024",
+        "description": "Handled multi-channel customer queries and resolved product/service issues using CRM systems."
+      },
+      {
+        "company": "Stylifyd.com",
+        "role": "Customer Service Representative",
+        "duration": "Feb 2020 – Feb 2021",
+        "description": "Responded to customer inquiries and resolved complaints to ensure a positive shopping experience."
+      }
+    ],
+    "skills": [
+      "Customer Support",
+      "Complaint Resolution",
+      "Customer Experience (CX)",
+      "E-commerce Operations",
+      "Order Processing",
+      "Refund Management",
+      "CRM",
+      "Ticketing Systems",
+      "Escalation Handling",
+      "Team Leadership",
+      "Performance Monitoring",
+      "Cross-Functional Collaboration",
+      "Advanced Excel"
+    ]
+  }
+}

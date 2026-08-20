@@ -1,0 +1,83 @@
+{
+  "cv_file": "Muhammad_Basit_CV_1785493684489.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:02.664441+00:00",
+  "pipeline": {
+    "total_seconds": 48.181,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.156,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 923,
+    "output_tokens": 582,
+    "total_tokens": 2619
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 2348
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Basit",
+      "email": "07muhammadbasit@gmail.com",
+      "phone": "+92 314 2085784",
+      "location": "Nazimabad, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Support & Operations Specialist",
+    "profile_summary": "Customer-focused specialist with 7 years of experience in tech and e-commerce. Expert in managing end-to-end customer operations, live chat teams, and lead generation for local and international markets.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelor of Commerce (B.Com)",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate Certificate",
+        "graduation_year": "2012"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shomi Official",
+        "role": "Assistant Manager Customer Support",
+        "duration": "Mar 2024 – Mar 2026",
+        "description": "Managed customer service operations for a women's apparel brand, overseeing order processing, aftersales support, and customer feedback campaigns to improve retention."
+      },
+      {
+        "company": "Daraz.PK",
+        "role": "Chat Support Agent (CSR)",
+        "duration": "Oct 2023 – Mar 2024",
+        "description": "Provided high-volume live chat support for a major e-commerce platform, resolving inquiries regarding deliveries, returns, and refunds while adhering to KPIs."
+      },
+      {
+        "company": "Cenit.inc",
+        "role": "Chat Support & Lead Gen Agent",
+        "duration": "Apr 2019 – Sep 2023",
+        "description": "Delivered multilingual chat and email support for US and Canadian real estate campaigns, focusing on lead generation and prospect qualification."
+      }
+    ],
+    "skills": [
+      "Omnichannel Chat Support",
+      "Customer Experience (CX)",
+      "Operations & Support Mgmt",
+      "Lead Generation",
+      "Complaint & Aftersales Mgmt",
+      "SLA & KPI Adherence",
+      "Problem Solving & Escalations",
+      "Social Media Marketing",
+      "Payroll Management",
+      "Microsoft Office Suite",
+      "In-page Urdu"
+    ]
+  }
+}

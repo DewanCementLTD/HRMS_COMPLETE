@@ -1,0 +1,93 @@
+{
+  "cv_file": "Aliza_Ali_1785485520471.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:07.343511+00:00",
+  "pipeline": {
+    "total_seconds": 44.642,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.514,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 824,
+    "output_tokens": 490,
+    "total_tokens": 2335
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 2019
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Aliza Ali",
+      "email": "aliza.91114@gmail.com",
+      "phone": "03342618742",
+      "location": "A-47 block C North Nazimabad, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Recent BBA Marketing graduate and current Management Trainee Officer at Wingsmen Pakistan. Proficient in digital marketing, data analysis, and brand strategy with a strong academic background in research and market execution.",
+    "education": [
+      {
+        "institution": "Bahria University Karachi Campus",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": null,
+        "degree": "A-levels",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": null,
+        "degree": "O-levels",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Wingsmen Pakistan",
+        "role": "Management Trainee Officer",
+        "duration": "September 2024-Present",
+        "description": "Currently serving as a Management Trainee Officer."
+      }
+    ],
+    "skills": [
+      "Microsoft Word",
+      "Microsoft Excel",
+      "Microsoft PowerPoint",
+      "PLS",
+      "SPSS",
+      "Canva",
+      "Google Analytics",
+      "SEO",
+      "SEM",
+      "Market Research",
+      "Ad Campaign Marketing",
+      "Social Media Marketing",
+      "Strategy Development",
+      "English",
+      "Urdu",
+      "Teamwork",
+      "Problem solving",
+      "Communication",
+      "Creativity",
+      "Time management",
+      "AI-Powered Shopping ads",
+      "Google Ads Display",
+      "Google Ads Apps",
+      "Grow offline sales",
+      "Google Ads Search"
+    ]
+  }
+}

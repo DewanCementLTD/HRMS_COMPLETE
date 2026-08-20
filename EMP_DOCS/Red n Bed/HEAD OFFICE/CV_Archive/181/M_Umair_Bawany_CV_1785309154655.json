@@ -1,0 +1,164 @@
+{
+  "cv_file": "M_Umair_Bawany_CV_1785309154655.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:16:22.964833+00:00",
+  "pipeline": {
+    "total_seconds": 69.068,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 68.897,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2540,
+    "output_tokens": 1416,
+    "total_tokens": 5008
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 6627
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Umair Bawany",
+      "email": "umairbawany007@gmail.com",
+      "phone": "+92 (336) 3390709",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile marketing professional with an MBA in Marketing and extensive experience in brand management and business development. Proven track record in executing ATL/Digital campaigns for consumer brands and managing multi-channel marketing strategies.",
+    "education": [
+      {
+        "institution": "Institute Of Business Management (IoBM)",
+        "degree": "MBA (Regular) – Marketing",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Askari Degree College",
+        "degree": "Bachelors of Commerce",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Askari Degree College",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": "2013"
+      },
+      {
+        "institution": "Bangalore Town Secondary School",
+        "degree": "Matriculation (Computer Science)",
+        "graduation_year": "2011"
+      }
+    ],
+    "experience": [
+      {
+        "company": "AIVON Digital Solutions",
+        "role": "BDP",
+        "duration": "Feb 2026-Present",
+        "description": "Leading the marketing and business development department and onboarding new clients."
+      },
+      {
+        "company": "Crystal Media Collaborative",
+        "role": "SBDM",
+        "duration": "Mar 2025-Jun 2025",
+        "description": "Managed the marketing and business development department and client onboarding."
+      },
+      {
+        "company": "Ibex Global",
+        "role": "CSS",
+        "duration": "Sep 2023-Dec 2023",
+        "description": "Acquired clients for DMCR campaigns and managed US regional supplies."
+      },
+      {
+        "company": "Kaybees Restaurant",
+        "role": "MKT – BM",
+        "duration": "Feb 2023-Apr 2023",
+        "description": "Developed brand positioning strategies, managed POSM coordination, and secured APRA awards."
+      },
+      {
+        "company": "Wah! Brands (Pvt) Ltd",
+        "role": "AM – MKT",
+        "duration": "Dec 2021-May 2022",
+        "description": "Designed content calendars, analyzed KPIs, managed PR/collaborations, and developed new products for China Grill."
+      },
+      {
+        "company": "Property Network",
+        "role": "Property Advisor",
+        "duration": "Jun 2021-Nov 2021",
+        "description": "Generated leads, conducted site visits, and delivered sales presentations for Emaar Pak."
+      },
+      {
+        "company": "Pakistan Dairy Products",
+        "role": "Brand Executive - ATL",
+        "duration": "Jan 2020-Feb 2021",
+        "description": "Planned integrated ATL/Digital campaigns for multiple brands, managed agencies, and developed omni-channel strategies."
+      },
+      {
+        "company": "Izmir Beauty (Pvt) Ltd",
+        "role": "Marketing Manager",
+        "duration": "May 2019-Dec 2019",
+        "description": "Managed social media marketing, printed collaterals, and BA training/placement."
+      },
+      {
+        "company": "Zameen.com",
+        "role": "Business Development Executive",
+        "duration": "Jan 2019-Apr 2019",
+        "description": "Focused on business development activities."
+      },
+      {
+        "company": "Premier Group of Companies",
+        "role": "Marketing Management Trainee",
+        "duration": "Aug 2018-Nov 2018",
+        "description": "Worked on B2B E-Commerce project."
+      },
+      {
+        "company": "MTEK Hygiene",
+        "role": "Accounts and Import Documentation Executive",
+        "duration": "Jun 2015-Jun 2018",
+        "description": "Handled accounts and import documentation for baby diaper brands."
+      },
+      {
+        "company": "Lucky Impex",
+        "role": "Communication Incharge",
+        "duration": "Jul 2013-Aug 2014",
+        "description": "Managed organizational communications."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "People Management",
+      "ATL/BTL Planning",
+      "Digital Marketing",
+      "Content Calendars",
+      "KPI Analysis",
+      "PR & Collaborations",
+      "Product Development",
+      "Sales Management",
+      "MS Office",
+      "Written & Verbal Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 40,
+    "experience_match": 50,
+    "overall_score": 50,
+    "strengths": [
+      "Strong academic background (MBA Marketing)",
+      "Experience with diverse consumer brands in Karachi",
+      "Competence in integrated ATL/Digital campaign planning"
+    ],
+    "weaknesses": [
+      "No explicit mention of GA4 or specific ad platform reporting tools",
+      "Highly unstable employment history with very short tenures (job hopping)",
+      "Lack of proven long-term people management experience"
+    ],
+    "recommendation": "Interview with caution",
+    "summary": "The candidate possesses the required educational qualifications and has worked with relevant consumer brands. However, the lack of specific technical tools (GA4) and a pattern of very short job durations make him a risky choice for a senior management role."
+  }
+}

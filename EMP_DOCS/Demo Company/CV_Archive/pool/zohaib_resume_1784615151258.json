@@ -1,0 +1,116 @@
+{
+  "cv_file": "zohaib_resume_1784615151258.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-21T06:26:46.502921+00:00",
+  "pipeline": {
+    "total_seconds": 52.199,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 52.146,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1383,
+    "output_tokens": 769,
+    "total_tokens": 3217
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills"
+    ],
+    "text_chars": 4368
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zohaib Farooqui",
+      "email": "zohaibbabar22@gmail.com",
+      "phone": "+92 330 825 9265",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Full Stack and Flutter Developer",
+    "profile_summary": "Full Stack and Flutter Developer with 2 years of experience specializing in cross-platform mobile apps, React.js frontends, and Python FastAPI backends. Expert in AI integration, including RAG, vector databases, and facial recognition pipelines.",
+    "education": [
+      {
+        "institution": "FAST National University of Computer and Emerging Sciences",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Dewan Cement Limited",
+        "role": "Software Engineer",
+        "duration": "November 2025 – Present",
+        "description": "Developed a full-stack AI Leave Management System using Flutter, React.js, and FastAPI. Implemented facial recognition with FAISS and managed Linux server deployment for 500+ employees."
+      },
+      {
+        "company": "Cropmentum",
+        "role": "Associate Software Engineer",
+        "duration": "June 2025 – November 2025",
+        "description": "Built cross-platform Flutter apps using Clean Architecture and BLoC. Integrated TensorFlow Lite for on-device ML and implemented RAG pipelines using Qdrant."
+      },
+      {
+        "company": "360 Expert Solution",
+        "role": "Trainee React.js Developer",
+        "duration": "June 2024 – July 2024",
+        "description": "Created responsive web interfaces and reusable UI components using React.js and integrated REST APIs within an Agile development team."
+      }
+    ],
+    "skills": [
+      "Flutter",
+      "Dart",
+      "BLoC",
+      "Provider",
+      "Clean Architecture",
+      "Cross-Platform Development",
+      "TensorFlow Lite",
+      "On-Device ML",
+      "Responsive UI",
+      "React.js",
+      "Next.js",
+      "JavaScript (ES6+)",
+      "TypeScript",
+      "HTML5",
+      "CSS3",
+      "Tailwind CSS",
+      "Responsive Web Design",
+      "Component-Based Architecture",
+      "REST API Integration",
+      "Python",
+      "FastAPI",
+      "RESTful API Design",
+      "Oracle",
+      "MySQL",
+      "PostgreSQL",
+      "Firebase",
+      "JWT Authentication",
+      "Linux Server Deployment",
+      "YOLO",
+      "LSTM",
+      "FAISS",
+      "Qdrant",
+      "Vector Embeddings",
+      "RAG",
+      "Semantic Search",
+      "Facial Recognition",
+      "Prompt Engineering",
+      "XTTS",
+      "Git",
+      "GitHub",
+      "Docker",
+      "Postman",
+      "Agile",
+      "Scrum",
+      "CI/CD",
+      "Version Control",
+      "Unit Testing"
+    ]
+  }
+}

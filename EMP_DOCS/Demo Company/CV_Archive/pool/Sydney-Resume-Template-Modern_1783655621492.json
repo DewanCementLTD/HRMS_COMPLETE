@@ -1,0 +1,84 @@
+{
+  "cv_file": "Sydney-Resume-Template-Modern_1783655621492.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-10T03:54:24.081778+00:00",
+  "pipeline": {
+    "total_seconds": 39.415,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 39.387,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1124,
+    "output_tokens": 480,
+    "total_tokens": 2487
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 2743
+  },
+  "metrics": {
+    "metrics": {
+      "contact_info": {
+        "name": "Kristen Connelly",
+        "email": "email@email.com",
+        "phone": "3868683442",
+        "location": "Los Angeles, CA 90291, United States"
+      },
+      "preferred_job_title": "Video Production Assistant",
+      "profile_summary": "Video Production Assistant with three years of experience in commercials and short films. Proficient in Premiere Pro and scene re-sequencing to drive audience engagement.",
+      "education": [
+        {
+          "institution": "Boston University",
+          "degree": "BA in Film and Television",
+          "graduation_year": null
+        },
+        {
+          "institution": "ADMEC Multimedia Institute",
+          "degree": "Advanced Course in Digital Video Editing",
+          "graduation_year": "2018"
+        }
+      ],
+      "experience": [
+        {
+          "company": "Blue Penguin Designs",
+          "role": "Video Production Assistant",
+          "duration": "February 2021 — Present",
+          "description": "Supported a 100-person production team across all phases. Managed guest bookings, researched story ideas, and performed scriptwriting and audio editing using Avid."
+        },
+        {
+          "company": "Botle Bob Advertising",
+          "role": "Video Production Assistant",
+          "duration": "January 2019 — February 2021",
+          "description": "Organized AV equipment for pharmaceutical clients. Edited graphics and video projects, developed business proposals, and managed studio and on-location shoot setups."
+        }
+      ],
+      "skills": [
+        "Call Sheets & Sides",
+        "Adobe Premiere Pro",
+        "Camera Boom",
+        "Light Boom",
+        "Mic Boom",
+        "DaVinci Resolve",
+        "Avid non-linear editing",
+        "Scriptwriting",
+        "Audio editing",
+        "Mixing",
+        "Hootsuite",
+        "Adobe CS5"
+      ]
+    }
+  }
+}

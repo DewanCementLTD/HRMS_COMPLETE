@@ -1,0 +1,89 @@
+{
+  "cv_file": "Muqadas_Ejaz_CV_1785486511671.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:30:22.875472+00:00",
+  "pipeline": {
+    "total_seconds": 42.267,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 42.241,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 793,
+    "output_tokens": 513,
+    "total_tokens": 2304
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1626
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muqadas Ejaz",
+      "email": "ejazmuqadas86@gamil.com",
+      "phone": "03357590837",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing / Content Writing",
+    "profile_summary": "Final year BBA student and entrepreneur with a background in digital marketing. Demonstrates strong leadership and communication skills with a proven ability to drive organic traffic and manage small business operations.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "BBA-H",
+        "graduation_year": null
+      },
+      {
+        "institution": "Army Public College",
+        "degree": "Intermediate",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Karachi Public School",
+        "degree": "Matriculation",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mavme",
+        "role": "Founder",
+        "duration": "Nov 2024 - Present",
+        "description": "Launched and managed a business specializing in handmade ribbon flowers and home decor."
+      },
+      {
+        "company": "Diginers",
+        "role": "Digital Marketing Executive",
+        "duration": "Oct 2024 - Dec 2024",
+        "description": "Created and executed online marketing plans to increase website traffic and managed social media visibility through content writing."
+      },
+      {
+        "company": "Diginers",
+        "role": "Digital Marketing Intern",
+        "duration": "Aug 2024 - Oct 2024",
+        "description": "Assisted in maintaining online presence and driving organic traffic."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Canva",
+      "CapCut",
+      "Problem solving",
+      "Time management",
+      "Writing",
+      "Crafting",
+      "Painting",
+      "Reading"
+    ]
+  }
+}

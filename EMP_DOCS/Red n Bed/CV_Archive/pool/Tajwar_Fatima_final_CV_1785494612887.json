@@ -1,0 +1,114 @@
+{
+  "cv_file": "Tajwar_Fatima_final_CV_1785494612887.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:46:59.531617+00:00",
+  "pipeline": {
+    "total_seconds": 67.642,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.599,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1051,
+    "output_tokens": 764,
+    "total_tokens": 3124
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2312
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Tajwar Fatima",
+      "email": "tajwar.fatima1@yahoo.com",
+      "phone": "03323621469",
+      "location": "Karachi, Sindh"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Experienced professional with over 15 years of expertise across customer support, account management, and HR administration. Proven track record in the telecommunications, banking, and energy sectors, specializing in client relations and operational coordination. Strong communicator with an MBA in Banking & Finance.",
+    "education": [
+      {
+        "institution": "Dadabhoy Institute of Higher Education",
+        "degree": "M.B.A (banking & Finance)",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "Govt. Girls Premier College",
+        "degree": "B.COM",
+        "graduation_year": "2005"
+      },
+      {
+        "institution": "Govt. Comprehensive College",
+        "degree": "Intermediate (Pre- Engineering)",
+        "graduation_year": "2002"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Standard Chartered Bank",
+        "role": "Sales Coordinator",
+        "duration": "2009-2010",
+        "description": null
+      },
+      {
+        "company": "Javeed Metal",
+        "role": "HR & Admin Support Coordinator",
+        "duration": "2010-2012",
+        "description": null
+      },
+      {
+        "company": "Mobilink",
+        "role": "Training and Development Executive",
+        "duration": "2012-2015",
+        "description": "Identified training center needs, evaluated training initiatives, and maintained staff training records."
+      },
+      {
+        "company": "Mobilink",
+        "role": "Investigation & Resolution officer",
+        "duration": "2015-2016",
+        "description": "Worked within the Customer Care and Investigation & Resolution departments."
+      },
+      {
+        "company": "K-Electric",
+        "role": "Senior Customer Support Executive",
+        "duration": "2016-2021",
+        "description": "Served as a Customer Support officer in the Customer Support Department."
+      },
+      {
+        "company": "Square Tech Exchange",
+        "role": "Customer Support Manager",
+        "duration": "2021-2023",
+        "description": "Managed customer support operations and maintained customer records in CRM."
+      },
+      {
+        "company": "MobiTising",
+        "role": "Key Account Manager",
+        "duration": "2023-2026",
+        "description": "Served as the primary point of contact for client management."
+      }
+    ],
+    "skills": [
+      "Communication",
+      "Interpersonal Skills",
+      "Leadership",
+      "Personal Protocol",
+      "Etiquette",
+      "MS-Office",
+      "Customer Service",
+      "CRM",
+      "Client Management",
+      "Professional Communication Techniques"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "cv_file": "Syeda_Midhat_Rizvi_-_Resume_1785486930500.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:37:53.839647+00:00",
+  "pipeline": {
+    "total_seconds": 58.216,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 58.178,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1226,
+    "output_tokens": 718,
+    "total_tokens": 3296
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "skills"
+    ],
+    "text_chars": 3884
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syeda Midhat Rizvi",
+      "email": "midhatrizvi786@gmail.com",
+      "phone": "+92-335-0943611",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketing",
+    "profile_summary": "Dedicated marketing professional and MBA student with a strong foundation in creative storytelling and digital marketing. Experienced in content creation, market research, and campaign execution across diverse industries.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "BBA (Marketing)",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Freelance",
+        "role": "Content and Academic writer",
+        "duration": "September 2021 – Present",
+        "description": "Providing professional content and academic writing services."
+      },
+      {
+        "company": "Archroma Pakistan Ltd.",
+        "role": "Marketing Intern",
+        "duration": "July 2021 – August 2021",
+        "description": "Conducted market research for new product development, devised digital presence strategies, and created promotional brochures and client experience videos."
+      },
+      {
+        "company": "Pak Electron Limited",
+        "role": "Marketing Intern",
+        "duration": "June 2021 – July 2021",
+        "description": "Analyzed brand performance through market visits, proposed new product variants, and developed comprehensive media plans including TVC and DVC storyboards."
+      },
+      {
+        "company": "ALAF Digital",
+        "role": "Content Writer – Contractual",
+        "duration": "August 2020 – October 2020",
+        "description": "Developed social media content plans, wrote captions and headings, and collaborated with designers on video advertisements."
+      },
+      {
+        "company": "Literary and Public Speaking Society, IoBM",
+        "role": "Executive Director",
+        "duration": "September 2020 – May 2021",
+        "description": "Led a 15+ member publications team and executed marketing campaigns for the IoBM Literature Festival and declamation contests."
+      },
+      {
+        "company": "Literary and Public Speaking Society, IoBM",
+        "role": "Director",
+        "duration": "September 2019 – May 2020",
+        "description": "Managed a 10+ member publications team and headed social media planning for university events."
+      }
+    ],
+    "skills": [
+      "Marketing Analytics",
+      "MS Excel",
+      "MS Word",
+      "MS PowerPoint",
+      "SPSS",
+      "Content Writing",
+      "Copy Writing"
+    ]
+  }
+}

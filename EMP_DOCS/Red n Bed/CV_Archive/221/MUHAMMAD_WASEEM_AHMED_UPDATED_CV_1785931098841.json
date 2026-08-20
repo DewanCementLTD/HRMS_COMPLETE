@@ -1,0 +1,125 @@
+{
+  "cv_file": "MUHAMMAD_WASEEM_AHMED_UPDATED_CV_1785931098841.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:07.091562+00:00",
+  "pipeline": {
+    "total_seconds": 145.625,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 140.941,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2800,
+    "output_tokens": 959,
+    "total_tokens": 5146
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 5,
+    "ocr_pages": [
+      5
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 8473
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Waseem Ahmed",
+      "email": "mdwasimahmed145@gmail.com",
+      "phone": "+92-321-2005341",
+      "location": "Karachi, Sindh, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior Sales and Business Development professional with 20 years of experience in FMCG and telecommunications. Expert in retail operations, territory management, and leading large sales teams for national and multinational organizations.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "Bachelors, Commerce",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "REMOXIN ENTERPRISES (4U Snacks)",
+        "role": "Area Sales Manager Retail - Karachi",
+        "duration": "October 2025 - Present",
+        "description": "Manages retail operations and a team of 38 staff, overseeing annual turnover of PKR 45 Million and implementing KPI-based sales systems."
+      },
+      {
+        "company": "Dalda Foods Limited",
+        "role": "Senior Territory Sales Manager - Dairy Business",
+        "duration": "April 2019 - September 2025",
+        "description": "Led sales teams and distribution models for dairy products, coordinating with marketing to increase brand visibility and achieve business objectives."
+      },
+      {
+        "company": "National Foods Limited",
+        "role": "Sales Executive",
+        "duration": "June 2018 - April 2019",
+        "description": "Developed journey plans, managed distributor teams, and handled recruitment and training for the snacks and recipe business."
+      },
+      {
+        "company": "PTCL.Official",
+        "role": "Assistant Manager Consumer Sales",
+        "duration": "September 2017 - June 2018",
+        "description": "Led sales executives and field agents for broadband services, managing ATL/BTL marketing activities and outbound call centers."
+      },
+      {
+        "company": "Pakistan Beverage Limited",
+        "role": "Territory Development Manager",
+        "duration": "June 2013 - August 2017",
+        "description": "Developed trade, retail, and wholesale accounts while achieving daily and annual sales targets across multiple territories."
+      },
+      {
+        "company": "Coca-Cola Beverages Pakistan Limited",
+        "role": "Marketing Development Officer",
+        "duration": "October 2007 - May 2013",
+        "description": "Managed dealer relations, supervised pre-selling officers, and executed trade shows and promotional events to increase product visibility."
+      }
+    ],
+    "skills": [
+      "Teamwork",
+      "New Business Development",
+      "Communication & Presentation Skills",
+      "Distribution Handling",
+      "Team Building",
+      "Leadership",
+      "Time Management",
+      "Strategic Planning",
+      "Business Reporting",
+      "Sales & Marketing Management",
+      "Territory Management",
+      "Customer Services",
+      "Contract Negotiations",
+      "Microsoft Excel",
+      "FMCG"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 10,
+    "experience_match": 30,
+    "overall_score": 20,
+    "strengths": [
+      "Extensive leadership and management experience",
+      "Strong background in FMCG and trade marketing",
+      "Proficient in Microsoft Excel"
+    ],
+    "weaknesses": [
+      "No experience with social media platforms (Instagram, TikTok, Facebook)",
+      "Lack of skills in Meta Business Suite, Canva, and UTM tracking",
+      "Overqualified in seniority for a Specialist role"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a highly experienced senior sales leader, but lacks the specific digital marketing and content creation skills required for this role."
+  }
+}

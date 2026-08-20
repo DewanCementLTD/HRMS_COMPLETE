@@ -1,0 +1,126 @@
+{
+  "cv_file": "Amna_Qureshi_CV_3_1785239702874.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:56:45.681894+00:00",
+  "pipeline": {
+    "total_seconds": 79.723,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 78.512,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2865,
+    "output_tokens": 988,
+    "total_tokens": 5500
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 5,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 9644
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Amna Qureshi",
+      "email": "amnaqureshi789@gmail.com",
+      "phone": "+92 331 3157897",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Strategic marketing leader with extensive experience in brand management and digital growth across multiple verticals. Proven track record in scaling consumer brands, leading cross-functional teams, and executing integrated multi-channel strategies.",
+    "education": [
+      {
+        "institution": "Karachi University Business School",
+        "degree": "Master’s in Business Management (MBA)",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Karachi University Business School",
+        "degree": "Bachelor’s in Business Management",
+        "graduation_year": "2021"
+      },
+      {
+        "institution": "Aga Khan Higher Secondary School",
+        "degree": "Intermediate",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "AEG Group",
+        "role": "Head of Marketing",
+        "duration": "Feb 2025 – Present",
+        "description": "Leads marketing strategy, budget, and brand governance for four verticals; manages a team of four and drove a 200% increase in inbound leads."
+      },
+      {
+        "company": "AEG Consulting",
+        "role": "Lead – Marketing & Communications",
+        "duration": "Sep 2024 – Jan 2025",
+        "description": "Directed end-to-end rebranding and digital growth strategy to position the firm as a knowledge-led consulting entity."
+      },
+      {
+        "company": "AEG Consulting",
+        "role": "Marketing & Communications Specialist",
+        "duration": "June 2023 – Aug 2025",
+        "description": "Focused on LinkedIn growth, executive branding for the CEO, and lead generation through content optimization."
+      },
+      {
+        "company": "VORSON Pvt. Ltd.",
+        "role": "Assistant Product Manager",
+        "duration": "2021",
+        "description": "Executed marketing campaigns and event calendars while managing client relationships and product positioning."
+      },
+      {
+        "company": "Women Engineers Pakistan",
+        "role": "Outreach Coordinator",
+        "duration": "2020 – 2021",
+        "description": "Led a large-scale virtual job fair and managed community outreach and social media strategy."
+      },
+      {
+        "company": "Jild Pakistan",
+        "role": "Co-Founder & Head of Marketing",
+        "duration": "2015 – 2020",
+        "description": "Built a consumer brand from scratch, achieving 1000% organic social media growth and training 3,000+ women in digital marketing."
+      }
+    ],
+    "skills": [
+      "Marketing Strategy",
+      "Brand Architecture",
+      "Growth Marketing",
+      "Performance Marketing",
+      "Content Strategy",
+      "People Management",
+      "SEO",
+      "Lead Generation",
+      "Employer Branding",
+      "Digital Transformation",
+      "Budget Planning",
+      "UX/UI Conversion"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 75,
+    "experience_match": 95,
+    "overall_score": 87,
+    "strengths": [
+      "Strong leadership and people management experience",
+      "Proven track record in brand scaling and integrated campaigns",
+      "Relevant academic background with an MBA",
+      "Experience managing budgets and high-level strategy"
+    ],
+    "weaknesses": [
+      "No explicit mention of GA4 or specific ad platform reporting tools"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly qualified candidate with the required seniority and leadership experience. While GA4 is not explicitly listed, her role as Head of Marketing overseeing performance marketers suggests the necessary oversight capability."
+  }
+}

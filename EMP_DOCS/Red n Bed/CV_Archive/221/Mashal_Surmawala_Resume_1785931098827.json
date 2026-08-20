@@ -1,0 +1,102 @@
+{
+  "cv_file": "Mashal_Surmawala_Resume_1785931098827.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:59:33.589660+00:00",
+  "pipeline": {
+    "total_seconds": 52.196,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.471,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1782,
+    "output_tokens": 774,
+    "total_tokens": 3589
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 4707
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mashal Surmawala",
+      "email": "mashalsurmawala@hotmail.com",
+      "phone": "+92 3218757024",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior marketing and account management professional with extensive experience in brand strategy and 360° digital campaign execution. Proven track record in driving revenue growth, managing high-value portfolios, and optimizing digital performance metrics.",
+    "education": [
+      {
+        "institution": "SZABIST, Karachi",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Whales College, Karachi",
+        "degree": "GCE A‘Levels – Commerce",
+        "graduation_year": "2015"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Convex Interactive",
+        "role": "Associate Account Director",
+        "duration": "Aug ’25- Present",
+        "description": "Manages 15+ diverse brands, driving 30% upsell growth and leading cross-functional teams for 360° campaign execution and AI-driven content production."
+      },
+      {
+        "company": "Convex Interactive",
+        "role": "Group Account Manager",
+        "duration": "Apr ’24- Aug ’25",
+        "description": "Led digital rollouts and performance optimization, achieving significant CTR and CPA improvements while conducting competitive audits and market analysis."
+      },
+      {
+        "company": "GulAhmed",
+        "role": "Brand Strategist & PR Specialist",
+        "duration": "Nov ’21-Apr ’24",
+        "description": "Launched premium product lines, managed 150+ global KOLs, and executed high-ROAS digital campaigns and BTL activities."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Media Planning",
+      "Digital Strategy",
+      "Campaign Execution",
+      "Competitive Audits",
+      "KOL Management",
+      "Media Buying",
+      "Budget Management",
+      "ROAS Analysis",
+      "BTL Marketing",
+      "AI-driven Content Production",
+      "Performance Optimization"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 90,
+    "experience_match": 100,
+    "overall_score": 95,
+    "strengths": [
+      "Extensive experience in digital strategy and campaign management",
+      "Proven ability to handle high-value accounts and diverse portfolios",
+      "Strong analytical skills with a focus on ROI and ROAS",
+      "Experience with competitive research and market analysis"
+    ],
+    "weaknesses": [
+      "Potentially overqualified for a Specialist-level role",
+      "No explicit mention of Canva or Meta Business Suite"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match who exceeds all minimum requirements. While their seniority (Associate Account Director) suggests they are overqualified for a basic Specialist role, their technical proficiency in digital marketing and strategy is superior."
+  }
+}

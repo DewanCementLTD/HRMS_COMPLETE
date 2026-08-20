@@ -1,0 +1,85 @@
+{
+  "cv_file": "Resume._1785494612884.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:38.195879+00:00",
+  "pipeline": {
+    "total_seconds": 41.557,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 41.527,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 940,
+    "output_tokens": 521,
+    "total_tokens": 2397
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 2513
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Eman Zehra",
+      "email": "eman-zehra@hotmail.com",
+      "phone": "+92 303 2249330",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketing Associate",
+    "profile_summary": "Results-driven digital marketing professional with agency experience managing local and international brand accounts. Skilled in multi-channel campaign execution, social media strategy, and performance analysis to drive brand visibility and engagement.",
+    "education": [
+      {
+        "institution": "SZABIST",
+        "degree": "BA (Hons) Business Studies (BABS)",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Private",
+        "degree": "A-Levels",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Beaconhouse School System",
+        "degree": "O-Levels",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mean3 Private Limited",
+        "role": "Digital Marketing Associate",
+        "duration": "July 2025 - Present",
+        "description": "Manages 5+ local and international accounts, executing multi-channel campaigns and driving social media strategy to achieve up to 20% growth in engagement."
+      },
+      {
+        "company": "Mean3 Private Limited",
+        "role": "Digital Marketing Intern",
+        "duration": "Jun 2023 - Sep 2023",
+        "description": "Executed Facebook and Instagram campaigns, created content calendars, and supported performance reporting using Google Ads and Meta Business Suite."
+      }
+    ],
+    "skills": [
+      "Digital Campaign Execution",
+      "Social Media Management",
+      "Influencer Marketing",
+      "PR Strategy",
+      "Content Creation",
+      "Branding",
+      "Canva",
+      "Adobe Photoshop",
+      "Market Research",
+      "Data Analysis",
+      "Power BI",
+      "Excel Reporting",
+      "JIRA",
+      "MS Project"
+    ]
+  }
+}

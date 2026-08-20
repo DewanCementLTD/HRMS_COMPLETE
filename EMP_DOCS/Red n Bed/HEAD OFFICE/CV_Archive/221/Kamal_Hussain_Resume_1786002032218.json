@@ -1,0 +1,100 @@
+{
+  "cv_file": "Kamal_Hussain_Resume_1786002032218.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:44:47.450032+00:00",
+  "pipeline": {
+    "total_seconds": 85.143,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 81.648,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 891,
+    "output_tokens": 628,
+    "total_tokens": 2555
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 1,
+    "ocr_pages": [
+      1
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 913
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamal Hussain",
+      "email": "kamalhussain1634@gmail.com",
+      "phone": "+923202081108",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Junior professional with a technical background in Software Engineering and specialized experience in Search Engine Optimization (SEO). Focused on improving business efficiencies and corporate missions through technical digital marketing skills.",
+    "education": [
+      {
+        "institution": "Aptech Learning Pakistan / Karachi",
+        "degree": "Diploma in Software Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "PSGC Collage Karachi",
+        "degree": "Intermediate with Pre-Engineering",
+        "graduation_year": null
+      },
+      {
+        "institution": "Metropolitan School / Karachi",
+        "degree": "Matriculation with Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Scripters Hub",
+        "role": "SEO Executive",
+        "duration": null,
+        "description": "Managed search engine optimization strategies to improve organic search rankings."
+      },
+      {
+        "company": "Soft Nation Technologies",
+        "role": "SEO Intern",
+        "duration": null,
+        "description": "Supported SEO implementation and digital growth initiatives."
+      },
+      {
+        "company": "Digit Creator",
+        "role": "SEO Intern",
+        "duration": null,
+        "description": "Assisted in SEO research and optimization tasks."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Functional Testing",
+      "Software Engineering"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 30,
+    "experience_match": 20,
+    "overall_score": 25,
+    "strengths": [
+      "SEO expertise",
+      "Technical software background"
+    ],
+    "weaknesses": [
+      "Lacks social media management experience",
+      "No experience with Meta Business Suite, Canva, or content calendars",
+      "Does not meet the Bachelor's degree requirement in Marketing/Communications",
+      "Experience is focused on SEO rather than general marketing coordination"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an SEO specialist with a technical diploma, which does not align with the Job Description's requirements for social media management, content coordination, and a Bachelor's degree in Marketing."
+  }
+}

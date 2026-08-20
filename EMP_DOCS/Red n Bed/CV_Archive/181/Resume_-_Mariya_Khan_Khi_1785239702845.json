@@ -1,0 +1,135 @@
+{
+  "cv_file": "Resume_-_Mariya_Khan_Khi_1785239702845.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T12:00:24.301478+00:00",
+  "pipeline": {
+    "total_seconds": 120.153,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 120.066,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2000,
+    "output_tokens": 1080,
+    "total_tokens": 4985
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 6255
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mariya Khan",
+      "email": "mayakhan3@hotmail.com",
+      "phone": "0092-332-5473237",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Manager",
+    "profile_summary": "Senior Marketing and Brand Management professional with over 10 years of experience across FMCG, Retail, and Lifestyle industries. Expert in executing 360° integrated campaigns and driving market share growth through data-driven strategies and omni-channel marketing.",
+    "education": [
+      {
+        "institution": "COMSATS, Islamabad, Pakistan",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "IIUI, Islamabad, Pakistan",
+        "degree": "BBA-ITM (Technology Management)",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Celeste Home Fashion – Master Group of Industries",
+        "role": "Marketing Manager",
+        "duration": "January 2025 – Present",
+        "description": "Leads 360° marketing strategies and retail campaigns, driving revenue growth and increasing store footfall through digital ads and influencer collaborations."
+      },
+      {
+        "company": "Tarseel Pvt Ltd",
+        "role": "Marketing Manager",
+        "duration": "April 2024 – December 2024",
+        "description": "Directed strategic marketing and PR for international FMCG brands, increasing market share by 20% and expanding distribution channels."
+      },
+      {
+        "company": "Interwood Mobel",
+        "role": "Brand Communication Manager",
+        "duration": "August 2022 – January 2024",
+        "description": "Executed multi-channel digital campaigns increasing website traffic by 77% and brand awareness by 18% in the premium furniture sector."
+      },
+      {
+        "company": "EL– Distribution House",
+        "role": "Portfolio Brand Manager",
+        "duration": "November 2021 – July 2022",
+        "description": "Managed Clarins brand equity, optimized A&P budgets to reduce expenses by 15%, and led trade marketing initiatives."
+      },
+      {
+        "company": "MCPL",
+        "role": "Brand Manager",
+        "duration": "November 2020 – September 2021",
+        "description": "Managed brand operations and strategy."
+      },
+      {
+        "company": "Habib Oil Mills",
+        "role": "Brand Manager",
+        "duration": "February 2020 – April 2020",
+        "description": "Managed brand operations and strategy."
+      },
+      {
+        "company": "Olivia Cosmetics",
+        "role": "Brand Manager",
+        "duration": "April 2018 – April 2019",
+        "description": "Managed brand operations and strategy."
+      }
+    ],
+    "skills": [
+      "Brand Strategy",
+      "360° Campaign Management",
+      "Digital Marketing",
+      "Integrated Marketing Communications",
+      "Trade & Retail Marketing",
+      "Consumer Insights",
+      "Market Research",
+      "Influencer Marketing",
+      "Go-to-Market Strategy",
+      "ATL/BTL Activation",
+      "Public Relations",
+      "E-commerce",
+      "Omni-channel Marketing",
+      "Product Launch",
+      "Category Management",
+      "Stakeholder Management",
+      "Agency Management",
+      "Business Analytics",
+      "CRM",
+      "Segmentation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 92,
+    "technical_match": 80,
+    "experience_match": 95,
+    "overall_score": 89,
+    "strengths": [
+      "Extensive 10+ year experience in consumer brands",
+      "Proven track record in 360° integrated campaigns",
+      "Strong local presence in Karachi",
+      "Advanced academic qualifications (MBA)"
+    ],
+    "weaknesses": [
+      "GA4 not explicitly mentioned by name",
+      "Specific number of direct reports not quantified"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly experienced marketing professional with a deep background in the Karachi market and consumer goods. Matches almost all requirements, including strategy, budget, and agency management."
+  }
+}

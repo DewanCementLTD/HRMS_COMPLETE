@@ -1,0 +1,111 @@
+{
+  "cv_file": "Hasan_Mehfooz_1785309154624.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:14:11.857183+00:00",
+  "pipeline": {
+    "total_seconds": 73.521,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 73.176,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2005,
+    "output_tokens": 879,
+    "total_tokens": 4592
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 4725
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hasan Mehfooz",
+      "email": "hasanmehfooz.hm@gmail.com",
+      "phone": "+92 301 3697777",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior Marketing Leader with 15+ years of experience in Consumer Marketing, Trade Marketing, and Brand Management. Expert in driving brand equity and sustainable growth across Pharma OTC, Personal Care, and Masstige categories.",
+    "education": [
+      {
+        "institution": "Institute of Business Management (IoBM)",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "MPA (Human Resources)",
+        "graduation_year": "2010"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "BPA (Hons.)",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "IFFCO Group",
+        "role": "Marketing Manager – IFFCO Beauty",
+        "duration": "Jan 2024 – Present",
+        "description": "Leads consumer and trade marketing strategy, delivering 300% business growth and launching 7 new consumer propositions."
+      },
+      {
+        "company": "Fine Daily Pvt. Ltd.",
+        "role": "Senior Brand Manager",
+        "duration": "Jul 2021 – Dec 2023",
+        "description": "Owned category strategy and P&L for consumer care brands, achieving 29% YoY growth for Kingtox."
+      },
+      {
+        "company": "Bays International",
+        "role": "Category Manager",
+        "duration": "Apr 2019 – Jun 2021",
+        "description": "Drove market expansion and trade-led growth, achieving 800% growth for Gosh Copenhagen."
+      },
+      {
+        "company": "Parazelsus Pakistan",
+        "role": "Brand Manager",
+        "duration": "Nov 2017 – Mar 2019",
+        "description": "Managed OTC healthcare brands and executed 360° compliance-driven campaigns across ATL, BTL, and digital."
+      }
+    ],
+    "skills": [
+      "Consumer Brand Strategy",
+      "Trade Marketing",
+      "GTM Strategy",
+      "P&L Management",
+      "Integrated ATL/BTL/Digital Campaigns",
+      "Agency Management",
+      "Budget Management",
+      "Performance Management",
+      "Cross-Functional Leadership",
+      "NPD",
+      "Market Activation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 70,
+    "experience_match": 100,
+    "overall_score": 87,
+    "strengths": [
+      "Extensive 15+ year track record in consumer marketing",
+      "Proven ability to drive massive growth (300% and 800%)",
+      "Strong experience in P&L, budget, and agency management",
+      "Local Karachi-based candidate"
+    ],
+    "weaknesses": [
+      "No explicit mention of GA4 or specific ad platform reporting tools"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly experienced marketing leader who exceeds the seniority requirements. While specific technical tools like GA4 are not explicitly listed, his extensive history of managing integrated campaigns and performance budgets makes him an ideal fit."
+  }
+}

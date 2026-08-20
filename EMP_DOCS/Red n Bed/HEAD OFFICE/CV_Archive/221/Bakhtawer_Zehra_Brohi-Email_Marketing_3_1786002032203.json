@@ -1,0 +1,119 @@
+{
+  "cv_file": "Bakhtawer_Zehra_Brohi-Email_Marketing_3_1786002032203.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:06.195991+00:00",
+  "pipeline": {
+    "total_seconds": 71.199,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.445,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1236,
+    "output_tokens": 816,
+    "total_tokens": 3724
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2842
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bakhtawer Zehra Brohi",
+      "email": "bakhtawerbrohi90@gmail.com",
+      "phone": "0331-2229741",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Email Marketing Specialist",
+    "profile_summary": "Results-driven marketing professional specializing in email automation, campaign optimization, and sales. Experienced in A/B testing, data-driven performance analysis, and client relationship management.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Science & Commerce",
+        "degree": "Intermediate, Pre-Medical",
+        "graduation_year": null
+      },
+      {
+        "institution": "Fortune House School System",
+        "degree": "Matriculation, Science",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Enormatech",
+        "role": "Senior Executive - Email Marketing Manager",
+        "duration": "Sep-24 - Present",
+        "description": "Designs and executes targeted email campaigns to boost engagement and retention using audience segmentation and performance metrics."
+      },
+      {
+        "company": "Curve Digital Solutions",
+        "role": "Email Marketing Specialist",
+        "duration": "Jan-23 - Aug-24",
+        "description": "Planned and executed automated email campaigns, conducted A/B testing, and ensured GDPR/CAN-SPAM compliance."
+      },
+      {
+        "company": "Jubilee Life Insurance",
+        "role": "Sales Executive",
+        "duration": "May-22 - Nov-22",
+        "description": "Met sales targets and implemented strategies to drive results and maintain client relationships."
+      },
+      {
+        "company": "Premio Travels & Tour",
+        "role": "Business Development Executive",
+        "duration": "Jan-21 - Aug-21",
+        "description": "Drove sales growth through strategic initiatives and enhanced client satisfaction."
+      }
+    ],
+    "skills": [
+      "Email Marketing",
+      "Campaign Planning",
+      "A/B Testing",
+      "Automation Tools",
+      "Content Creation",
+      "Data Analysis",
+      "MS Office Suite",
+      "Wordpress",
+      "HTML & CSS",
+      "Canva",
+      "Powerbi",
+      "Lead Generation",
+      "Report writing",
+      "Customer Service",
+      "Sales Strategies"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 50,
+    "experience_match": 60,
+    "overall_score": 52,
+    "strengths": [
+      "Proficient in Canva and MS Office",
+      "Strong background in campaign analysis and reporting",
+      "Experience in lead generation and sales"
+    ],
+    "weaknesses": [
+      "Lack of social media management experience (TikTok, IG, FB)",
+      "No mention of Meta Business Suite",
+      "Degree is still in progress"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "The candidate is a skilled Email Marketing specialist but lacks the specific social media platform expertise and content scheduling experience required for this role."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "cv_file": "Wamiq_cv_20260715_104005_0000_1785494612879.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:46:39.567196+00:00",
+  "pipeline": {
+    "total_seconds": 44.78,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.413,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 815,
+    "output_tokens": 420,
+    "total_tokens": 2130
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 2,
+    "ocr_pages": [
+      2
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 1659
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Wamiq Jafar",
+      "email": "Wamiqjafar36@gmail.com",
+      "phone": "+92 333 3143365",
+      "location": "B-5, New Rizvia Soc. Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Business graduate with a strong foundation in marketing, finance management, and business analytics. A quick learner with excellent communication and organizational skills, committed to contributing to organizational growth in business and management.",
+    "education": [
+      {
+        "institution": "Indus University",
+        "degree": "Bachelors of Business Administration",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Govt Degree Boys College",
+        "degree": "Intermediate - Pre Engineering",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Metropolitan Academy",
+        "degree": "Matriculation - Science",
+        "graduation_year": "2018"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Habib Bank Limited (HBL)",
+        "role": "Project Intern – Vendor Management Unit",
+        "duration": "Oct 2025 - Apr 2026",
+        "description": "Managed MIS reports for vendor invoices and payments, processed payment requests, monitored payments via MIS systems, and coordinated with internal teams for reconciliation and documentation."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Social Media Management",
+      "Customer Engagement",
+      "Client Management",
+      "MS Office",
+      "PowerPoint",
+      "MS Excel"
+    ]
+  }
+}

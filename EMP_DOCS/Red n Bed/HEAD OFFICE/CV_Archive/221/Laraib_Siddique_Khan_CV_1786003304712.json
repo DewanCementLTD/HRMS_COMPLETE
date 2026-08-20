@@ -1,0 +1,126 @@
+{
+  "cv_file": "Laraib_Siddique_Khan_CV_1786003304712.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:12.665373+00:00",
+  "pipeline": {
+    "total_seconds": 185.0,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 182.463,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1599,
+    "output_tokens": 945,
+    "total_tokens": 4212
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3650
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Laraib Siddique Khan",
+      "email": "laraibkhanlaraibkhan8@gmail.com",
+      "phone": "+92330-6219939",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Digital Marketing professional with a BBA in Marketing and a Diploma in Digital Marketing. Experienced in social media management, paid campaigns, and market research across agency and corporate environments.",
+    "education": [
+      {
+        "institution": "University of Engineering and Technology, Lahore",
+        "degree": "Bachelors in Business Administration in Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Institute of Business Administration, Karachi",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": "2022"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techgenics",
+        "role": "Digital Marketing Manager",
+        "duration": "2022-2024",
+        "description": "Managed social media pages, executed paid Google Ads and PPC campaigns, and developed content for websites and social platforms."
+      },
+      {
+        "company": "Digital AceTech",
+        "role": "Digital Marketing Assistant",
+        "duration": "Dec-2021",
+        "description": "Assisted with promotional activities, organized marketing research, and created SEO-friendly content."
+      },
+      {
+        "company": "Pak Electron Limited (PEL)",
+        "role": "Marketing Intern",
+        "duration": "Aug-2021",
+        "description": "Developed new product marketing strategies, managed ATL/BTL activities, and conducted market research and ad design."
+      },
+      {
+        "company": "Desi TV USA",
+        "role": "Business Development and Marketing Assistant",
+        "duration": "Nov-2020",
+        "description": "Planned marketing initiatives and identified potential markets through digital research and analysis."
+      },
+      {
+        "company": "Digital AceTech",
+        "role": "Digital Marketing Intern",
+        "duration": "July-2020",
+        "description": "Researched digital trends and competitor strategies and worked on social media content creation."
+      },
+      {
+        "company": "Ohealo Psychotherapy",
+        "role": "Marketing Consultant",
+        "duration": "Oct-2020",
+        "description": "Advised on content strategies for social media and blogs and provided promotional strategy consultation."
+      },
+      {
+        "company": "Nestle Pakistan",
+        "role": "Project Management Intern",
+        "duration": "Aug-2019",
+        "description": "Supported digital project execution, tracked timelines and budgets for marketing initiatives."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Product Marketing",
+      "Market Research",
+      "Content Writing",
+      "SEO",
+      "SMM",
+      "Google Ads",
+      "PPC",
+      "Shopify",
+      "WordPress",
+      "Graphic Designing",
+      "Campaign Designing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 85,
+    "experience_match": 90,
+    "overall_score": 88,
+    "strengths": [
+      "Strong academic foundation in Marketing",
+      "Direct experience in SMM and competitor research",
+      "Diverse portfolio including agency and corporate experience"
+    ],
+    "weaknesses": [
+      "No explicit mention of Meta Business Suite, Canva, or Excel",
+      "Early career consists of many short-term internships"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate meets all core requirements, including the degree and minimum experience. Their background in SMM, content creation, and market research aligns perfectly with the job duties."
+  }
+}

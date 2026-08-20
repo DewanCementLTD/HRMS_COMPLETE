@@ -1,0 +1,100 @@
+{
+  "cv_file": "Mahek-CV-Marketing_1786003304715.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:25.730026+00:00",
+  "pipeline": {
+    "total_seconds": 198.065,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 195.632,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1322,
+    "output_tokens": 679,
+    "total_tokens": 3070
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "header",
+      "languages",
+      "skills"
+    ],
+    "text_chars": 2646
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mahek Kingrani",
+      "email": "mahekii.kingrani@gmail.com",
+      "phone": "+923353822301",
+      "location": "Garden Road, Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing Graduate",
+    "profile_summary": "Recent BBA Marketing graduate with entry-level experience in digital marketing and social media management. Strong foundation in content creation, SEO, and analytics supported by multiple professional certifications.",
+    "education": [
+      {
+        "institution": "Sukkur IBA University",
+        "degree": "Bachelors in Business Administration (BBA), Major in Marketing",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "National Bank of Pakistan",
+        "role": "Marketing Intern",
+        "duration": "10/2023 - 12/2023",
+        "description": "Managed digital banking operations and contributed to social media marketing through content creation, scheduling, and follower engagement."
+      },
+      {
+        "company": "Student Empowered Oasis Organization (SEO)",
+        "role": "Marketing Intern",
+        "duration": "03/2024 - Present",
+        "description": "Assists in daily marketing tasks, collaborates on strategy execution, and generates visual and written content for posts and videos."
+      },
+      {
+        "company": "ASHS CONSULTANTS",
+        "role": "Digital Marketing Executive",
+        "duration": "04/2024 - Present",
+        "description": "Professional role focused on digital marketing execution."
+      }
+    ],
+    "skills": [
+      "Social media management",
+      "Content creation",
+      "Video editing",
+      "Photo editing",
+      "Digital marketing",
+      "Advertising",
+      "Google Analytics",
+      "SEO",
+      "Data analysis",
+      "Digital marketing strategy",
+      "Communication",
+      "Time Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 60,
+    "technical_match": 85,
+    "experience_match": 30,
+    "overall_score": 58,
+    "strengths": [
+      "Strong academic background in Marketing",
+      "Extensive certifications in SEO, Google Ads, and Analytics",
+      "Hands-on experience with content creation and social media scheduling"
+    ],
+    "weaknesses": [
+      "Does not meet the minimum 2-year experience requirement",
+      "No explicit mention of Meta Business Suite or Microsoft Excel"
+    ],
+    "recommendation": "Consider for Junior role",
+    "summary": "The candidate possesses the exact technical skill set and educational background required but is significantly under-experienced for a Specialist role, having graduated in 2023."
+  }
+}

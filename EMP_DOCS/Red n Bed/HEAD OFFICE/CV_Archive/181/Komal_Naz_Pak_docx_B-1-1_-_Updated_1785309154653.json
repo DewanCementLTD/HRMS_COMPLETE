@@ -1,0 +1,140 @@
+{
+  "cv_file": "Komal_Naz_Pak_docx_B-1-1_-_Updated_1785309154653.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:16:32.309190+00:00",
+  "pipeline": {
+    "total_seconds": 85.139,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 85.005,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 2229,
+    "output_tokens": 1047,
+    "total_tokens": 5266
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "references",
+      "skills"
+    ],
+    "text_chars": 6198
+  },
+  "metrics": {
+    "contact_info": {
+      "name": null,
+      "email": "Nazkomal003@gmail.com",
+      "phone": "+923173952512",
+      "location": "Gulshan-e-Iqbal, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with over 10 years of experience across business development, accounting, and customer service. Strong expertise in lead generation, market research, and client relationship management.",
+    "education": [
+      {
+        "institution": "Federal Urdu Government University",
+        "degree": "Bachelor of Arts",
+        "graduation_year": 2021
+      },
+      {
+        "institution": "Federal Urdu Government University",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": 2019
+      },
+      {
+        "institution": "Riaz Government Girls College",
+        "degree": "Intermediate, Science",
+        "graduation_year": 2012
+      },
+      {
+        "institution": "Royal Academy",
+        "degree": "Matric, Computer science",
+        "graduation_year": 2010
+      }
+    ],
+    "experience": [
+      {
+        "company": "Self-Employed",
+        "role": "Freelance Property Consultant & Web Development Researcher",
+        "duration": "October 2024 – Present",
+        "description": "Managed residential and commercial property transactions, conducted market research, and generated leads via social media."
+      },
+      {
+        "company": "Al Meraaj Marketing",
+        "role": "Business development officer",
+        "duration": "October 2021 – September 2024",
+        "description": "Drove business growth through strategic planning, market research, and execution of marketing strategy plans."
+      },
+      {
+        "company": "ARY laguna",
+        "role": "Customer service representative",
+        "duration": "February 2020 – September 2021",
+        "description": "Resolved customer complaints and maintained high client satisfaction through product expertise."
+      },
+      {
+        "company": "HAWK International",
+        "role": "Assistant Manager Accounts",
+        "duration": "October 2016 – January 2018",
+        "description": "Managed financial transactions and trained staff on productivity best practices."
+      },
+      {
+        "company": "TPL Trakker LTD",
+        "role": "Call center officer",
+        "duration": "August 2014 – September 2016",
+        "description": "Handled daily call center operations and met tight deadlines."
+      },
+      {
+        "company": "Saad Salman Corporation",
+        "role": "EDMS Agent",
+        "duration": "September 2013 – July 2014",
+        "description": "Managed customer relationships and resolved queries within KPI timeframes."
+      },
+      {
+        "company": "Pearl Engineering & Trading Co.",
+        "role": "Accountant and Computer Operator",
+        "duration": "September 2012 – August 2013",
+        "description": "Prepared bank reconciliations, financial reports, and managed accounts receivable."
+      }
+    ],
+    "skills": [
+      "Property Sales & Marketing",
+      "Client Dealing & Negotiation",
+      "Market Research & Analysis",
+      "Lead Generation",
+      "Web Research & Planning",
+      "HTML",
+      "CSS",
+      "WordPress",
+      "Photoshop",
+      "English",
+      "Urdu"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 25,
+    "technical_match": 10,
+    "experience_match": 30,
+    "overall_score": 22,
+    "strengths": [
+      "Local to Karachi",
+      "Experience in lead generation and market research",
+      "Diverse professional background"
+    ],
+    "weaknesses": [
+      "No GA4 or ad platform reporting experience",
+      "Lacks 5-7 years of dedicated marketing management",
+      "No evidence of managing integrated paid/organic campaigns or marketing budgets"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a generalist with business development and customer service experience but lacks the specialized technical marketing tools (GA4) and the seniority in marketing leadership required for this role."
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "cv_file": "Cyril_Rangel_CV_3-2026_1785239702886.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:41.777871+00:00",
+  "pipeline": {
+    "total_seconds": 70.524,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.342,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1942,
+    "output_tokens": 975,
+    "total_tokens": 4479
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4903
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Cyril Rangel",
+      "email": "cyrilrangel@gmail.com",
+      "phone": "0300-9267892",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Strategic marketing and business professional with over 17 years of experience, primarily in financial services and digital marketing. Expert in team leadership, process optimization, and data-driven performance analysis.",
+    "education": [
+      {
+        "institution": "Hamdard University",
+        "degree": "Master’s of Business Administration",
+        "graduation_year": "2006"
+      },
+      {
+        "institution": "Hamdard University",
+        "degree": "BS (Hons.) - Business Informatics",
+        "graduation_year": "2004"
+      },
+      {
+        "institution": "D.J. Govt. Science College",
+        "degree": "Inter - Pre-engineering",
+        "graduation_year": "1999"
+      },
+      {
+        "institution": "St. Patrick’s High School",
+        "degree": "Matric - Science",
+        "graduation_year": "1997"
+      }
+    ],
+    "experience": [
+      {
+        "company": "FASCOM (Artistic Denim Mills)",
+        "role": "Manager Marketing",
+        "duration": "Jan 2022 - Dec 2025",
+        "description": "Led digital content, Klaviyo email campaigns, and eCommerce initiatives. Used Google Analytics and SEO to drive visibility and ROI."
+      },
+      {
+        "company": "Pak Oman AMC",
+        "role": "Manager Business Development & Admin.",
+        "duration": "Oct 2019 - Dec 2021",
+        "description": "Supervised marketing and admin functions leading a team of 9. Drove lead generation and designed promotional materials."
+      },
+      {
+        "company": "786 Investments",
+        "role": "Dy. Manager Unit Management",
+        "duration": "Aug 2018 - Sep 2019",
+        "description": "Managed investor services, registrar operations, and KYC onboarding for 1,000+ investors."
+      },
+      {
+        "company": "NBP Funds",
+        "role": "Sr. Manager Branding & Corporate Communications",
+        "duration": "May 2017 - Nov 2017",
+        "description": "Managed 4 brand specialists and marketing content for 80+ retail outlets. Achieved cost savings via vendor negotiation."
+      },
+      {
+        "company": "National Investment Trust",
+        "role": "Officer Marketing",
+        "duration": "Feb 2008 - Apr 2017",
+        "description": "Coordinated product launches and mutual fund marketing. Conducted market analysis and mentored interns."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "Google Analytics",
+      "Google Search Console",
+      "Klaviyo",
+      "Email Marketing",
+      "Lead Generation",
+      "Budget Management",
+      "Vendor Negotiation",
+      "Team Leadership",
+      "Market Research",
+      "MS Excel",
+      "Conversion Optimization"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 85,
+    "experience_match": 90,
+    "overall_score": 88,
+    "strengths": [
+      "Strong people management track record (led teams of 4 and 9)",
+      "Proficient in GA4/Google Analytics and SEO",
+      "Relevant academic qualifications (MBA)",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "Majority of experience is in financial services rather than general consumer brands"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "Candidate exceeds the experience and education requirements. He possesses the mandatory technical skills (GA4) and has significant experience managing teams and budgets, making him a high-fit for the Marketing Manager role."
+  }
+}

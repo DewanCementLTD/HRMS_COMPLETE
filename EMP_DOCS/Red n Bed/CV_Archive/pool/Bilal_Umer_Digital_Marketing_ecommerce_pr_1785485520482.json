@@ -1,0 +1,102 @@
+{
+  "cv_file": "Bilal_Umer_Digital_Marketing_ecommerce_pr_1785485520482.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:56.039791+00:00",
+  "pipeline": {
+    "total_seconds": 51.446,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 51.396,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 979,
+    "output_tokens": 681,
+    "total_tokens": 2802
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2374
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Bilal Umer",
+      "email": "umerh618@gmail.com",
+      "phone": "+92 3171159947",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer / E-Commerce / PR Management",
+    "profile_summary": "Creative digital marketer and e-commerce specialist with PR expertise. Skilled in blending engaging content creation with data-driven strategies to build and scale brands.",
+    "education": [
+      {
+        "institution": "Ethic City School",
+        "degree": "Science",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt National College",
+        "degree": "Pre Engineering",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "ILMA University",
+        "degree": "BS in Digital Marketing",
+        "graduation_year": "Continue"
+      }
+    ],
+    "experience": [
+      {
+        "company": "AA Joyland Pvt Ltd",
+        "role": "Digital Marketing / PR Management",
+        "duration": "June 2023 – May 2024",
+        "description": "Developed digital marketing strategies to drive traffic and visibility, optimized ad campaigns for ROI, and conducted market research."
+      },
+      {
+        "company": "Keysol Pvt Ltd",
+        "role": "Digital Marketing Intern",
+        "duration": "Mar 2023 – May 2023",
+        "description": "Led social media campaigns across multiple platforms, managed brand presence on Facebook and Instagram, and created engaging content."
+      },
+      {
+        "company": "Sell Center",
+        "role": "Social Media Intern",
+        "duration": "Jan 2023 – June 2023",
+        "description": "Created and managed social media campaigns and content, and analyzed performance data across various platforms."
+      },
+      {
+        "company": "Smart Living",
+        "role": "Social Media Executive (Freelance)",
+        "duration": "July 2023 – Continue",
+        "description": null
+      },
+      {
+        "company": "Shop Saverr",
+        "role": "E-Commerce Specialist",
+        "duration": "June 2024 – Continue",
+        "description": "Tracks sales and website performance, manages Shopify themes and templates, and optimizes customer acquisition and retention strategies."
+      }
+    ],
+    "skills": [
+      "Management Skills",
+      "Creativity",
+      "Digital Marketing",
+      "Critical Thinking",
+      "E-Commerce",
+      "English",
+      "Urdu",
+      "Hindko",
+      "Meta Social Media Marketing",
+      "Content Creation",
+      "Market Research",
+      "Shopify"
+    ]
+  }
+}

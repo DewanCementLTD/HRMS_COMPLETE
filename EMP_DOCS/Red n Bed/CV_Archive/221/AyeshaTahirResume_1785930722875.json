@@ -1,0 +1,124 @@
+{
+  "cv_file": "AyeshaTahirResume_1785930722875.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:55:09.031818+00:00",
+  "pipeline": {
+    "total_seconds": 104.924,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 104.819,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1690,
+    "output_tokens": 885,
+    "total_tokens": 4095
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketing Specialist",
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4490
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ayesha Tahir",
+      "email": "ayeshtahir649@gmail.com",
+      "phone": "+92 305 4623696",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Specialist",
+    "profile_summary": "Digital Marketing Specialist with expertise in marketing strategy, branding, and social media management. Strong track record in creating data-driven campaigns and visual assets to enhance brand visibility.",
+    "education": [
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "Master of Education (M.Ed.)",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Sindh Madressatul Islam University",
+        "degree": "Bachelor of Education (B.Ed.)",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Medsuccour AI",
+        "role": "Marketing Lead",
+        "duration": "12/2022 – 12/2024",
+        "description": "Led digital marketing initiatives, conducted competitor research, managed social media content calendars, and designed branded assets using Canva."
+      },
+      {
+        "company": "Medsuccour AI",
+        "role": "Digital Marketer & Graphic Designer",
+        "duration": "09/2022 – 12/2022",
+        "description": "Created social media campaigns and branded graphics while managing content planning and publishing across multiple platforms."
+      },
+      {
+        "company": "Al Huda International School",
+        "role": "Teacher",
+        "duration": "11/2023 – Present",
+        "description": "Developed learning materials and strengthened communication and organizational skills through classroom management."
+      },
+      {
+        "company": "Al-Ilm Institute",
+        "role": "Volunteer",
+        "duration": "11/2020 – Present",
+        "description": "Managed social media platforms, designed event visuals, and handled photography and video editing for educational programs."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Marketing Strategy",
+      "Brand Management",
+      "Social Media Marketing",
+      "Content Marketing",
+      "Email Marketing",
+      "Campaign Planning",
+      "Market Research",
+      "Competitor Analysis",
+      "Lead Generation",
+      "Community Management",
+      "Customer Journey Mapping",
+      "Google Analytics 4 (GA4)",
+      "Google Search Console",
+      "Meta Pixel",
+      "Looker Studio",
+      "Mailchimp",
+      "Canva",
+      "CapCut",
+      "ChatGPT",
+      "Google Workspace",
+      "Microsoft Office",
+      "Graphic Design",
+      "Copywriting",
+      "Content Writing",
+      "Visual Branding"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 95,
+    "experience_match": 85,
+    "overall_score": 90,
+    "strengths": [
+      "Proficient in Canva and Meta tools",
+      "Direct experience with content calendars and competitor research",
+      "Strong technical analytics stack (GA4, Looker Studio, Meta Pixel)"
+    ],
+    "weaknesses": [
+      "Academic degree is in Education rather than Marketing or Mass Communication"
+    ],
+    "recommendation": "Strongly Recommend",
+    "summary": "The candidate exceeds technical requirements and meets the minimum experience threshold. Despite the unrelated degree, their professional track record and certifications make them an ideal fit for the role."
+  }
+}

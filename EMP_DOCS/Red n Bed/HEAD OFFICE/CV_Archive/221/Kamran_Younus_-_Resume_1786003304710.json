@@ -1,0 +1,112 @@
+{
+  "cv_file": "Kamran_Younus_-_Resume_1786003304710.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:16.208468+00:00",
+  "pipeline": {
+    "total_seconds": 189.186,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 186.035,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1693,
+    "output_tokens": 780,
+    "total_tokens": 3710
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header",
+      "summary"
+    ],
+    "text_chars": 4334
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Kamran Younus",
+      "email": "kamran_younus@outlook.com",
+      "phone": "+923012503060",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Marketing Specialist",
+    "profile_summary": "MBA graduate specializing in Marketing with extensive certifications in digital marketing and business operations. Strong theoretical knowledge in omnichannel strategies and professional memberships in CIM and AMA.",
+    "education": [
+      {
+        "institution": "Karachi Institute of Economics & Technology",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Karachi Institute of Economics & Technology",
+        "degree": "BBA (Marketing)",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "B-Com",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt College of Commerce & Economics",
+        "degree": "HSC (Commerce)",
+        "graduation_year": "2015"
+      },
+      {
+        "institution": "Al Azhar Academy School",
+        "degree": "SSC (Science)",
+        "graduation_year": "2011"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Industrial Equipments",
+        "role": "Inventory Assistant",
+        "duration": "Oct 2019 - Present",
+        "description": "Managed customer inquiries, purchase orders, and import documentation. Coordinated between warehouse and accounts for GST invoicing and delivery fulfillment."
+      },
+      {
+        "company": "Cargo Aviation Systems Pvt. Ltd",
+        "role": "Assistant Accountant",
+        "duration": "Apr 2017 - Nov 2018",
+        "description": "Managed export documentation, created invoices, and handled operational correspondence with business partners while providing internal IT support."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Generative AI",
+      "Odoo ERP",
+      "Zoho Books",
+      "MS Office",
+      "Meta Business Suite",
+      "TikTok Marketing",
+      "Google Ads",
+      "Google Analytics",
+      "SEO",
+      "Content Marketing",
+      "Email Marketing",
+      "B2B Correspondence",
+      "CRM"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 95,
+    "experience_match": 30,
+    "overall_score": 60,
+    "strengths": [
+      "Highly certified in Meta, Google, and HubSpot marketing tools",
+      "Strong academic background with an MBA in Marketing",
+      "Professional affiliations with CIM and AMA"
+    ],
+    "weaknesses": [
+      "No professional experience in a dedicated marketing role",
+      "Work history is focused on inventory and accounting rather than campaign management"
+    ],
+    "recommendation": "Interview for potential",
+    "summary": "The candidate is technically over-prepared via certifications and education but lacks the required 2 years of professional marketing experience, as his career has been in logistics and accounting."
+  }
+}

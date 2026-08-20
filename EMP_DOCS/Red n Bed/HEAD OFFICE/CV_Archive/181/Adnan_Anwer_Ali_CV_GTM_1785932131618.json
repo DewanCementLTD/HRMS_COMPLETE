@@ -1,0 +1,106 @@
+{
+  "cv_file": "Adnan_Anwer_Ali_CV_GTM_1785932131618.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:58.216833+00:00",
+  "pipeline": {
+    "total_seconds": 64.553,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 63.411,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1747,
+    "output_tokens": 778,
+    "total_tokens": 3977
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3854
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Adnan Anwer Ali",
+      "email": "adnan.jiwani@gmail.com",
+      "phone": "03323148262",
+      "location": "Garden East, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Growth-focused digital marketing leader with over 10 years of experience specializing in SEO, PPC, and customer acquisition. Proven track record in scaling global SaaS and e-commerce brands through data-driven strategies and team leadership.",
+    "education": [
+      {
+        "institution": "IQRA University",
+        "degree": "MBA in Marketing",
+        "graduation_year": "2014"
+      },
+      {
+        "institution": "Govt. Commerce College",
+        "degree": "B.Com",
+        "graduation_year": "2008"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Gaditek",
+        "role": "Assistant Manager Digital Marketing",
+        "duration": "May 2015 – Jan 2026",
+        "description": "Led a 5-member team for PureVPN, managing global SEO, PPC, and content strategies. Optimized conversion funnels and conducted A/B testing to drive global sales growth."
+      },
+      {
+        "company": "Folio3",
+        "role": "Team Lead Digital Marketing",
+        "duration": "Feb 2014 – Apr 2015",
+        "description": "Managed B2B SEO for NetSuite and Salesforce, executing keyword research, website audits, and performance reporting."
+      },
+      {
+        "company": "Right Solution",
+        "role": "SEO Team Lead",
+        "duration": "Jun 2010 – Jan 2014",
+        "description": "Directed on-page/off-page SEO and social media initiatives for various brands, while training and mentoring junior executives."
+      }
+    ],
+    "skills": [
+      "SEO",
+      "PPC",
+      "Social Media Marketing",
+      "GA4",
+      "Google Ads",
+      "Meta Ads",
+      "Content Marketing",
+      "CRO",
+      "Lead Generation",
+      "Marketing Automation",
+      "Ahrefs",
+      "Semrush",
+      "Looker",
+      "Power BI",
+      "Copywriting",
+      "A/B Testing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 98,
+    "experience_match": 92,
+    "overall_score": 95,
+    "strengths": [
+      "Deep expertise in GA4 and ad platform reporting",
+      "Proven people management experience (led teams at Gaditek and Right Solution)",
+      "Strong track record of ROI/ROAS achievements",
+      "Local to Karachi with relevant MBA degree"
+    ],
+    "weaknesses": [
+      "Experience is heavily weighted toward digital execution rather than holistic brand/budget ownership"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, exceeding the years of experience and technical requirements. He possesses the necessary leadership background and local presence to effectively own the marketing function."
+  }
+}

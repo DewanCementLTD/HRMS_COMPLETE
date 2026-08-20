@@ -1,0 +1,93 @@
+{
+  "cv_file": "AmeerAli_17_CV_1786002032200.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:41:39.633131+00:00",
+  "pipeline": {
+    "total_seconds": 44.654,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.842,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1002,
+    "output_tokens": 630,
+    "total_tokens": 2534
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Digital Marketer",
+    "sections_found": [
+      "certifications",
+      "education",
+      "summary"
+    ],
+    "text_chars": 1260
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Ameer Ali",
+      "email": "ameeraly2019@gmail.com",
+      "phone": "0315-2440867",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Aspiring Digital Marketer with an MBA in Marketing and a BBA. Experienced in social media management, content creation, and customer relations, with a focus on driving user engagement and business growth.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master of Business Administration in Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Cambridge Garments",
+        "role": "Customer Experience Executive",
+        "duration": "April 2023 – present",
+        "description": "Managed Facebook and Instagram accounts to enhance customer satisfaction and deliver excellent service."
+      },
+      {
+        "company": "TMD INTERNATIONAL INC.",
+        "role": "Sales and Marketing Trainee",
+        "duration": "Oct 2022 - March 2023",
+        "description": "Collaborated with clients to understand needs and provide tailored solutions."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "Brand Management",
+      "Social Media Management",
+      "Customer Relationship Management (CRM)",
+      "Video Editing",
+      "Basic Graphic Design",
+      "Content Creation",
+      "Social Media Advertising"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 65,
+    "technical_match": 70,
+    "experience_match": 50,
+    "overall_score": 62,
+    "strengths": [
+      "Strong academic background in Marketing",
+      "Practical experience with Facebook and Instagram",
+      "Content creation and basic design skills"
+    ],
+    "weaknesses": [
+      "Lacks documented experience with UTM tracking and reporting",
+      "No mentioned experience with TikTok or competitor research",
+      "Professional experience is more customer-service focused than marketing-strategic"
+    ],
+    "recommendation": "Consider for Junior role",
+    "summary": "The candidate meets the educational requirements and possesses the basic social media skills needed. However, they lack the specific technical experience in campaign analytics and reporting required for a full Marketing Specialist role."
+  }
+}

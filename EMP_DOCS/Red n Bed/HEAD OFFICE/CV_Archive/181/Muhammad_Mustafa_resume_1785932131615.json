@@ -1,0 +1,113 @@
+{
+  "cv_file": "Muhammad_Mustafa_resume_1785932131615.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:49.475880+00:00",
+  "pipeline": {
+    "total_seconds": 52.84,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 52.755,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1392,
+    "output_tokens": 758,
+    "total_tokens": 3261
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2990
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Mustafa",
+      "email": "muhammadmustafa30i@outlook.com",
+      "phone": "+923212678741",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Entry-level professional with a background in customer service and recent certifications in digital marketing and data analytics. Skilled in social media management and AI tools, seeking growth in a progressive organization.",
+    "education": [
+      {
+        "institution": "Goverment City College",
+        "degree": "Intermediate",
+        "graduation_year": null
+      },
+      {
+        "institution": "The Smart School",
+        "degree": "Matriculation",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "DevelopersHub Corporation",
+        "role": "Data Science & Analytics (Intern)",
+        "duration": "04/2026 – 06/2026",
+        "description": "Focused on data analysis, visualization, and reporting to support data-driven decision-making."
+      },
+      {
+        "company": "Development Generation",
+        "role": "Customer service representative",
+        "duration": "04/2025 – 08/2025",
+        "description": "Conducted outbound calls for orthopedic braces, managing eligibility checks and patient inquiries."
+      },
+      {
+        "company": "I Gen solutions",
+        "role": "Customer service representative",
+        "duration": "05/2023 – 11/2023",
+        "description": "Managed high-volume inbound calls for COVID-19 inquiries and test result resolution."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Audience Engagement",
+      "Customer Service",
+      "Active Listening",
+      "Social Media Advertising",
+      "Teamwork",
+      "Canva",
+      "ChatGPT",
+      "Gemini",
+      "Claude",
+      "Microsoft Copilot",
+      "Content Creation",
+      "Audience Targeting",
+      "Campaign Optimization",
+      "Problem Solving",
+      "Analytical Thinking",
+      "Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 20,
+    "experience_match": 5,
+    "overall_score": 12,
+    "strengths": [
+      "Local to Karachi",
+      "Basic certifications in Meta/Digital Marketing",
+      "Familiarity with AI productivity tools"
+    ],
+    "weaknesses": [
+      "Lacks required Bachelor's/Master's degree",
+      "Lacks 5-7 years of marketing experience",
+      "No people management experience",
+      "No evidence of GA4 or ROI/CAC/LTV reporting proficiency"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an entry-level applicant with customer service experience and basic digital marketing training. They do not meet any of the core seniority, education, or management requirements for a Marketing Manager role."
+  }
+}

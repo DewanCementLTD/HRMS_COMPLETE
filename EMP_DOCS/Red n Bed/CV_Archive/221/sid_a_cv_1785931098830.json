@@ -1,0 +1,110 @@
+{
+  "cv_file": "sid_a_cv_1785931098830.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:01:39.957398+00:00",
+  "pipeline": {
+    "total_seconds": 65.48,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.342,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1422,
+    "output_tokens": 768,
+    "total_tokens": 3736
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "header",
+      "skills"
+    ],
+    "text_chars": 3500
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sidra Abad",
+      "email": "sidraabad0@gmail.com",
+      "phone": "+92 3331231383",
+      "location": "Islamabad, Pakistan"
+    },
+    "preferred_job_title": "Growth & Product Marketing Manager",
+    "profile_summary": "Experienced Growth and Product Marketing professional specializing in AI and cybersecurity. Expert in GTM execution, integrated campaign planning, and data-driven lead generation with a strong technical stack.",
+    "education": [
+      {
+        "institution": "NED University of Engineering & Technology",
+        "degree": "Bachelors in Materials Engineering",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Disrupt",
+        "role": "Assistant Marketing Manager",
+        "duration": "Jan 2025 – Present",
+        "description": "Manages AI-assisted workflows, lead handling, and market research to drive pipeline growth and brand visibility."
+      },
+      {
+        "company": "PureVPN",
+        "role": "B2B Product Marketing Lead",
+        "duration": "Nov 2021 – Dec 2024",
+        "description": "Led GTM initiatives for cybersecurity products using paid media, SEO, and community engagement across LinkedIn, Reddit, and Quora."
+      },
+      {
+        "company": "IBEX Global Pakistan",
+        "role": "Customer Support",
+        "duration": "Dec 2019 – Dec 2020",
+        "description": "Handled client research, documentation, and business communications in a fast-paced environment."
+      }
+    ],
+    "skills": [
+      "Growth Marketing",
+      "GTM Strategy",
+      "Integrated Campaign Planning",
+      "Market Research",
+      "Paid Media",
+      "Performance Tracking",
+      "Agency Management",
+      "Marketing Automation",
+      "N8N",
+      "Make",
+      "Semrush",
+      "Ahrefs",
+      "Apollo",
+      "HubSpot",
+      "Google Ads",
+      "Google Search Console",
+      "LinkedIn Sales Navigator",
+      "Canva",
+      "Sora",
+      "Veo",
+      "PartnerStack",
+      "WPML",
+      "Clickup",
+      "Notion",
+      "Slack"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 85,
+    "technical_match": 95,
+    "experience_match": 90,
+    "overall_score": 90,
+    "strengths": [
+      "Advanced technical stack including Canva and HubSpot",
+      "Extensive experience in campaign reporting and agency management",
+      "Proven track record in multi-channel content distribution"
+    ],
+    "weaknesses": [
+      "Overqualified for a Specialist-level role",
+      "Degree is in Engineering rather than Marketing/Communications"
+    ],
+    "recommendation": "Strong Match",
+    "summary": "The candidate exceeds all technical and experience requirements. While their profile is more strategic (Growth/Product Marketing) than the tactical nature of the Specialist role, they possess all the necessary skills to execute the JD perfectly."
+  }
+}

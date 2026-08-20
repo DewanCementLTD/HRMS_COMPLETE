@@ -1,0 +1,107 @@
+{
+  "cv_file": "Resume_Wardia_Ather_1785239702849.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:59:51.699327+00:00",
+  "pipeline": {
+    "total_seconds": 69.79,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 69.641,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2140,
+    "output_tokens": 860,
+    "total_tokens": 4611
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 5585
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Wardia Ather",
+      "email": "wardia.ather@gmail.com",
+      "phone": "+923322476007",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior Marketing and Brand Management professional with over 10 years of experience in the FMCG sector. Expert in GTM strategy, P&L management, and digital transformation across global and cross-cultural teams.",
+    "education": [
+      {
+        "institution": "Institute of Business Management",
+        "degree": "Masters of Business Administration",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Institute of Business Management",
+        "degree": "Bachelors of Business Administration",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "GMG - Gulf Marketing Group/Farm Fresh UAE",
+        "role": "Brand & Marketing Manager Foods & Beverages",
+        "duration": "Oct 2023 - Feb 2026",
+        "description": "Managed end-to-end marketing strategies and P&L for FMCG portfolios, driving market share growth and leading international expansion into USA, Canada, and GCC."
+      },
+      {
+        "company": "Lipton Teas and Infusions/ Ekaterra Malaysia",
+        "role": "Project Marketing Manager Southeast Asia, Australia and New Zealand",
+        "duration": "Jan 2023 - Jul 2023",
+        "description": "Led Lipton rebranding for SEA and ANZ markets, coordinating with global leads to ensure seamless SKU transition and regulatory compliance."
+      },
+      {
+        "company": "Unilever Pakistan",
+        "role": "Asst. Brand Manager Ice Cream",
+        "duration": "Nov 2020 - Jul 2022",
+        "description": "Managed a 52.8Mn Euro portfolio, leading premiumization strategies, product launches, and integrated campaigns that delivered significant sales growth."
+      },
+      {
+        "company": "Mindshare Pakistan",
+        "role": "Business Manager",
+        "duration": "Oct 2016 - Aug 2021",
+        "description": "Owned digital and media strategy for 15+ Unilever brands, implementing performance-driven models and ROI frameworks across Google, Facebook, and YouTube."
+      }
+    ],
+    "skills": [
+      "Brand Management",
+      "Go-to-market strategy",
+      "Stakeholder Management",
+      "Media Strategy",
+      "Digital Strategy",
+      "P&L Management",
+      "ROI Modelling",
+      "Performance Marketing",
+      "Budget Governance",
+      "Market Analysis",
+      "Ecommerce"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 85,
+    "experience_match": 98,
+    "overall_score": 92,
+    "strengths": [
+      "Extensive FMCG brand management experience",
+      "Proven track record in P&L and budget ownership",
+      "Strong digital performance marketing background",
+      "International market expansion experience"
+    ],
+    "weaknesses": [
+      "GA4 not explicitly mentioned by name",
+      "Specific number of direct reports not quantified"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "Highly qualified candidate with over a decade of experience in FMCG marketing. Demonstrates mastery of both brand strategy and digital performance, perfectly aligning with the end-to-end ownership required for this role."
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "cv_file": "Sajid_20Karam._20Updated_20CV_1785493684445.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:30:23.312443+00:00",
+  "pipeline": {
+    "total_seconds": 65.916,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.867,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1340,
+    "output_tokens": 816,
+    "total_tokens": 3675
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3878
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sajid Karam",
+      "email": "sajidkaram62@gmail.com",
+      "phone": "0301-2560260",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketing Manager",
+    "profile_summary": "Digital marketing professional with 6+ years of experience in end-to-end online marketing strategies. Expert in performance marketing, Meta and Google Ads, and e-commerce management with a strong focus on ROI and brand building.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "B.Com (Bachelors in Commerce)",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Right Solution",
+        "role": "Team Lead – Digital Marketing",
+        "duration": "20/11/2024 - Current",
+        "description": "Leads digital marketing team, manages Meta and Google Ads strategy, optimizes ROAS, and oversees content creation and competitor analysis."
+      },
+      {
+        "company": "Crystallite Pakistan Pvt Ltd",
+        "role": "Sr. Executive Digital Marketing & E-Commerce",
+        "duration": "10/10/2022 - 14/11/2024",
+        "description": "Managed E-commerce operations via Shopify, Daraz, and WooCommerce, optimizing Meta and Google Ads for international client accounts."
+      },
+      {
+        "company": "Fiberlink Pvt Ltd",
+        "role": "Sr. Social Media Executive",
+        "duration": "6/2/2021 - 8/10/2022",
+        "description": "Executed paid and organic campaigns, managed social media pages, and optimized Google My Business to improve brand visibility."
+      },
+      {
+        "company": "Doers Media Pvt Ltd",
+        "role": "Social Media Executive",
+        "duration": "1/1/2019 - 31/12/2020",
+        "description": "Managed international accounts focusing on Facebook and YouTube monetization, retargeting strategies, and Meta Ads optimization."
+      },
+      {
+        "company": "Aptech Pvt Ltd",
+        "role": "SRO (Student Relation Officer)",
+        "duration": "1/1/2018 - 31/12/2018",
+        "description": "Handled student relations and physical marketing activities, including flyer distribution and event coordination."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Performance Marketing",
+      "E-Commerce Management",
+      "Shopify",
+      "Daraz",
+      "WooCommerce",
+      "WordPress",
+      "Wix",
+      "Facebook Pixel",
+      "Analytics",
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "Premiere Pro",
+      "After Effects",
+      "Microsoft Office",
+      "GoHighLevel",
+      "Salesforce",
+      "Zapier",
+      "ManyChat",
+      "Metricool",
+      "Brevo",
+      "MakeUGC.ai",
+      "Higgsfield",
+      "Flow",
+      "Gemini",
+      "ElevenLabs",
+      "Content Strategy",
+      "Brand Management",
+      "YouTube Monetization",
+      "Data Analysis"
+    ]
+  }
+}

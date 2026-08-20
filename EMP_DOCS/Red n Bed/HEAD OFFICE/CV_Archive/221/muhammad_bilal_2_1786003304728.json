@@ -1,0 +1,108 @@
+{
+  "cv_file": "muhammad_bilal_2_1786003304728.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:04:19.698310+00:00",
+  "pipeline": {
+    "total_seconds": 61.548,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.144,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1384,
+    "output_tokens": 729,
+    "total_tokens": 3404
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 3462
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Bilal Sheikh",
+      "email": "connectbilal38@gmail.com",
+      "phone": "0318-2788286",
+      "location": null
+    },
+    "preferred_job_title": "SEO Executive",
+    "profile_summary": "Results-driven SEO professional with over 3 years of experience in organic growth, technical audits, and content strategy. Specialized in B2B and e-commerce sectors with strong data analysis capabilities.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "B.COM",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate (Commerce)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techno Cloud Pvt. Ltd.",
+        "role": "SEO Executive",
+        "duration": "July 2022 - Present",
+        "description": "Develops SEO strategies for B2B and e-commerce sites, performing technical audits, keyword research, and link-building to increase organic traffic and domain authority."
+      },
+      {
+        "company": "Ozbix Development House",
+        "role": "Junior SEO Executive",
+        "duration": "August 2021 - July 2022",
+        "description": "Assisted in implementing search engine optimization tactics to improve online visibility."
+      }
+    ],
+    "skills": [
+      "Keyword Research",
+      "On-page Optimization",
+      "Off-page Optimization",
+      "Technical SEO Audits",
+      "Content Strategy",
+      "Link Building",
+      "Competitor Analysis",
+      "Data Analysis",
+      "Google Analytics",
+      "Google Search Console",
+      "Ahrefs",
+      "Moz",
+      "Social Media Marketing",
+      "Mobile SEO",
+      "UX",
+      "CRO",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 50,
+    "technical_match": 40,
+    "experience_match": 80,
+    "overall_score": 55,
+    "strengths": [
+      "Strong background in competitor analysis and data reporting",
+      "Meets the minimum 2-year experience requirement",
+      "Possesses a relevant business degree (B.COM)"
+    ],
+    "weaknesses": [
+      "Lacks specific experience with Meta Business Suite, Canva, and TikTok/Instagram scheduling",
+      "Profile is heavily skewed toward SEO rather than general social media management and asset coordination"
+    ],
+    "recommendation": "Conditional",
+    "summary": "The candidate is a highly qualified SEO specialist but lacks the specific social media management and creative tool experience required for this generalist Marketing Specialist role."
+  }
+}

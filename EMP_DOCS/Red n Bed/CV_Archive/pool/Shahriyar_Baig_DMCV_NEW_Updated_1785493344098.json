@@ -1,0 +1,163 @@
+{
+  "cv_file": "Shahriyar_Baig_DMCV_NEW_Updated_1785493344098.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:24:57.872896+00:00",
+  "pipeline": {
+    "total_seconds": 87.602,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 87.539,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2021,
+    "output_tokens": 1253,
+    "total_tokens": 5129
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 3,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "projects",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5726
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Shahriyar Baig",
+      "email": "Sharyar_baig@yahoo.com",
+      "phone": "03442607511",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Digital Marketer",
+    "profile_summary": "Experienced Digital Marketer and Entrepreneur with an MBA and expertise in SMM and Meta ads. Proven track record managing international campaigns across USA, Canada, and UK, combining strategic planning with technical execution and training.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master of Business Administration",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor of Commerce",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Intermediate",
+        "graduation_year": "2011"
+      },
+      {
+        "institution": "Karachi Board",
+        "degree": "Matriculation",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "ERP College",
+        "role": "Social Media Marketing Manager & Strategist",
+        "duration": "January 2023 - December 2023",
+        "description": "Managed SM platforms and Meta ads campaigns for Canada, USA, and Pakistan; oversaw content calendars and design teams."
+      },
+      {
+        "company": "ERP Group of Companies",
+        "role": "SMMM & Strategist",
+        "duration": "January 2023 - December 2023",
+        "description": "Managed SM platforms, collaborated with HR to lead teams, and promoted the college at major IT events."
+      },
+      {
+        "company": "Foundation School/Hira Institute Emerging Sciences",
+        "role": "Digital Marketing Strategist & Trainer",
+        "duration": "2021-2023",
+        "description": "Provided onsite and remote digital marketing strategy and training under Da-rul-uloom Karachi."
+      },
+      {
+        "company": "Falaknaz Group",
+        "role": "Digital Marketing Manager & Strategist",
+        "duration": "June 2022 - January 2023",
+        "description": "Created and managed social media platforms and advertising campaigns in coordination with the design team."
+      },
+      {
+        "company": "Digital Hub",
+        "role": "Digital & Design Executive",
+        "duration": "2018-2021",
+        "description": "Managed all social media platforms and executed advertising campaigns over a 2.5-year period."
+      },
+      {
+        "company": "Hira Institute Emerging Sciences",
+        "role": "Digital Marketing Trainer",
+        "duration": "July 2020 - November 2020",
+        "description": "Taught digital marketing as part of the Kamiyab Jawan Program (Government of Pakistan)."
+      },
+      {
+        "company": "Nodebook Institute PVT LTD",
+        "role": "Digital Marketing Trainer",
+        "duration": "October 2022 - December 2022",
+        "description": "Provided professional training in digital marketing."
+      },
+      {
+        "company": "Al Manar Public School",
+        "role": "Computer Teacher",
+        "duration": "2015-2016",
+        "description": "Instructed students in computer science."
+      },
+      {
+        "company": "King Edward Grammar School",
+        "role": "Computer Teacher",
+        "duration": "2013-2016",
+        "description": "Instructed students in computer science."
+      },
+      {
+        "company": "Iqra Suffatul Atfal School",
+        "role": "Computer Teacher",
+        "duration": "2011-2016",
+        "description": "Instructed students in computer science."
+      },
+      {
+        "company": "Apparel Bus (USA)",
+        "role": "Project Head Digital Marketing Department",
+        "duration": null,
+        "description": "Developed and managed overall Facebook and Instagram strategies and ads manager campaigns."
+      },
+      {
+        "company": "Martin Dow (PAK)",
+        "role": "Project Head Digital & Design Department",
+        "duration": null,
+        "description": "Managed all social media platform posts and campaigns."
+      },
+      {
+        "company": "Design Image (UK)",
+        "role": "Project Head Digital & Design Department",
+        "duration": null,
+        "description": "Coordinated 2D animation team and managed overall digital activities."
+      }
+    ],
+    "skills": [
+      "MS Word",
+      "MS Excel",
+      "Team Management",
+      "Public Speaking",
+      "Social Media Marketing",
+      "Digital Campaign Strategy",
+      "Adobe Photoshop",
+      "Digitalize Creative Planning",
+      "Meta Ads",
+      "Google Analytics",
+      "Facebook Business Suite",
+      "Facebook Pixel",
+      "Content Strategy",
+      "Recruitment & Selection",
+      "HR",
+      "Finance"
+    ]
+  }
+}

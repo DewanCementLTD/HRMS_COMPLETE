@@ -1,0 +1,100 @@
+{
+  "cv_file": "Muhammad_Anab_Younus_Resume_1_1785930722865.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:54:38.675729+00:00",
+  "pipeline": {
+    "total_seconds": 60.44,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 60.355,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1115,
+    "output_tokens": 745,
+    "total_tokens": 3259
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "header"
+    ],
+    "text_chars": 1566
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Md. Ana Byounus",
+      "email": "anabqadri1230@gmail.com",
+      "phone": "+92 318 2267242",
+      "location": "Sec 11 ½ Orangi Town, Karachi"
+    },
+    "preferred_job_title": "Graphic Designer & Frontend Web Developer",
+    "profile_summary": "Creative Graphic Designer and basic Frontend Developer specializing in social media ad creatives and branding. Proficient in Adobe Photoshop, Illustrator, and Canva to drive brand engagement and conversions.",
+    "education": [
+      {
+        "institution": "Board of Intermediate Education Karachi",
+        "degree": "Intermediate",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Kanzul Madaris Board Dawat-e-Islami",
+        "degree": "Dars-E-Nizami (Alim Course)",
+        "graduation_year": "2026"
+      },
+      {
+        "institution": "Board of Secondary Education Karachi",
+        "degree": "Matriculation",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Madarsatul Madina Bahar-e-Madina",
+        "degree": "Hifz-e-Quran",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Techline Programmers",
+        "role": "Senior Graphic Designer",
+        "duration": "November 2024 - Present",
+        "description": "Led branding and graphic design for digital platforms and managed social media visual content strategy."
+      },
+      {
+        "company": "Metabarc Inc",
+        "role": "Graphic Designer",
+        "duration": "October 2025 - January 2026",
+        "description": "Designed social media advertising creatives, including benefit ads and product comparisons to boost engagement."
+      }
+    ],
+    "skills": [
+      "Adobe Photoshop",
+      "Canva",
+      "Adobe Illustrator",
+      "Front-End Development",
+      "Social Media Ad Creatives",
+      "Branding",
+      "UI Design"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 40,
+    "experience_match": 20,
+    "overall_score": 30,
+    "strengths": [
+      "Strong visual content creation skills",
+      "Proficiency in Canva",
+      "Experience with social media ad creatives"
+    ],
+    "weaknesses": [
+      "Lacks experience in marketing operations (UTM tracking, reporting, scheduling)",
+      "Does not meet the Bachelor's degree requirement in Marketing/Mass Comm",
+      "No evidence of competitor research or content calendar management"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a talented graphic designer who can create the assets required for the role, but lacks the core marketing management, analytical, and educational qualifications necessary for a Marketing Specialist position."
+  }
+}

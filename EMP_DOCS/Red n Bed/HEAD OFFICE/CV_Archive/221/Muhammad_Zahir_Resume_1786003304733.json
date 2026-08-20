@@ -1,0 +1,97 @@
+{
+  "cv_file": "Muhammad_Zahir_Resume_1786003304733.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:42.172130+00:00",
+  "pipeline": {
+    "total_seconds": 82.368,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 82.205,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1254,
+    "output_tokens": 680,
+    "total_tokens": 3245
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "summary"
+    ],
+    "text_chars": 2683
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Zahir",
+      "email": "mzahirsoomro10@gmail.com",
+      "phone": "92-313-3877452",
+      "location": "Hyderabad, Sindh, Pakistan"
+    },
+    "preferred_job_title": "SEO Specialist",
+    "profile_summary": "SEO Specialist with over three years of experience in digital marketing. Expert in on-page/off-page SEO, technical audits, and WordPress design to drive organic traffic and online visibility.",
+    "education": [
+      {
+        "institution": "Govt College University Hydrabad",
+        "degree": "Bachelor BS(hons) in Mathematics",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Govt College Kalimori Hydrabad",
+        "degree": "Intermediate in Pre-Engineering",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Govt Mirza Qaleech Baigh School Hydrabad",
+        "degree": "Metriculation in Science",
+        "graduation_year": "2016"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Freelance/Self-managed",
+        "role": "WordPress Blogger / Digital Marketer",
+        "duration": "3 years",
+        "description": "Managed multiple blogs, producing SEO-optimized content, managing WordPress themes/plugins, and utilizing Google Analytics to monitor performance and engagement."
+      }
+    ],
+    "skills": [
+      "Digital Marketing",
+      "On-Page SEO",
+      "Off-Page SEO",
+      "Technical SEO",
+      "SEO Audit",
+      "Local SEO",
+      "Keyword Research",
+      "Competition Analysis",
+      "Guest Posts",
+      "Outreach",
+      "Niche Edits",
+      "WordPress Design",
+      "Google Analytics",
+      "Content Creation"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 45,
+    "technical_match": 40,
+    "experience_match": 60,
+    "overall_score": 48,
+    "strengths": [
+      "Strong SEO and keyword research expertise",
+      "Proven track record in content creation and WordPress management",
+      "Experience with data-driven strategy via Google Analytics"
+    ],
+    "weaknesses": [
+      "No mentioned experience with social media platforms (TikTok, Instagram, Facebook)",
+      "Lack of proficiency in required tools like Meta Business Suite and Canva",
+      "Educational background is in Mathematics, not Marketing or Communications"
+    ],
+    "recommendation": "Not Recommended",
+    "summary": "While the candidate has strong digital marketing and SEO skills and meets the minimum years of experience, they lack the specific social media management and design capabilities essential for this Marketing Specialist role."
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "cv_file": "Ameeque_Mallick_Mr._-_Resume_1786002032199.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:42:15.900691+00:00",
+  "pipeline": {
+    "total_seconds": 81.52,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 77.929,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1855,
+    "output_tokens": 949,
+    "total_tokens": 4406
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 4622
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Ameeque Mallick",
+      "email": "ameequemallick72@gmail.com",
+      "phone": "0311-1836887",
+      "location": "Karachi"
+    },
+    "preferred_job_title": "Digital Marketing Specialist",
+    "profile_summary": "Digital Marketing Specialist with 5 years of experience in data-driven campaigns and social media management. Expert in Meta Ads, content strategy, and brand growth with proven leadership capabilities.",
+    "education": [
+      {
+        "institution": "UIT University",
+        "degree": "Diploma in Digital Marketing",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Preston University",
+        "degree": "BSCS (IT)",
+        "graduation_year": "2020"
+      },
+      {
+        "institution": "Johor Degree College for Boys",
+        "degree": "HSC, Pre-Engineering",
+        "graduation_year": "2016"
+      },
+      {
+        "institution": "West London Grammar School",
+        "degree": "SSC, Computer Science",
+        "graduation_year": "2014"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Information Technology Services",
+        "role": "Assistant Manager – Digital Marketing Department",
+        "duration": "May 2022 – Present",
+        "description": "Led a team of 10 executing social media ad campaigns, lead-generation strategies, and content creation across platforms."
+      },
+      {
+        "company": "Information Technology Services",
+        "role": "Assistant Manager – Communication Department",
+        "duration": "June 2021 – May 2022",
+        "description": "Managed ambassador programs and author engagement networks via social media and digital ID systems."
+      },
+      {
+        "company": "Freelancer",
+        "role": "Digital Marketing",
+        "duration": "October 2017 – Present",
+        "description": "Provided SEO-optimized content creation and managed social media portfolios and ad placements for clients."
+      },
+      {
+        "company": "Trajital",
+        "role": "Digital Marketing Assistant",
+        "duration": "February – April 2021",
+        "description": "Developed digital content to increase audience engagement and managed company social media accounts."
+      },
+      {
+        "company": "Modest Clothing",
+        "role": "Digital Marketing Intern",
+        "duration": "November – December 2021",
+        "description": "Implemented SMO initiatives and coordinated brand photoshoots to enhance visual narrative and visibility."
+      }
+    ],
+    "skills": [
+      "Social Media Management",
+      "Meta Ads",
+      "LinkedIn Marketing",
+      "Content Marketing",
+      "Google Analytics",
+      "SEO",
+      "SEM",
+      "Canva",
+      "Microsoft Office",
+      "CRM",
+      "Photo and Video Editing",
+      "Brand Management",
+      "A/B testing",
+      "HTML",
+      "CSS",
+      "Influencer Marketing"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 98,
+    "experience_match": 95,
+    "overall_score": 96,
+    "strengths": [
+      "Extensive experience with Meta Ads and Social Media Management",
+      "Certified in Canva and Google Ads",
+      "Strong leadership experience managing teams",
+      "Comprehensive technical toolkit including analytics and SEO"
+    ],
+    "weaknesses": [
+      "Primary degree is in IT rather than Marketing or Mass Communication"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate exceeds the minimum experience requirements and possesses all the requested technical skills, including the 'nice-to-have' tools. Their background in managing teams and diverse social platforms makes them an ideal fit for the Marketing Specialist role."
+  }
+}

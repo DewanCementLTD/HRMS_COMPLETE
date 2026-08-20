@@ -1,0 +1,108 @@
+{
+  "cv_file": "Abdullah_Khan_Resume_1785930722897.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T11:53:29.627983+00:00",
+  "pipeline": {
+    "total_seconds": 65.479,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 64.713,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1684,
+    "output_tokens": 800,
+    "total_tokens": 3946
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": "Marketing Specialist",
+    "sections_found": [
+      "education",
+      "header",
+      "projects"
+    ],
+    "text_chars": 4200
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abdullah Khan",
+      "email": "abdullah.k1822@gmail.com",
+      "phone": "0332 2006409",
+      "location": null
+    },
+    "preferred_job_title": "Marketing Specialist",
+    "profile_summary": "Marketing specialist with 3 years of experience driving paid and organic growth for B2B SaaS and B2C e-commerce. Expert in social media management, performance marketing, and GTM strategy execution.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration (Major in Media and Marketing)",
+        "graduation_year": "2025"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shispare Pvt Ltd",
+        "role": "Digital Marketing Executive",
+        "duration": "July 2023 - Present",
+        "description": "Managed social media accounts and content calendars. Scaled Meta Ads to 2.7x ROAS and led GTM strategies for B2B SaaS, utilizing GA4 and Excel for data-driven reporting."
+      },
+      {
+        "company": "Ossols Pvt Ltd",
+        "role": "Content Associate",
+        "duration": "Jan 2022 - June 2023",
+        "description": "Defined brand positioning and managed content calendars. Collaborated with design teams to create visual assets and high-converting ad copies for digital channels."
+      },
+      {
+        "company": "Social Pakora",
+        "role": "Content Intern",
+        "duration": "Aug 2021 - Nov 2021",
+        "description": "Produced SEO-optimized articles and managed technical SEO workflows, including WordPress publishing and Google Search Console monitoring."
+      }
+    ],
+    "skills": [
+      "Organic Marketing",
+      "SEO",
+      "Content Creation",
+      "Performance Marketing",
+      "Social Media Management",
+      "Market Research",
+      "Meta Ads",
+      "Google Ads",
+      "Video Editing",
+      "Graphic Design",
+      "Copywriting",
+      "HubSpot",
+      "Meta Business Suite",
+      "CapCut",
+      "Canva",
+      "Claude.ai",
+      "WordPress",
+      "Shopify",
+      "Apollo",
+      "Google Analytics",
+      "Google Search Console",
+      "Semrush",
+      "Instantly",
+      "Microsoft Excel"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 95,
+    "technical_match": 100,
+    "experience_match": 90,
+    "overall_score": 95,
+    "strengths": [
+      "Direct experience with all required tasks including content calendars and agency coordination",
+      "Proficient in all 'nice-to-have' tools: Meta Business Suite, Canva, and Excel",
+      "Proven track record of delivering measurable ROAS and lead generation"
+    ],
+    "weaknesses": [
+      "Degree is still in progress (expected May 2025)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, possessing both the required 2+ years of experience and the specific technical toolkit requested. His background in both organic and paid social media aligns perfectly with the job description."
+  }
+}

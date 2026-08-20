@@ -1,0 +1,109 @@
+{
+  "cv_file": "Syed_Mubashir_Haider_Resume_1_1785487300752.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:45:18.100038+00:00",
+  "pipeline": {
+    "total_seconds": 88.989,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 64.274,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2588,
+    "output_tokens": 757,
+    "total_tokens": 4711
+  },
+  "extraction": {
+    "method": "ocr",
+    "page_count": 4,
+    "ocr_pages": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "detected_job_title": "Customer Support Executive",
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 10447
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Syed Mubashir Haider",
+      "email": "mubashirhaider516@gmail.com",
+      "phone": "0308-4383607",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Support Executive",
+    "profile_summary": "Versatile professional with over 3 years of experience across customer support, rider operations, and facilities coordination. Expert in CRM tools and vendor management with a consistent track record of maintaining 95%+ CSAT scores.",
+    "education": [
+      {
+        "institution": "Allama Iqbal University",
+        "degree": "Bachelor of Commerce (B.Com)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Govt. Institute Of Business And Commerce Education, Karachi",
+        "degree": "Diploma in Commerce (D.Com)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Ghazali Grammar School, Karachi",
+        "degree": "Matriculation",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Metro by T-Mobile",
+        "role": "Repairs & Maintenance Coordinator (Admin Department)",
+        "duration": "May 2026 - Present",
+        "description": "Coordinates repair and maintenance for 400+ US retail stores, managing vendor sourcing, SOW preparation, and budget compliance using advanced Excel trackers."
+      },
+      {
+        "company": "Snoonu",
+        "role": "Customer Support Executive | Rider Operations",
+        "duration": "2024 - May 2026",
+        "description": "Provided multi-channel support with 96%+ CSAT and managed operations for 117+ delivery riders using Salesforce, Zoho, and FalconFlex."
+      },
+      {
+        "company": "Tribe Consulting",
+        "role": "Customer Support Representative",
+        "duration": "2023 - 2024",
+        "description": "Handled 100+ daily interactions for Daraz and Papa John's campaigns, maintaining 95%+ CSAT and identifying upselling opportunities."
+      },
+      {
+        "company": "TLF (The Lead Forum)",
+        "role": "Customer Support Representative | Sales Specialist",
+        "duration": "2022 - 2023",
+        "description": "Provided product consultation and sales for Durable Medical Equipment, managing relationships with healthcare providers and generating qualified leads."
+      }
+    ],
+    "skills": [
+      "Customer Support",
+      "Live Chat Support",
+      "Inbound/Outbound Call Support",
+      "CRM",
+      "Vendor Management",
+      "Administrative Support",
+      "Operations Coordination",
+      "Facilities Management",
+      "Work Order Management",
+      "Microsoft Excel (Advanced)",
+      "Salesforce CRM",
+      "Zoho CRM",
+      "Slack",
+      "FalconFlex",
+      "Action Center",
+      "Magqsam",
+      "Google Workspace",
+      "Data Analysis & Reporting",
+      "Customer Complaint Resolution",
+      "Problem Solving",
+      "Communication Skills"
+    ]
+  }
+}

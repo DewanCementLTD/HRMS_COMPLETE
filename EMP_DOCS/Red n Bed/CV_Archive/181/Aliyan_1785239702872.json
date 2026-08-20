@@ -1,0 +1,116 @@
+{
+  "cv_file": "Aliyan_1785239702872.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:56:33.718764+00:00",
+  "pipeline": {
+    "total_seconds": 67.801,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 66.585,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1586,
+    "output_tokens": 912,
+    "total_tokens": 3905
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3530
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Aliyan Abdul-Jabbar",
+      "email": "aliyanjabbar3@gmail.com",
+      "phone": "(+92) 3311427705",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Performance Marketing Executive",
+    "profile_summary": "Performance Marketing specialist with 3+ years of experience in Ecommerce and Lead Generation. Expert in managing high-budget Meta and Google Ads campaigns with a focus on ROAS, CPA, and full-funnel optimization.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelors in Software Engineering",
+        "graduation_year": "2023"
+      },
+      {
+        "institution": "Nabi Bagh College",
+        "degree": "Intermediate of Science",
+        "graduation_year": "2019"
+      },
+      {
+        "institution": "Mama Baby Care School",
+        "degree": "Matriculate",
+        "graduation_year": "2017"
+      }
+    ],
+    "experience": [
+      {
+        "company": "SIAR",
+        "role": "Assistant Manager - Performance Marketing",
+        "duration": "01/02/2026 – Current",
+        "description": "Manages PKR 1.2 Cr+ monthly spend across Meta and Google Ads for top fashion brands, executing full-funnel strategies and optimizing conversion rates."
+      },
+      {
+        "company": "Artxpro",
+        "role": "Senior Performance Marketer",
+        "duration": "01/12/2024 – 31/01/2026",
+        "description": "Developed digital campaigns for Ecommerce and Lead Generation, optimizing landing pages and analyzing competitor data to maximize performance."
+      },
+      {
+        "company": "7Figure Marketing Agency",
+        "role": "Media Buyer",
+        "duration": "12/08/2023 – 28/11/2024",
+        "description": "Managed paid search, PPC, and social media campaigns focused on brand awareness and lead generation."
+      },
+      {
+        "company": "Omal Fashion Brand",
+        "role": "Performance Marketer",
+        "duration": "08/07/2022 – 04/08/2023",
+        "description": "Executed performance marketing efforts to drive growth and reduce cost-per-purchase (CPP)."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Google Analytics",
+      "Social Media Marketing",
+      "Content Creation",
+      "Ecommerce",
+      "Brand Building",
+      "TikTok Ads",
+      "Brand Positioning",
+      "Strategy Creation",
+      "Communication",
+      "Microsoft Excel",
+      "Microsoft PowerPoint",
+      "Microsoft Word"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 40,
+    "technical_match": 65,
+    "experience_match": 30,
+    "overall_score": 42,
+    "strengths": [
+      "Strong technical expertise in paid acquisition (Meta/Google Ads)",
+      "Experience managing significant monthly ad budgets",
+      "Local to Karachi"
+    ],
+    "weaknesses": [
+      "Insufficient total experience (approx 3.5 years vs required 5-7)",
+      "No evidence of people management or agency leadership",
+      "Degree is in Software Engineering rather than Marketing/Business",
+      "Lacks proven experience in organic and content strategy"
+    ],
+    "recommendation": "Underqualified",
+    "summary": "The candidate is a skilled Performance Marketer but lacks the seniority, people management experience, and educational background required for a comprehensive Marketing Manager role."
+  }
+}

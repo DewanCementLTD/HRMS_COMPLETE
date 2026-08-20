@@ -1,0 +1,78 @@
+{
+  "cv_file": "Bilal_Top-tier_marketer_1785485520480.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:13:38.472742+00:00",
+  "pipeline": {
+    "total_seconds": 36.898,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 36.839,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 811,
+    "output_tokens": 439,
+    "total_tokens": 2111
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Top-Tier Result-Oriented Growth Marketer",
+    "sections_found": [
+      "experience",
+      "header",
+      "summary"
+    ],
+    "text_chars": 1230
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Bilal",
+      "email": "bilalsultanmarketer@gmail.com",
+      "phone": "+923490224117",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Top-Tier Result-Oriented Growth Marketer",
+    "profile_summary": "Top 1% digital marketer with over 7 years of experience specializing in growth and performance marketing. Proven track record of managing $1M+ in ad spend and generating 6-8 digit revenues across multiple brands.",
+    "education": [],
+    "experience": [
+      {
+        "company": "TECHNO RIVALS",
+        "role": "Head Of Marketing Department",
+        "duration": null,
+        "description": "Led the marketing department to drive brand growth and strategic initiatives."
+      },
+      {
+        "company": "NIXAAM LLC",
+        "role": "Head Of E-commerce Department",
+        "duration": null,
+        "description": "Managed e-commerce operations and growth strategies."
+      },
+      {
+        "company": "NIXAAM LLC",
+        "role": "Marketing Specialist",
+        "duration": null,
+        "description": "Executed digital marketing campaigns and performance optimization."
+      },
+      {
+        "company": "WAVETEC",
+        "role": "Senior E-commerce Marketer",
+        "duration": null,
+        "description": "Drove e-commerce sales and marketing performance."
+      }
+    ],
+    "skills": [
+      "FB/IG Marketing",
+      "PPC",
+      "TikTok Ads",
+      "Digital Marketing",
+      "Landing Page Creation",
+      "Lead Generation",
+      "Meta Campaigns",
+      "ROAS Optimization",
+      "CPL Reduction",
+      "CAC Reduction"
+    ]
+  }
+}

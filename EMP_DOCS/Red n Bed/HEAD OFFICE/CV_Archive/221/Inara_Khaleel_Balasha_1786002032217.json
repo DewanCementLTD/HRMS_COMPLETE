@@ -1,0 +1,93 @@
+{
+  "cv_file": "Inara_Khaleel_Balasha_1786002032217.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T07:43:41.542884+00:00",
+  "pipeline": {
+    "total_seconds": 43.54,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.44,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 993,
+    "output_tokens": 615,
+    "total_tokens": 2524
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "skills"
+    ],
+    "text_chars": 1774
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Inara Khaleel",
+      "email": "inara.moorani123@gmail.com",
+      "phone": "03363453498",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with experience in digital marketing and customer service leadership. Skilled in social media management, content creation, and client relationship management.",
+    "education": [
+      {
+        "institution": "Allama Iqbal University",
+        "degree": "Bachelor's in Arts",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ora-Tech Systems Pvt. Ltd",
+        "role": "Sales / Digital Marketing Executive",
+        "duration": "01/2023 - Present",
+        "description": "Executes social media campaigns, creates digital content, manages client relations, and provides performance reports to senior management."
+      },
+      {
+        "company": "Fluid Technology International",
+        "role": "Customer Service Team Lead",
+        "duration": "03/2022 - 12/2022",
+        "description": "Led customer service representatives, managed quality assurance, handled complaints, and implemented strategies to improve team performance."
+      }
+    ],
+    "skills": [
+      "Customer service",
+      "Time management",
+      "Graphic Design Abilities",
+      "Marketing Management",
+      "Customer Relationship Management",
+      "Pay-Per-Click Advertising",
+      "Content Marketing Strategy",
+      "Digital Branding Strategies",
+      "Social Media Management",
+      "Sales Forecasting",
+      "Training and Onboarding",
+      "Multitasking",
+      "Brand Management",
+      "Social Media Strategy"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 75,
+    "technical_match": 80,
+    "experience_match": 65,
+    "overall_score": 73,
+    "strengths": [
+      "Direct experience in social media management and content creation",
+      "Strong background in client relations and reporting",
+      "Possesses graphic design abilities"
+    ],
+    "weaknesses": [
+      "Degree is in Arts rather than Marketing or Mass Communication",
+      "Specific marketing experience is slightly under the 2-year minimum"
+    ],
+    "recommendation": "Interview",
+    "summary": "The candidate has the necessary technical skills for social media and content management, though their specialized marketing tenure is shorter than requested."
+  }
+}

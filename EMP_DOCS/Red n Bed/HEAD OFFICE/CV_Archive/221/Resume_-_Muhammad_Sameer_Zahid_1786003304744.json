@@ -1,0 +1,116 @@
+{
+  "cv_file": "Resume_-_Muhammad_Sameer_Zahid_1786003304744.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:06:38.525634+00:00",
+  "pipeline": {
+    "total_seconds": 67.177,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.061,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1457,
+    "output_tokens": 866,
+    "total_tokens": 3863
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2992
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Sameer Zahid",
+      "email": "zahidsameer37@gmail.com",
+      "phone": "+92-301-2222364",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Results-driven media planning professional with extensive experience managing high-impact digital and traditional campaigns for Unilever. Expert in strategic brand communication, budget management, and driving measurable growth in brand awareness.",
+    "education": [
+      {
+        "institution": "Iqra University Main Campus",
+        "degree": "Master of Business Administration",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Iqra University Main Campus",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Senior Media Planner",
+        "duration": "Nov 2024 – Present",
+        "description": "Oversees financial compliance reporting, yearly budget setting, and global brand communication strategies for Unilever portfolios."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Media Planner",
+        "duration": "Sep 2023 – Nov 2024",
+        "description": "Executed high-impact media strategies for major events, increasing TOM scores by 500 BPS and boosting engagement rates by 44%."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Assistant Media Planner",
+        "duration": "Mar 2023 – Sep 2023",
+        "description": "Led mega launches for Cornetto and Feast, utilizing TikTok Top View Ads to expand reach by 2 million."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Project Management Trainee",
+        "duration": "Jun 2022 - Mar 2023",
+        "description": "Managed the first media launch of CarteDor in Pakistan, resulting in a 15% boost in awareness scores."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Media/ Digital Media Intern",
+        "duration": "Apr 2021 – Jun 2021",
+        "description": "Supported the execution of various media and digital media planning campaigns."
+      }
+    ],
+    "skills": [
+      "Client Servicing",
+      "Media Innovation",
+      "Media Planning",
+      "Forecasting",
+      "Budgeting",
+      "Brand Management",
+      "Data Analysis",
+      "Market Research",
+      "Presentation",
+      "Storytelling",
+      "Social Media Marketing",
+      "Google Ad Search"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 90,
+    "technical_match": 85,
+    "experience_match": 95,
+    "overall_score": 90,
+    "strengths": [
+      "Extensive experience with global brand (Unilever)",
+      "Proven success with TikTok and digital ad platforms",
+      "Meta and Google certifications",
+      "Strong analytical and strategic planning background"
+    ],
+    "weaknesses": [
+      "No explicit mention of Canva or community management/query routing"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is highly overqualified for a basic Marketing Specialist role, bringing senior-level media planning and strategic execution experience that far exceeds the job requirements."
+  }
+}

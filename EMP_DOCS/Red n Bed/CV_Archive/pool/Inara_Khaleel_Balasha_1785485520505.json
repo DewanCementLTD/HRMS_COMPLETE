@@ -1,0 +1,76 @@
+{
+  "cv_file": "Inara_Khaleel_Balasha_1785485520505.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:14:26.959597+00:00",
+  "pipeline": {
+    "total_seconds": 40.034,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 40.01,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 709,
+    "output_tokens": 463,
+    "total_tokens": 2123
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "skills"
+    ],
+    "text_chars": 1774
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Inara Khaleel",
+      "email": "inara.moorani123@gmail.com",
+      "phone": "03363453498",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Versatile professional with experience in digital marketing, sales, and customer service leadership. Proven track record in managing social media campaigns, client relations, and team performance to drive brand growth and customer satisfaction.",
+    "education": [
+      {
+        "institution": "Allama Iqbal University",
+        "degree": "Bachelor's in Arts",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Ora-Tech Systems Pvt. Ltd",
+        "role": "Sales / Digital Marketing Executive",
+        "duration": "01/2023 - Present",
+        "description": "Manages marketing campaigns, client relations, and sales reporting. Executes social media strategies to increase brand awareness and engagement while tracking sales data to meet company quotas."
+      },
+      {
+        "company": "Fluid Technology International",
+        "role": "Customer Service Team Lead",
+        "duration": "03/2022 - 12/2022",
+        "description": "Led a customer service team, focusing on quality assurance, performance reviews, and training. Implemented strategies to improve customer satisfaction and overall team efficiency."
+      }
+    ],
+    "skills": [
+      "Customer service",
+      "Time management",
+      "Graphic Design Abilities",
+      "Marketing Management",
+      "Customer Relationship Management",
+      "Pay-Per-Click Advertising",
+      "Content Marketing Strategy",
+      "Digital Branding Strategies",
+      "Social Media Management",
+      "Sales Forecasting",
+      "Training and Onboarding",
+      "Multitasking",
+      "Brand Management",
+      "Social Media Strategy"
+    ]
+  }
+}

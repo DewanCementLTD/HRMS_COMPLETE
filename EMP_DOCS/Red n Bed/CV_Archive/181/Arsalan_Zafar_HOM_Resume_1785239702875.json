@@ -1,0 +1,105 @@
+{
+  "cv_file": "Arsalan_Zafar_HOM_Resume_1785239702875.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:58:05.598656+00:00",
+  "pipeline": {
+    "total_seconds": 104.086,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 103.993,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2021,
+    "output_tokens": 837,
+    "total_tokens": 4385
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 6120
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Arsalan Zafar",
+      "email": "butt.arsalan99@gmail.com",
+      "phone": "+92-345-6514609",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Head of Marketing",
+    "profile_summary": "Senior marketing leader with 7+ years of experience driving brand growth and e-commerce performance for fashion, beauty, and lifestyle brands. Expert in performance marketing, team leadership, and scaling consumer brands across Pakistan and GCC markets.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Bachelor of Business Administration (BBA)",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Vyrl Communications",
+        "role": "Head of Marketing",
+        "duration": "Dec 2025 – Present",
+        "description": "Leads end-to-end marketing strategy, budget management, and team leadership for GCC-based consumer brands across Meta, Google, TikTok, and Snapchat."
+      },
+      {
+        "company": "SIAR Digital",
+        "role": "Deputy Manager – Performance Marketing",
+        "duration": "Jan 2025 – Dec 2025",
+        "description": "Managed marketing strategy and budgets for leading fashion and beauty brands, driving 20% revenue growth through data-driven optimization and team coordination."
+      },
+      {
+        "company": "KS Creative Studio",
+        "role": "Assistant Manager – Performance Marketing",
+        "duration": "Jan 2023 – Dec 2024",
+        "description": "Executed integrated marketing campaigns and creative strategies for lifestyle brands, improving engagement by 40% and ROAS by 35%."
+      },
+      {
+        "company": "Neo Trimark",
+        "role": "Senior Executive – Performance Marketing",
+        "duration": "Feb 2020 – Dec 2022",
+        "description": "Executed performance marketing and brand communication campaigns for fashion and fragrance clients in US and UK markets."
+      }
+    ],
+    "skills": [
+      "Marketing Team Management",
+      "Agency & Vendor Management",
+      "Brand Growth Strategy",
+      "E-Commerce Scaling",
+      "Meta Ads",
+      "Google Ads",
+      "TikTok Ads",
+      "Snapchat Ads",
+      "ROAS Optimization",
+      "CAC Management",
+      "GA4",
+      "Creative Strategy",
+      "Influencer Marketing",
+      "Budgeting",
+      "Financial Reporting"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 98,
+    "technical_match": 100,
+    "experience_match": 95,
+    "overall_score": 97,
+    "strengths": [
+      "Deep expertise in consumer brand scaling (Fashion/Beauty)",
+      "Proven experience managing both internal teams and external agencies",
+      "Full proficiency in GA4 and multi-platform ad reporting",
+      "Strong track record of budget ownership and ROI optimization"
+    ],
+    "weaknesses": [
+      "CV contains chronological inconsistencies/future dates (2025)"
+    ],
+    "recommendation": "Strong Hire",
+    "summary": "The candidate is an exceptional match, exceeding the requirements for experience and technical skill. He has a proven track record of owning the marketing function end-to-end for consumer brands, including team leadership and budget management."
+  }
+}

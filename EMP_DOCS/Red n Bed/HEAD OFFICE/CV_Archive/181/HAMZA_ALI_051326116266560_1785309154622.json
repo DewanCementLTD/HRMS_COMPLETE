@@ -1,0 +1,107 @@
+{
+  "cv_file": "HAMZA_ALI_051326116266560_1785309154622.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:13:44.251354+00:00",
+  "pipeline": {
+    "total_seconds": 46.117,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 45.605,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1182,
+    "output_tokens": 657,
+    "total_tokens": 2781
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 1588
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Hamza Ali",
+      "email": "hamza030325@gmail.com",
+      "phone": "03032540174",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Early-career professional with a background in pharmacy operations and data entry. Experienced in team supervision and inventory management within a medical setting.",
+    "education": [
+      {
+        "institution": "Gul English secondary schools",
+        "degree": "Matric",
+        "graduation_year": 2018
+      },
+      {
+        "institution": "Ali intermediate college",
+        "degree": "Pre-engineering",
+        "graduation_year": 2021
+      },
+      {
+        "institution": "Govt. COLLEGE OF TECHNOLOGY KARACHI",
+        "degree": "Diploma mechanical engineering",
+        "graduation_year": 2025
+      },
+      {
+        "institution": null,
+        "degree": "Bachelor of Commerce (Bcom)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shaheen medical sevices (PAF)",
+        "role": "Date entry operator",
+        "duration": "2019 - 2021",
+        "description": "Managed entry of medication orders, prescriptions, and customer data while maintaining the inventory database."
+      },
+      {
+        "company": "Shaheen medical service (PAF)",
+        "role": "Salesman / Supervisor",
+        "duration": "2021 - 2025",
+        "description": "Overseeing pharmacy operations, managing staff, monitoring inventory levels, and implementing quality control measures."
+      }
+    ],
+    "skills": [
+      "Ms excell",
+      "Ms word",
+      "PowerPoint",
+      "English",
+      "Urdu",
+      "Team Management",
+      "Inventory Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 10,
+    "overall_score": 5,
+    "strengths": [
+      "Local to Karachi",
+      "Basic supervisory experience",
+      "Proficiency in MS Office"
+    ],
+    "weaknesses": [
+      "No marketing experience",
+      "Lacks GA4 and ad platform reporting skills",
+      "No experience with integrated campaigns or brand strategy",
+      "Education not aligned with Marketing requirements"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate has no professional experience or technical training in marketing, making them entirely unsuitable for a Marketing Manager role."
+  }
+}

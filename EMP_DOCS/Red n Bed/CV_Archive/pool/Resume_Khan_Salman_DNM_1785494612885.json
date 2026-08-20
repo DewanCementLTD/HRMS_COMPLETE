@@ -1,0 +1,137 @@
+{
+  "cv_file": "Resume_Khan_Salman_DNM_1785494612885.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:46:17.243808+00:00",
+  "pipeline": {
+    "total_seconds": 74.716,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 74.677,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2000,
+    "output_tokens": 1012,
+    "total_tokens": 4631
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 5752
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Salman Khan",
+      "email": "khan.salman4u@gmail.com",
+      "phone": "+92 300 2284226",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Textile & Garments Professional",
+    "profile_summary": "Senior professional with 25 years of experience in the garments and textile industry. Expert in business development, sourcing, supply chain management, and factory operations across woven, knits, and workwear domains. Strong leadership skills in cost optimization and vendor management.",
+    "education": [
+      {
+        "institution": "Preston University Karachi",
+        "degree": "MBA (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "MSC (Social Science)",
+        "graduation_year": null
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "BSC (Hons)",
+        "graduation_year": null
+      },
+      {
+        "institution": "Islamia College Sukkur",
+        "degree": "Intermediated (Science)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "SOS International (Buying Office)",
+        "role": "Head of Business Developments, Sourcing & Operations",
+        "duration": "2025 - Present",
+        "description": "Leading business development and sourcing for woven, knits, workwear, scrubs, and bed linen."
+      },
+      {
+        "company": "Adamjee Enterprises",
+        "role": "AGM Sales & Marketing",
+        "duration": "2023 - 2025",
+        "description": "Managed sales and marketing for woven, scrubs, institutional, and knits garments."
+      },
+      {
+        "company": "Nevtech Industries",
+        "role": "GM Marketing & Operations",
+        "duration": "2019 - 2023",
+        "description": "Oversaw marketing and operations for woven (denim/non-denim) and knits garments."
+      },
+      {
+        "company": "Al-Karam Textile Mills",
+        "role": "Sr. Manager Merchandising & Procurement Head (SCM)",
+        "duration": "2013 - 2019",
+        "description": "Led merchandising and procurement for home textiles and retail studio."
+      },
+      {
+        "company": "M.N Textiles",
+        "role": "Sr. Manager Merchandising, Operations, Out-Source Units",
+        "duration": "2008 - 2013",
+        "description": "Managed merchandising and operations for scrubs, chef/workwear, and fabric."
+      },
+      {
+        "company": "Fatani Impex",
+        "role": "Manager Merchandising",
+        "duration": "2005 - 2008",
+        "description": "Handled merchandising for woven garments, including denim and non-denim."
+      },
+      {
+        "company": "Naveena Exports",
+        "role": "Manager Merchandising",
+        "duration": "2003 - 2005",
+        "description": "Managed merchandising for woven garments, including denim and non-denim."
+      },
+      {
+        "company": "Artistic Milliners",
+        "role": "Sr. Merchandiser",
+        "duration": "1999 - 2003",
+        "description": "Senior merchandising role focusing on woven garments (denim and non-denim)."
+      }
+    ],
+    "skills": [
+      "Ms Office",
+      "Multimedia Software",
+      "Hardware Installation",
+      "Networking",
+      "ERP",
+      "Digital Marketing",
+      "Ads Making",
+      "Content Writing",
+      "Canva",
+      "Business Development",
+      "Sourcing",
+      "Marketing",
+      "Merchandising",
+      "Supply Chain Management",
+      "Factory Operations",
+      "Price Negotiation",
+      "Budget Management",
+      "Risk Management",
+      "Vendor Management",
+      "Problem Solving",
+      "Team Leadership",
+      "Cost Management",
+      "Data Analysis"
+    ]
+  }
+}

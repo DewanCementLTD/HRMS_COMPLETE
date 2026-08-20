@@ -1,0 +1,97 @@
+{
+  "cv_file": "Abdul_Aziz_Nagarseth_Resume_1785494612851.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:02.419030+00:00",
+  "pipeline": {
+    "total_seconds": 67.146,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 66.344,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1202,
+    "output_tokens": 718,
+    "total_tokens": 3411
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header"
+    ],
+    "text_chars": 3229
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Abdul Aziz Nagarseth",
+      "email": "abdulaziznagarseth@gmail.com",
+      "phone": "03332080863",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Customer Relationship Management / Digital Operations Specialist",
+    "profile_summary": "Professional with 3+ years of experience in high-volume E-commerce customer service and claims resolution. Combines expertise in B2B/B2C relationship management with technical skills in front-end development and digital marketing.",
+    "education": [
+      {
+        "institution": "Dadabhoy Institute of Higher Education, Karachi",
+        "degree": "Bachelor of Science in Computer Science (BSCS)",
+        "graduation_year": "2018"
+      },
+      {
+        "institution": "Board of Intermediate Education, Karachi (BIEK)",
+        "degree": "I.Com",
+        "graduation_year": null
+      },
+      {
+        "institution": "International School of Studies",
+        "degree": "Matriculation (Biology)",
+        "graduation_year": "2009"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Zero Lifestyle",
+        "role": "Customer Support Executive – Returns & Cancellations",
+        "duration": "Jan 2025 – Present",
+        "description": "Processes high-volume customer orders and complex return/cancellation requests while consistently meeting service targets."
+      },
+      {
+        "company": "DARAZ",
+        "role": "Claims Executive",
+        "duration": "Oct 2022 – Jan 2025",
+        "description": "Resolved 999+ complex seller claims, adhered to SLAs, mentored 10+ new staff, and mitigated critical customer behavioral risks."
+      },
+      {
+        "company": "SAYA (Al-Razzaq Fibres PVT Ltd)",
+        "role": "Customer Service Representative",
+        "duration": "July 2021 – May 2022",
+        "description": "Managed E-commerce interactions and complaints while handling social media engagement on Facebook and Instagram."
+      },
+      {
+        "company": "Expo Store",
+        "role": "Online Executive",
+        "duration": "July 2020 – June 2021",
+        "description": "Provided E-commerce customer support via WhatsApp and calls, focusing on first-contact resolution."
+      },
+      {
+        "company": "CORE2PLUS",
+        "role": "WordPress Developer",
+        "duration": "Dec 2019 – June 2020",
+        "description": "Contributed to the design, development, and maintenance of various website projects."
+      }
+    ],
+    "skills": [
+      "E-commerce CRM",
+      "Claims Resolution",
+      "Social Media Management",
+      "Customer Retention",
+      "WordPress Development",
+      "Python Programming",
+      "SQL Server",
+      "Web Design"
+    ]
+  }
+}

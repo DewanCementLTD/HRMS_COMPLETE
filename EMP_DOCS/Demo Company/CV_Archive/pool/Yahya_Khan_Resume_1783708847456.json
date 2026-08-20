@@ -1,0 +1,76 @@
+{
+  "cv_file": "Yahya_Khan_Resume_1783708847456.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-10T18:41:35.684918+00:00",
+  "pipeline": {
+    "total_seconds": 43.886,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 43.765,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 948,
+    "output_tokens": 460,
+    "total_tokens": 2354
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Software Engineer",
+    "sections_found": [
+      "education",
+      "header",
+      "projects",
+      "references"
+    ],
+    "text_chars": 2311
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Yahya Shaikh",
+      "email": "m.yahyashaikh2003@gmail.com",
+      "phone": "+92347-2295801",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Software Engineer",
+    "profile_summary": "Software Engineer with 2 years of experience in backend systems, database retrieval, and computer vision. Proficient in the MERN stack and OOP, with a focus on building scalable applications and high-performance frameworks.",
+    "education": [
+      {
+        "institution": "National University of Computer and Emerging Sciences (FAST)",
+        "degree": "Bachelor of science in Computer Science (BSCS)",
+        "graduation_year": "2023 - Present"
+      }
+    ],
+    "experience": [
+      {
+        "company": "FAST NUCES",
+        "role": "web Development Assistant",
+        "duration": "August 2025 - September 2025",
+        "description": "Designed a pharmaceutical ERP system architecture with 8 integrated modules and developed high-performance REST APIs for real-time inventory reporting."
+      },
+      {
+        "company": "Systems Ltd",
+        "role": "Software Engineer Intern",
+        "duration": "August 2024 - September 2024",
+        "description": "Optimized database queries to reduce server response time by 200ms and automated internal workflows, saving the team 5 hours of manual work per week."
+      }
+    ],
+    "skills": [
+      "C++",
+      "Python",
+      "C#",
+      "React.js",
+      "Node.js",
+      "PostgreSQL",
+      "MongoDB",
+      "REST APIs",
+      "OOP",
+      ".Net framework",
+      "Linux / Unis",
+      "Git / Version Control",
+      "OpenCV"
+    ]
+  }
+}

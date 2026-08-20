@@ -1,0 +1,145 @@
+{
+  "cv_file": "SUNNYIA_TIRMIZI-_RESUME_2025_updated_1785931098834.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:02:02.762269+00:00",
+  "pipeline": {
+    "total_seconds": 87.186,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 87.067,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 2252,
+    "output_tokens": 1190,
+    "total_tokens": 5350
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 4,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "references",
+      "skills"
+    ],
+    "text_chars": 5904
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Sunnyia Tirmizi",
+      "email": "Sunnyiatirmizi4@hotmail.com",
+      "phone": "+92 321-2333505",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Senior textile and fashion professional with over 15 years of experience in key account management, business development, and merchandising. Expert in driving operational efficiency and revenue growth within the apparel and home textile sectors.",
+    "education": [
+      {
+        "institution": "R.L.A.K Govt. College of Home Economics",
+        "degree": "MSc in Clothing & Textiles",
+        "graduation_year": "2008"
+      },
+      {
+        "institution": "R.L.A.K. Govt. College of Home Economics",
+        "degree": "BSc in Arts & Crafts",
+        "graduation_year": "2006"
+      },
+      {
+        "institution": "R.L.A.K. Govt. College of Home Economics",
+        "degree": "Inter Home Economics",
+        "graduation_year": "2004"
+      },
+      {
+        "institution": "Army Public School",
+        "degree": "Metric in Science",
+        "graduation_year": "2002"
+      }
+    ],
+    "experience": [
+      {
+        "company": "American Homes & Textiles (DLI)",
+        "role": "Product Manager",
+        "duration": "June 2025 – Present",
+        "description": "Manages global vendor sourcing, product development, and coordination with Italian designers for annual collections."
+      },
+      {
+        "company": "Lucky Knits Pvt Ltd",
+        "role": "Manager Key Accounts",
+        "duration": "January 2023 – October 2024",
+        "description": "Led market expansion and strategic customer relationship management to increase market share."
+      },
+      {
+        "company": "ARP Group",
+        "role": "Marketing & Merchandising Head",
+        "duration": "August 2021 – December 2022",
+        "description": "Managed merchandising and quality teams to deliver orders across garment and home textile divisions."
+      },
+      {
+        "company": "Synergies Sourcing Pakistan",
+        "role": "Manager Merchandising & 2nd Head of Fashion Department",
+        "duration": "June 2018 – July 2021",
+        "description": "Supervised merchandising for knits, woven garments, and leather shoes, including vendor sourcing and negotiations."
+      },
+      {
+        "company": "Metro Germany (Geotex)",
+        "role": "Business Development & Sourcing Manager",
+        "duration": "July 2014 - August 2015",
+        "description": "Drove business development and vendor sourcing aligned with customer expectations."
+      },
+      {
+        "company": "El Corte Ingles",
+        "role": "Business Development & Merchandising",
+        "duration": "Oct 2012 - July 2014",
+        "description": "Developed promotional and seasonal orders across apparel and home textile categories."
+      },
+      {
+        "company": "Soorty Enterprises",
+        "role": "Assistant Manager Quality",
+        "duration": "September 2011 - September 2012",
+        "description": "Maintained quality controls and conducted audits to ensure international standards."
+      },
+      {
+        "company": "Apparel Merchandising Services",
+        "role": "Merchandiser",
+        "duration": "March 2008 – August 2011",
+        "description": "Handled merchandising activities for a buying agency."
+      }
+    ],
+    "skills": [
+      "Key Account Management",
+      "Business Development",
+      "Product Merchandising",
+      "Quality Assurance",
+      "Team Leadership",
+      "Data Analysis & Reporting",
+      "ERP (INTEGRA)",
+      "SPSS",
+      "Adobe Illustrator",
+      "Photoshop",
+      "MS Excel",
+      "Social Media Management"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 20,
+    "technical_match": 30,
+    "experience_match": 10,
+    "overall_score": 20,
+    "strengths": [
+      "Extensive professional seniority",
+      "Proficiency in design tools (Photoshop, Illustrator)",
+      "Recent certification in social media management"
+    ],
+    "weaknesses": [
+      "Lack of professional experience in digital content scheduling and UTM tracking",
+      "Career history is focused on textile merchandising rather than digital marketing",
+      "Overqualified in seniority for a Specialist role"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced textile and merchandising professional. While they possess a recent certificate in social media management and design skills, they lack the practical, professional experience required for a digital marketing specialist role."
+  }
+}

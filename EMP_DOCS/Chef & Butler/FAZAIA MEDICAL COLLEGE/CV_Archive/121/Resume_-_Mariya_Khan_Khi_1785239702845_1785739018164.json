@@ -1,0 +1,131 @@
+{
+  "cv_file": "Resume_-_Mariya_Khan_Khi_1785239702845_1785739018164.pdf",
+  "job_folder": "121",
+  "job_id": 121,
+  "mode": "evaluate",
+  "processed_at": "2026-08-03T06:38:18.337950+00:00",
+  "pipeline": {
+    "total_seconds": 74.728,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 70.222,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1916,
+    "output_tokens": 1024,
+    "total_tokens": 4376
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "summary"
+    ],
+    "text_chars": 6255
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Mariya Khan",
+      "email": "mayakhan3@hotmail.com",
+      "phone": "0092-332-5473237",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Marketing & Brand Management Professional",
+    "profile_summary": "Senior Marketing and Brand Management professional with over 10 years of experience across FMCG, Retail, and Lifestyle industries. Expert in 360° marketing strategies, digital transformation, and driving measurable brand growth.",
+    "education": [
+      {
+        "institution": "COMSATS, Islamabad, Pakistan",
+        "degree": "MBA (Marketing)",
+        "graduation_year": "2012"
+      },
+      {
+        "institution": "IIUI, Islamabad, Pakistan",
+        "degree": "BBA-ITM (Technology Management)",
+        "graduation_year": "2010"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Celeste Home Fashion – Master Group of Industries",
+        "role": "Marketing Manager",
+        "duration": "January 2025 – Present",
+        "description": "Led 360° marketing strategies and retail campaigns, generating 2M+ impressions and increasing in-store sales by 15% YoY."
+      },
+      {
+        "company": "Tarseel Pvt Ltd",
+        "role": "Marketing Manager",
+        "duration": "April 2024 – December 2024",
+        "description": "Directed strategic marketing and PR for international FMCG brands, increasing market share and PR reach by 20%."
+      },
+      {
+        "company": "Interwood Mobel",
+        "role": "Brand Communication Manager",
+        "duration": "August 2022 – January 2024",
+        "description": "Executed multi-channel digital campaigns increasing website traffic by 77% and market share by 9%."
+      },
+      {
+        "company": "EL– Distribution House",
+        "role": "Portfolio Brand Manager",
+        "duration": "November 2021 – July 2022",
+        "description": "Managed Clarins brand equity, optimized A&P budgets by 15%, and drove a 12% revenue increase."
+      },
+      {
+        "company": "MCPL",
+        "role": "Brand Manager",
+        "duration": "November 2020 – September 2021",
+        "description": "Managed brand operations."
+      },
+      {
+        "company": "Habib Oil Mills",
+        "role": "Brand Manager",
+        "duration": "February 2020 – April 2020",
+        "description": "Managed brand operations."
+      },
+      {
+        "company": "Olivia Cosmetics",
+        "role": "Brand Manager",
+        "duration": "April 2018 – April 2019",
+        "description": "Managed brand operations."
+      }
+    ],
+    "skills": [
+      "Brand Strategy",
+      "360° Campaign Management",
+      "Digital Marketing",
+      "Integrated Marketing Communications",
+      "Trade & Retail Marketing",
+      "Consumer Insights",
+      "Market Research",
+      "Influencer Marketing",
+      "Go-to-Market Strategy",
+      "ATL/BTL Activation",
+      "Public Relations",
+      "E-commerce",
+      "Product Launch",
+      "Category Management",
+      "Stakeholder Management",
+      "Business Analytics"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Extensive experience in brand and marketing management",
+      "Strong track record in FMCG and retail sectors"
+    ],
+    "weaknesses": [
+      "No Python programming skills",
+      "No experience with Django, Flask, or FastAPI",
+      "No AWS cloud infrastructure experience",
+      "Professional background is entirely unrelated to software development"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly experienced marketing professional with no technical skills or experience relevant to a Python Developer role."
+  }
+}

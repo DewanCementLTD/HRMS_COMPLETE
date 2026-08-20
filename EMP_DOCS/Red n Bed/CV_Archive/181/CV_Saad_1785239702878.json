@@ -1,0 +1,110 @@
+{
+  "cv_file": "CV_Saad_1785239702878.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-28T11:57:36.337156+00:00",
+  "pipeline": {
+    "total_seconds": 50.349,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 48.842,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1767,
+    "output_tokens": 715,
+    "total_tokens": 3495
+  },
+  "extraction": {
+    "method": "mixed",
+    "page_count": 3,
+    "ocr_pages": [
+      3
+    ],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 4271
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Saad Ali",
+      "email": "saad.timenspace@gmail.com",
+      "phone": "0302-4021005",
+      "location": "Lahore, Pakistan"
+    },
+    "preferred_job_title": "Marketing Strategist | Client Service | Business Development",
+    "profile_summary": "Senior marketing and client service leader with over 8 years of experience driving brand growth and integrated campaigns. Expert in leading cross-functional teams and managing high-value portfolios across corporate, public, and development sectors.",
+    "education": [
+      {
+        "institution": "University of the Punjab",
+        "degree": "B.Com",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "M.A. Political Science (Part I Completed)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Time & Space Media Pvt. Ltd",
+        "role": "Director Strategy",
+        "duration": "2018 – Present",
+        "description": "Leads agency strategy and business development, executing 100+ multi-platform campaigns and managing high-budget projects for corporate and government clients."
+      },
+      {
+        "company": "Nishat Chunian Ltd.",
+        "role": "Assistant Manager Production",
+        "duration": null,
+        "description": "Managed production operations."
+      },
+      {
+        "company": "Sapphire Textile Mills Ltd.",
+        "role": "Quality Control & Assurance",
+        "duration": "6 years",
+        "description": "Overseaw quality control and assurance processes."
+      }
+    ],
+    "skills": [
+      "Meta Ads",
+      "Google Ads",
+      "Social Media Strategy",
+      "Budgeting & Planning",
+      "Team Leadership",
+      "Client Presentations",
+      "Pitch Development",
+      "Creative Direction",
+      "MS Office",
+      "Canva",
+      "Adobe Suite",
+      "Influencer Marketing",
+      "Corporate Communication",
+      "Business Development"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 75,
+    "experience_match": 95,
+    "overall_score": 80,
+    "strengths": [
+      "Extensive experience in integrated campaigns",
+      "Proven track record of managing large budgets and teams",
+      "Strong business development and pitching skills",
+      "Diverse portfolio across multiple sectors"
+    ],
+    "weaknesses": [
+      "Location mismatch (Lahore vs Karachi on-site)",
+      "GA4 not explicitly mentioned",
+      "Degree is B.Com rather than a specialized Marketing degree"
+    ],
+    "recommendation": "Interview (Pending Relocation)",
+    "summary": "Highly qualified candidate with superior leadership and campaign management experience. While based in Lahore and missing explicit GA4 mention, his strategic depth and budget management exceed requirements."
+  }
+}

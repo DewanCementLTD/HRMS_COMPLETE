@@ -1,0 +1,114 @@
+{
+  "cv_file": "Muhammad_Faizan_-_Resume_Format_1_New_1786003304730.pdf",
+  "job_folder": "221",
+  "job_id": 221,
+  "mode": "evaluate",
+  "processed_at": "2026-08-06T08:05:31.216109+00:00",
+  "pipeline": {
+    "total_seconds": 111.081,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 110.982,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1242,
+    "output_tokens": 852,
+    "total_tokens": 3636
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2172
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Faizan",
+      "email": "faizanfecto04@gmail.com",
+      "phone": "+923363794802",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Early-career marketing professional with a strong academic background and experience in digital advertising and data analytics. Specialized in performance tracking across Meta, TikTok, and Google Ads with a focus on ROI and conversion optimization.",
+    "education": [
+      {
+        "institution": "University of Illinois Urbana Champaign",
+        "degree": "Master of Science in Marketing",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Institute of Business Administration",
+        "degree": "Bachelors in Marketing",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Brainchild Communications",
+        "role": "Management Trainee",
+        "duration": "09/2024 - Current",
+        "description": "Tracks platform performance using MS Excel and analyzes creative performance on Google, TikTok, and Meta."
+      },
+      {
+        "company": "Adscalify Digital",
+        "role": "Google Ads Intern",
+        "duration": "07/2024 - 08/2024",
+        "description": "Managed three brand accounts, generating 88 conversions with a ROAS of 8.15."
+      },
+      {
+        "company": "Lucky Textile Mills Limited",
+        "role": "Management Trainee Officer",
+        "duration": "09/2023 - 03/2024",
+        "description": "Improved data collection efficiency by 15% through data cleaning and analytics template creation."
+      },
+      {
+        "company": "Edvise Hub",
+        "role": "Marketing Intern",
+        "duration": "07/2022 - 08/2022",
+        "description": "Collaborated on marketing campaigns that increased user engagement by 10%."
+      },
+      {
+        "company": "Galaxy Pharma",
+        "role": "Marketing Intern",
+        "duration": "07/2021 - 08/2021",
+        "description": "Analyzed customer behavior using Excel pivot tables and developed SEO-driven content."
+      }
+    ],
+    "skills": [
+      "Advanced Excel",
+      "SQL",
+      "HTML",
+      "Contract Management",
+      "Project Presentations",
+      "Digital Advertising",
+      "SEO",
+      "Google Ads",
+      "Meta Ads",
+      "TikTok Ads",
+      "Data Visualization"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 70,
+    "technical_match": 85,
+    "experience_match": 50,
+    "overall_score": 68,
+    "strengths": [
+      "Strong academic credentials in Marketing",
+      "Advanced Excel proficiency",
+      "Direct experience with Meta and TikTok ad platforms"
+    ],
+    "weaknesses": [
+      "Lacks the minimum 2 years of full-time professional experience",
+      "No explicit mention of Canva or social media scheduling tools"
+    ],
+    "recommendation": "Consider for Junior role",
+    "summary": "The candidate meets the educational requirements and possesses strong technical skills in digital advertising and data analysis. However, their experience consists primarily of internships and trainee roles, falling short of the 2-year professional experience threshold."
+  }
+}

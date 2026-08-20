@@ -1,0 +1,99 @@
+{
+  "cv_file": "Muhammad_Hamza_Resume_New_1784887991169_1785494612869.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T10:45:58.628257+00:00",
+  "pipeline": {
+    "total_seconds": 67.673,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 67.642,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1047,
+    "output_tokens": 725,
+    "total_tokens": 3086
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 3315
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Hamza",
+      "email": "hamzamustafa397@gmail.com",
+      "phone": "03303723024",
+      "location": "Malir Karachi"
+    },
+    "preferred_job_title": "BPO Professional - Acting Team Lead / QA - Last Mile Executive (Supply Chain)",
+    "profile_summary": "Operations and Customer Experience Specialist with over 5 years of experience in Team Leadership, Last-Mile Logistics, and Quality Assurance. Expert in optimizing workflow efficiencies, meeting stringent SLAs, and managing cross-functional stakeholders to drive operational excellence.",
+    "education": [
+      {
+        "institution": "Karachi University",
+        "degree": "B.Com",
+        "graduation_year": "2024"
+      },
+      {
+        "institution": "Liaquat College Of Arts And Commerce",
+        "degree": "Commerce",
+        "graduation_year": "2019"
+      }
+    ],
+    "experience": [
+      {
+        "company": "CCIPK",
+        "role": "Last Mile Executive (Walmart)",
+        "duration": "Jun 2025 - Jun 2026",
+        "description": "Optimized routing matrices and delivery vehicles to ensure 100% SLA adherence. Supervised dispatch riders and field personnel to reduce delivery turnaround times."
+      },
+      {
+        "company": "Tribe Consulting",
+        "role": "Customer Service Representative",
+        "duration": "Mar 2024 - Feb 2025",
+        "description": "Managed critical client accounts and resolved high-priority customer support issues efficiently under pressure."
+      },
+      {
+        "company": "Ibex",
+        "role": "Acting Team Lead (Daraz)",
+        "duration": "May 2023 - Jan 2024",
+        "description": "Directed daily workflows and resource allocation for a high-traffic e-commerce campaign. Monitored KPIs and facilitated team huddles to improve resolution rates."
+      },
+      {
+        "company": "Ibex",
+        "role": "Quality Assurance Executive",
+        "duration": "May 2023 - Jan 2024",
+        "description": "Evaluated chat interactions against quality matrices and provided data-driven coaching. Designed refresher training modules to elevate campaign performance scores."
+      },
+      {
+        "company": "Hyperlink Communix",
+        "role": "Call Center Representative",
+        "duration": "Jun 2019 - May 2020",
+        "description": "Managed high-volume customer interactions, ensuring professional communication and effective resolution of challenging situations."
+      }
+    ],
+    "skills": [
+      "Team Leadership",
+      "Resource Allocation",
+      "Performance Training",
+      "Operational Excellence",
+      "Logistics Management",
+      "SLA Optimization",
+      "Route Efficiency",
+      "Digital Marketing",
+      "Client Negotiation",
+      "Cross-Functional Collaboration",
+      "Strategic Problem Solving",
+      "Critical Thinking",
+      "High Emotional Intelligence"
+    ]
+  }
+}

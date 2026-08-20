@@ -1,0 +1,127 @@
+{
+  "cv_file": "Faizan_Resume_-_MSL_By_Getz_Pharma_1785309154603.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-07-29T07:13:53.590924+00:00",
+  "pipeline": {
+    "total_seconds": 56.778,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 54.978,
+    "json_mode": false,
+    "schema_valid": false,
+    "prompt_tokens": 1098,
+    "output_tokens": 902,
+    "total_tokens": 2907
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": "Design Team Lead",
+    "sections_found": [
+      "experience",
+      "header",
+      "skills"
+    ],
+    "text_chars": 1250
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Faizan Khan",
+      "email": "mfaizan2f@gmail.com",
+      "phone": "0332 235 8063 | 0317 287 4338",
+      "location": null
+    },
+    "preferred_job_title": "Design Team Lead / Senior Visualizer",
+    "profile_summary": "Senior creative professional and visualizer with extensive experience in design leadership and AI-driven visual generation. Expert in delivering innovative design solutions and managing creative teams across multiple agencies.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "B.Com",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "Certified in Communication Design (CCD)",
+        "graduation_year": null
+      },
+      {
+        "institution": null,
+        "degree": "Certified in AI Design Tools",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "MSL Agency Powered by Getz Pharma",
+        "role": "Manager Creative & Design",
+        "duration": "December 2024 to present",
+        "description": "Leading creative and design functions."
+      },
+      {
+        "company": "Manhattan Communication Limited",
+        "role": "Design Group Head",
+        "duration": "September 2022 to October 2024",
+        "description": "Managed design group operations and creative output."
+      },
+      {
+        "company": "Manhattan Communication Limited",
+        "role": "Senior Creative Visualizer",
+        "duration": "November 2016 to September 2022",
+        "description": "Developed high-level visual concepts and creative executions."
+      },
+      {
+        "company": "Manhattan International Limited",
+        "role": "Creative Visualizer",
+        "duration": "January 2013 to October 2016",
+        "description": "Created visual assets and creative designs."
+      },
+      {
+        "company": "Dawood Group",
+        "role": "Graphic Designer",
+        "duration": "2012 to December 2013",
+        "description": "Executed graphic design tasks."
+      },
+      {
+        "company": "HUM Network",
+        "role": "Senior Visualizer",
+        "duration": "November 2016 to March 2017",
+        "description": "Provided senior-level visualization services."
+      }
+    ],
+    "skills": [
+      "AI tools",
+      "Image generation",
+      "Video generation",
+      "Key Visual",
+      "Logo Design",
+      "Social Media Design",
+      "Brand Guidelines",
+      "Color Grading",
+      "Animation",
+      "Print Design",
+      "Advertising",
+      "Creative Direction"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 15,
+    "technical_match": 10,
+    "experience_match": 20,
+    "overall_score": 15,
+    "strengths": [
+      "Strong creative leadership experience",
+      "Expertise in AI design tools",
+      "Extensive background in visual branding"
+    ],
+    "weaknesses": [
+      "No experience in marketing strategy or budget management",
+      "Lacks GA4 and ad platform reporting skills",
+      "No track record of managing ROI/CAC/LTV",
+      "Profile is focused on design rather than holistic marketing management"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a highly qualified Creative/Design Lead, but lacks the essential marketing management, analytical, and strategic skills required for the Marketing Manager role."
+  }
+}

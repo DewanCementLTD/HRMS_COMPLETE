@@ -1,0 +1,97 @@
+{
+  "cv_file": "UmaimahAzmatResume_1785932131592.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:18:54.895723+00:00",
+  "pipeline": {
+    "total_seconds": 65.285,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 65.16,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1273,
+    "output_tokens": 629,
+    "total_tokens": 3180
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 2461
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Umaimah Azmat",
+      "email": "umaimahazmarahmatullah@gmail.com",
+      "phone": "03218715768",
+      "location": "Karachi, Pakistan"
+    },
+    "preferred_job_title": "Dentist | HR",
+    "profile_summary": "Interdisciplinary professional with a background in Dentistry and an MBA. Experienced in academic marketing research and HR internships, focusing on analytical thinking and data translation.",
+    "education": [
+      {
+        "institution": "Shaheed Zulfikar Ali Bhutto Institute of Science and Technology",
+        "degree": "Master's Degree in Business Administration",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Altamash Institute of Dental Medicine",
+        "degree": "Bachelor's Degree in Dental Surgery",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Shaheed Zulfikar Ali Bhutto Institute of Science and Technology",
+        "role": "Research Project (Marketing)",
+        "duration": "2024 - 2025",
+        "description": "Managed project planning, data collection, and analysis using Excel to produce research reports and visual summaries."
+      },
+      {
+        "company": "International Textile Limited",
+        "role": "HR Intern",
+        "duration": "2024",
+        "description": "Supported recruitment, onboarding, employee record maintenance, and administrative HR tasks."
+      }
+    ],
+    "skills": [
+      "Creative Leadership",
+      "Problem Solving",
+      "Excel",
+      "Word",
+      "PowerPoint",
+      "Mentorship",
+      "Organizational Skills",
+      "Communication"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 10,
+    "technical_match": 5,
+    "experience_match": 5,
+    "overall_score": 10,
+    "strengths": [
+      "MBA degree",
+      "Local to Karachi",
+      "Strong communication skills"
+    ],
+    "weaknesses": [
+      "Lacks 5-7 years of professional marketing experience",
+      "No people management experience",
+      "No proficiency in GA4 or ad platform reporting",
+      "Entry-level professional profile"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an entry-level professional with an MBA and a dental background. They lack the required years of experience, leadership history, and technical marketing tool proficiency needed for a Managerial role."
+  }
+}

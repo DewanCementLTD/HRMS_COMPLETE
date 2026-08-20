@@ -1,0 +1,117 @@
+{
+  "cv_file": "Esha_Maryam_Resume_1785932131604.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:16:56.514079+00:00",
+  "pipeline": {
+    "total_seconds": 62.743,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 61.654,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1982,
+    "output_tokens": 791,
+    "total_tokens": 4162
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "experience",
+      "header",
+      "languages",
+      "skills",
+      "summary"
+    ],
+    "text_chars": 5789
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Esha Maryam",
+      "email": "ek3030028@gmail.com",
+      "phone": "+92 3142758252",
+      "location": "North Karachi, Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Sourcing and marketing professional with leadership experience in procurement and B2B lead generation. Currently pursuing an MBA in Marketing with a strong background in operational excellence and stakeholder management.",
+    "education": [
+      {
+        "institution": "Iqra University",
+        "degree": "Master's in Business Administration (Marketing)",
+        "graduation_year": null
+      },
+      {
+        "institution": "University of Karachi",
+        "degree": "Bachelor's & Master's in Philosophy (Logic)",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Cloud Innovator Solution",
+        "role": "Senior Sourcing Executive – Team Lead",
+        "duration": null,
+        "description": "Led end-to-end sourcing and supply chain operations for an e-commerce project, managing a team and utilizing ERP (Odoo) for procurement workflows."
+      },
+      {
+        "company": "Tradewheel.com",
+        "role": "International Sourcing Manager",
+        "duration": null,
+        "description": "Managed B2B lead generation and international client relations, matching global buyers with Pakistani suppliers."
+      },
+      {
+        "company": "Etisalat – First Option",
+        "role": "Quality Assurance Specialist",
+        "duration": null,
+        "description": "Audited lead quality and provided data-backed feedback to improve operational processes."
+      },
+      {
+        "company": "IBEX Global",
+        "role": "Customer Service Executive",
+        "duration": null,
+        "description": "Resolved high-volume customer inquiries for the Foodpanda campaign, maintaining high CSAT scores."
+      }
+    ],
+    "skills": [
+      "Vendor Sourcing",
+      "Supplier Coordination",
+      "Lead Generation",
+      "Client Relationship Mgmt",
+      "Digital Marketing",
+      "Social Media Management",
+      "Customer Service",
+      "Business Email Marketing",
+      "Project Management",
+      "CRM & Data Analysis",
+      "Odoo",
+      "Trello",
+      "ClickUp",
+      "WordPress",
+      "Mailchimp",
+      "Excel"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 30,
+    "technical_match": 20,
+    "experience_match": 25,
+    "overall_score": 25,
+    "strengths": [
+      "Team leadership experience",
+      "B2B lead generation",
+      "Pursuing MBA in Marketing",
+      "Multilingual capabilities"
+    ],
+    "weaknesses": [
+      "Lacks 5-7 years of dedicated marketing management experience",
+      "No mentioned proficiency in GA4 or ad platform reporting",
+      "Professional background is primarily in sourcing and procurement"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is a skilled sourcing and operations professional but lacks the required senior marketing experience and specific technical expertise in GA4 and ad reporting necessary for a Marketing Manager role."
+  }
+}

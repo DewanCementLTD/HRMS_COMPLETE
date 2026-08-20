@@ -1,0 +1,98 @@
+{
+  "cv_file": "Resume_-_Muhammad_Sameer_Zahid_1785486511678.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:31:17.164181+00:00",
+  "pipeline": {
+    "total_seconds": 57.212,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 57.184,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1173,
+    "output_tokens": 702,
+    "total_tokens": 3200
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "achievements",
+      "certifications",
+      "education",
+      "header",
+      "skills"
+    ],
+    "text_chars": 2992
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD SAMEER ZAHID",
+      "email": "zahidsameer37@gmail.com",
+      "phone": "+92-301-2222364",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Results-driven media planning professional with extensive experience managing Unilever portfolios at Mindshare. Specialized in strategic media execution, financial compliance, and high-impact brand launches across digital and traditional channels.",
+    "education": [
+      {
+        "institution": "Iqra University Main Campus",
+        "degree": "Master of Business Administration",
+        "graduation_year": "2025"
+      },
+      {
+        "institution": "Iqra University Main Campus",
+        "degree": "Bachelor of Business Administration",
+        "graduation_year": "2023"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Senior Media Planner",
+        "duration": "Nov 2024 – Present",
+        "description": "Manages financial compliance reporting, yearly budget setting, and global brand communication and media strategy collaborations for Unilever portfolios."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Media Planner",
+        "duration": "Sep 2023 – Nov 2024",
+        "description": "Executed high-impact media strategies for major events and launched Knorr Fuzon, significantly increasing TOM scores and brand power."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Assistant Media Planner",
+        "duration": "Mar 2023 – Sep 2023",
+        "description": "Led the Cornetto launch at PSL 2023 and the reintroduction of Feast's caramel flavor, expanding reach and digital impression share."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Project Management Trainee",
+        "duration": "Jun 2022 - Mar 2023",
+        "description": "Led the first media launch of CarteDor in Pakistan, resulting in a 15% boost in total awareness scores."
+      },
+      {
+        "company": "Mindshare – Unilever",
+        "role": "Media/ Digital Media Intern",
+        "duration": "Apr 2021 – Jun 2021",
+        "description": "Acquired hands-on experience in media and digital media planning, supporting the execution of various campaigns."
+      }
+    ],
+    "skills": [
+      "Client Servicing",
+      "Media Innovation",
+      "Media Planning",
+      "Forecasting and Budgeting",
+      "Brand Management",
+      "Data Analysis",
+      "Market Research",
+      "Presentation and Story Telling",
+      "Google Ad Search",
+      "Social Media Marketing",
+      "Retail for Advertisers"
+    ]
+  }
+}

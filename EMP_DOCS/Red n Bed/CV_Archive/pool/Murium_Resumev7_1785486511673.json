@@ -1,0 +1,97 @@
+{
+  "cv_file": "Murium_Resumev7_1785486511673.pdf",
+  "job_folder": "pool",
+  "job_id": null,
+  "mode": "profile",
+  "processed_at": "2026-07-31T08:31:02.921719+00:00",
+  "pipeline": {
+    "total_seconds": 81.933,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 81.903,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1230,
+    "output_tokens": 762,
+    "total_tokens": 3384
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education"
+    ],
+    "text_chars": 3494
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Murium Arif",
+      "email": "muriumakhtar28@gmail.com",
+      "phone": "+92 (317) 2082031",
+      "location": null
+    },
+    "preferred_job_title": null,
+    "profile_summary": "Early-career marketing professional with a strong background in account management and digital strategy. Experienced in managing high-profile global brands and executing creative campaigns. Skilled in client servicing, project management, and social media growth.",
+    "education": [
+      {
+        "institution": "Shaheed Zulfiqar Ali Bhutto Institute of Science and Technology (SZABIST)",
+        "degree": "BBA (Marketing)",
+        "graduation_year": "Present"
+      },
+      {
+        "institution": "St. Josephs College for Women",
+        "degree": "Intermediate (Pre Medical)",
+        "graduation_year": "2021"
+      }
+    ],
+    "experience": [
+      {
+        "company": "Bodybeat Group",
+        "role": "Assistant Account Manager",
+        "duration": "Aug 2023 – Present",
+        "description": "Manages key accounts for Unilever, Continental Biscuits, and PMI. Leads creative strategies for Spotify and Lipton, overseeing the full project lifecycle from research and budgeting to execution."
+      },
+      {
+        "company": "Cnergyico Byco",
+        "role": "Marketing Intern",
+        "duration": "Jun 2023 – Jul 2023",
+        "description": "Conducted market research to support brand development in the oil and fuel industry and executed a digital campaign focused on corporate internships."
+      },
+      {
+        "company": "Al Zamel Industries",
+        "role": "Social Media Manager",
+        "duration": "Jan 2023 – Jun 2023",
+        "description": "Developed Meta platform presence through audience research and creative design, utilizing analytics to optimize content and increase brand engagement."
+      },
+      {
+        "company": "Soar Sure To Success",
+        "role": "Educationist",
+        "duration": "March 2021 – Nov 2021",
+        "description": "Designed curriculum and classroom management strategies for 400 students, implementing innovative teaching methods to improve learning effectiveness."
+      },
+      {
+        "company": "Project Nijaat",
+        "role": "Project Director",
+        "duration": "Mar 2022 – Apr 2023",
+        "description": "Led a women's empowerment society, directing a team of 30-40 women to implement initiatives promoting gender equality and inclusivity."
+      },
+      {
+        "company": "SZABIST Student Council",
+        "role": "BBA Representative",
+        "duration": "Apr 2022 – Aug 2022",
+        "description": "Organized campus events to enhance student engagement and developed leadership skills through event planning and execution."
+      }
+    ],
+    "skills": [
+      "Public relations",
+      "Canva",
+      "Client Servicing",
+      "Creative Strategy",
+      "Videography",
+      "Budgeting",
+      "Campaign Execution",
+      "Video editing"
+    ]
+  }
+}

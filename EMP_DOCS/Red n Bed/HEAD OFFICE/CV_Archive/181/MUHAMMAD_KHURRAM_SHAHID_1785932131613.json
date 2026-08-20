@@ -1,0 +1,104 @@
+{
+  "cv_file": "MUHAMMAD_KHURRAM_SHAHID_1785932131613.pdf",
+  "job_folder": "181",
+  "job_id": 181,
+  "mode": "evaluate",
+  "processed_at": "2026-08-05T12:17:45.276733+00:00",
+  "pipeline": {
+    "total_seconds": 50.391,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 50.29,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1378,
+    "output_tokens": 647,
+    "total_tokens": 3160
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 2,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "certifications",
+      "education",
+      "experience",
+      "header",
+      "languages"
+    ],
+    "text_chars": 2968
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "Muhammad Khurram Shahid",
+      "email": "khurramshahid71@gmail.com",
+      "phone": "0341-8322772",
+      "location": "F.B Area, Block-01 Karachi"
+    },
+    "preferred_job_title": null,
+    "profile_summary": "HR professional with experience in recruitment, onboarding, and employee relations. Skilled in administrative support and document management within the engineering sector.",
+    "education": [
+      {
+        "institution": "University of Karachi",
+        "degree": "Graduate in Commerce",
+        "graduation_year": "2022"
+      },
+      {
+        "institution": "Government City College",
+        "degree": "Intermediate",
+        "graduation_year": "2020"
+      }
+    ],
+    "experience": [
+      {
+        "company": "FND Consulting Engineers (Pvt.) Ltd.",
+        "role": "Junior HR Officer / HR Intern",
+        "duration": null,
+        "description": "Managed recruitment, onboarding, offboarding, and employee documentation while maintaining HR databases."
+      },
+      {
+        "company": "FND Consulting Engineers (Pvt.) Ltd.",
+        "role": "Executive Assistant",
+        "duration": null,
+        "description": "Coordinated executive schedules, managed official documents, and prepared reports and presentations."
+      },
+      {
+        "company": "Power Professionals & Engineers",
+        "role": "Project coordinator in purchase department",
+        "duration": null,
+        "description": "Coordinated purchasing activities and vendor relations."
+      }
+    ],
+    "skills": [
+      "Recruitment",
+      "Onboarding",
+      "Employee Relations",
+      "MS Office",
+      "Tally ERP",
+      "Prism Tool",
+      "Document Management",
+      "Communication",
+      "Tender Documentation",
+      "Performance Management",
+      "Payroll Coordination"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 5,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 5,
+    "strengths": [
+      "Located in Karachi",
+      "Strong administrative and organizational skills"
+    ],
+    "weaknesses": [
+      "Zero marketing experience",
+      "No knowledge of GA4 or ad platform reporting",
+      "No experience managing marketing budgets or consumer brands",
+      "Professional background is in HR/Admin, not Marketing"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an HR and administrative professional with no relevant experience or technical skills in marketing, making them entirely unsuitable for the Marketing Manager role."
+  }
+}

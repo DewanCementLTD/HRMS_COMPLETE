@@ -1,0 +1,84 @@
+{
+  "cv_file": "FAISAL_1783588457056.pdf",
+  "job_folder": "102",
+  "job_id": 102,
+  "processed_at": "2026-07-09T09:14:56.851603+00:00",
+  "pipeline": {
+    "total_seconds": 35.768,
+    "model": "gemma-4-31b-it",
+    "llm_seconds": 34.914,
+    "json_mode": false,
+    "schema_valid": true,
+    "prompt_tokens": 1269,
+    "output_tokens": 464,
+    "total_tokens": 2490
+  },
+  "extraction": {
+    "method": "text",
+    "page_count": 1,
+    "ocr_pages": [],
+    "detected_job_title": null,
+    "sections_found": [
+      "education",
+      "header",
+      "languages",
+      "summary"
+    ],
+    "text_chars": 1146
+  },
+  "metrics": {
+    "contact_info": {
+      "name": "MUHAMMAD FAISAL",
+      "email": null,
+      "phone": "03122575757",
+      "location": "Karachi"
+    },
+    "preferred_job_title": null,
+    "education": [
+      {
+        "institution": "Karachi board",
+        "degree": "Matriculation",
+        "graduation_year": null
+      },
+      {
+        "institution": "Karachi board",
+        "degree": "Intermediate",
+        "graduation_year": null
+      }
+    ],
+    "experience": [
+      {
+        "company": "Amir Auto DHA Phase #7",
+        "role": "Automobile Car Painter",
+        "duration": "5 years",
+        "description": "Professional automobile car painting services."
+      },
+      {
+        "company": "Saudia Abdul Latif Jameel Motors",
+        "role": "Automobile Car Painter",
+        "duration": "11 years",
+        "description": "Professional automobile car painting services."
+      }
+    ],
+    "skills": [
+      "B&P TEAM PAINT COURSE, STEP 1 PART 1 & PART 2",
+      "B&P TEAM PAINT COURSE, STEP 2"
+    ]
+  },
+  "evaluation": {
+    "compatibility": 0,
+    "technical_match": 0,
+    "experience_match": 0,
+    "overall_score": 0,
+    "strengths": [
+      "Extensive experience in automotive painting"
+    ],
+    "weaknesses": [
+      "No experience with Python or software development",
+      "Lacks required Computer Science degree",
+      "No knowledge of web frameworks, databases, or version control"
+    ],
+    "recommendation": "Reject",
+    "summary": "The candidate is an experienced automobile painter with no technical background or qualifications relevant to a Python Developer position."
+  }
+}
