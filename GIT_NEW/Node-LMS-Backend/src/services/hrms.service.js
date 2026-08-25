@@ -248,6 +248,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           m.GRADE_CD, m.RELIGION,
           m.HOD1, m.HOD2, m.HOD3,
           m.BASIC, m.GROSS, m.SHIFT, m.W_HOUR,
+          m.BLDGRP, m.LOCATION,
           m.TRACK_LOCATION, m.TRACK_LOCATION_HR,
           m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
           m.QFICATION,
@@ -283,6 +284,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           GRADE_CD, RELIGION,
           HOD1, HOD2, HOD3,
           BASIC, GROSS, SHIFT, W_HOUR,
+          BLDGRP, LOCATION,
           TRACK_LOCATION, TRACK_LOCATION_HR
       FROM HR_EMP_MASTER
       WHERE EMPCODE = :empcode`;
@@ -301,11 +303,85 @@ export const getEmployeeByEmpcode = async (empcode) => {
 
     const raw = result.rows?.[0];
     if (!raw) return null;
-    return renameCardCols(lowerKeys(raw));
+    const emp = renameCardCols(lowerKeys(raw));
+    for (const [k, v] of Object.entries(emp)) {
+      if (typeof v === "string") emp[k] = v.trim();
+    }
+    return emp;
   } finally {
     await connection?.close();
   }
 };
+
+// ==================================================================
+// COMPANY BRANDING (ID-card footer + QR, per UNIT_ID)
+// ==================================================================
+
+// Used when HR_COMPANY_BRANDING has no row for the company (or the table hasn't
+// been created yet) — i.e. the vendor branding the cards carried before this
+// became configurable.
+const DEFAULT_BRANDING = {
+  brand_name: "Sysnovix",
+  tagline: "ERP & IT Solutions",
+  website: "sysnovix.com",
+  qr_url: "https://sysnovix.com",
+  phone: "+92 370 3677800",
+  email: "info@sysnovix.com",
+  show_on_card: "Y",
+};
+
+const BRANDING_TTL_MS = 5 * 60 * 1000;
+const brandingCache = new Map();   // unit_id -> { at, value }
+
+/**
+ * ID-card branding for one company (HR_EMP_MASTER.UNIT_ID).
+ *
+ * Printing a batch of cards asks for this once per employee, so results are
+ * cached briefly per company. Any lookup problem (missing table, missing row)
+ * falls back to DEFAULT_BRANDING rather than failing the card.
+ */
+export const getCompanyBranding = async (unitId) => {
+  const key = String(unitId ?? "").trim();
+  const hit = brandingCache.get(key);
+  if (hit && Date.now() - hit.at < BRANDING_TTL_MS) return hit.value;
+
+  let branding = { ...DEFAULT_BRANDING };
+  const uid = Number.parseInt(key, 10);
+  if (Number.isFinite(uid)) {
+    let connection;
+    try {
+      connection = await getDirectConnection();
+      const result = await connection.execute(
+        `SELECT BRAND_NAME, TAGLINE, WEBSITE, QR_URL, PHONE, EMAIL,
+                NVL(SHOW_ON_CARD, 'Y') AS SHOW_ON_CARD
+           FROM HR_COMPANY_BRANDING WHERE UNIT_ID = :u`,
+        { u: uid },
+        { outFormat: OUT_OBJECT }
+      );
+      const row = result.rows?.[0];
+      if (row) {
+        branding = lowerKeys(row);
+        for (const [k, v] of Object.entries(branding)) {
+          if (typeof v === "string") branding[k] = v.trim();
+        }
+        // The QR encodes QR_URL, falling back to the website so a row only needs
+        // the one column filled in.
+        if (!branding.qr_url) {
+          const site = branding.website || "";
+          branding.qr_url = site ? (site.startsWith("http") ? site : `https://${site}`) : null;
+        }
+      }
+    } catch (err) {
+      logger.warn(`[HRMS] company branding lookup fell back to default: ${String(err.message).slice(0, 90)}`);
+    } finally {
+      await connection?.close();
+    }
+  }
+
+  brandingCache.set(key, { at: Date.now(), value: branding });
+  return branding;
+};
+
 
 // ==================================================================
 // EMPLOYEE ID CARD (resolved names for printing)
@@ -339,11 +415,16 @@ export const getEmployeeCard = async (empcode) => {
         if (r[k]) r[k] = String(r[k]).trim();
       }
       r.card_no = r.empcode;
+      // Footer/QR details are per company, so the card carries them.
+      r.branding = await getCompanyBranding(r.compc);
       return r;
     } catch (err) {
       if (String(err.message).includes("ORA-00904") || String(err.message).includes("ORA-00942")) {
         const base = await getEmployeeByEmpcode(empcode);
-        if (base) base.card_no = base.empcode;
+        if (base) {
+          base.card_no = base.empcode;
+          base.branding = await getCompanyBranding(base.unit_id);
+        }
         return base;
       }
       throw err;

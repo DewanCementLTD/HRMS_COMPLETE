@@ -4,15 +4,34 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Printer, RotateCw } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import type { EmployeeCard } from "@/services/hrmsService";
+import type { EmployeeCard, CardBranding } from "@/services/hrmsService";
 import { EmployeeAvatar } from "./EmployeeAvatar";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 // Sysnovix brand gradient — used for the headers and the card-no chip so the
 // card isn't a plain white sheet. printColorAdjust keeps it on paper too.
 const BRAND_GRADIENT = "linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #0ea5e9 100%)";
-const SYSNOVIX_URL = "https://sysnovix.com";
 const PRINT_COLOR = { printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" } as const;
+
+// The back of the card carries the company's own brand block — name, tagline,
+// contacts and a QR generated from its link. It comes from HR_COMPANY_BRANDING
+// keyed by UNIT_ID; this is the fallback for a backend that doesn't send it yet.
+const FALLBACK_BRANDING: CardBranding = {
+  brand_name: "Sysnovix",
+  tagline: "ERP & IT Solutions",
+  website: "sysnovix.com",
+  qr_url: "https://sysnovix.com",
+  phone: "+92 370 3677800",
+  email: "info@sysnovix.com",
+  show_on_card: "Y",
+};
+
+/** Absolute URL for the QR, so a row that only stores "shaykho.com" still scans. */
+function qrTarget(b: CardBranding): string {
+  const raw = (b.qr_url || b.website || "").trim();
+  if (!raw) return "";
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
 
 function Row({ label, value }: { label: string; value?: string }) {
   return (
@@ -93,22 +112,47 @@ export function CardBack({ c }: { c: EmployeeCard }) {
         {c.dtofappt && <Row label="Joined" value={c.dtofappt} />}
       </div>
 
-      {/* QR to the Sysnovix website + company footer */}
-      <div className="mt-auto px-3 pb-3 pt-2">
-        <div className="flex items-center gap-3 rounded-xl px-3 py-2.5" style={{ background: "#eef2ff", ...PRINT_COLOR }}>
+      <BrandBlock c={c} />
+    </div>
+  );
+}
+
+/** The company's brand strip: QR generated from its own link plus whichever of
+ *  name / tagline / phone / email / website that company has on file. Hidden
+ *  entirely when the company is set to SHOW_ON_CARD = 'N'. */
+function BrandBlock({ c }: { c: EmployeeCard }) {
+  const b = c.branding ?? FALLBACK_BRANDING;
+  if (String(b.show_on_card ?? "Y").toUpperCase() === "N") return null;
+
+  const qr = qrTarget(b);
+  const name = (b.brand_name || "").trim();
+  if (!qr && !name) return null;
+
+  const footer = [
+    `© ${new Date().getFullYear()} ${name}`.trim(),
+    b.tagline,
+    b.phone && `📞 ${b.phone}`,
+    b.email && `✉️ ${b.email}`,
+    b.website && `🌐 ${b.website}`,
+  ].filter(Boolean).join(" | ");
+
+  return (
+    <div className="mt-auto px-3 pb-3 pt-2">
+      <div className="flex items-center gap-3 rounded-xl px-3 py-2.5" style={{ background: "#eef2ff", ...PRINT_COLOR }}>
+        {qr && (
           <div className="bg-white p-1.5 rounded-lg shrink-0 shadow-sm">
-            <QRCodeSVG value={SYSNOVIX_URL} size={62} level="M" fgColor="#1e1b4b" bgColor="#ffffff" />
+            <QRCodeSVG value={qr} size={62} level="M" fgColor="#1e1b4b" bgColor="#ffffff" />
           </div>
-          <div className="text-left leading-tight">
-            <p className="text-[13px] font-extrabold text-indigo-700">Sysnovix</p>
-            <p className="text-[9.5px] text-slate-600 font-semibold">ERP &amp; IT Solutions</p>
-            <p className="text-[9px] text-slate-500 mt-0.5">Scan to visit sysnovix.com</p>
-          </div>
+        )}
+        <div className="text-left leading-tight min-w-0">
+          {name && <p className="text-[13px] font-extrabold text-indigo-700 truncate">{name}</p>}
+          {b.tagline && <p className="text-[9.5px] text-slate-600 font-semibold">{b.tagline}</p>}
+          {b.website && <p className="text-[9px] text-slate-500 mt-0.5">Scan to visit {b.website}</p>}
         </div>
-        <p className="text-center text-[7.5px] text-slate-500 font-medium leading-snug mt-2 px-1">
-          © 2026 Sysnovix | ERP &amp; IT Solutions | 📞 +92 370 3677800 | ✉️ info@sysnovix.com | 🌐 sysnovix.com
-        </p>
       </div>
+      {footer && (
+        <p className="text-center text-[7.5px] text-slate-500 font-medium leading-snug mt-2 px-1">{footer}</p>
+      )}
     </div>
   );
 }

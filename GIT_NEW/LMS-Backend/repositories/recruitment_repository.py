@@ -10,6 +10,8 @@ those columns do not yet exist.
 """
 
 import re
+import threading
+
 from core.database import get_connection
 
 
@@ -21,77 +23,101 @@ def _r_to_int(v):
 
 
 _recruitment_cols_ready = False
+_recruitment_cols_lock = threading.Lock()
+
+# Columns this code needs on RECRUITMENT_JOBS. COMPC/BRNCH scope jobs per
+# company/branch; the rest are the structured fields the AI CV scoring reads.
+_RECRUITMENT_COLUMNS = (
+    ("COMPC", "NUMBER"),
+    ("BRNCH", "NUMBER"),
+    ("EMPLOYMENT_TYPE", "VARCHAR2(30)"),
+    ("WORK_MODE", "VARCHAR2(60)"),
+    ("NICE_TO_HAVE_SKILLS", "VARCHAR2(2000)"),
+    ("MIN_EXPERIENCE_YEARS", "NUMBER"),
+    ("EDUCATION_REQ", "VARCHAR2(300)"),
+    ("SALARY_MIN", "NUMBER"),
+    ("SALARY_MAX", "NUMBER"),
+)
 
 
 def ensure_recruitment_company_columns():
-    """Idempotently add COMPC / BRNCH to RECRUITMENT_JOBS and backfill existing
-    rows from each job's creator (CREATED_BY → HR_EMP_MASTER company/branch), so
-    per-company/branch recruitment activates without a manual migration. Safe to
-    call repeatedly; degrades gracefully if the DB user can't run DDL."""
+    """Idempotently add the optional RECRUITMENT_JOBS columns and backfill
+    COMPC/BRNCH on legacy rows from each job's creator (CREATED_BY →
+    HR_EMP_MASTER company/branch), so per-company/branch recruitment activates
+    without a manual migration.
+
+    Existing columns are detected from the data dictionary rather than by firing
+    DDL and reading the error: the CV pipeline calls this from several workers at
+    once, and blind ALTERs made Oracle report ORA-14411 (concurrent DDL) on every
+    batch even though every column was already there. In the normal case this now
+    runs one cheap SELECT and no DDL at all. Degrades gracefully if the DB user
+    can't run DDL."""
     global _recruitment_cols_ready
     if _recruitment_cols_ready:
         return
-    conn = get_connection()
-    cursor = conn.cursor()
-    try:
-        for col in ("COMPC", "BRNCH"):
-            try:
-                cursor.execute(f"ALTER TABLE RECRUITMENT_JOBS ADD ({col} NUMBER)")
-                print(f"[RECRUITMENT] Added column {col} to RECRUITMENT_JOBS")
-            except Exception as e:
-                # ORA-01430: column already exists → fine. Anything else (e.g. no
-                # ALTER privilege) is logged; filtering then degrades to unscoped.
-                if "ORA-01430" not in str(e):
-                    print(f"[RECRUITMENT] Could not add {col}: {str(e).splitlines()[0]}")
+    with _recruitment_cols_lock:
+        if _recruitment_cols_ready:      # another worker did it while we waited
+            return
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            existing = set()
+            # USER_TAB_COLS first; ALL_TAB_COLUMNS covers the table living in
+            # another schema the app has access to.
+            for probe in ("SELECT COLUMN_NAME FROM USER_TAB_COLS WHERE TABLE_NAME = 'RECRUITMENT_JOBS'",
+                          "SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = 'RECRUITMENT_JOBS'"):
+                try:
+                    cursor.execute(probe)
+                    existing = {(r[0] or "").upper() for r in cursor.fetchall()}
+                    if existing:
+                        break
+                except Exception as e:
+                    print(f"[RECRUITMENT] column probe failed: {str(e).splitlines()[0]}")
 
-        # Structured job fields used by the AI CV scoring (added idempotently,
-        # same graceful-degradation pattern as COMPC/BRNCH). Must-have skills stay
-        # in the existing SKILLS_REQ column; NICE_TO_HAVE_SKILLS is the new
-        # secondary list. Salary/experience/education feed the evaluator + filters.
-        for coldef in (
-            "EMPLOYMENT_TYPE VARCHAR2(30)",
-            "WORK_MODE VARCHAR2(60)",
-            "NICE_TO_HAVE_SKILLS VARCHAR2(2000)",
-            "MIN_EXPERIENCE_YEARS NUMBER",
-            "EDUCATION_REQ VARCHAR2(300)",
-            "SALARY_MIN NUMBER",
-            "SALARY_MAX NUMBER",
-        ):
-            col = coldef.split()[0]
-            try:
-                cursor.execute(f"ALTER TABLE RECRUITMENT_JOBS ADD ({coldef})")
-                print(f"[RECRUITMENT] Added column {col} to RECRUITMENT_JOBS")
-            except Exception as e:
-                if "ORA-01430" not in str(e):  # already exists → fine
-                    print(f"[RECRUITMENT] Could not add {col}: {str(e).splitlines()[0]}")
+            missing = [(c, t) for c, t in _RECRUITMENT_COLUMNS if c not in existing]
+            if missing and existing:
+                # One ALTER for the whole set — fewer DDL statements, so far less
+                # chance of colliding with another process doing the same.
+                add_list = ", ".join(f"{c} {t}" for c, t in missing)
+                try:
+                    cursor.execute(f"ALTER TABLE RECRUITMENT_JOBS ADD ({add_list})")
+                    print(f"[RECRUITMENT] Added columns to RECRUITMENT_JOBS: "
+                          f"{', '.join(c for c, _ in missing)}")
+                except Exception as e:
+                    msg = str(e).splitlines()[0]
+                    # ORA-01430 already exists, ORA-14411/ORA-00054 another session
+                    # is adding them right now — all benign, we just retry later.
+                    if not any(code in msg for code in ("ORA-01430", "ORA-14411", "ORA-00054")):
+                        print(f"[RECRUITMENT] Could not add columns: {msg}")
+                    return   # leave the flag unset so the next call re-checks
 
-        # Backfill company/branch on legacy rows from the creating admin's record.
-        for col, src in (("COMPC", "h.UNIT_ID"), ("BRNCH", "h.LOCATION")):
-            try:
-                cursor.execute(f"""
-                    UPDATE RECRUITMENT_JOBS j
-                    SET {col} = (
-                        SELECT TO_NUMBER({src})
-                        FROM HR_EMP_MASTER h
-                        LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-                        WHERE TO_CHAR(e.CARD_NO) = j.CREATED_BY
-                           OR TO_CHAR(h."ATDTCARD#") = j.CREATED_BY
-                           OR h.EMPCODE = j.CREATED_BY
-                        FETCH FIRST 1 ROWS ONLY
-                    )
-                    WHERE j.{col} IS NULL
-                """)
-                conn.commit()
-            except Exception as e:
-                conn.rollback()
-                print(f"[RECRUITMENT] {col} backfill skipped: {str(e).splitlines()[0]}")
+            # Backfill company/branch on legacy rows from the creating admin's record.
+            for col, src in (("COMPC", "h.UNIT_ID"), ("BRNCH", "h.LOCATION")):
+                try:
+                    cursor.execute(f"""
+                        UPDATE RECRUITMENT_JOBS j
+                        SET {col} = (
+                            SELECT TO_NUMBER({src})
+                            FROM HR_EMP_MASTER h
+                            LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
+                            WHERE TO_CHAR(e.CARD_NO) = j.CREATED_BY
+                               OR TO_CHAR(h."ATDTCARD#") = j.CREATED_BY
+                               OR h.EMPCODE = j.CREATED_BY
+                            FETCH FIRST 1 ROWS ONLY
+                        )
+                        WHERE j.{col} IS NULL
+                    """)
+                    conn.commit()
+                except Exception as e:
+                    conn.rollback()
+                    print(f"[RECRUITMENT] {col} backfill skipped: {str(e).splitlines()[0]}")
 
-        _recruitment_cols_ready = True
-    except Exception as e:
-        print(f"[RECRUITMENT] column setup failed: {e}")
-    finally:
-        cursor.close()
-        conn.close()
+            _recruitment_cols_ready = True
+        except Exception as e:
+            print(f"[RECRUITMENT] column setup failed: {e}")
+        finally:
+            cursor.close()
+            conn.close()
 
 
 # ------------------------------------------------------------------

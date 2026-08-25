@@ -5,11 +5,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import {
   Users, Briefcase, CalendarCheck, UserCheck, Plus, Search,
-  TrendingUp, Clock, CheckCircle, XCircle, BarChart2,
+  TrendingUp, Clock, CheckCircle, BarChart2,
   UserX, AlertCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
+import { Modal } from "@/components/ui/Modal";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, LabelList,
@@ -79,12 +80,21 @@ function CreateJobModal({ adminCardNo, scope, onDone, onClose }: { adminCardNo: 
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900">Create Job Opening</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700"><XCircle className="h-5 w-5" /></button>
+    <Modal
+      title="Create Job Opening"
+      size="sm"
+      onClose={onClose}
+      footer={
+        <div className="flex gap-3 w-full">
+          <button onClick={onClose} className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+          <button onClick={submit} disabled={saving}
+            className="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            {saving ? "Creating…" : "Create Job"}
+          </button>
         </div>
+      }
+    >
+      <div className="space-y-4">
         {err && <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{err}</p>}
         <div className="space-y-3">
           <div>
@@ -118,15 +128,8 @@ function CreateJobModal({ adminCardNo, scope, onDone, onClose }: { adminCardNo: 
             />
           </div>
         </div>
-        <div className="flex gap-3 pt-1">
-          <button onClick={onClose} className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-          <button onClick={submit} disabled={saving}
-            className="flex-1 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50">
-            {saving ? "Creating…" : "Create Job"}
-          </button>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

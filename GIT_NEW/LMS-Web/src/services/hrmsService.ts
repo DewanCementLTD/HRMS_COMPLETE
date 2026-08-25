@@ -19,6 +19,19 @@ export async function getHRMSEmployee(
   );
 }
 
+/** ID-card footer + QR details for the employee's company, from
+ *  HR_COMPANY_BRANDING (see LMS-Backend/sql/2026-08-24_company_branding.sql).
+ *  Absent on older backends — the card then falls back to its own default. */
+export interface CardBranding {
+  brand_name?: string;
+  tagline?: string;
+  website?: string;
+  qr_url?: string;
+  phone?: string;
+  email?: string;
+  show_on_card?: string;
+}
+
 export interface EmployeeCard {
   empcode: string;
   card_no?: string;
@@ -36,6 +49,7 @@ export interface EmployeeCard {
   dtofappt?: string;
   sex?: string;
   bldgrp?: string;
+  branding?: CardBranding;
 }
 
 export async function getEmployeeCard(

@@ -199,6 +199,7 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
                 m.GRADE_CD, m.RELIGION,
                 m.HOD1, m.HOD2, m.HOD3,
                 m.BASIC, m.GROSS, m.SHIFT, m.W_HOUR,
+                m.BLDGRP, m.LOCATION,
                 m.TRACK_LOCATION, m.TRACK_LOCATION_HR,
                 m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
                 m.QFICATION,
@@ -234,6 +235,7 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
                 GRADE_CD, RELIGION,
                 HOD1, HOD2, HOD3,
                 BASIC, GROSS, SHIFT, W_HOUR,
+                BLDGRP, LOCATION,
                 TRACK_LOCATION, TRACK_LOCATION_HR
             FROM HR_EMP_MASTER
             WHERE EMPCODE = :empcode
@@ -254,6 +256,11 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
         result = dict(zip(columns, row))
         result["atdtcard"] = result.pop("atdtcard#", None)
         result["mobile"] = result.pop("mobile#", None)
+        # Oracle CHAR columns come back blank-padded; the edit form matches these
+        # codes against the reference lists by exact string, so trim them here.
+        for k, v in list(result.items()):
+            if isinstance(v, str):
+                result[k] = v.strip()
         # Normalise the view-only salary aliases.
         result["sal_gross"] = result.get("sal_gross")
         result["sal_basic"] = result.get("sal_basic")
@@ -261,6 +268,77 @@ def get_employee_by_empcode(empcode: str) -> dict | None:
     finally:
         cursor.close()
         conn.close()
+
+
+# ------------------------------------------------------------------
+# COMPANY BRANDING (ID-card footer + QR, per UNIT_ID)
+# ------------------------------------------------------------------
+
+# Shown when HR_COMPANY_BRANDING has no row for the company (or the table
+# hasn't been created yet) — i.e. the vendor branding the cards carried before
+# this became configurable.
+DEFAULT_BRANDING = {
+    "brand_name": "Sysnovix",
+    "tagline": "ERP & IT Solutions",
+    "website": "sysnovix.com",
+    "qr_url": "https://sysnovix.com",
+    "phone": "+92 370 3677800",
+    "email": "info@sysnovix.com",
+    "show_on_card": "Y",
+}
+
+_BRANDING_CACHE: dict = {}
+_BRANDING_TTL_SEC = 300
+
+
+def get_company_branding(unit_id) -> dict:
+    """ID-card branding for one company (HR_EMP_MASTER.UNIT_ID).
+
+    Printing a batch of cards asks for this once per employee, so results are
+    cached briefly per company. Any lookup problem (missing table, missing row)
+    falls back to DEFAULT_BRANDING rather than failing the card."""
+    import time
+
+    key = str(unit_id or "").strip()
+    hit = _BRANDING_CACHE.get(key)
+    if hit and (time.time() - hit[0]) < _BRANDING_TTL_SEC:
+        return hit[1]
+
+    branding = dict(DEFAULT_BRANDING)
+    uid = _to_int(key)
+    if uid is not None:
+        conn = cursor = None
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT BRAND_NAME, TAGLINE, WEBSITE, QR_URL, PHONE, EMAIL,
+                       NVL(SHOW_ON_CARD, 'Y')
+                FROM HR_COMPANY_BRANDING WHERE UNIT_ID = :u
+            """, {"u": uid})
+            row = cursor.fetchone()
+            if row:
+                keys = ("brand_name", "tagline", "website", "qr_url", "phone",
+                        "email", "show_on_card")
+                branding = {
+                    k: (v.strip() if isinstance(v, str) else v)
+                    for k, v in zip(keys, row)
+                }
+                # The QR encodes QR_URL, falling back to the website so a row
+                # only needs the one column filled in.
+                if not branding.get("qr_url"):
+                    site = branding.get("website") or ""
+                    branding["qr_url"] = site if site.startswith("http") else (f"https://{site}" if site else None)
+        except Exception as e:
+            print(f"[HRMS] company branding lookup fell back to default: {str(e).splitlines()[0][:90]}")
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    _BRANDING_CACHE[key] = (time.time(), branding)
+    return branding
 
 
 # ------------------------------------------------------------------
@@ -301,12 +379,15 @@ def get_employee_card(empcode: str) -> dict | None:
                 if r.get(k):
                     r[k] = str(r[k]).strip()
             r["card_no"] = r.get("empcode")
+            # Footer/QR details are per company, so the card carries them.
+            r["branding"] = get_company_branding(r.get("compc"))
             return r
         except Exception as e:
             if "ORA-00904" in str(e) or "ORA-00942" in str(e):
                 base = get_employee_by_empcode(empcode)
                 if base:
                     base["card_no"] = base.get("empcode")
+                    base["branding"] = get_company_branding(base.get("unit_id"))
                 return base
             raise
     finally:

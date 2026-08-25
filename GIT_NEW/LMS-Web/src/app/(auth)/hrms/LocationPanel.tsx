@@ -29,7 +29,9 @@ interface LocationPoint {
   recorded_at: string;
 }
 
-type LocTab = "live" | "settings" | "locations" | "reports";
+// Location master data (COM_LOCATION) is maintained in Setup → Locations,
+// so this panel only covers tracking.
+type LocTab = "live" | "settings" | "reports";
 
 // ─── Reverse geocoding ────────────────────────────────────
 
@@ -557,255 +559,6 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
   );
 }
 
-// ─── Locations Master tab ─────────────────────────────────
-
-interface LocationRow {
-  lcode: string;
-  descr: string;
-  sname: string;
-  regioncode: string;
-  city: string;
-}
-
-const EMPTY_LOC: LocationRow = { lcode: "", descr: "", sname: "", regioncode: "", city: "" };
-
-function LocationsMasterTab({ adminCardNo }: { adminCardNo: string }) {
-  const [rows, setRows] = useState<LocationRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editRow, setEditRow] = useState<LocationRow | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-  const [form, setForm] = useState<LocationRow>(EMPTY_LOC);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    setLoading(true);
-    apiRequest<{ items: LocationRow[] }>("/reference/locations")
-      .then((r) => setRows(r.items))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  function openAdd() {
-    setForm(EMPTY_LOC);
-    setEditRow(null);
-    setIsAdding(true);
-    setSaveError(null);
-  }
-
-  function openEdit(row: LocationRow) {
-    setForm({ ...row });
-    setEditRow(row);
-    setIsAdding(false);
-    setSaveError(null);
-  }
-
-  function closeForm() {
-    setIsAdding(false);
-    setEditRow(null);
-    setSaveError(null);
-  }
-
-  async function saveForm() {
-    if (!isAdding && !form.lcode.trim()) {
-      setSaveError("Location code is required.");
-      return;
-    }
-    if (!form.descr.trim()) {
-      setSaveError("Location name is required.");
-      return;
-    }
-    setSaving(true);
-    setSaveError(null);
-    try {
-      if (isAdding) {
-        // LCODE is globally unique across all companies and is auto-assigned
-        // server-side (see COM_LOCATION.PK_LOC) — never sent from the client.
-        const { lcode, ...body } = form;
-        void lcode;
-        await apiRequest(`/reference/locations?admin_card_no=${adminCardNo}`, {
-          method: "POST",
-          body: JSON.stringify(body),
-        });
-        const refreshed = await apiRequest<{ items: LocationRow[] }>("/reference/locations");
-        setRows(refreshed.items);
-      } else {
-        await apiRequest(`/reference/locations/${form.lcode}?admin_card_no=${adminCardNo}`, {
-          method: "PUT",
-          body: JSON.stringify(form),
-        });
-        setRows((prev) => prev.map((r) => (r.lcode === form.lcode ? { ...form } : r)));
-      }
-      closeForm();
-    } catch (e: unknown) {
-      setSaveError(e instanceof Error ? e.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const filtered = rows.filter(
-    (r) =>
-      !query ||
-      r.lcode.toLowerCase().includes(query.toLowerCase()) ||
-      r.descr.toLowerCase().includes(query.toLowerCase()) ||
-      r.city.toLowerCase().includes(query.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-4">
-      {/* Header row */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-gray-800">Locations Master</p>
-          <p className="text-xs text-gray-400">{rows.length} locations · COM_LOCATION table</p>
-        </div>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
-        >
-          <span className="text-lg leading-none">+</span> Add Location
-        </button>
-      </div>
-
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Filter by code, name or city…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="w-full max-w-sm border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-      />
-
-      {/* Add / Edit form */}
-      {(isAdding || editRow) && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 space-y-3">
-          <p className="text-sm font-semibold text-indigo-800">{isAdding ? "Add New Location" : `Edit — ${editRow?.lcode}`}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {!isAdding && (
-              <div>
-                <label className="text-xs font-medium text-gray-600 block mb-1">Location Code</label>
-                <input
-                  value={form.lcode}
-                  disabled
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-100 text-gray-400"
-                />
-              </div>
-            )}
-            <div className="sm:col-span-2 lg:col-span-1">
-              <label className="text-xs font-medium text-gray-600 block mb-1">Name / Description *</label>
-              <input
-                value={form.descr}
-                onChange={(e) => setForm((f) => ({ ...f, descr: e.target.value }))}
-                placeholder="e.g. TANK YARD SITE"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">Region</label>
-              <input
-                value={form.regioncode}
-                onChange={(e) => setForm((f) => ({ ...f, regioncode: e.target.value }))}
-                placeholder="e.g. HEAD OFFICE"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 block mb-1">City</label>
-              <input
-                value={form.city}
-                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                placeholder="e.g. Karachi"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-            </div>
-          </div>
-          {saveError && <p className="text-xs text-red-600">{saveError}</p>}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={saveForm}
-              disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
-            >
-              <Save className="h-3.5 w-3.5" />
-              {saving ? "Saving…" : isAdding ? "Add Location" : "Save Changes"}
-            </button>
-            <button
-              onClick={closeForm}
-              className="px-4 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center py-12"><Spinner /></div>
-      ) : (
-        <>
-          {/* Desktop table */}
-          <div className="hidden sm:block overflow-x-auto rounded-2xl border border-gray-100 shadow-sm">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50">
-                <tr>
-                  {["Code", "Name / Description", "Region", "City", ""].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-50">
-                {filtered.map((row) => (
-                  <tr key={row.lcode} className="hover:bg-gray-50/80 transition-colors">
-                    <td className="px-4 py-3 text-sm font-mono font-semibold text-indigo-700">{row.lcode}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{row.descr}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{row.regioncode || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{row.city || "—"}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => openEdit(row)}
-                        className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">No locations match your search.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          {/* Mobile cards */}
-          <div className="block sm:hidden space-y-2">
-            {filtered.map((row) => (
-              <div key={row.lcode} className="bg-white rounded-xl border border-gray-100 p-3 shadow-sm">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs font-mono font-bold text-indigo-700">{row.lcode}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-0.5">{row.descr}</p>
-                    {(row.city || row.regioncode) && (
-                      <p className="text-xs text-gray-400 mt-0.5">{[row.city, row.regioncode].filter(Boolean).join(" · ")}</p>
-                    )}
-                  </div>
-                  <button onClick={() => openEdit(row)} className="text-xs text-indigo-600 font-semibold shrink-0 ml-2">Edit</button>
-                </div>
-              </div>
-            ))}
-            {filtered.length === 0 && (
-              <p className="text-center text-sm text-gray-400 py-8">No locations match your search.</p>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 // ─── Main panel ───────────────────────────────────────────
 
 export function LocationPanel({
@@ -879,17 +632,6 @@ export function LocationPanel({
           Track Settings
         </button>
         <button
-          onClick={() => setLocTab("locations")}
-          className={`flex items-center gap-1.5 px-1 pb-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
-            locTab === "locations"
-              ? "border-indigo-400 text-white"
-              : "border-transparent text-white/60 hover:text-white/90"
-          }`}
-        >
-          <MapPin className="h-4 w-4" />
-          Locations
-        </button>
-        <button
           onClick={() => setLocTab("reports")}
           className={`flex items-center gap-1.5 px-1 pb-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
             locTab === "reports"
@@ -906,13 +648,6 @@ export function LocationPanel({
       {locTab === "settings" && (
         <div className="bg-white/95 rounded-2xl p-4 sm:p-6 shadow-lg">
           <TrackSettingsTab adminCardNo={adminCardNo} />
-        </div>
-      )}
-
-      {/* ── Locations master tab ── */}
-      {locTab === "locations" && (
-        <div className="bg-white/95 rounded-2xl p-4 sm:p-6 shadow-lg">
-          <LocationsMasterTab adminCardNo={adminCardNo} />
         </div>
       )}
 

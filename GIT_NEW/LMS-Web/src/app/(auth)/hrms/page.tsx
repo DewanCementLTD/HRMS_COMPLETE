@@ -121,6 +121,24 @@ function formatNIC(v: string): string {
   return out;
 }
 
+// Codes come back from Oracle in whatever shape the column holds (blank-padded,
+// zero-padded, numeric). The LOVs match option values by exact string, so map a
+// saved code onto the matching option before it goes into the form — otherwise
+// the field just renders blank when HR reopens the employee.
+function matchCode(
+  raw: string | number | undefined | null,
+  options: { value: string }[],
+): string {
+  const v = String(raw ?? "").trim();
+  if (!v) return "";
+  const exact = options.find((o) => o.value === v);
+  if (exact) return exact.value;
+  const loose = options.find(
+    (o) => o.value.trim().replace(/^0+(?=\d)/, "") === v.replace(/^0+(?=\d)/, ""),
+  );
+  return loose ? loose.value : v;
+}
+
 // ── Filter state for employee list ──────────────────────────────
 type EmpFilter = { dept: string; gender: string; status: string; location: string };
 
@@ -597,6 +615,12 @@ export default function HRMSPage() {
       basic: e.basic ?? undefined,
       gross: e.gross ?? undefined,
       w_hour: e.w_hour ?? undefined,
+      bldgrp: e.bldgrp || "",
+      grade_cd: e.grade_cd || "",
+      shift: e.shift || "",
+      hod1: e.hod1 ?? undefined,
+      hod2: e.hod2 ?? undefined,
+      hod3: e.hod3 ?? undefined,
       track_location: e.track_location || "N",
       track_location_hr: e.track_location_hr ?? 2,
       // Extended profile fields
@@ -618,14 +642,31 @@ export default function HRMSPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  /** Fields HR must fill in before an employee can be saved. Branch/Location is
+   *  required because without it the employee won't appear under any branch
+   *  (and won't be counted in that branch's attendance); the rest are needed
+   *  downstream by payroll, ID cards and statutory reports. Gross is only
+   *  checked when this admin is allowed to edit salary — it's read-only
+   *  otherwise, so they'd have no way to supply it. */
+  function missingRequired(): string | null {
+    if (!form.name.trim()) return "Full Name";
+    if (!form.dtofbrth) return "Date of Birth";
+    if (!form.nicno?.trim()) return "NIC Number";
+    if (!form.dtofappt) return "Date of Appointment";
+    if (!form.dept_no) return "Department";
+    if (!form.desg_cd) return "Designation";
+    if (!form.location) return "Branch / Location";
+    if (user?.can_edit_salary && (form.gross == null || Number.isNaN(form.gross)))
+      return "Gross Salary";
+    return null;
+  }
+
   async function onSubmitRegister(e: { preventDefault(): void }) {
     e.preventDefault();
     ctrl.clearMessages();
-    if (!form.name.trim()) return;
-    // Branch/Location is required — without it the employee won't appear under
-    // any branch (and won't be counted in that branch's attendance).
-    if (!form.location) {
-      alert("Please select the employee's Branch / Location before registering.");
+    const missing = missingRequired();
+    if (missing) {
+      alert(`Please fill in ${missing} before registering the employee.`);
       return;
     }
     const res = await ctrl.registerEmployee(form);
@@ -638,6 +679,11 @@ export default function HRMSPage() {
     e.preventDefault();
     ctrl.clearMessages();
     if (!ctrl.selectedEmployee) return;
+    const missing = missingRequired();
+    if (missing) {
+      alert(`Please fill in ${missing} before saving the employee.`);
+      return;
+    }
     await ctrl.editEmployee(ctrl.selectedEmployee.empcode, form);
   }
 
@@ -1275,6 +1321,10 @@ export default function HRMSPage() {
   const isEdit = view === "edit";
   if (isEdit && ctrl.loading) return <Spinner />;
 
+  const deptOptions = refDepts.map((d) => ({ value: String(d.dept_no), label: d.dept_name }));
+  const desigOptions = refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc }));
+  const locationOptions = refLocations.map((l) => ({ value: l.lcode, label: l.descr }));
+
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -1345,17 +1395,19 @@ export default function HRMSPage() {
                 onChange={(e) => updateField("sex", e.target.value)}
               />
               <Input
-                label="Date of Birth"
+                label="Date of Birth *"
                 type="date"
                 value={form.dtofbrth || ""}
                 onChange={(e) => updateField("dtofbrth", e.target.value)}
+                required
               />
               <Input
-                label="NIC Number"
+                label="NIC Number *"
                 value={form.nicno || ""}
                 onChange={(e) => updateField("nicno", formatNIC(e.target.value))}
                 placeholder="4XXXX-XXXXXXX-X"
                 maxLength={15}
+                required
               />
               <Select
                 label="Marital Status"
@@ -1425,24 +1477,25 @@ export default function HRMSPage() {
                 placeholder="Card number"
               />
               <Input
-                label="Date of Appointment"
+                label="Date of Appointment *"
                 type="date"
                 value={form.dtofappt || ""}
                 onChange={(e) => updateField("dtofappt", e.target.value)}
+                required
               />
               <SearchableSelect
-                label="Department"
-                value={form.dept_no?.toString() || ""}
+                label="Department *"
+                value={matchCode(form.dept_no, deptOptions)}
                 onChange={(v) => updateField("dept_no", v)}
                 placeholder="Search department…"
-                options={refDepts.map((d) => ({ value: String(d.dept_no), label: d.dept_name }))}
+                options={deptOptions}
               />
               <SearchableSelect
-                label="Designation"
-                value={form.desg_cd?.toString() || ""}
+                label="Designation *"
+                value={matchCode(form.desg_cd, desigOptions)}
                 onChange={(v) => updateField("desg_cd", v)}
                 placeholder="Search designation…"
-                options={refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc }))}
+                options={desigOptions}
               />
               <SearchableSelect
                 label="Employee Status"
@@ -1491,10 +1544,10 @@ export default function HRMSPage() {
               />
               <SearchableSelect
                 label="Branch / Location *"
-                value={form.location?.toString() || ""}
+                value={matchCode(form.location, locationOptions)}
                 onChange={(v) => updateField("location", v)}
                 placeholder="Select branch…"
-                options={refLocations.map((l) => ({ value: l.lcode, label: l.descr }))}
+                options={locationOptions}
               />
               <Input
                 label="Working Hours"
@@ -1531,11 +1584,12 @@ export default function HRMSPage() {
                     onChange={(e) => updateField("basic", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
                   />
                   <Input
-                    label="Gross Salary"
+                    label="Gross Salary *"
                     type="number"
                     min={0}
                     value={form.gross?.toString() ?? ""}
                     onChange={(e) => updateField("gross", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
+                    required
                   />
                 </>
               ) : (

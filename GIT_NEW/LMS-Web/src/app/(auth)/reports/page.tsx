@@ -225,9 +225,9 @@ export default function ReportsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
-          <p className="text-gray-500 mt-2">You don&apos;t have HR admin privileges.</p>
+          <FileText className="h-12 w-12 text-white/40 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white">Access Denied</h2>
+          <p className="text-gray-300 mt-2">You don&apos;t have HR admin privileges.</p>
         </div>
       </div>
     );
@@ -259,8 +259,8 @@ export default function ReportsPage() {
             return (
               <section key={cat.id}>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <h2 className="text-base font-bold text-gray-900">{cat.label}</h2>
-                  <span className="text-sm text-gray-500">{cat.desc}</span>
+                  <h2 className="text-base font-bold text-white">{cat.label}</h2>
+                  <span className="text-sm text-gray-300">{cat.desc}</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 auto-rows-max">
                   {reports.map((r) => (
@@ -289,12 +289,12 @@ export default function ReportsPage() {
             <div className="min-w-0">
               <button
                 onClick={() => setSelectedReportId(null)}
-                className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700 mb-2"
+                className="flex items-center gap-1 text-xs font-medium text-gray-300 hover:text-white transition-colors mb-2"
               >
                 <ChevronLeft className="h-3.5 w-3.5" /> Back to reports
               </button>
               <div className="flex items-center gap-2.5 flex-wrap mb-1">
-                <h3 className="text-lg font-bold text-gray-900">{activeReportMeta.title}</h3>
+                <h3 className="text-lg font-bold text-white">{activeReportMeta.title}</h3>
                 <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                   activeReportMeta.category === "payroll"
                     ? "bg-indigo-100 text-indigo-800"
@@ -303,7 +303,7 @@ export default function ReportsPage() {
                   {activeReportMeta.category === "payroll" ? "Payroll" : "General"}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">{activeReportMeta.description}</p>
+              <p className="text-sm text-gray-300">{activeReportMeta.description}</p>
             </div>
 
             {/* Action buttons */}

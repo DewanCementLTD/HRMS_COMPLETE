@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, Printer, Search, Loader2, FileSpreadsheet } from "lucide-react";
+import { RefreshCw, Printer, Search, Loader2, FileSpreadsheet, FileText, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
@@ -36,6 +36,34 @@ function sumTotals(list: PayRegisterEmployee[], allow: string[], ded: string[]):
     for (const c of ded) t.deds[c] += e.deds[c] || 0;
   }
   return t;
+}
+
+// ── Export helpers ────────────────────────────────────────────
+// CSV and PDF both flow from the same column list as the on-screen table, so an
+// exported register always matches what HR is looking at.
+
+function csvEscape(v: unknown): string {
+  return `"${String(v ?? "").replace(/"/g, '""')}"`;
+}
+
+function downloadBlob(content: string, mime: string, filename: string) {
+  const url = URL.createObjectURL(new Blob([content], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 150);
+}
+
+function num(v?: number) {
+  return v == null ? "" : Math.round(v);
+}
+
+function esc(v: unknown): string {
+  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: string; initialPeriod?: number | null }) {
@@ -117,6 +145,123 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
   // Column count for full-width header rows.
   const colCount = 7 + allow.length + 1 + ded.length + 1 + 2;
 
+  // Printing has to fit the page regardless of how many allowance/deduction
+  // columns this unit uses: a wide register moves to A3 and steps the font down.
+  const printPage = colCount <= 18 ? "A4" : "A3";
+  const printFont = colCount <= 16 ? 9 : colCount <= 22 ? 8 : colCount <= 30 ? 7 : 6;
+
+  const fileStem = `pay-register_${(companyName || data?.unit_name || "company").replace(/[^\w]+/g, "-")}_${(data?.period_name || period || "").toString().replace(/[^\w]+/g, "-")}`;
+
+  /** Flat, Excel-friendly export: location/department as columns, one row per
+   *  employee, grand total last. */
+  function exportCsv() {
+    const headers = [
+      "Location", "Department", "Designation", "Emp Code", "Name", "W.Day",
+      "Actual Gross", "Earned Basic", "Earned Gross",
+      ...allow, "Total Allow", ...ded, "Total Ded", "Net Pay", "Hold",
+    ];
+    const rows = employees.map((e) => [
+      e.location, e.department, e.designation, e.old_empcode, e.name, e.w_day ?? "",
+      num(e.actual_gross), num(e.earned_basic), num(e.earned_gross),
+      ...allow.map((c) => num(e.allows[c])), num(e.tot_all),
+      ...ded.map((c) => num(e.deds[c])), num(e.tot_ded), num(e.net),
+      (e.hold_sal || "").toUpperCase() === "N" ? "" : (e.hold_sal || ""),
+    ]);
+    const t = sumTotals(employees, allow, ded);
+    rows.push([
+      "", "", "", "", `Grand Total (${employees.length})`, "",
+      num(t.actual_gross), num(t.earned_basic), num(t.earned_gross),
+      ...allow.map((c) => num(t.allows[c])), num(t.tot_all),
+      ...ded.map((c) => num(t.deds[c])), num(t.tot_ded), num(t.net), "",
+    ]);
+    const meta = [
+      [`${companyName || data?.unit_name || "Company"} — Payroll Register`],
+      [`Period: ${data?.period_name || ""}`, `Employees: ${employees.length}`],
+      [],
+    ];
+    const csv = [...meta, headers, ...rows]
+      .map((r) => r.map(csvEscape).join(","))
+      .join("\n");
+    downloadBlob("\ufeff" + csv, "text/csv;charset=utf-8", `${fileStem}.csv`);
+  }
+
+  /** PDF keeps the printed register's shape — location/department groups with
+   *  their subtotals — and scales itself to the page width. */
+  function exportPdf() {
+    const head = [
+      "S#", "Emp Code", "Name", "W.Day", "Actual Gross", "Earned Basic", "Earned Gross",
+      ...allow, "Total Allow", ...ded, "Total Ded", "Net Pay", "Hold",
+    ];
+    const rightFrom = 3;   // everything after Name is numeric
+
+    const cellsFor = (e: PayRegisterEmployee, i: number) => [
+      i, e.old_empcode, e.name, e.w_day ?? "",
+      cell(e.actual_gross), cell(e.earned_basic), cell(e.earned_gross),
+      ...allow.map((c) => cell(e.allows[c])), cell(e.tot_all),
+      ...ded.map((c) => cell(e.deds[c])), cell(e.tot_ded), cell(e.net),
+      (e.hold_sal || "").toUpperCase() === "N" ? "" : (e.hold_sal || ""),
+    ];
+    const totalCells = (label: string, list: PayRegisterEmployee[]) => {
+      const t = sumTotals(list, allow, ded);
+      return ["", "", `${label} (${list.length})`, "",
+        tot(t.actual_gross), tot(t.earned_basic), tot(t.earned_gross),
+        ...allow.map((c) => tot(t.allows[c])), tot(t.tot_all),
+        ...ded.map((c) => tot(t.deds[c])), tot(t.tot_ded), tot(t.net), ""];
+    };
+    const tr = (cells: (string | number)[], cls = "") =>
+      `<tr class="${cls}">${cells.map((v, i) =>
+        `<td class="${i >= rightFrom ? "r" : ""}">${esc(v)}</td>`).join("")}</tr>`;
+
+    const body: string[] = [];
+    for (const L of grouped) {
+      body.push(`<tr class="loc"><td colspan="${colCount}">Location: ${esc(L.location)}</td></tr>`);
+      for (const D of L.depts) {
+        body.push(`<tr class="dep"><td colspan="${colCount}">Department: ${esc(D.department)}</td></tr>`);
+        D.rows.forEach((e, i) => body.push(tr(cellsFor(e, i + 1))));
+        body.push(tr(totalCells(`Total of ${D.department}`, D.rows), "sub"));
+      }
+      body.push(tr(totalCells(`Total of ${L.location}`, L.depts.flatMap((d) => d.rows)), "loctot"));
+    }
+    body.push(tr(totalCells("Grand Total", employees), "grand"));
+
+    const title = `${companyName || data?.unit_name || "Company"} — Payroll Register`;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)} ${esc(data?.period_name || "")}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:Arial,sans-serif;color:#000;background:#fff}
+  @page{size:${printPage} landscape;margin:8mm}
+  .hdr{border-bottom:2px solid #333;padding-bottom:6px;margin-bottom:8px}
+  .hdr h1{font-size:15px;text-transform:uppercase;letter-spacing:.4px}
+  .hdr h2{font-size:11px;color:#333;margin-top:1px}
+  .hdr .meta{font-size:9px;color:#555;margin-top:3px}
+  table{width:100%;table-layout:fixed;border-collapse:collapse;font-size:${printFont}px}
+  th,td{border:1px solid #b0b0b0;padding:1.5px 3px;word-break:break-word;overflow:hidden}
+  th{background:#4338ca;color:#fff;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  td.r{text-align:right;white-space:nowrap}
+  tr.loc td{background:#e5e7eb;font-weight:bold}
+  tr.dep td{background:#f3f4f6;font-weight:600;color:#3730a3}
+  tr.sub td{background:#eef2ff;font-weight:600}
+  tr.loctot td{background:#e0e7ff;font-weight:bold}
+  tr.grand td{background:#1f2937;color:#fff;font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tr{page-break-inside:avoid}
+  thead{display:table-header-group}
+</style></head><body>
+  <div class="hdr">
+    <h1>${esc(companyName || data?.unit_name || "Company")}</h1>
+    <h2>Payroll Register</h2>
+    <div class="meta">Period: ${esc(data?.period_name || "—")} &nbsp;|&nbsp; Unit: ${esc(data?.unit_name || "—")} &nbsp;|&nbsp; Employees: ${employees.length} &nbsp;|&nbsp; Printed: ${esc(new Date().toLocaleString())}</div>
+  </div>
+  <table><thead><tr>${head.map((h, i) => `<th class="${i >= rightFrom ? "r" : ""}">${esc(h)}</th>`).join("")}</tr></thead>
+  <tbody>${body.join("")}</tbody></table>
+  <script>window.onload=function(){window.print();setTimeout(function(){window.close()},1000)}</script>
+</body></html>`;
+
+    const win = window.open("", "_blank", "width=1400,height=900");
+    if (!win) { alert("Please allow pop-ups to download the PDF."); return; }
+    win.document.write(html);
+    win.document.close();
+  }
+
   function TotalRow({ label, list, cls }: { label: string; list: PayRegisterEmployee[]; cls: string }) {
     const t = sumTotals(list, allow, ded);
     return (
@@ -183,9 +328,17 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
         <Button variant="secondary" size="sm" onClick={() => period != null && load(period)} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} /> Refresh
         </Button>
-        <Button size="sm" onClick={() => window.print()} disabled={employees.length === 0} className="ml-auto">
-          <Printer className="h-4 w-4 mr-1.5" /> Print
-        </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Button variant="secondary" size="sm" onClick={exportCsv} disabled={employees.length === 0}>
+            <Download className="h-4 w-4 mr-1.5" /> CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportPdf} disabled={employees.length === 0}>
+            <FileText className="h-4 w-4 mr-1.5" /> PDF
+          </Button>
+          <Button size="sm" onClick={() => window.print()} disabled={employees.length === 0}>
+            <Printer className="h-4 w-4 mr-1.5" /> Print
+          </Button>
+        </div>
       </div>
 
       {error && <div className="p-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600 print:hidden">{error}</div>}
@@ -276,14 +429,36 @@ export function PayRegisterPanel({ adminCardNo, initialPeriod }: { adminCardNo: 
       </div>
 
       {/* Print isolation: print only the report */}
+      {/* Print isolation + fit-to-page. Page size and font step down as the unit's
+          allowance/deduction column count grows, and fixed layout with wrapping
+          headers keeps a wide register inside the printable width. */}
       <style>{`
         @media print {
-          @page { size: A3 landscape; margin: 10mm; }
+          @page { size: ${printPage} landscape; margin: 8mm; }
           body * { visibility: hidden !important; }
           #payreg-report, #payreg-report * { visibility: visible !important; }
-          #payreg-report { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; }
-          #payreg-report table { font-size: 9px; }
-          #payreg-report .bg-indigo-600 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          #payreg-report {
+            position: absolute; left: 0; top: 0; width: 100%;
+            padding: 0 !important; border: none !important; box-shadow: none !important;
+            overflow: visible !important;
+          }
+          #payreg-report table {
+            width: 100% !important; table-layout: fixed;
+            font-size: ${printFont}px;
+          }
+          #payreg-report th, #payreg-report td {
+            padding: 1px 2px !important;
+            word-break: break-word; overflow: hidden;
+          }
+          /* Headers wrap instead of forcing the table wider than the page… */
+          #payreg-report th { white-space: normal !important; }
+          /* …while figures stay on one line. */
+          #payreg-report td.text-right, #payreg-report th.text-right { white-space: nowrap; }
+          #payreg-report thead { display: table-header-group; }
+          #payreg-report tr { page-break-inside: avoid; }
+          #payreg-report .bg-indigo-600, #payreg-report .bg-gray-800 {
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          }
         }
       `}</style>
     </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Alert } from "@/components/ui/Alert";
+import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -2017,18 +2018,21 @@ function NotificationDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-5xl my-6">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Send Notifications</h2>
-            <p className="text-xs text-gray-500 mt-0.5">{ctx.eventType} — {ctx.title}</p>
-          </div>
-          <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
-        </div>
-
-        <div className="p-5">
-          {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError(null)} /></div>}
+    <Modal
+      title="Send Notifications"
+      subtitle={`${ctx.eventType} — ${ctx.title}`}
+      size="xl"
+      onClose={() => onClose(false)}
+      footer={
+        <>
+          <Button variant="ghost" onClick={() => onClose(false)}>Skip</Button>
+          <Button onClick={save} loading={saving} disabled={active.length === 0}>
+            <Send className="h-4 w-4 mr-1.5" />Save Selections
+          </Button>
+        </>
+      }
+    >
+      {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError(null)} /></div>}
           {loading ? (
             <div className="flex justify-center py-10"><Spinner /></div>
           ) : (
@@ -2098,17 +2102,9 @@ function NotificationDialog({
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-3 mt-5">
-                <Button variant="ghost" onClick={() => onClose(false)}>Skip</Button>
-                <Button onClick={save} loading={saving} disabled={active.length === 0}>
-                  <Send className="h-4 w-4 mr-1.5" />Save Selections
-                </Button>
-              </div>
             </>
           )}
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -2296,28 +2292,16 @@ function PanelPoolModal({
   const empByCode = new Map(employees.map((e) => [e.empcode, e]));
 
   return (
-    <div
-      className="fixed inset-0 z-[1000] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto bg-black/50 backdrop-blur-sm"
-      onClick={onClose}
+    <Modal
+      title="Interview Panel Pool"
+      subtitle={allBranchView
+        ? "All Branches view — adding or removing an employee applies to every branch of the company (branches created later are not included automatically)."
+        : "Only pool members can be assigned to interviews for this company/branch."}
+      size="md"
+      onClose={onClose}
+      footer={<Button variant="secondary" onClick={onClose}>Close</Button>}
     >
-      <div
-        className="bg-white rounded-xl shadow-xl w-full max-w-2xl my-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Interview Panel Pool</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {allBranchView
-                ? "All Branches view — adding or removing an employee applies to every branch of the company (branches created later are not included automatically)."
-                : "Only pool members can be assigned to interviews for this company/branch."}
-            </p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
-        </div>
-
-        <div className="p-5">
-          {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError(null)} /></div>}
+      {error && <div className="mb-4"><Alert type="error" message={error} onClose={() => setError(null)} /></div>}
           {loading ? (
             <div className="flex justify-center py-10"><Spinner /></div>
           ) : (
@@ -2390,9 +2374,7 @@ function PanelPoolModal({
               )}
             </>
           )}
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 

@@ -27,6 +27,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
 import { useSidebar } from "./sidebar-context";
+import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 // Dashboard is shown to everyone who has either employee features OR hr_admin
 // (SEC_USERNAME-only admins see it as the HR dashboard).
@@ -140,6 +141,14 @@ export function Sidebar() {
     ...(user?.hr_admin ? hrNavItems : []),
   ];
 
+  const companyCompc = user?.selected_company?.code ?? "";
+
+  // On mobile the sidebar is an overlay (collapsed === hidden), so picking a
+  // nav item should close it. On desktop it must stay open.
+  const closeOnMobile = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) setCollapsed(true);
+  };
+
   return (
     <>
       {/* Mobile overlay button */}
@@ -150,6 +159,14 @@ export function Sidebar() {
         <Menu className="h-5 w-5 text-gray-600" />
       </button>
 
+      {/* Mobile backdrop — tapping outside closes the drawer */}
+      {!collapsed && (
+        <div
+          onClick={() => setCollapsed(true)}
+          className="lg:hidden fixed inset-0 bg-black/30 z-30"
+        />
+      )}
+
       <aside
         className={cn(
           "fixed left-0 top-0 h-full bg-white border-r border-gray-100 z-40 transition-all duration-300 flex flex-col",
@@ -158,33 +175,40 @@ export function Sidebar() {
         )}
         data-open={!collapsed}
       >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
-          <div className="flex items-center gap-2 min-w-0">
-            <Image
-              src="/LMS_Black.png"
-              alt="LMS Logo"
-              width={36}
-              height={36}
-              className="shrink-0"
+        {/* Logo — logo on the first row, product name wraps onto the second. */}
+        <div className={cn("px-4 py-3 border-b border-gray-100", collapsed && "px-2")}>
+          <div className="flex items-center justify-between gap-2">
+            {/* Company logo once uploaded, otherwise the default LMS mark. */}
+            <CompanyLogo
+              compc={companyCompc}
+              className="h-9 max-w-full min-w-0"
+              fallback={
+                <Image
+                  src="/LMS_Black.png"
+                  alt="LMS Logo"
+                  width={36}
+                  height={36}
+                  className="shrink-0"
+                />
+              }
             />
-            {!collapsed && (
-              <h1 className="text-xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate">
-                Human Resource Management System
-              </h1>
-            )}
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block shrink-0"
+            >
+              <ChevronLeft
+                className={cn(
+                  "h-5 w-5 text-gray-400 transition-transform",
+                  collapsed && "rotate-180"
+                )}
+              />
+            </button>
           </div>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block"
-          >
-            <ChevronLeft
-              className={cn(
-                "h-5 w-5 text-gray-400 transition-transform",
-                collapsed && "rotate-180"
-              )}
-            />
-          </button>
+          {!collapsed && (
+           <h1 className="text-xs font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+  Human Resource Management System
+</h1>
+          )}
         </div>
 
         {/* User info + company/branch */}
@@ -209,7 +233,7 @@ export function Sidebar() {
             <SwitcherDropdown<CompanyItem>
               items={user!.company_list}
               selected={user!.selected_company}
-              onSelect={switchCompany}
+              onSelect={(c) => { switchCompany(c); closeOnMobile(); }}
               icon={Building2}
               collapsed={collapsed}
             />
@@ -227,7 +251,7 @@ export function Sidebar() {
               <SwitcherDropdown<BranchItem>
                 items={branchesForCompany}
                 selected={user!.selected_branch}
-                onSelect={switchBranch}
+                onSelect={(b) => { switchBranch(b); closeOnMobile(); }}
                 icon={MapPin}
                 collapsed={collapsed}
                 allowAll
@@ -246,6 +270,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={closeOnMobile}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
