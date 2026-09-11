@@ -49,7 +49,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 }
 
 function AuthShell({ children }: { children: React.ReactNode }) {
-  const { collapsed } = useSidebar();
+  const { collapsed, resetKey } = useSidebar();
   return (
     <div className="min-h-screen relative">
       {/* Background image with dark overlay */}
@@ -69,7 +69,9 @@ function AuthShell({ children }: { children: React.ReactNode }) {
             The left padding tracks the sidebar width so the content reclaims the
             space when the sidebar is collapsed. */}
         <main className={`transition-all duration-300 min-w-0 overflow-x-clip ${collapsed ? "lg:pl-20" : "lg:pl-64"}`}>
-          <div className="p-6 lg:p-8 max-w-7xl mx-auto min-w-0">
+          {/* Keyed on resetKey so re-pressing the active sidebar item remounts
+              the page and returns it to its own home view. */}
+          <div key={resetKey} className="p-6 lg:p-8 max-w-7xl mx-auto min-w-0">
             {children}
           </div>
         </main>

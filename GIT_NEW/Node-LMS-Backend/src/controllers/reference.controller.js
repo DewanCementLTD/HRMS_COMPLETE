@@ -107,7 +107,8 @@ export const listShifts = async (req, res, next) => {
 
 export const listShiftLov = async (req, res, next) => {
   try {
-    res.json({ items: await refService.getShiftLov() });
+    const { compc, brnch } = res.locals.validated?.query ?? {};
+    res.json({ items: await refService.getShiftLov(compc, brnch) });
   } catch (err) { next(err); }
 };
 
@@ -353,5 +354,119 @@ export const removeInterviewType = async (req, res, next) => {
     const { admin_card_no, compc } = res.locals.validated.query;
     const company = await setupCompany(admin_card_no, compc);
     handleResult(res, await refService.removeInterviewType(type_id, company));
+  } catch (err) { next(err); }
+};
+
+// ── Reference-data edits (and the blood-group delete that was missing) ──
+// Each mirrors its delete counterpart: the company is resolved from the admin's
+// rights, never taken from the query string.
+
+export const editEmpStatus = async (req, res, next) => {
+  try {
+    const { emp_status } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { descr } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateEmpStatus(emp_status, descr, company));
+  } catch (err) { next(err); }
+};
+
+export const editQualification = async (req, res, next) => {
+  try {
+    const { descr: oldDescr } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { descr } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateQualification(oldDescr, descr, company));
+  } catch (err) { next(err); }
+};
+
+export const editBank = async (req, res, next) => {
+  try {
+    const { bnkcode } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { bnkname } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateBank(bnkcode, bnkname, company));
+  } catch (err) { next(err); }
+};
+
+export const editBankBranch = async (req, res, next) => {
+  try {
+    const { bnkcode, brncode } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { brnname } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateBankBranch(bnkcode, brncode, brnname, company));
+  } catch (err) { next(err); }
+};
+
+export const editInterviewType = async (req, res, next) => {
+  try {
+    const { type_id } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { descr } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateInterviewType(type_id, descr, company));
+  } catch (err) { next(err); }
+};
+
+export const editBloodGroup = async (req, res, next) => {
+  try {
+    const { pk } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { blood_group } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateBloodGroup(pk, blood_group, company));
+  } catch (err) { next(err); }
+};
+
+export const removeBloodGroup = async (req, res, next) => {
+  try {
+    const { pk } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.deleteBloodGroup(pk, company));
+  } catch (err) { next(err); }
+};
+
+// ── Leave types (master setup) ────────────────────────────────────
+// The company always comes from the admin's own rights, never the query
+// string, so HR cannot maintain another company's leave types.
+
+export const listLeaveTypes = async (req, res, next) => {
+  try {
+    const { compc, brnch } = res.locals.validated.query;
+    res.json({ items: await refService.getLeaveTypes(compc, brnch) });
+  } catch (err) { next(err); }
+};
+
+export const createLeaveType = async (req, res, next) => {
+  try {
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.addLeaveType({
+      ...res.locals.validated.body,
+      compc: company,
+      brnch,
+    }));
+  } catch (err) { next(err); }
+};
+
+export const editLeaveType = async (req, res, next) => {
+  try {
+    const { pk } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateLeaveType(pk, res.locals.validated.body, company));
+  } catch (err) { next(err); }
+};
+
+export const removeLeaveType = async (req, res, next) => {
+  try {
+    const { pk } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.deleteLeaveType(pk, company));
   } catch (err) { next(err); }
 };

@@ -23,7 +23,12 @@ export default function LeaveStatusPage() {
 
   // Display-only summary: only positive, non-OD balances (ML/CL/EL-style) —
   // OD and zero-balance/contract-bucket rows are noise here.
-  const summaryBalances = leaveBalances.filter((lb) => !lb.is_od && lb.balance > 0);
+  // Filtered on the entitlement, not the available figure: a type whose whole
+  // balance is currently held by a pending request still belongs here — dropping
+  // the card would hide exactly the leave the employee is waiting on.
+  const summaryBalances = leaveBalances.filter(
+    (lb) => !lb.is_od && (lb.total_balance ?? lb.balance) > 0
+  );
 
   if (loading) return <Spinner />;
 
@@ -49,6 +54,11 @@ export default function LeaveStatusPage() {
               <p className="text-xs text-gray-500 mt-1">
                 {lb.leave_desc || `Type ${lb.leave_type}`}
               </p>
+              {(lb.pending_days ?? 0) > 0 && (
+                <p className="text-[11px] text-amber-600 mt-0.5">
+                  {lb.pending_days} awaiting approval
+                </p>
+              )}
             </CardContent>
           </Card>
         ))}

@@ -19,15 +19,19 @@ export interface HRMSEmployee {
   marstat?: string;
   grade_cd?: string;
   religion?: string;
-  hod1?: number;
-  hod2?: number;
-  hod3?: number;
+  // HOD1/HOD2 hold the approver's MOBILE NUMBER (see HOD1_MNO on a leave
+  // application), supplied as a string by the employee picker.
+  hod1?: number | string | null;
+  hod2?: number | string | null;
+  hod3?: number | string | null;
   basic?: number;
   gross?: number;
   shift?: string;
   w_hour?: number;
   bldgrp?: string;
   location?: string;
+  /** Date HR moved the employee to their current branch, as YYYY-MM-DD. */
+  transfer_date?: string;
   user_paswd?: string;
   track_location?: string;
   track_location_hr?: number;
@@ -65,15 +69,19 @@ export interface HRMSEmployeeCreate {
   marstat?: string;
   grade_cd?: string;
   religion?: string;
-  hod1?: number;
-  hod2?: number;
-  hod3?: number;
+  // HOD1/HOD2 hold the approver's MOBILE NUMBER (see HOD1_MNO on a leave
+  // application), supplied as a string by the employee picker.
+  hod1?: number | string | null;
+  hod2?: number | string | null;
+  hod3?: number | string | null;
   basic?: number;
   gross?: number;
   shift?: string;
   w_hour?: number;
   bldgrp?: string;
   location?: string;
+  /** Date HR moved the employee to their current branch, as YYYY-MM-DD. */
+  transfer_date?: string;
   track_location?: string;
   track_location_hr?: number;
   // Extended profile fields

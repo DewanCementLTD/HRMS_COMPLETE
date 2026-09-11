@@ -197,6 +197,53 @@ export interface ReportFilterParams {
   gross_to?: number | null;
   deduction_id?: string;
   trans_id?: string;
+  /** Monthly attendance grid — a date range, not a payroll period. */
+  from_date?: string;
+  to_date?: string;
+}
+
+// ── Monthly attendance grid ───────────────────────────────────────
+// One row per employee, one column per calendar day, grouped branch →
+// department, mirroring the ERP's printed monthly attendance report.
+
+export interface MonthlyAttendanceDay {
+  date: string;
+  /** Single-letter day of week, as printed in the legacy report. */
+  dow: string;
+}
+
+export interface MonthlyAttendanceCell {
+  in_time: string | null;
+  out_time: string | null;
+  shift: string;
+  is_rest: boolean;
+  is_absent: boolean;
+  is_late: boolean;
+  is_half_day: boolean;
+  is_leave: boolean;
+  leave_type: string | null;
+  remarks: string | null;
+}
+
+export interface MonthlyAttendanceRow {
+  code: string;
+  card_no: string;
+  department: string;
+  branch: string;
+  emp_no: string;
+  employee_name: string;
+  days: Record<string, MonthlyAttendanceCell>;
+  absent_days: number;
+  late_days: number;
+  leave_days: number;
+  present_days: number;
+}
+
+export interface MonthlyAttendanceReport {
+  days: MonthlyAttendanceDay[];
+  /** One group per branch; the department rides on each row. */
+  groups: { branch: string; rows: MonthlyAttendanceRow[] }[];
+  meta: ReportMetaData;
 }
 
 const buildQuery = (adminCardNo: string, params: ReportFilterParams = {}) => {
@@ -243,3 +290,6 @@ export const fetchActiveEmployeesReport = (adminCardNo: string, params?: ReportF
 
 export const fetchPfDetailReport = (adminCardNo: string, params?: ReportFilterParams) =>
   get<PfDetailReport>("pf-detail", adminCardNo, params);
+
+export const fetchMonthlyAttendanceReport = (adminCardNo: string, params?: ReportFilterParams) =>
+  get<MonthlyAttendanceReport>("monthly-attendance", adminCardNo, params);

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload,
-  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList,
+  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList, CalendarClock,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
@@ -11,31 +11,24 @@ import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts, fetchShiftLov,
-  fetchBloodGroups, fetchLocations,
-  addDepartment, addDesignation, addBloodGroup,
-  addLocation, updateLocation,
-  fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications,
-  addEmpStatus, deleteEmpStatus, addBank, deleteBank,
-  addBankBranch, deleteBankBranch, addQualification, deleteQualification,
-  fetchInterviewTypes, addInterviewType, deleteInterviewType,
-  type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location,
-  type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType,
+  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
+  fetchLeaveTypes, type LeaveTypeMaster,
 } from "@/services/referenceService";
 import { ShiftsSection } from "./ShiftsSection";
+import { LeaveTypesSection } from "./LeaveTypesSection";
 
 // ─── Types ────────────────────────────────────────────────
 
 type Tab = "departments" | "designations" | "shifts" | "blood_groups" | "locations"
   | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo"
-  | "interview_types";
+  | "interview_types" | "leave_types";
 
 const TAB_LABEL: Record<Tab, string> = {
   departments: "Departments", designations: "Designations",
   locations: "Locations", emp_statuses: "Employee Status",
   qualifications: "Qualifications", blood_groups: "Blood Groups", shifts: "Shifts",
   banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
-  interview_types: "Interview Types",
+  interview_types: "Interview Types", leave_types: "Leave Types",
 };
 
 // Master tables grouped into a few areas so Setup reads as clear sections
@@ -57,6 +50,11 @@ const GROUPS: SetupGroup[] = [
     id: "banking", label: "Banking", icon: Landmark,
     desc: "Banks and their branches for salary accounts.",
     tabs: ["banks", "bank_branches"],
+  },
+  {
+    id: "leave", label: "Leave", icon: CalendarClock,
+    desc: "Leave types available to this company's employees.",
+    tabs: ["leave_types"],
   },
   {
     id: "interviews", label: "Interviews", icon: ClipboardList,
@@ -143,6 +141,8 @@ function MasterTable({
   addFields,
   onAdd,
   onDelete,
+  onEdit,
+  editColumn = 1,
 }: {
   columns: string[];
   rows: (string | number | null | undefined)[][];
@@ -151,9 +151,32 @@ function MasterTable({
   addFields: { key: string; label: string; placeholder: string }[];
   onAdd: (values: Record<string, string>) => Promise<void>;
   onDelete?: (rowIndex: number) => Promise<void>;
+  /** Save a new value for the row's editable column. */
+  onEdit?: (rowIndex: number, value: string) => Promise<void>;
+  /** Which column the inline editor edits (the name/description). */
+  editColumn?: number;
 }) {
   const [showAdd, setShowAdd] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [editingRow, setEditingRow] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  async function saveEdit(i: number) {
+    if (!onEdit) return;
+    const v = editValue.trim();
+    if (!v) return;
+    setSavingEdit(true);
+    try {
+      await onEdit(i, v);
+      setEditingRow(null);
+      onRefresh();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
 
   async function handleDelete(i: number) {
     if (!onDelete) return;
@@ -229,27 +252,77 @@ function MasterTable({
               </tr>
             )}
             {!loading &&
-              rows.map((row, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition-colors">
+              rows.map((row, i) => {
+                const editing = editingRow === i;
+                return (
+                <tr key={i} className={`transition-colors ${editing ? "bg-indigo-50" : "hover:bg-gray-50"}`}>
                   {row.map((cell, j) => (
                     <td key={j} className="px-4 py-2.5 text-sm text-gray-700">
-                      {cell ?? "—"}
+                      {editing && j === editColumn ? (
+                        <input
+                          autoFocus
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") saveEdit(i);
+                            if (e.key === "Escape") setEditingRow(null);
+                          }}
+                          className="w-full border border-indigo-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                        />
+                      ) : (
+                        cell ?? "—"
+                      )}
                     </td>
                   ))}
-                  <td className="px-4 py-2.5 text-right">
-                    {onDelete && (
-                      <button
-                        onClick={() => handleDelete(i)}
-                        disabled={deleting === i}
-                        className="text-red-500 hover:text-red-700 disabled:opacity-40"
-                        title="Remove"
-                      >
-                        {deleting === i ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                      </button>
+                  <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                    {editing ? (
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          onClick={() => saveEdit(i)}
+                          disabled={savingEdit}
+                          className="text-emerald-600 hover:text-emerald-800 disabled:opacity-40"
+                          title="Save"
+                        >
+                          {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                        </button>
+                        <button
+                          onClick={() => setEditingRow(null)}
+                          className="text-gray-400 hover:text-gray-600"
+                          title="Cancel"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="inline-flex items-center gap-3">
+                        {onEdit && (
+                          <button
+                            onClick={() => {
+                              setEditingRow(i);
+                              setEditValue(String(row[editColumn] ?? ""));
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800"
+                            title="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        )}
+                        {onDelete && (
+                          <button
+                            onClick={() => handleDelete(i)}
+                            disabled={deleting === i}
+                            className="text-red-500 hover:text-red-700 disabled:opacity-40"
+                            title="Remove"
+                          >
+                            {deleting === i ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
           </tbody>
         </table>
       </div>
@@ -498,6 +571,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   const [bankBranches, setBankBranches] = useState<BankBranch[]>([]);
   const [quals, setQuals] = useState<Qualification[]>([]);
   const [ivTypes, setIvTypes] = useState<InterviewType[]>([]);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveTypeMaster[]>([]);
   const [branchBank, setBranchBank] = useState("");   // selected bank for Bank Branches tab
   const [loading, setLoading] = useState(false);
 
@@ -526,6 +600,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
         case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
         case "interview_types": { const r = await fetchInterviewTypes(activeCompany, activeBranch); setIvTypes(r.items); break; }
+        case "leave_types":  { const r = await fetchLeaveTypes(activeCompany, activeBranch); setLeaveTypes(r.items); break; }
         case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
         case "bank_branches": {
           const r = await fetchBanks(activeCompany); setBanks(r.items);
@@ -631,6 +706,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onAdd={async (v) => {
         await addBloodGroup(adminCardNo, v.blood_group);
       }}
+      onEdit={async (i, v) => { await updateBloodGroup(adminCardNo, bgs[i].pk, v, activeCompany); }}
+      onDelete={async (i) => { await deleteBloodGroup(adminCardNo, bgs[i].pk, activeCompany); }}
     />
   );
 
@@ -654,6 +731,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onRefresh={() => load("emp_statuses")}
       addFields={[{ key: "descr", label: "Status", placeholder: "e.g. Permanent" }]}
       onAdd={async (v) => { await addEmpStatus(adminCardNo, v.descr, activeCompany); }}
+      onEdit={async (i, v) => { await updateEmpStatus(adminCardNo, empStatuses[i].emp_status, v, activeCompany); }}
       onDelete={async (i) => { await deleteEmpStatus(adminCardNo, empStatuses[i].emp_status, activeCompany); }}
     />
   );
@@ -667,6 +745,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onRefresh={() => load("qualifications")}
       addFields={[{ key: "descr", label: "Qualification", placeholder: "e.g. BSc Computer Science" }]}
       onAdd={async (v) => { await addQualification(adminCardNo, v.descr, activeCompany); }}
+      editColumn={0}
+      onEdit={async (i, v) => { await updateQualification(adminCardNo, quals[i].descr, v, activeCompany); }}
       onDelete={async (i) => { await deleteQualification(adminCardNo, quals[i].descr, activeCompany); }}
     />
   );
@@ -680,6 +760,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onRefresh={() => load("interview_types")}
       addFields={[{ key: "descr", label: "Interview Type", placeholder: "e.g. Panel Discussion" }]}
       onAdd={async (v) => { await addInterviewType(adminCardNo, v.descr, activeCompany); }}
+      editColumn={0}
+      onEdit={async (i, v) => { await updateInterviewType(adminCardNo, ivTypes[i].type_id, v, activeCompany); }}
       onDelete={async (i) => { await deleteInterviewType(adminCardNo, ivTypes[i].type_id, activeCompany); }}
     />
   );
@@ -693,6 +775,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onRefresh={() => load("banks")}
       addFields={[{ key: "bnkname", label: "Bank Name", placeholder: "e.g. HBL" }]}
       onAdd={async (v) => { await addBank(adminCardNo, v.bnkname, activeCompany); }}
+      onEdit={async (i, v) => { await updateBank(adminCardNo, banks[i].bnkcode, v, activeCompany); }}
       onDelete={async (i) => { await deleteBank(adminCardNo, banks[i].bnkcode, activeCompany); }}
     />
   );
@@ -719,12 +802,25 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           onRefresh={() => load("bank_branches")}
           addFields={[{ key: "brnname", label: "Branch Name", placeholder: "e.g. Main Branch" }]}
           onAdd={async (v) => { await addBankBranch(adminCardNo, branchBank, v.brnname, activeCompany); }}
+          onEdit={async (i, v) => { await updateBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, v, activeCompany); }}
           onDelete={async (i) => { await deleteBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, activeCompany); }}
         />
       ) : (
         <p className="text-sm text-gray-400 py-6 text-center">Select a bank to manage its branches.</p>
       )}
     </div>
+  );
+
+  // ── Leave types (per company + branch; the standard set is read-only) ──
+  const leaveTypeTable = (
+    <LeaveTypesSection
+      items={leaveTypes}
+      loading={loading}
+      adminCardNo={adminCardNo}
+      compc={activeCompany}
+      brnch={activeBranch}
+      onRefresh={() => load("leave_types")}
+    />
   );
 
   const contentMap: Record<Tab, React.ReactNode> = {
@@ -736,6 +832,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     emp_statuses: empStatusTable,
     qualifications: qualTable,
     interview_types: ivTypeTable,
+    leave_types:  leaveTypeTable,
     banks:        bankTable,
     bank_branches: bankBranchTable,
     company_logo: (

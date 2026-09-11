@@ -91,6 +91,11 @@ export const getAbsentSuppReport = handler(
   (q) => ({ period: q.period, deptNo: q.dept_no })
 );
 
+export const getMonthlyAttendanceReport = handler(
+  reportsService.getMonthlyAttendanceReport,
+  (q) => ({ fromDate: q.from_date, toDate: q.to_date, deptNo: q.dept_no })
+);
+
 export const getActiveEmployeesReport = handler(
   reportsService.getActiveEmployeesReport,
   (q) => ({

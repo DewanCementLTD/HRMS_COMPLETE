@@ -21,6 +21,18 @@ export const faceAttendanceSchema = z.object({
     // silently discarded before the controller could ever see them, defeating
     // the face-identity guard.
     frames: z.array(z.string()).optional().nullable(),
+    // The phone's own id for this tap. It retries the SAME id when a response
+    // goes missing, and the server answers a repeat with the original answer
+    // instead of punching again — see services/punchIdempotency.service.js.
+    // Optional: builds that send none behave exactly as before.
+    client_event_id: z.string().max(100).optional().nullable(),
+  }),
+});
+
+// GET /auth/attendance/today/:card_no
+export const attendanceTodaySchema = z.object({
+  params: z.object({
+    card_no: z.string().min(1),
   }),
 });
 

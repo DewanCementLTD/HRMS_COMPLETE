@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { Filter, Building2, MapPin, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -17,7 +18,10 @@ import type { ReportType } from "./ReportPrintSheet";
 type FilterKey =
   | "periodRange" | "period" | "salaryData" | "employee" | "department"
   | "designation" | "desgGroup" | "grade" | "empStatus" | "grossRange"
-  | "deduction" | "bankAdviceType" | "employeeStatusType";
+  | "deduction" | "bankAdviceType" | "employeeStatusType"
+  // A calendar date range — the monthly attendance cycle (e.g. 21st to 20th)
+  // straddles two payroll periods, so it can't use the period picker.
+  | "dateRange";
 
 const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "allowance-detail": ["periodRange", "salaryData", "employee"],
@@ -28,6 +32,7 @@ const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "bank-advice": ["period", "desgGroup", "bankAdviceType"],
   "pf-detail": ["employee"],
   "absent-supp": ["period", "department"],
+  "monthly-attendance": ["dateRange", "department"],
   "active-employees": [
     "employeeStatusType", "designation", "desgGroup", "department",
     "grade", "empStatus", "grossRange", "employee",
@@ -56,6 +61,8 @@ export interface ReportFilters {
   deduction: string;
   bankAdviceType: "IN" | "OT";
   employeeStatusType: "A" | "U" | "C";
+  fromDate: string;
+  toDate: string;
 }
 
 export const emptyFilters = (): ReportFilters => ({
@@ -63,7 +70,21 @@ export const emptyFilters = (): ReportFilters => ({
   salaryData: "C", employee: "", department: "", designation: "",
   desgGroup: "", grade: "", empStatus: "", grossFrom: "", grossTo: "",
   deduction: "", bankAdviceType: "IN", employeeStatusType: "A",
+  // Default to the running 21st-to-20th cycle, the window HR prints.
+  ...defaultCycle(),
 });
+
+/** The pay cycle containing today: 21st of last month to the 20th of this one. */
+function defaultCycle(): { fromDate: string; toDate: string } {
+  const now = new Date();
+  // Local date: toISOString() would shift east-of-Greenwich dates back a day,
+  // which is what made "this month" start on the 31st of the previous month.
+  const ymd = toLocalYmd;
+  const to = new Date(now.getFullYear(), now.getMonth(), 20);
+  if (now.getDate() <= 20) to.setMonth(to.getMonth() - 1);
+  const from = new Date(to.getFullYear(), to.getMonth() - 1, 21);
+  return { fromDate: ymd(from), toDate: ymd(to) };
+}
 
 /** Map the UI filter state onto the query-string params for a given report. */
 export function toParams(reportId: ReportType | null, f: ReportFilters): ReportFilterParams {
@@ -86,6 +107,7 @@ export function toParams(reportId: ReportType | null, f: ReportFilters): ReportF
     p.gross_to = f.grossTo === "" ? null : Number(f.grossTo);
   }
   if (keys.includes("deduction")) p.deduction_id = f.deduction;
+  if (keys.includes("dateRange")) { p.from_date = f.fromDate; p.to_date = f.toDate; }
   return p;
 }
 
@@ -95,6 +117,7 @@ export function isRunnable(reportId: ReportType | null, f: ReportFilters): boole
   const keys = REPORT_FILTERS[reportId];
   if (keys.includes("periodRange") && (f.periodFrom == null || f.periodTo == null)) return false;
   if (keys.includes("period") && f.period == null) return false;
+  if (keys.includes("dateRange") && (!f.fromDate || !f.toDate)) return false;
   for (const k of REQUIRED[reportId] ?? []) {
     if (!f[k as keyof ReportFilters]) return false;
   }
@@ -332,6 +355,20 @@ function FilterRenderer({
               {!periodOptions.length && <option value="">No periods</option>}
               {periodOptions.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
+          </Field>
+        </>
+      )}
+
+      {keys.includes("dateRange") && (
+        <>
+          <Field label="From Date *">
+            <input type="date" className={selectCls} value={filters.fromDate}
+              onChange={(e) => set("fromDate", e.target.value)} />
+          </Field>
+          <Field label="To Date *">
+            <input type="date" className={selectCls} value={filters.toDate}
+              min={filters.fromDate || undefined}
+              onChange={(e) => set("toDate", e.target.value)} />
           </Field>
         </>
       )}

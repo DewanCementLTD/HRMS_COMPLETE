@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -38,8 +39,8 @@ export function useHRMSController() {
     const today = new Date();
     const from = new Date(today.getFullYear(), today.getMonth(), 1);
     return {
-      from: from.toISOString().split("T")[0],
-      to: today.toISOString().split("T")[0],
+      from: toLocalYmd(from),
+      to: toLocalYmd(today),
     };
   });
 

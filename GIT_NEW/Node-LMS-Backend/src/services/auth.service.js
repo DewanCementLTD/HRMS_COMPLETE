@@ -1,6 +1,8 @@
 import { getDirectConnection } from '../config/database.js';
 
 import { logger } from '../utils/logger.js';
+import { issueEmployeeToken, employeeSessionDays } from './employeeSession.service.js';
+import { getWorkSchedule } from './workSchedule.service.js';
 const OBJ = { outFormat: 4002 };
 
 // ---------------------------------------------------------------------------
@@ -354,7 +356,7 @@ const authenticateStep = async (username, password) => {
 // Mirrors `login_user` in the FastAPI LMS-Backend (services/auth_service.py):
 // two-step DB auth, then overlay face_registered/emp_name/empcode via
 // get_employee_flags, then shape the response like FastAPI's LoginResponse.
-export const authenticateUser = async (username, password) => {
+export const authenticateUser = async (username, password, deviceId = null) => {
   const user = await authenticateStep(username, password);
   if (!user) return null;
   if (user.card_no) {
@@ -381,6 +383,14 @@ export const authenticateUser = async (username, password) => {
     company_list: user.company_list ?? [],
     branch_list: user.branch_list ?? [],
     can_edit_salary: user.can_edit_salary ?? false,
+
+    // Added fields — every existing key above is untouched, so current clients
+    // are unaffected. The token authorises offline location sync, which unlike
+    // the rest of this API accepts data for a card and so cannot take the card
+    // on trust. Long-lived on purpose: a phone offline for a week must still be
+    // able to upload its backlog without a login it cannot perform.
+    session_token: user.card_no ? issueEmployeeToken(user.card_no, deviceId) : null,
+    session_expires_in_days: employeeSessionDays(),
   };
 };
 
@@ -400,8 +410,13 @@ const getEmergencyContact = async (connection, card_no) => {
     if (row && (row.name || row.phone)) {
       return {
         name: row.name || '',
+        // `relation` is what the app reads; `relationship` is what this endpoint
+        // has always returned and what the web reads. One stored column, both
+        // spellings, so neither client has to change.
+        relation: row.relationship || '',
         relationship: row.relationship || '',
         phone: row.phone || '',
+        phone_number: row.phone || '',
       };
     }
   } catch (e) {
@@ -410,6 +425,26 @@ const getEmergencyContact = async (connection, card_no) => {
   return null;
 };
 
+/**
+ * Blank out the placeholders HRMS stores for "not set".
+ *
+ * The profile screen renders whatever it is given, so a literal '-' or 'null'
+ * coming out of the DB used to be shown to the employee as their branch. A
+ * missing value must reach the app as null, never as text that looks like one.
+ */
+const cleanValue = (v) => {
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (!s || s === '-' || s === '--') return null;
+  return /^(null|n\/a|na|nil|none)$/i.test(s) ? null : s;
+};
+
+/**
+ * Absolute base the app resolves relative asset paths against. The photo URL is
+ * emitted absolute so it works no matter how the client joins the two.
+ */
+const PUBLIC_API_BASE_URL = (process.env.PUBLIC_API_BASE_URL || 'https://hrms.sysnovix.com/api').replace(/\/+$/, '');
+
 export const getProfile = async (card_no) => {
   let connection;
   try {
@@ -417,6 +452,12 @@ export const getProfile = async (card_no) => {
     const sql = `
       SELECT
         TO_CHAR(e.CARD_NO)                         AS "card_no",
+        h.EMPCODE                                  AS "empcode",
+        -- The employee code HRMS itself shows. HR_EMP_MASTER.EMPNO exists but is
+        -- null for every row in this database, so EMPCODE is the number, and it
+        -- is only preferred over EMPNO where somebody has started filling that in.
+        NVL(TO_CHAR(h.EMPNO), h.EMPCODE)           AS "emp_no",
+        TO_CHAR(h.DTOFCONFIRM, 'YYYY-MM-DD')       AS "confirmation_date",
         h.NAME                                     AS "emp_name",
         -- h.USER_PASWD                               AS "password",
         d.DEPT_NAME                                AS "department",
@@ -426,7 +467,20 @@ export const getProfile = async (card_no) => {
         TO_CHAR(h.DTOFBRTH, 'YYYY-MM-DD')          AS "date_of_birth",
         TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD')          AS "date_of_join",
         h.FHNAME                                   AS "father_name",
-        h.NICNO                                    AS "nic_no"
+        h.NICNO                                    AS "nic_no",
+        -- Organization block. Company and branch are scalar sub-selects, not
+        -- joins: COMPANY_INFO / COM_LOCATION can hold more than one row per
+        -- code, and a join on them would multiply the profile row.
+        TO_CHAR(h.UNIT_ID)                         AS "compc",
+        NVL((SELECT MIN(ci.DESCR) FROM COMPANY_INFO ci WHERE TO_CHAR(ci.COMPC) = TO_CHAR(h.UNIT_ID)),
+            (SELECT MIN(u.UNIT_NAME) FROM UNIT_MST u WHERE TO_CHAR(u.UNIT_ID) = TO_CHAR(h.UNIT_ID)))
+                                                   AS "compcnm",
+        TO_CHAR(h.LOCATION)                        AS "brnch",
+        (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))
+                                                   AS "brnchnm",
+        (SELECT MIN(l.CITY)  FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))
+                                                   AS "location",
+        h.PATH                                     AS "photo_path"
       FROM HR_EMP_MASTER h
       LEFT JOIN EMPLOYEE    e  ON e.EMPCODE   = h.EMPCODE
       LEFT JOIN HR_DEPT     d  ON LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID)
@@ -437,12 +491,49 @@ export const getProfile = async (card_no) => {
       FETCH FIRST 1 ROWS ONLY
     `;
     const result = await connection.execute(sql, { card_no }, { outFormat: 4002 });
-    const profileData = result.rows?.[0] ?? null;
-    if (profileData) {
-      const resolvedCard = profileData.card_no || card_no;
-      profileData.emergency_contact = await getEmergencyContact(connection, resolvedCard);
-      delete profileData.card_no;
+    const row = result.rows?.[0] ?? null;
+    if (!row) return null;
+
+    const resolvedCard = row.card_no || card_no;
+    const hasPhoto = Boolean(cleanValue(row.photo_path));
+    delete row.photo_path;
+
+    const profileData = {};
+    for (const [k, v] of Object.entries(row)) profileData[k] = cleanValue(v);
+
+    // The card number the app asked with, echoed under the spellings it reads.
+    profileData.card_no = cleanValue(resolvedCard);
+    profileData.card_no1 = profileData.card_no;
+
+    // Aliases for the same organization values — the app accepts several
+    // spellings and picks the first present; sending both costs nothing.
+    profileData.company_name = profileData.compcnm;
+    profileData.company_code = profileData.compc;
+    profileData.branch_name = profileData.brnchnm;
+    profileData.branch = profileData.brnchnm;
+    profileData.city = profileData.location;
+    profileData.employee_code = profileData.emp_no;
+    profileData.emp_code = profileData.emp_no;
+    profileData.confirm_date = profileData.confirmation_date;
+
+    profileData.emergency_contact = await getEmergencyContact(connection, resolvedCard);
+
+    // The employee's own roster (shift window, weekly offs, grace), so the app
+    // stops assuming Sat/Sun off and 09:30-18:00 for everyone.
+    try {
+      profileData.work_schedule = await getWorkSchedule(resolvedCard, connection);
+    } catch (e) {
+      logger.info(`[PROFILE] work schedule unavailable for ${resolvedCard}: ${e.message ?? e}`);
+      profileData.work_schedule = null;
     }
+
+    // Same photo HRMS web shows (HR_EMP_MASTER.PATH). Absolute, and only when a
+    // file is actually recorded — an URL that always 404s would make the app
+    // show a broken image instead of its initials placeholder.
+    profileData.profile_picture_url = hasPhoto
+      ? `${PUBLIC_API_BASE_URL}/auth/profile-picture/${encodeURIComponent(resolvedCard)}`
+      : null;
+
     return profileData;
   } finally {
     await connection?.close();
@@ -628,8 +719,9 @@ export const saveEmergencyContact = async (card_no, name, relationship, phone) =
     );
     return { status: 'success', message: 'Emergency contact saved' };
   } catch (err) {
+    // The ORA text belongs in the log, never in the employee's face.
     logger.error({ err }, `[PROFILE] emergency contact save failed for ${card_no}`);
-    return { status: 'error', message: err.message };
+    return { status: 'error', message: 'Emergency contact could not be saved. Please try again.' };
   } finally {
     await connection?.close();
   }

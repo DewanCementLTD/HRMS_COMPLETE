@@ -14,6 +14,7 @@ import recruitmentRoutes from './recruitment.routes.js';
 import payrollRoutes from './payroll.routes.js';
 import payrollEntryRoutes from './payrollEntry.routes.js';
 import reportsRoutes from './reports.routes.js';
+import superAdminRoutes from './superAdmin.routes.js';
 
 const router = Router();
 
@@ -49,5 +50,6 @@ router.use('/recruitment', reqLogger('recruitment'), recruitmentRoutes);
 router.use('/payroll', reqLogger('payroll'), payrollRoutes);
 router.use('/payroll-entry', reqLogger('payroll-entry'), payrollEntryRoutes);
 router.use('/reports', reqLogger('reports'), reportsRoutes);
+router.use('/admin', reqLogger('admin'), superAdminRoutes);
 
 export default router;

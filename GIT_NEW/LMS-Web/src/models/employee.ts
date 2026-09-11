@@ -5,8 +5,12 @@ export interface DashboardData {
   emp_name: string;
   date_of_join?: string;
   nic_no?: string;
+  /** Raw HR_EMP_MASTER codes (kept for the mobile client's contract). */
   designation?: string;
   department?: string;
+  /** Resolved names — what the dashboard shows. */
+  designation_name?: string | null;
+  department_name?: string | null;
   compcnm?: string;
   compc?: number;
   branch?: number;

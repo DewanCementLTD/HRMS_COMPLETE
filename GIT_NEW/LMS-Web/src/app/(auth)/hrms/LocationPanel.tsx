@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MapPin, RefreshCw, ChevronRight, Clock, Navigation, Settings, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -62,7 +63,7 @@ async function reverseGeocode(lat: number, lon: number): Promise<string> {
 // ─── Helpers ──────────────────────────────────────────────
 
 function todayStr() {
-  return new Date().toISOString().split("T")[0];
+  return toLocalYmd(new Date());
 }
 
 function formatTime(isoStr: string | null): string {

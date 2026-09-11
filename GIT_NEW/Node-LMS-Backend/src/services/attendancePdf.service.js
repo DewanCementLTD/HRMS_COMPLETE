@@ -192,13 +192,15 @@ export const buildAttendancePdf = (card_no, from_date, to_date) => {
         const isLate = r.status === 'Late';
         const isHalfDay = r.status === 'Half Day';
         const isAbsent = r.status === 'Absent';
+        const isLeave = Boolean(r.is_leave);
         const isOff = r.roster_shift === 'R';
-        
+
         let bg = '#FFFFFF';
         if (isLate) bg = '#FFF9C4'; // light yellow
         if (isHalfDay) bg = '#FFE0B2'; // light orange
         if (isAbsent) bg = '#FFCDD2'; // light pink
         if (isOff) bg = '#F5F5F5'; // light gray
+        if (isLeave) bg = '#E8EAF6'; // light indigo — approved leave
         
         // Ensure "Off" row styling logic handles status correctly
         const rowH = 16;
@@ -206,7 +208,11 @@ export const buildAttendancePdf = (card_no, from_date, to_date) => {
         
         const worked = (r.w_hrs || r.w_mnt) ? `${String(r.w_hrs || 0).padStart(2,'0')}:${String(r.w_mnt || 0).padStart(2, '0')}` : '-';
         
-        const remarks = (r.leave_remarks || r.roster_remarks || '').slice(0, 40);
+        // `remarks` is derived server-side from TMS_DUTY_ROSTER_V: an approved
+        // leave prints its type and the employee's reason, an absent day says
+        // "Absent", otherwise the roster's own remark. Falling back to the raw
+        // columns kept the leave type off the PDF entirely.
+        const remarks = (r.remarks || r.leave_remarks || r.roster_remarks || '').slice(0, 60);
         
         const rowData = [
           fmtDateUpper(r.roster_date),
@@ -228,10 +234,21 @@ export const buildAttendancePdf = (card_no, from_date, to_date) => {
           if (i === 6 && val === 'Late') { tColor = '#E65100'; f = 'Helvetica-Bold'; } // Dark orange
           if (i === 7 && val === 'Half Day') { tColor = '#E65100'; f = 'Helvetica-Bold'; }
           if (i === 8 && val === 'Absent') { tColor = '#D32F2F'; f = 'Helvetica-Oblique'; } // Dark red italic
+          if (i === 8 && isLeave) { tColor = '#303F9F'; f = 'Helvetica-Bold'; }   // Leave (CL/ML/EL)
+          if (i === 9 && isLeave) { tColor = '#303F9F'; }
           if (i === 9 && isAbsent && !val) { val = 'Absent'; tColor = '#D32F2F'; f = 'Helvetica-Oblique'; }
           else if (i === 9 && val === 'Absent') { tColor = '#D32F2F'; f = 'Helvetica-Oblique'; }
           
-          doc.font(f).fontSize(8).fillColor(tColor).text(val, curX, currentY + 4, { width: tColW[i], align: 'center' });
+          // Rows are a fixed 16pt tall, so a long remark must not wrap — it would
+          // spill over the row beneath it. Keep it on one line and ellipsise.
+          const isRemarks = i === rowData.length - 1;
+          doc.font(f).fontSize(8).fillColor(tColor).text(val, curX + (isRemarks ? 3 : 0), currentY + 4, {
+            width: tColW[i] - (isRemarks ? 6 : 0),
+            align: isRemarks ? 'left' : 'center',
+            lineBreak: false,
+            ellipsis: true,
+            height: 10,
+          });
           curX += tColW[i];
         });
         

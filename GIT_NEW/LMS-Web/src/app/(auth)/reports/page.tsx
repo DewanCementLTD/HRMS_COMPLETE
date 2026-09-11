@@ -31,6 +31,7 @@ const REPORT_CATALOG: ReportMeta[] = [
   // General (non-monetary)
   { id: "absent-supp", title: "Employee Absent and Supplimentary Days Report", category: "general", description: "Absent days and supplementary days per employee for a period" },
   { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Active employee roster with grade, designation, department and joining dates" },
+  { id: "monthly-attendance", title: "Employee Monthly Attendance Report", category: "general", description: "Day-by-day attendance grid for a date range, split by branch and department" },
 ];
 
 const CATEGORIES = [
@@ -56,7 +57,6 @@ const money = (v?: number | null) => (v == null || v === 0 ? "—" : Math.round(
 export default function ReportsPage() {
   const { user, activeCompany, activeBranch } = useAuth();
 
-  const [activeCategory, setActiveCategory] = useState<"payroll" | "general">("payroll");
   const [selectedReportId, setSelectedReportId] = useState<ReportType | null>(null);
 
   const [reportData, setReportData] = useState<unknown>(null);
@@ -71,19 +71,14 @@ export default function ReportsPage() {
   // Bumped by Apply; reports only refetch when this changes, not on every keystroke.
   const [runToken, setRunToken] = useState(0);
 
-  const categoryReports = useMemo(
-    () => REPORT_CATALOG.filter((r) => r.category === activeCategory),
-    [activeCategory]
-  );
-
-  useEffect(() => {
-    if (selectedReportId && !categoryReports.some((r) => r.id === selectedReportId)) {
-      setSelectedReportId(categoryReports[0].id);
-    }
-  }, [activeCategory, categoryReports, selectedReportId]);
-
+  // The picker lists every category at once, so there is no "active category"
+  // to keep the selection inside. There used to be an effect that reset the
+  // selection to the first report of `activeCategory` whenever the chosen report
+  // wasn't in it — and since `activeCategory` was fixed at "payroll" (its setter
+  // was never called), picking ANY general report snapped straight back to
+  // Allowance Detail, heading included. Removed with the state it depended on.
   const activeReportMeta = useMemo(
-    () => REPORT_CATALOG.find((r) => r.id === selectedReportId) || REPORT_CATALOG[0],
+    () => REPORT_CATALOG.find((r) => r.id === selectedReportId) ?? null,
     [selectedReportId]
   );
 
@@ -116,6 +111,7 @@ export default function ReportsPage() {
         "bank-advice": () => reportService.fetchBankAdviceReport(cardNo, params),
         "active-employees": () => reportService.fetchActiveEmployeesReport(cardNo, params),
         "pf-detail": () => reportService.fetchPfDetailReport(cardNo, params),
+        "monthly-attendance": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
       };
 
       const res = await fetchers[selectedReportId]();
@@ -155,10 +151,16 @@ export default function ReportsPage() {
       const flat: Record<string, unknown>[] = [];
       for (const g of d.groups as Record<string, unknown>[]) {
         for (const r of (g.rows as Record<string, unknown>[]) ?? []) {
-          flat.push({ ...r, __group: g.descr ?? `${g.bank_name} — ${g.branch_name}` });
+          flat.push({
+            ...r,
+            __group: g.descr ?? g.branch ?? `${g.bank_name} — ${g.branch_name}`,
+          });
         }
       }
-      return { ...none, rows: flat };
+      // The monthly grid's columns are its days, so the generic table can lay
+      // one column out per date exactly as the pivot reports do.
+      const days = (d.days as { date: string }[] | undefined)?.map((x) => x.date) ?? [];
+      return { ...none, columns: days, rows: flat };
     }
     return none;
   }, [reportData]);
@@ -238,7 +240,7 @@ export default function ReportsPage() {
       {showPrintSheet && selectedReportId && (
         <ReportPrintSheet
           reportType={selectedReportId}
-          reportTitle={activeReportMeta.title}
+          reportTitle={activeReportMeta?.title ?? ""}
           data={printableData}
           companyName={user?.selected_company?.name || ""}
           compc={activeCompany || undefined}
@@ -294,16 +296,16 @@ export default function ReportsPage() {
                 <ChevronLeft className="h-3.5 w-3.5" /> Back to reports
               </button>
               <div className="flex items-center gap-2.5 flex-wrap mb-1">
-                <h3 className="text-lg font-bold text-white">{activeReportMeta.title}</h3>
+                <h3 className="text-lg font-bold text-white">{activeReportMeta?.title ?? ""}</h3>
                 <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                  activeReportMeta.category === "payroll"
+                  activeReportMeta?.category === "payroll"
                     ? "bg-indigo-100 text-indigo-800"
                     : "bg-slate-100 text-slate-800"
                 }`}>
-                  {activeReportMeta.category === "payroll" ? "Payroll" : "General"}
+                  {activeReportMeta?.category === "payroll" ? "Payroll" : "General"}
                 </span>
               </div>
-              <p className="text-sm text-gray-300">{activeReportMeta.description}</p>
+              <p className="text-sm text-gray-300">{activeReportMeta?.description ?? ""}</p>
             </div>
 
             {/* Action buttons */}
@@ -482,6 +484,26 @@ function ExportDropdown() {
 
 function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; columns: string[]; hasOtHours: boolean }) {
   switch (reportId) {
+    case "monthly-attendance":
+      return (
+        <>
+          <th className={`${TH} w-14`}>Sr.#</th>
+          <th className={`${TH} ${STICKY_ID}`}>Card No</th>
+          <th className={TH}>Employee Name</th>
+          <th className={TH}>Branch</th>
+          <th className={TH}>Department</th>
+          {/* One column per calendar day, labelled with the day number. */}
+          {columns.map((d) => (
+            <th key={d} className={`${TH} text-center px-1.5`} title={d}>
+              {d.slice(8, 10)}
+            </th>
+          ))}
+          <th className={`${TH} text-center`}>Present</th>
+          <th className={`${TH} text-center`}>Absent</th>
+          <th className={`${TH} text-center`}>Late</th>
+          <th className={`${TH} text-center`}>Leave</th>
+        </>
+      );
     case "absent-supp":
       return (
         <>
@@ -571,6 +593,49 @@ function ReportRow({
   const val = (k: string) => r[k] as number | undefined;
 
   switch (reportId) {
+    case "monthly-attendance": {
+      // Each day cell shows the punch pair, or the reason there wasn't one:
+      // the leave code, A for absent, R for a rostered rest day.
+      const days = (r.days ?? {}) as Record<string, {
+        in_time: string | null; out_time: string | null; leave_type: string | null;
+        is_absent: boolean; is_late: boolean; is_half_day: boolean;
+        is_leave: boolean; is_rest: boolean; remarks: string | null;
+      }>;
+      return (
+        <>
+          <td className={`${TD} font-mono`}>{idx + 1}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("card_no")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} text-gray-600`}>{str("branch")}</td>
+          <td className={`${TD} text-gray-600`}>{str("department")}</td>
+          {columns.map((d) => {
+            const c = days[d];
+            const tint = !c ? ""
+              : c.is_leave ? "bg-indigo-50 text-indigo-700"
+              : c.is_absent ? "bg-red-50 text-red-700"
+              : c.is_half_day ? "bg-orange-50 text-orange-700"
+              : c.is_late ? "bg-amber-50 text-amber-800"
+              : c.is_rest ? "bg-sky-50 text-sky-700"
+              : "";
+            return (
+              <td key={d} className={`${TD} px-1.5 text-center text-[11px] leading-tight ${tint}`}
+                  title={c?.remarks ?? undefined}>
+                {!c ? "" : c.is_leave ? (c.leave_type || "L")
+                  : c.is_absent ? "A"
+                  : c.is_rest && !c.in_time ? "R"
+                  : c.in_time || c.out_time
+                    ? <span className="whitespace-nowrap">{c.in_time ?? "—"}<br />{c.out_time ?? "—"}</span>
+                    : ""}
+              </td>
+            );
+          })}
+          <td className={`${TD} text-center font-mono`}>{String(r.present_days ?? 0)}</td>
+          <td className={`${TD} text-center font-mono text-red-700`}>{String(r.absent_days ?? 0)}</td>
+          <td className={`${TD} text-center font-mono text-amber-700`}>{String(r.late_days ?? 0)}</td>
+          <td className={`${TD} text-center font-mono text-indigo-700`}>{String(r.leave_days ?? 0)}</td>
+        </>
+      );
+    }
     case "absent-supp":
       return (
         <>

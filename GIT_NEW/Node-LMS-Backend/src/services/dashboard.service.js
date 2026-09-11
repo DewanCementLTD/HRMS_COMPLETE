@@ -92,6 +92,26 @@ export const getDashboardData = async (card_no) => {
       row.hod, "hod_nm"
     );
 
+    // Resolve the department / designation codes to names for display. They are
+    // added as separate fields rather than replacing `department` / `designation`,
+    // which the FastAPI contract (and the Flutter client) expects to be the raw
+    // codes. HR_DEPT / HR_DESG codes repeat across companies, so both lookups are
+    // scoped by the employee's UNIT_ID.
+    row.department_name = row.department === null || row.department === undefined ? null
+      : await safeLookup(
+          `SELECT MIN(DEPT_NAME) AS V FROM HR_DEPT
+            WHERE LTRIM(TO_CHAR(DEPT_NO), '0') = LTRIM(TO_CHAR(:v), '0')
+              AND TO_CHAR(COMPC) = TO_CHAR(${Number(row.compc) || 0})`,
+          row.department, "department_name"
+        );
+    row.designation_name = row.designation === null || row.designation === undefined ? null
+      : await safeLookup(
+          `SELECT MIN(DESG_DESC) AS V FROM HR_DESG
+            WHERE LTRIM(TO_CHAR(DESG_CD), '0') = LTRIM(TO_CHAR(:v), '0')
+              AND TO_CHAR(COMPC) = TO_CHAR(${Number(row.compc) || 0})`,
+          row.designation, "designation_name"
+        );
+
     // Leave balance — isolated, may throw if ALL_LEAVE_BAL_V internals fail
     let balance = null;
     try {

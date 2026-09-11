@@ -15,7 +15,7 @@ import oracledb from 'oracledb';
 import { getDirectConnection } from '../config/database.js';
 import { cardInt } from '../utils/conversionHelpers.js';
 import { saveAttendanceOriginPoint } from './location.service.js';
-import { cleanHHMM, rosterStatus } from '../utils/rosterStatus.js';
+import { deriveRosterDay } from '../utils/rosterStatus.js';
 
 import { logger } from '../utils/logger.js';
 const OBJ = { outFormat: oracledb.OUT_FORMAT_OBJECT };
@@ -29,6 +29,14 @@ const nowHHMM = () => {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+/** Today as YYYY-MM-DD in app-server local time — the same day boundary the
+ *  attendance queries use (TRUNC(SYSDATE)), not UTC. */
+const todayYmd = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 };
 
 /** Truncate a string so its UTF-8 encoding fits in maxBytes (Oracle VARCHAR2
@@ -82,32 +90,40 @@ const shapeRosterRow = (rec) => {
     rec.roster_date = `${y}-${m}-${d}`;
   }
 
-  const inTime = cleanHHMM(rec.in_time);
-  const outTime = cleanHHMM(rec.out_time);
-  const absent = rec.absent;
-  const morningLate = rec.morning_late;
-  const earlyOutLate = rec.early_out_late;
-  const halfDay = (rec.morning_half_day ?? 0) + (rec.ear_out_half_day ?? 0);
+  // Status and remarks come from the one shared derivation (utils/rosterStatus.js)
+  // so this report, the HR attendance screen and the Reports pack cannot drift.
+  const d = deriveRosterDay(rec);
+  const worked = d.in_time && d.out_time ? timeSpentMinutes(d.in_time, d.out_time) : 0;
 
-  const status = rosterStatus(inTime, outTime, absent, morningLate, earlyOutLate, halfDay);
-  const worked = inTime && outTime ? timeSpentMinutes(inTime, outTime) : 0;
-
-  rec.in_time = inTime;
-  rec.out_time = outTime;
+  rec.in_time = d.in_time;
+  rec.out_time = d.out_time;
   rec.w_hrs = Math.floor(worked / 60);
   rec.w_mnt = worked % 60;
   rec.late_hrs = 0;
   rec.late_mnt = 0;
   rec.ot_hrs = 0;
   rec.ot_mnt = 0;
-  rec.absent_days = status === 'Absent' ? 1 : 0;
-  rec.half_day = halfDay;
-  rec.morning_late = String(morningLate ?? '').trim() || null;
-  rec.early_out_late = String(earlyOutLate ?? '').trim() || null;
-  rec.status = status;
-  rec.is_late = status === 'Late';
-  rec.is_absent = status === 'Absent';
-  rec.is_half_day = status === 'Half Day';
+  rec.absent_days = d.is_absent ? 1 : 0;
+  rec.half_day = (rec.morning_half_day ?? 0) + (rec.ear_out_half_day ?? 0);
+  rec.morning_late = String(rec.morning_late ?? '').trim() || null;
+  rec.early_out_late = String(rec.early_out_late ?? '').trim() || null;
+
+  rec.status = d.status;
+  rec.status_flags = d.flags;
+  rec.is_late = d.is_late;
+  rec.is_absent = d.is_absent;
+  rec.is_half_day = d.is_half_day;
+  rec.is_morning_late = d.is_morning_late;
+  rec.is_morning_half_day = d.is_morning_half_day;
+  rec.is_leave = d.is_leave;
+  rec.is_holiday = d.is_holiday;
+  rec.is_rest = d.is_rest;
+  rec.leave_type = d.leave_type;
+  rec.leave_desc = d.leave_desc;
+  rec.roster_remarks = d.roster_remarks;
+  rec.leave_remarks = d.leave_remarks;
+  rec.remarks = d.remarks;
+
   delete rec.morning_half_day;
   delete rec.ear_out_half_day;
   return rec;
@@ -117,6 +133,7 @@ const ROSTER_SELECT = `
     TRUNC(ROSTER_DATE)      AS "roster_date",
     DAY_NAME                AS "day_name",
     ROSTER_SHIFT            AS "roster_shift",
+    HOLIDAY_FK              AS "holiday_fk",
     ROSTER_MONTH            AS "roster_month",
     IN_TIME                 AS "in_time",
     OUT_TIME                AS "out_time",
@@ -126,7 +143,14 @@ const ROSTER_SELECT = `
     MORNING_HALF_DAY        AS "morning_half_day",
     EAR_OUT_HALF_DAY        AS "ear_out_half_day",
     LEAVE_REMARKS           AS "leave_remarks",
-    ROSTER_REMARKS          AS "roster_remarks"
+    ROSTER_REMARKS          AS "roster_remarks",
+    LEAVE_TYPE_FK           AS "leave_type_fk",
+    LEAVE_APPLICATION_FK    AS "leave_application_fk",
+    LEAVE_DAYS              AS "leave_days",
+    (SELECT MIN(t.LEAVE_TYPE) FROM LEAVE_TYPES t
+      WHERE t.LEAVE_TYPE_PK = TMS_DUTY_ROSTER_V.LEAVE_TYPE_FK) AS "leave_type",
+    (SELECT MIN(t.LEAVE_DESC) FROM LEAVE_TYPES t
+      WHERE t.LEAVE_TYPE_PK = TMS_DUTY_ROSTER_V.LEAVE_TYPE_FK) AS "leave_desc"
 `;
 
 // Transient DB errors that should be retried rather than dropped: MAX(PK)+1 id
@@ -211,10 +235,39 @@ const getEmpcode = async (card_no) => {
   }
 };
 
+/** Does this card belong to a real employee? */
+const employeeExists = async (card_no) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const result = await connection.execute(
+      `SELECT 1 AS "hit" FROM EMPLOYEE
+        WHERE TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int
+        FETCH FIRST 1 ROWS ONLY`,
+      { card: String(card_no), card_int: cardInt(card_no) },
+      OBJ,
+    );
+    return Boolean(result.rows?.[0]);
+  } catch (e) {
+    // A lookup that could not run is not proof the employee is missing; let the
+    // mark proceed and be judged by whether the row actually persists.
+    logger.info(`[ATTENDANCE] employee existence check failed for ${card_no}: ${e.message ?? e}`);
+    return true;
+  } finally {
+    await connection?.close();
+  }
+};
+
 /**
  * Upsert today's ATTENDANCE_RECORDS row (the app's only attendance store).
  * MERGE prevents duplicate rows for the same card/day and keeps the EARLIEST
- * mark as ENTRY_TIME. Best-effort: a MERGE failure is logged, not fatal.
+ * mark as ENTRY_TIME.
+ *
+ * A MERGE failure is fatal to the mark. It used to be logged and swallowed, and
+ * the caller was told "Checked in successfully" — but the app is online-only:
+ * it queues nothing and keeps no local pending record, so a success it cannot
+ * back up with a stored row is a punch that silently never happened. The ORA
+ * text stays in the log; the employee gets a sentence they can act on.
  */
 const insertCheckIn = async (card_no, empcode, opts = {}) => {
   const {
@@ -299,7 +352,18 @@ const insertCheckIn = async (card_no, empcode, opts = {}) => {
         'ATTENDANCE_RECORDS',
       );
     } catch (arErr) {
-      logger.info(`[ATTENDANCE_RECORDS] MERGE failed (non-fatal): ${arErr.message ?? arErr}`);
+      logger.error(
+        `[ATTENDANCE_RECORDS] MERGE failed for card=${card_no}: ${arErr.message ?? arErr}`,
+      );
+      try {
+        await connection.rollback();
+      } catch {
+        /* ignore */
+      }
+      return {
+        status: 'error',
+        message: 'Attendance could not be saved in HRMS. Please try again or contact HR.',
+      };
     }
 
     await connection.commit();
@@ -480,7 +544,68 @@ const getOpenOvernightRecord = async (card_no) => {
 // Smart attendance (mirror smart_mark_attendance)
 // ---------------------------------------------------------------------------
 
-export const smartMarkAttendance = async (card_no, attendance_type = 'check_in', opts = {}) => {
+/**
+ * Did the ERP actually take this punch?
+ *
+ * ATTENDANCE_RECORDS is only the app's own store. What HR, the web panel and
+ * every report read is DUTY_ROSTER, which the punch reaches through two ERP
+ * triggers (MACHINEDATA -> IMPORT_DATA -> DUTY_ROSTER). Those triggers can
+ * decline a punch — for a year they filed any check-in after the branch's
+ * CHANGE_ST hour as a check-out — and nothing noticed, because the app only
+ * ever checked its own table. 499 employee-days went missing that way before
+ * anybody chased it.
+ *
+ * So every check-in now reads the roster back. This does not change what the
+ * employee is told: their punch IS saved, and the mark stays a success. It
+ * raises the alarm on the server, where it belongs, and hands the caller a flag
+ * HR tooling can list.
+ */
+const verifyPostedToRoster = async (card_no, action) => {
+  if (action !== 'check_in') return null;
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const r = await connection.execute(
+      `SELECT IN_TIME AS "in_time", OUT_TIME AS "out_time"
+         FROM DUTY_ROSTER
+        WHERE (TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int)
+          AND TRUNC(ROSTER_DATE) = TRUNC(SYSDATE)
+        FETCH FIRST 1 ROWS ONLY`,
+      { card: String(card_no), card_int: cardInt(card_no) },
+      OBJ,
+    );
+    const row = r.rows?.[0];
+    // No roster row at all is a different (pre-existing) condition — the day
+    // was never rostered — and not something this check should cry wolf about.
+    if (!row) return null;
+    if (String(row.in_time ?? '').trim()) return true;
+
+    logger.error(
+      `[ATTENDANCE_NOT_POSTED] card=${card_no} checked in but DUTY_ROSTER.IN_TIME is still empty` +
+        `${String(row.out_time ?? '').trim() ? ` (the ERP filed it as an OUT at ${row.out_time})` : ''}` +
+        ' — this day will read as ABSENT in HRMS until it is corrected',
+    );
+    return false;
+  } catch (e) {
+    logger.info(`[ATTENDANCE] roster verification failed for ${card_no}: ${e.message ?? e}`);
+    return null;
+  } finally {
+    await connection?.close();
+  }
+};
+
+const markAttendance = async (card_no, attendance_type = 'check_in', opts = {}) => {
+  // A card nobody works under cannot be marked. Without this the punch reached
+  // the MERGE, where an ERP trigger rejected it for having no company — and the
+  // employee was still told they were checked in.
+  if (!(await employeeExists(card_no))) {
+    logger.warn(`[ATTENDANCE] mark refused: no employee for card=${card_no}`);
+    return {
+      status: 'error',
+      message: 'This card is not registered as an employee. Attendance not marked.',
+    };
+  }
+
   const record = await getTodayRecord(card_no);
   const checkInOpts = {
     latitude: opts.latitude,
@@ -555,6 +680,84 @@ export const smartMarkAttendance = async (card_no, attendance_type = 'check_in',
   logger.info(`[ATTENDANCE] card=${card_no} → row exists but no ENTRY_TIME, checking in`);
   const empcode = await getEmpcode(card_no);
   return insertCheckIn(card_no, empcode, checkInOpts);
+};
+
+/**
+ * What today looks like for one employee, and what the next tap would do.
+ *
+ * The app was deriving this from the month report (report-range for today ->
+ * today), which answers "what does the roster say" — the wrong question after
+ * the ERP started filing late check-ins as check-outs, and a heavy call for one
+ * day. This answers "what has this person actually punched today", straight
+ * from ATTENDANCE_RECORDS.
+ *
+ * `next_action` matters most: the 60-minute rule that decides whether the next
+ * tap checks the employee out lives in this service, and the app should not
+ * have to reimplement it to know whether to show a confirmation.
+ */
+export const getTodayAttendanceState = async (card_no) => {
+  const record = await getTodayRecord(card_no);
+  const now = nowHHMM();
+
+  if (!record || !record.entry_time) {
+    return {
+      card_no: String(card_no),
+      date: todayYmd(),
+      state: 'NOT_MARKED',
+      check_in_time: null,
+      check_out_time: null,
+      attendance_id: null,
+      minutes_since_check_in: null,
+      next_action: 'check_in',
+      next_action_needs_confirmation: false,
+      server_time: now,
+    };
+  }
+
+  const checkedOut = Boolean(record.exit_time);
+  const minsSinceIn = timeSpentMinutes(record.entry_time, now);
+
+  // A tap before the gap has elapsed is a no-op, not a check-out — so the app
+  // should not warn about ending the day when nothing would happen.
+  const nextAction = minsSinceIn < MIN_CHECKOUT_GAP_MIN ? 'noop' : 'check_out';
+
+  return {
+    card_no: record.card_no ?? String(card_no),
+    date: todayYmd(),
+    state: checkedOut ? 'CHECKED_OUT' : 'CHECKED_IN',
+    check_in_time: record.entry_time,
+    check_out_time: record.exit_time || null,
+    attendance_id: record.id != null ? String(record.id) : null,
+    minutes_since_check_in: minsSinceIn,
+    /** 'check_out' | 'noop' — what a tap right now would do. */
+    next_action: nextAction,
+    /** True when a tap would end the working day, so ask first. */
+    next_action_needs_confirmation: nextAction === 'check_out',
+    minutes_until_check_out_allowed:
+      nextAction === 'noop' ? Math.max(MIN_CHECKOUT_GAP_MIN - minsSinceIn, 0) : 0,
+    server_time: now,
+  };
+};
+
+/**
+ * Mark attendance, then confirm the ERP took it.
+ *
+ * The confirmation is deliberately outside the mark: it never changes the
+ * outcome and never throws, so a punch that is saved stays saved even if the
+ * check itself fails. `posted_to_erp` is true / false / null (not applicable or
+ * not checkable) and is additive — a client that ignores it behaves as before.
+ */
+export const smartMarkAttendance = async (card_no, attendance_type = 'check_in', opts = {}) => {
+  const result = await markAttendance(card_no, attendance_type, opts);
+  if (result.status !== 'success') return result;
+
+  try {
+    result.posted_to_erp = await verifyPostedToRoster(card_no, result.action);
+  } catch (e) {
+    logger.info(`[ATTENDANCE] roster verification skipped for ${card_no}: ${e.message ?? e}`);
+    result.posted_to_erp = null;
+  }
+  return result;
 };
 
 // ---------------------------------------------------------------------------

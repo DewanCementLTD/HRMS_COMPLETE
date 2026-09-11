@@ -151,3 +151,62 @@ export const removeInterviewTypeSchema = z.object({
     type_id: z.string().regex(/^\d+$/, "Input should be a valid integer, unable to parse string as an integer")
   })
 }).merge(baseQuery);
+
+// ── Reference-data edits ──────────────────────────────────────────
+const editQuery = z.object({
+  admin_card_no: z.string().optional(),
+  compc: z.string().optional(),
+  brnch: z.string().optional(),
+}).passthrough();
+
+const editSchema = (params, body) => z.object({ params: z.object(params), query: editQuery, body: z.object(body) });
+
+export const editEmpStatusSchema = editSchema(
+  { emp_status: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
+export const editQualificationSchema = editSchema(
+  { descr: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
+export const editBankSchema = editSchema(
+  { bnkcode: z.string().min(1) }, { bnkname: z.string().min(1, "Bank name is required") });
+export const editBankBranchSchema = editSchema(
+  { bnkcode: z.string().min(1), brncode: z.string().min(1) },
+  { brnname: z.string().min(1, "Branch name is required") });
+export const editInterviewTypeSchema = editSchema(
+  { type_id: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
+export const editBloodGroupSchema = editSchema(
+  { pk: z.string().min(1) }, { blood_group: z.string().min(1, "Blood group is required") });
+export const removeBloodGroupSchema = z.object({
+  params: z.object({ pk: z.string().min(1) }),
+  query: editQuery,
+});
+
+// ── Leave types (master setup, per company/branch) ────────────────
+// entitlement and allowed arrive as strings from the form and may be blank —
+// "no entitlement" is a real state for types like WITHOUT PAY.
+const optionalNumberText = z
+  .string()
+  .regex(/^\d*(\.\d+)?$/, "Must be a number")
+  .optional();
+
+export const addLeaveTypeSchema = z.object({
+  body: z.object({
+    leave_type: z.string().min(1, "A leave code is required").max(20),
+    leave_desc: z.string().min(1, "A description is required").max(50),
+    entitlement: optionalNumberText,
+    allowed: optionalNumberText,
+  }),
+}).merge(baseQuery);
+
+export const editLeaveTypeSchema = z.object({
+  params: z.object({ pk: z.string().regex(/^\d+$/, "Invalid leave type") }),
+  query: editQuery,
+  body: z.object({
+    leave_desc: z.string().min(1, "A description is required").max(50),
+    entitlement: optionalNumberText,
+    allowed: optionalNumberText,
+  }),
+});
+
+export const removeLeaveTypeSchema = z.object({
+  params: z.object({ pk: z.string().regex(/^\d+$/, "Invalid leave type") }),
+  query: editQuery,
+});

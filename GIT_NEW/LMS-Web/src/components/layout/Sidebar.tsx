@@ -23,11 +23,13 @@ import {
   IdCard,
   Wallet,
   FileText,
+  ClipboardCheck,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
 import { useSidebar } from "./sidebar-context";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
+import { fetchHodApprovals } from "@/services/leaveService";
 
 // Dashboard is shown to everyone who has either employee features OR hr_admin
 // (SEC_USERNAME-only admins see it as the HR dashboard).
@@ -39,6 +41,9 @@ const employeeNavItems = [
   { href: "/attendance", label: "Attendance", icon: Clock },
   { href: "/profile", label: "Profile", icon: User },
 ];
+
+// Shown only to HODs (see the lookup in Sidebar below).
+const hodNavItem = { href: "/leave/approvals", label: "Leave Approvals", icon: ClipboardCheck };
 
 const hrNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
@@ -131,13 +136,31 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, switchCompany, switchBranch } = useAuth();
   const { handleLogout } = useAuthController();
-  const { collapsed, setCollapsed } = useSidebar();
+  const { collapsed, setCollapsed, resetView } = useSidebar();
 
   const showEmployeeNav = !!user?.has_employee_features;
   const showDashboard = showEmployeeNav || !!user?.hr_admin;
+  // "Leave Approvals" only exists for people actually named as HOD 1 / HOD 2 on
+  // someone's employee record — that includes HR staff who head a department,
+  // and excludes HR staff who don't.
+  const [hodPending, setHodPending] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const card = user?.card_no;
+    if (!card) return;
+    fetchHodApprovals(card)
+      .then((res) => {
+        if (cancelled) return;
+        setHodPending(res.is_hod ? res.items.filter((a) => a.my_turn).length : null);
+      })
+      .catch(() => { if (!cancelled) setHodPending(null); });
+    return () => { cancelled = true; };
+  }, [user?.card_no]);
+
   const navItems = [
     ...(showDashboard ? [dashboardNavItem] : []),
     ...(showEmployeeNav ? employeeNavItems : []),
+    ...(hodPending !== null ? [hodNavItem] : []),
     ...(user?.hr_admin ? hrNavItems : []),
   ];
 
@@ -270,7 +293,11 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={closeOnMobile}
+                onClick={() => {
+                  closeOnMobile();
+                  // Already inside this section: send it back to its home view.
+                  if (isActive) resetView();
+                }}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
@@ -280,7 +307,12 @@ export function Sidebar() {
                 )}
               >
                 <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-indigo-600" : "text-gray-400")} />
-                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && <span className="flex-1">{item.label}</span>}
+                {!collapsed && item.href === hodNavItem.href && !!hodPending && (
+                  <span className="bg-indigo-600 text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center">
+                    {hodPending}
+                  </span>
+                )}
               </Link>
             );
           })}

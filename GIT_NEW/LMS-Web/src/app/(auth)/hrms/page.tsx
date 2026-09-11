@@ -19,7 +19,7 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/ui/Badge";
-import { formatDate } from "@/lib/utils";
+import { formatDate, toLocalYmd } from "@/lib/utils";
 import {
   Users,
   Search,
@@ -35,13 +35,17 @@ import {
   Timer,
   AlertTriangle,
   Calendar,
+  CalendarPlus,
   MapPin,
   Settings,
   Navigation,
   FileText,
   IdCard,
+  KeyRound,
 } from "lucide-react";
-import { updateLocationTracking, getEmployeeCard, type EmployeeCard } from "@/services/hrmsService";
+import { updateLocationTracking, getEmployeeCard, resetEmployeePassword, type EmployeeCard } from "@/services/hrmsService";
+import { fetchHodOptions } from "@/services/leaveService";
+import type { HodOption } from "@/models/leave";
 import { LocationPanel } from "./LocationPanel";
 import { SetupPanel } from "./SetupPanel";
 import { DynamicSelect } from "@/components/ui/DynamicSelect";
@@ -49,6 +53,7 @@ import { EmployeeDocuments } from "./EmployeeDocuments";
 import { EmployeePhoto } from "./EmployeePhoto";
 import { EmployeeIDCard } from "./EmployeeIDCard";
 import { AttendancePanel } from "./AttendancePanel";
+import { LeaveAllocationPanel } from "./LeaveAllocationPanel";
 import { DutyRosterPanel, type RosterEmployee } from "./DutyRosterPanel";
 import {
   fetchDepartments, fetchDesignations,
@@ -100,6 +105,7 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   w_hour: undefined,
   bldgrp: "",
   location: "",
+  transfer_date: "",
   // Extended profile fields
   emp_status: "",
   ntn: "",
@@ -172,7 +178,7 @@ const marstatOptions = [
 // ──────────────────────────────────────────────
 
 function todayStr() {
-  return new Date().toISOString().split("T")[0];
+  return toLocalYmd(new Date());
 }
 
 function getPreset(preset: string): AttendanceDateRange {
@@ -188,11 +194,11 @@ function getPreset(preset: string): AttendanceDateRange {
       const day = today.getDay();
       const mon = new Date(today);
       mon.setDate(dd - ((day + 6) % 7));
-      return { from: mon.toISOString().split("T")[0], to: todayStr() };
+      return { from: toLocalYmd(mon), to: todayStr() };
     }
     case "month":
       return {
-        from: new Date(yyyy, mm, 1).toISOString().split("T")[0],
+        from: toLocalYmd(new Date(yyyy, mm, 1)),
         to: todayStr(),
       };
     case "paycycle": {
@@ -200,13 +206,13 @@ function getPreset(preset: string): AttendanceDateRange {
       const from = new Date(yyyy, mm - 1, 26);
       const to = new Date(yyyy, mm, 25);
       return {
-        from: from.toISOString().split("T")[0],
-        to: to.toISOString().split("T")[0],
+        from: toLocalYmd(from),
+        to: toLocalYmd(to),
       };
     }
     default:
       return {
-        from: new Date(yyyy, mm, 1).toISOString().split("T")[0],
+        from: toLocalYmd(new Date(yyyy, mm, 1)),
         to: todayStr(),
       };
   }
@@ -231,6 +237,7 @@ function downloadCSV(
     "Late",
     "Half Day",
     "Status",
+    "Remarks",
   ];
   const rows = records.map((r) => [
     r.roster_date,
@@ -241,6 +248,7 @@ function downloadCSV(
     r.is_late ? "Late" : "",
     r.is_half_day ? "Half Day" : "",
     r.status || "",
+    r.remarks || r.roster_remarks || "",
   ]);
 
   const csv = [headers, ...rows]
@@ -371,14 +379,14 @@ export default function HRMSPage() {
   const { user, activeCompany, activeBranch } = useAuth();
   const ctrl = useHRMSController();
 
-  const [section, setSection] = useState<"employees" | "locations" | "setup" | "attendance">("employees");
+  const [section, setSection] = useState<"employees" | "locations" | "setup" | "attendance" | "leave">("employees");
 
   // Honor a ?section= query param (e.g. from the HR dashboard's Quick Actions)
   // so links can land directly on the right tab instead of always the employee list.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const s = new URLSearchParams(window.location.search).get("section");
-    if (s === "attendance" || s === "locations" || s === "setup" || s === "employees") {
+    if (s === "attendance" || s === "locations" || s === "setup" || s === "employees" || s === "leave") {
       setSection(s);
     }
   }, []);
@@ -406,6 +414,17 @@ export default function HRMSPage() {
   const [refBankBranches,setRefBankBranches]= useState<BankBranch[]>([]);
   const [refQuals,      setRefQuals]      = useState<Qualification[]>([]);
   const [refLocations,  setRefLocations]  = useState<Location[]>([]);
+  // HOD 1 / HOD 2 pick an employee of the selected company; the stored value
+  // is that person's mobile number (what EMPLOYEE.HOD1/HOD2 hold).
+  const [refHods, setRefHods] = useState<HodOption[]>([]);
+  // Which employee the edit form currently holds, so it is filled exactly once
+  // per employee instead of whenever a field happens to be empty.
+  const [populatedFor, setPopulatedFor] = useState<string | null>(null);
+  // The branch the employee was loaded with. Comparing against it is what tells
+  // us HR is transferring them, rather than just re-saving the same record.
+  const [originalLocation, setOriginalLocation] = useState<string>("");
+  const [resettingPw, setResettingPw] = useState(false);
+  const [pwMessage, setPwMessage] = useState<string | null>(null);
 
   // Reference data — refetched when the selected company/branch changes so
   // employee-register/edit dropdowns only show options for the active scope.
@@ -419,7 +438,10 @@ export default function HRMSPage() {
       fetchReligions(), fetchReportingOfficers(),
       fetchEmpStatuses(c), fetchBanks(c), fetchQualifications(c),
       fetchLocations(c),
-    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql, loc]) => {
+      user?.card_no
+        ? fetchHodOptions(user.card_no, c, b).catch(() => ({ items: [] as HodOption[] }))
+        : Promise.resolve({ items: [] as HodOption[] }),
+    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql, loc, hods]) => {
       setRefDepts(d.items);
       setRefDesigs(des.items);
       setRefBG(bg.items);
@@ -431,8 +453,72 @@ export default function HRMSPage() {
       setRefBanks(bk.items);
       setRefQuals(ql.items);
       setRefLocations(loc.items);
+      setRefHods(hods.items);
     }).catch(console.error);
   }, [activeCompany, activeBranch]);
+
+  // ---- Populate the edit form once per employee ----
+  //
+  // This used to run during render whenever `form.name === ""`, which caused two
+  // bugs: clearing the Name box re-triggered it and the old values sprang back,
+  // and opening a second employee left the first one's data in the form (the
+  // guard was false because the name was still filled), so a save wrote one
+  // employee's details onto another. Keying on the loaded empcode fixes both.
+  useEffect(() => {
+    const e = ctrl.selectedEmployee;
+    if (view !== "edit" || !e?.empcode) return;
+    if (populatedFor === e.empcode) return;
+    setPopulatedFor(e.empcode);
+    setOriginalLocation(e.location != null ? String(e.location) : "");
+    setForm({
+      name: e.name || "",
+      fhname: e.fhname || "",
+      atdtcard: e.atdtcard || "",
+      sex: e.sex || "",
+      dtofbrth: e.dtofbrth || "",
+      nicno: e.nicno || "",
+      dtofappt: e.dtofappt || "",
+      dept_no: e.dept_no != null ? String(e.dept_no) : "",
+      desg_cd: e.desg_cd != null ? String(e.desg_cd) : "",
+      mobile: e.mobile || "",
+      email: e.email || "",
+      address: e.address || "",
+      unit_id: e.unit_id ?? 1,
+      // LOCATION/DEPT_NO/DESG_CD are numeric columns in Oracle, so the API can
+      // return them as numbers; the form and the API contract both want strings.
+      location: e.location != null ? String(e.location) : "",
+      // TRANSFER_DATE is a DATE column; an <input type="date"> silently blanks
+      // on anything but YYYY-MM-DD, so trim a time component if one comes back.
+      transfer_date: String(e.transfer_date || "").slice(0, 10),
+      status: e.status || "A",
+      user_paswd: e.user_paswd || "",
+      hr_admin: e.hr_admin || "N",
+      rpt_officer: e.rpt_officer || "",
+      marstat: e.marstat || "",
+      religion: e.religion || "",
+      basic: e.basic ?? undefined,
+      gross: e.gross ?? undefined,
+      w_hour: e.w_hour ?? undefined,
+      bldgrp: e.bldgrp || "",
+      grade_cd: e.grade_cd || "",
+      shift: e.shift || "",
+      hod1: e.hod1 ?? undefined,
+      hod2: e.hod2 ?? undefined,
+      hod3: e.hod3 ?? undefined,
+      track_location: e.track_location || "N",
+      track_location_hr: e.track_location_hr ?? 2,
+      // Extended profile fields
+      emp_status: e.emp_status || "",
+      ntn: e.ntn || "",
+      bnkcode: e.bnkcode || "",
+      brncode: e.brncode || "",
+      bnkacct: e.bnkacct || "",
+      qfication: e.qfication || "",
+      qual_detail: e.qual_detail || "",
+      dtofconfirm: e.dtofconfirm || "",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, ctrl.selectedEmployee, populatedFor]);
 
   // Bank branches depend on the selected bank.
   useEffect(() => {
@@ -468,6 +554,7 @@ export default function HRMSPage() {
     const tabs = [
       { id: "employees" as const,   icon: Users,     label: "Employees" },
       { id: "attendance" as const,  icon: Clock,     label: "Attendance" },
+      { id: "leave" as const,       icon: CalendarPlus, label: "Leave Allocation" },
       { id: "locations" as const,   icon: MapPin,    label: "Locations" },
       { id: "setup" as const,       icon: Settings,  label: "Setup" },
     ];
@@ -497,6 +584,14 @@ export default function HRMSPage() {
       <div className="animate-fade-in">
         <SectionNav />
         <LocationPanel adminCardNo={user.card_no} focusCardNo={locationFocusCard} />
+      </div>
+    );
+  }
+  if (section === "leave") {
+    return (
+      <div className="animate-fade-in">
+        <SectionNav />
+        <LeaveAllocationPanel adminCardNo={user.card_no} />
       </div>
     );
   }
@@ -531,6 +626,12 @@ export default function HRMSPage() {
     ctrl.clearMessages();
     setLocalQuery("");
     ctrl.filterByQuery("");
+    // Drop the loaded employee entirely — leaving it behind is what used to
+    // carry one employee's details into the next one's form.
+    setForm({ ...EMPTY_FORM });
+    setPopulatedFor(null);
+    setOriginalLocation("");
+    setPwMessage(null);
     setView("list");
   }
 
@@ -543,12 +644,20 @@ export default function HRMSPage() {
       unit_id: activeCompany ? (parseInt(activeCompany) || 1) : 1,
       location: activeBranch || "",
     });
+    setPopulatedFor(null);
     ctrl.clearMessages();
     setView("register");
   }
 
   function startEdit(empcode: string) {
     ctrl.clearMessages();
+    setPwMessage(null);
+    // Blank the form first: the effect below refills it from the employee that
+    // finishes loading, and this guarantees nothing of the previous one shows
+    // in the meantime.
+    setForm({ ...EMPTY_FORM });
+    setPopulatedFor(null);
+    setOriginalLocation("");
     ctrl.loadEmployee(empcode).then(() => setView("edit"));
   }
 
@@ -583,61 +692,35 @@ export default function HRMSPage() {
     setView("roster");
   }
 
-  // ---- Populate edit form when selectedEmployee is ready ----
-  if (
-    view === "edit" &&
-    ctrl.selectedEmployee &&
-    form.name === "" &&
-    ctrl.selectedEmployee.name
-  ) {
-    const e = ctrl.selectedEmployee;
-    setForm({
-      name: e.name || "",
-      fhname: e.fhname || "",
-      atdtcard: e.atdtcard || "",
-      sex: e.sex || "",
-      dtofbrth: e.dtofbrth || "",
-      nicno: e.nicno || "",
-      dtofappt: e.dtofappt || "",
-      dept_no: e.dept_no || "",
-      desg_cd: e.desg_cd || "",
-      mobile: e.mobile || "",
-      email: e.email || "",
-      address: e.address || "",
-      unit_id: e.unit_id ?? 1,
-      location: e.location || "",
-      status: e.status || "A",
-      user_paswd: e.user_paswd || "",
-      hr_admin: e.hr_admin || "N",
-      rpt_officer: e.rpt_officer || "",
-      marstat: e.marstat || "",
-      religion: e.religion || "",
-      basic: e.basic ?? undefined,
-      gross: e.gross ?? undefined,
-      w_hour: e.w_hour ?? undefined,
-      bldgrp: e.bldgrp || "",
-      grade_cd: e.grade_cd || "",
-      shift: e.shift || "",
-      hod1: e.hod1 ?? undefined,
-      hod2: e.hod2 ?? undefined,
-      hod3: e.hod3 ?? undefined,
-      track_location: e.track_location || "N",
-      track_location_hr: e.track_location_hr ?? 2,
-      // Extended profile fields
-      emp_status: e.emp_status || "",
-      ntn: e.ntn || "",
-      bnkcode: e.bnkcode || "",
-      brncode: e.brncode || "",
-      bnkacct: e.bnkacct || "",
-      qfication: e.qfication || "",
-      qual_detail: e.qual_detail || "",
-      dtofconfirm: e.dtofconfirm || "",
-    });
+
+  async function resetPassword() {
+    if (!ctrl.selectedEmployee) return;
+    const typed = (form.user_paswd || "").trim();
+    const label = typed
+      ? "Set this employee's login password to the Initial Password shown here?"
+      : "Reset this employee's login password to the initial one on file?";
+    if (!window.confirm(label)) return;
+    setResettingPw(true);
+    ctrl.clearMessages();
+    try {
+      const res = await resetEmployeePassword(
+        ctrl.selectedEmployee.empcode,
+        user!.card_no,
+        typed || undefined,
+      );
+      setPwMessage(res.message);
+    } catch (e) {
+      setPwMessage(e instanceof Error ? e.message : "Failed to reset the password");
+    } finally {
+      setResettingPw(false);
+    }
   }
 
   function updateField(
     field: keyof HRMSEmployeeCreate,
-    value: string | number | undefined,
+    // null is meaningful for the HOD pickers: it clears the approver, where
+    // undefined would just leave the stored value alone.
+    value: string | number | undefined | null,
   ) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -650,12 +733,27 @@ export default function HRMSPage() {
    *  otherwise, so they'd have no way to supply it. */
   function missingRequired(): string | null {
     if (!form.name.trim()) return "Full Name";
+    if (!(form.mobile || "").trim()) return "Mobile Number";
+    {
+      const digits = (form.mobile || "").replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 11) {
+        return "a valid Mobile Number (10 or 11 digits)";
+      }
+    }
     if (!form.dtofbrth) return "Date of Birth";
     if (!form.nicno?.trim()) return "NIC Number";
     if (!form.dtofappt) return "Date of Appointment";
     if (!form.dept_no) return "Department";
     if (!form.desg_cd) return "Designation";
     if (!form.location) return "Branch / Location";
+    // Same condition the Transfer Date field renders on, computed here rather
+    // than read from render scope so the validator stands on its own.
+    const movingBranch =
+      view === "edit" && !!originalLocation && String(form.location ?? "") !== originalLocation;
+    if (movingBranch && !form.transfer_date) return "Transfer Date (the branch has changed)";
+    // Without HOD 1 the employee's leave has no first approver and would sit
+    // unapproved forever.
+    if (!form.hod1) return "HOD 1";
     if (user?.can_edit_salary && (form.gross == null || Number.isNaN(form.gross)))
       return "Gross Salary";
     return null;
@@ -1297,10 +1395,18 @@ export default function HRMSPage() {
                             )}
                           </td>
                           <td className="px-4 py-3">
-                            <Badge status={rec.status || "—"} />
+                            <Badge
+                              status={rec.status || "—"}
+                              className={rec.is_leave ? "bg-indigo-100 text-indigo-800" : undefined}
+                            />
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-500 italic">
-                            {rec.roster_remarks || ""}
+                          {/* Same derived line the HRMS Attendance screen shows:
+                              leave type + the employee's reason, "Absent", or the
+                              roster's own remark. */}
+                          <td className={`px-4 py-3 text-sm ${
+                            rec.is_leave ? "text-indigo-700" : "text-gray-500 italic"
+                          }`}>
+                            {rec.remarks || rec.roster_remarks || ""}
                           </td>
                         </tr>
                       );
@@ -1324,6 +1430,17 @@ export default function HRMSPage() {
   const deptOptions = refDepts.map((d) => ({ value: String(d.dept_no), label: d.dept_name }));
   const desigOptions = refDesigs.map((d) => ({ value: d.desg_cd, label: d.desg_desc }));
   const locationOptions = refLocations.map((l) => ({ value: l.lcode, label: l.descr }));
+  // Value = mobile number, which is what HOD1/HOD2 hold on the employee row.
+  // HR is moving this employee to another branch, so the transfer date is asked
+  // for. Only on edit: on register the branch is the initial placement, not a
+  // transfer.
+  const isTransfer =
+    isEdit && !!originalLocation && String(form.location ?? "") !== originalLocation;
+
+  const hodOptions = refHods.map((h) => ({
+    value: h.mobile,
+    label: h.department ? `${h.name} — ${h.department} (${h.mobile})` : `${h.name} (${h.mobile})`,
+  }));
 
   return (
     <div className="animate-fade-in">
@@ -1362,6 +1479,11 @@ export default function HRMSPage() {
             message={ctrl.success}
             onClose={ctrl.clearMessages}
           />
+        </div>
+      )}
+      {pwMessage && (
+        <div className="mb-4">
+          <Alert type="success" message={pwMessage} onClose={() => setPwMessage(null)} />
         </div>
       )}
 
@@ -1436,11 +1558,17 @@ export default function HRMSPage() {
                   ...refBG.map((b) => ({ value: b.blood_group, label: b.blood_group })),
                 ]}
               />
+              {/* Digits only, 10 or 11 (0300 1234567 with or without the
+                  leading zero). Anything longer is rejected as it is typed. */}
               <Input
-                label="Mobile Number"
+                label="Mobile Number *"
+                type="tel"
+                inputMode="numeric"
                 value={form.mobile || ""}
-                onChange={(e) => updateField("mobile", e.target.value)}
+                onChange={(e) => updateField("mobile", e.target.value.replace(/\D/g, "").slice(0, 11))}
                 placeholder="03001234567"
+                maxLength={11}
+                required
               />
               <Input
                 label="Email Address"
@@ -1536,11 +1664,17 @@ export default function HRMSPage() {
                 value={form.status || "A"}
                 onChange={(e) => updateField("status", e.target.value)}
               />
-              <DynamicSelect
+              {/* Company is not selectable: an employee belongs to the HR user's
+                  own company, which comes from the sidebar selection. Shown
+                  read-only so it is still visible on the record. */}
+              <Input
                 label="Company / Unit"
-                value={form.unit_id?.toString() || ""}
-                onChange={(v) => updateField("unit_id", v ? parseInt(v) : 1)}
-                options={refUnits.map((u) => ({ value: String(u.unit_id), label: u.unit_name }))}
+                value={
+                  refUnits.find((u) => String(u.unit_id) === String(form.unit_id))?.unit_name
+                  || (form.unit_id != null ? String(form.unit_id) : "—")
+                }
+                readOnly
+                disabled
               />
               <SearchableSelect
                 label="Branch / Location *"
@@ -1549,6 +1683,17 @@ export default function HRMSPage() {
                 placeholder="Select branch…"
                 options={locationOptions}
               />
+              {/* Appears only once the branch actually changes; stored in
+                  HR_EMP_MASTER.TRANSFER_DATE. */}
+              {isTransfer && (
+                <Input
+                  label="Transfer Date *"
+                  type="date"
+                  value={form.transfer_date || ""}
+                  onChange={(e) => updateField("transfer_date", e.target.value)}
+                  required
+                />
+              )}
               <Input
                 label="Working Hours"
                 type="number"
@@ -1574,39 +1719,31 @@ export default function HRMSPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Basic is derived by the database (TRG_HR_EMP_MASTER_BIU sets it to
+                  gross / 1.55 whenever gross changes), so it is shown but never
+                  edited — typing a value here would only diverge from payroll. */}
+              <Input
+                label="Basic Salary (auto — from gross)"
+                value={form.basic != null ? String(form.basic) : "—"}
+                readOnly
+                disabled
+              />
               {user?.can_edit_salary ? (
-                <>
-                  <Input
-                    label="Basic Salary"
-                    type="number"
-                    min={0}
-                    value={form.basic?.toString() ?? ""}
-                    onChange={(e) => updateField("basic", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
-                  />
-                  <Input
-                    label="Gross Salary *"
-                    type="number"
-                    min={0}
-                    value={form.gross?.toString() ?? ""}
-                    onChange={(e) => updateField("gross", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
-                    required
-                  />
-                </>
+                <Input
+                  label="Gross Salary *"
+                  type="number"
+                  min={0}
+                  value={form.gross?.toString() ?? ""}
+                  onChange={(e) => updateField("gross", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
+                  required
+                />
               ) : (
-                <>
-                  <Input
-                    label="Salary Basic (view-only)"
-                    value={ctrl.selectedEmployee?.sal_basic != null ? String(ctrl.selectedEmployee.sal_basic) : "—"}
-                    readOnly
-                    disabled
-                  />
-                  <Input
-                    label="Salary Gross (view-only)"
-                    value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
-                    readOnly
-                    disabled
-                  />
-                </>
+                <Input
+                  label="Gross Salary (view-only)"
+                  value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
+                  readOnly
+                  disabled
+                />
               )}
               <SearchableSelect
                 label="Bank"
@@ -1641,33 +1778,50 @@ export default function HRMSPage() {
                 value={form.hr_admin || "N"}
                 onChange={(e) => updateField("hr_admin", e.target.value)}
               />
-              <Input
-                label="Initial Password"
-                value={form.user_paswd || ""}
-                onChange={(e) => updateField("user_paswd", e.target.value)}
-                placeholder="Set employee password"
-              />
-              <Input
-                label="HOD 1 (Employee PK)"
-                type="number"
+              {/* This is the INITIAL password, stored on the HRMS record. The
+                  employee's own password changes are written to their login
+                  account instead, so nothing they choose ever shows up here.
+                  Reset copies this value back over their live password. */}
+              <div className="space-y-1.5">
+                <Input
+                  label="Initial Password"
+                  value={form.user_paswd || ""}
+                  onChange={(e) => updateField("user_paswd", e.target.value)}
+                  placeholder="Set employee password"
+                />
+                {isEdit && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={resetPassword}
+                      loading={resettingPw}
+                    >
+                      <KeyRound className="h-4 w-4 mr-1.5" /> Reset to initial password
+                    </Button>
+                    <span className="text-xs text-gray-400">
+                      Overrides whatever the employee set.
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* HOD 1 / HOD 2 approve this employee's leave. The column stores
+                  the approver's mobile number (HOD1_MNO on the application), and
+                  the list is limited to the selected company's employees. */}
+              <SearchableSelect
+                label="HOD 1 (approves leave) *"
                 value={form.hod1?.toString() || ""}
-                onChange={(e) =>
-                  updateField(
-                    "hod1",
-                    e.target.value ? parseInt(e.target.value) : undefined,
-                  )
-                }
+                onChange={(v) => updateField("hod1", v || null)}
+                placeholder="Search employee…"
+                options={hodOptions}
               />
-              <Input
-                label="HOD 2 (Employee PK)"
-                type="number"
+              <SearchableSelect
+                label="HOD 2 (second approval)"
                 value={form.hod2?.toString() || ""}
-                onChange={(e) =>
-                  updateField(
-                    "hod2",
-                    e.target.value ? parseInt(e.target.value) : undefined,
-                  )
-                }
+                onChange={(v) => updateField("hod2", v || null)}
+                placeholder="Search employee…"
+                options={hodOptions}
               />
             </div>
           </CardContent>

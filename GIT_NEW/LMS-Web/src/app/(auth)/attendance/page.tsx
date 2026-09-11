@@ -18,11 +18,12 @@ export default function AttendancePage() {
     useAttendanceController();
 
   function downloadCSV() {
-    const headers = ["Date", "Day", "In Time", "Out Time", "Working Hrs", "Status"];
+    const headers = ["Date", "Day", "In Time", "Out Time", "Working Hrs", "Status", "Remarks"];
     const rows = records.map((r) => [
       r.roster_date, r.day_name || "", r.in_time || "", r.out_time || "",
       `${r.w_hrs ?? 0}h ${r.w_mnt ?? 0}m`,
       r.status || "",
+      r.remarks || "",
     ]);
     const csv = [headers, ...rows]
       .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
@@ -180,6 +181,7 @@ export default function AttendancePage() {
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Late</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Half Day</th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Status</th>
+                    <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-6 py-3">Remarks</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -228,6 +230,18 @@ export default function AttendancePage() {
                           record.status
                           || (record.in_time ? (record.out_time ? "Present" : "Incomplete") : "Absent")
                         } />
+                      </td>
+                      {/* Approved leave shows its type and the reason given;
+                          an absent day says "Absent"; otherwise the roster's
+                          own remark from TMS_DUTY_ROSTER_V. */}
+                      <td className="px-6 py-4 text-sm text-gray-600 max-w-[260px]">
+                        {record.remarks ? (
+                          <span className={record.is_leave ? "text-indigo-700 font-medium" : undefined}>
+                            {record.remarks}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
                     </tr>
                   ))}

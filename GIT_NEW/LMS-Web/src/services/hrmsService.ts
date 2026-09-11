@@ -74,13 +74,27 @@ export interface DutyRosterRow {
   sh_late?: string | null;
   sh_half_day?: string | null;
   early_out?: string | null;
+  /** Derived server-side from TMS_DUTY_ROSTER_V — leave type + reason, "Absent",
+   *  or the roster's own remark. */
   remarks?: string | null;
+  roster_remarks?: string | null;
+  leave_remarks?: string | null;
+  leave_type?: string | null;
+  leave_desc?: string | null;
+  leave_type_fk?: number | null;
+  leave_days?: number | null;
+  absent?: number | null;
+  is_absent?: boolean;
+  is_leave?: boolean;
   updated_by?: string | null;
 }
 export interface DutyRoster {
   months: string[];
   month: string | null;
   rows: DutyRosterRow[];
+  /** The company and branch the roster is filed under — SHIFT_HEAD is keyed on both. */
+  compc?: string | null;
+  brnch?: string | null;
 }
 
 export async function getEmployeeRoster(
@@ -180,4 +194,73 @@ export async function fetchHRAnalytics(
   if (compc) params.set("compc", compc);
   if (brnch) params.set("brnch", brnch);
   return apiRequest<HRAnalytics>(`/hrms/dashboard/analytics?${params.toString()}`);
+}
+
+/**
+ * Restore an employee's login password to the initial one HR set on their HRMS
+ * record. Pass `password` to issue a new one (that value becomes the new
+ * initial). Employees' own password changes never touch the initial, so this
+ * works regardless of what they changed it to.
+ */
+export async function resetEmployeePassword(
+  empcode: string,
+  adminCardNo: string,
+  password?: string,
+): Promise<{ status: string; message: string }> {
+  return apiRequest(
+    `/hrms/employees/${empcode}/reset-password?admin_card_no=${encodeURIComponent(adminCardNo)}`,
+    { method: "POST", body: password ? { password } : {} },
+  );
+}
+
+/**
+ * Apply one shift to every roster day in a date range for one employee.
+ *
+ * Days already carrying approved leave are skipped server-side, and the branch
+ * is re-resolved from the admin's rights, so this can't reach past the roster
+ * being viewed.
+ */
+export async function bulkUpdateRosterShift(
+  adminCardNo: string,
+  body: { card_no: string; from_date: string; to_date: string; shift: string; dates?: string[] },
+  scope?: { compc?: string; brnch?: string },
+): Promise<{ status: string; updated: number; shift: string }> {
+  const q = new URLSearchParams({ admin_card_no: adminCardNo });
+  if (scope?.compc) q.set("compc", scope.compc);
+  if (scope?.brnch) q.set("brnch", scope.brnch);
+  return apiRequest(`/hrms/duty-roster/bulk?${q.toString()}`, { method: "PUT", body });
+}
+
+/** One rostered day in the range the bulk-shift dialog is asking about. */
+export interface RosterDay {
+  date: string;
+  day: string;
+  shift: string;
+  on_leave: boolean;
+  is_holiday: boolean;
+  is_rest: boolean;
+  /** False for days on approved leave, which the update leaves alone. */
+  selectable: boolean;
+}
+
+/**
+ * The rostered days between two dates, so HR can pick which of them the new
+ * shift applies to rather than taking the whole range.
+ */
+export async function fetchRosterDays(
+  adminCardNo: string,
+  cardNo: string,
+  fromDate: string,
+  toDate: string,
+  scope?: { compc?: string; brnch?: string },
+): Promise<{ items: RosterDay[] }> {
+  const q = new URLSearchParams({
+    admin_card_no: adminCardNo,
+    card_no: cardNo,
+    from_date: fromDate,
+    to_date: toDate,
+  });
+  if (scope?.compc) q.set("compc", scope.compc);
+  if (scope?.brnch) q.set("brnch", scope.brnch);
+  return apiRequest(`/hrms/duty-roster/days?${q.toString()}`);
 }

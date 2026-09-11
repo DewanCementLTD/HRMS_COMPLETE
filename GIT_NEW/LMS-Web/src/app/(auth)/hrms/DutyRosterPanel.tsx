@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, Printer, CalendarDays, Pencil, Check, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Printer, CalendarDays, CalendarRange, Pencil, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
-import { getEmployeeRoster, updateRosterEntry, type DutyRoster } from "@/services/hrmsService";
+import { Modal } from "@/components/ui/Modal";
+import { getEmployeeRoster, updateRosterEntry, bulkUpdateRosterShift, fetchRosterDays, type DutyRoster, type RosterDay } from "@/services/hrmsService";
 import { fetchShiftLov, type ShiftLov } from "@/services/referenceService";
+import { useAuth } from "@/context/AuthContext";
 
 export interface RosterEmployee {
   cardNo: string;
@@ -34,8 +36,103 @@ export function DutyRosterPanel({
 
   // inline edit state
   const [editPk, setEditPk] = useState<number | null>(null);
+  const { activeCompany, activeBranch } = useAuth();
   const [editVals, setEditVals] = useState<{ shift: string; remarks: string }>({ shift: "", remarks: "" });
   const [saving, setSaving] = useState(false);
+
+  // Bulk shift change. The dates only bound the search: the days themselves are
+  // listed once both are set, and HR ticks the ones the new shift applies to —
+  // a change rarely covers every single day of a range.
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulk, setBulk] = useState({ from: "", to: "", shift: "" });
+  const [bulkDays, setBulkDays] = useState<RosterDay[]>([]);
+  const [bulkPicked, setBulkPicked] = useState<string[]>([]);
+  const [bulkDaysLoading, setBulkDaysLoading] = useState(false);
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+
+  // Pull the days whenever a complete, sensible range is on screen. Everything
+  // selectable starts ticked, so applying to the whole range stays one click.
+  useEffect(() => {
+    if (!bulkOpen || !bulk.from || !bulk.to || bulk.from > bulk.to) {
+      setBulkDays([]);
+      setBulkPicked([]);
+      return;
+    }
+    let cancelled = false;
+    setBulkDaysLoading(true);
+    fetchRosterDays(adminCardNo, emp.cardNo, bulk.from, bulk.to, {
+      compc: activeCompany || undefined,
+      brnch: activeBranch || undefined,
+    })
+      .then((r) => {
+        if (cancelled) return;
+        setBulkDays(r.items);
+        setBulkPicked(r.items.filter((d) => d.selectable).map((d) => d.date));
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setBulkDays([]);
+        setBulkPicked([]);
+        setBulkError(e instanceof Error ? e.message : "Could not load those days");
+      })
+      .finally(() => { if (!cancelled) setBulkDaysLoading(false); });
+    return () => { cancelled = true; };
+  }, [bulkOpen, bulk.from, bulk.to, adminCardNo, emp.cardNo, activeCompany, activeBranch]);
+
+  function openBulk() {
+    setBulkError(null);
+    setBulk({ from: "", to: "", shift: "" });
+    setBulkDays([]);
+    setBulkPicked([]);
+    setBulkOpen(true);
+  }
+
+  function toggleDay(date: string) {
+    setBulkPicked((p) => (p.includes(date) ? p.filter((d) => d !== date) : [...p, date]));
+  }
+
+  const selectableDays = bulkDays.filter((d) => d.selectable);
+
+  async function applyBulkShift() {
+    if (!bulk.from || !bulk.to || !bulk.shift) {
+      setBulkError("Pick both dates and a shift.");
+      return;
+    }
+    if (bulk.from > bulk.to) {
+      setBulkError("The 'from' date must not be after the 'to' date.");
+      return;
+    }
+    if (bulkPicked.length === 0) {
+      setBulkError("Tick at least one day to change.");
+      return;
+    }
+    setBulkSaving(true);
+    setBulkError(null);
+    try {
+      const res = await bulkUpdateRosterShift(
+        adminCardNo,
+        {
+          card_no: emp.cardNo,
+          from_date: bulk.from,
+          to_date: bulk.to,
+          shift: bulk.shift,
+          dates: bulkPicked,
+        },
+        { compc: activeCompany || undefined, brnch: activeBranch || undefined },
+      );
+      setBulkOpen(false);
+      setBulk({ from: "", to: "", shift: "" });
+      setBulkDays([]);
+      setBulkPicked([]);
+      load(month);          // pull the roster back with the new shifts
+      alert(`${res.updated} roster day(s) changed to shift ${res.shift}.`);
+    } catch (e) {
+      setBulkError(e instanceof Error ? e.message : "Failed to change the shifts");
+    } finally {
+      setBulkSaving(false);
+    }
+  }
 
   const load = useCallback(async (m?: string) => {
     setLoading(true);
@@ -53,7 +150,19 @@ export function DutyRosterPanel({
   }, [emp.cardNo, adminCardNo]);
 
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { fetchShiftLov().then((r) => setLov(r.items)).catch(() => setLov([])); }, []);
+  // Shifts are configured per company AND branch in SHIFT_HEAD, so the picker
+  // offers only the ones this employee's own branch runs — branch 15 has eight
+  // shifts, branch 24 only GENERAL. The roster's own scope is used rather than
+  // whatever the admin has selected, which is often nothing at all.
+  const rosterCompc = data?.compc ?? null;
+  const rosterBrnch = data?.brnch ?? null;
+  useEffect(() => {
+    const compc = rosterCompc || activeCompany || undefined;
+    const brnch = rosterBrnch || activeBranch || undefined;
+    fetchShiftLov(compc, brnch)
+      .then((r) => setLov(r.items))
+      .catch(() => setLov([]));
+  }, [rosterCompc, rosterBrnch, activeCompany, activeBranch]);
 
   const rows = data?.rows ?? [];
 
@@ -68,9 +177,24 @@ export function DutyRosterPanel({
     try {
       const res = await updateRosterEntry(editPk, adminCardNo, { shift: editVals.shift, remarks: editVals.remarks });
       setData((d) => d
-        ? { ...d, rows: d.rows.map((row) => row.pk === editPk
-            ? { ...row, shift: editVals.shift, remarks: editVals.remarks, updated_by: res.updated_by ?? row.updated_by }
-            : row) }
+        ? { ...d, rows: d.rows.map((row) => {
+            if (row.pk !== editPk) return row;
+            // Only ROSTER_REMARKS is editable; the displayed line still leads
+            // with the leave type / "Absent" the server derived.
+            const rosterRemarks = editVals.remarks || null;
+            const derived = row.is_leave
+              ? [row.leave_desc || row.leave_type, row.leave_remarks, rosterRemarks].filter(Boolean).join(" — ")
+              : row.is_absent
+                ? (rosterRemarks || "Absent")
+                : rosterRemarks;
+            return {
+              ...row,
+              shift: editVals.shift,
+              roster_remarks: rosterRemarks,
+              remarks: derived,
+              updated_by: res.updated_by ?? row.updated_by,
+            };
+          }) }
         : d);
       setEditPk(null);
     } catch (e) {
@@ -103,6 +227,9 @@ export function DutyRosterPanel({
             {(data?.months ?? []).length === 0 && <option value="">No roster</option>}
             {(data?.months ?? []).map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
+          <Button size="sm" onClick={openBulk} disabled={rows.length === 0}>
+            <CalendarRange className="h-4 w-4 mr-1.5" /> Change Shifts
+          </Button>
           <Button variant="secondary" size="sm" onClick={() => window.print()} disabled={rows.length === 0}>
             <Printer className="h-4 w-4 mr-1.5" /> Print
           </Button>
@@ -111,6 +238,158 @@ export function DutyRosterPanel({
           </Button>
         </div>
       </div>
+
+      {/* Bulk shift change — a range, the days inside it, and a shift from
+          this company and branch's own list. */}
+      {bulkOpen && (
+        <Modal
+          title="Change Shifts"
+          subtitle={`${emp.name} · ${emp.cardNo}`}
+          size="md"
+          onClose={() => setBulkOpen(false)}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setBulkOpen(false)} disabled={bulkSaving}>
+                Cancel
+              </Button>
+              <Button onClick={applyBulkShift} loading={bulkSaving} disabled={bulkPicked.length === 0}>
+                <Check className="h-4 w-4 mr-1.5" />
+                Apply to {bulkPicked.length} day{bulkPicked.length === 1 ? "" : "s"}
+              </Button>
+            </>
+          }
+        >
+          {bulkError && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+              {bulkError}
+            </div>
+          )}
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700">From</label>
+                <input
+                  type="date"
+                  value={bulk.from}
+                  onChange={(e) => setBulk((b) => ({ ...b, from: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700">To</label>
+                <input
+                  type="date"
+                  value={bulk.to}
+                  min={bulk.from || undefined}
+                  onChange={(e) => setBulk((b) => ({ ...b, to: e.target.value }))}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+            </div>
+
+            {/* The days in the range. Ticked days get the new shift; days on
+                approved leave are shown but cannot be picked. */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">
+                  Days to change
+                  {bulkDays.length > 0 && (
+                    <span className="ml-1.5 font-normal text-gray-400">
+                      {bulkPicked.length} of {selectableDays.length} selected
+                    </span>
+                  )}
+                </label>
+                {selectableDays.length > 0 && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setBulkPicked(selectableDays.map((d) => d.date))}
+                      className="text-indigo-600 hover:text-indigo-800 font-medium"
+                    >
+                      Select all
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setBulkPicked([])}
+                      className="text-gray-500 hover:text-gray-700 font-medium"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-gray-200 p-2 max-h-64 overflow-y-auto">
+                {!bulk.from || !bulk.to ? (
+                  <p className="py-6 text-center text-sm text-gray-400">
+                    Pick a from and to date to list the days.
+                  </p>
+                ) : bulkDaysLoading ? (
+                  <p className="py-6 text-center text-sm text-gray-400">
+                    <Loader2 className="inline h-4 w-4 animate-spin mr-1.5" />
+                    Loading days…
+                  </p>
+                ) : bulkDays.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-gray-400">
+                    No rostered days between those dates.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5">
+                    {bulkDays.map((d) => (
+                      <label
+                        key={d.date}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm ${
+                          d.selectable ? "hover:bg-gray-50 cursor-pointer" : "opacity-60 cursor-not-allowed"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={!d.selectable}
+                          checked={bulkPicked.includes(d.date)}
+                          onChange={() => toggleDay(d.date)}
+                          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+                        />
+                        <span className="text-gray-700 tabular-nums">{d.date}</span>
+                        <span className="text-gray-400 text-xs">{d.day}</span>
+                        <span className="ml-auto text-xs text-gray-500">
+                          {d.on_leave
+                            ? "on leave"
+                            : d.is_holiday
+                              ? "holiday"
+                              : d.is_rest
+                                ? "rest"
+                                : d.shift || "—"}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-700">New shift</label>
+              {/* Only the shifts this company and branch actually run. */}
+              <select
+                value={bulk.shift}
+                onChange={(e) => setBulk((b) => ({ ...b, shift: e.target.value }))}
+                className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                <option value="">Select shift…</option>
+                {lov.map((l) => (
+                  <option key={l.shift} value={l.shift}>{l.shift} — {l.descr}</option>
+                ))}
+              </select>
+              {lov.length === 0 && (
+                <p className="text-xs text-amber-600">
+                  No shifts are configured for this branch — add them in Setup → Shifts.
+                </p>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Employee header */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 rounded-2xl border border-gray-200 bg-gray-50 p-4">
@@ -153,7 +432,10 @@ export function DutyRosterPanel({
             )}
             {!loading && rows.map((r, i) => {
               const isRest = (r.shift || "").toUpperCase() === "R";
-              const isAbsent = (r.remarks || "").toLowerCase().includes("absent");
+              // The API derives `remarks` from TMS_DUTY_ROSTER_V: an approved
+              // leave shows its type + the employee's reason, an ABSENT=1 day
+              // says "Absent", otherwise the roster's own remark.
+              const isAbsent = r.is_absent ?? (r.remarks || "").toLowerCase().includes("absent");
               const editing = editPk != null && r.pk === editPk;
               const rowCls = editing ? "bg-indigo-50" : isAbsent ? "bg-red-50/70" : isRest ? "bg-sky-50/70" : "hover:bg-gray-50";
               return (
@@ -169,7 +451,15 @@ export function DutyRosterPanel({
                         className="border border-indigo-300 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400"
                       >
                         <option value="">—</option>
-                        {lov.map((l) => <option key={l.shift} value={l.shift}>{l.shift} — {l.descr}</option>)}
+                        {/* A roster row may already carry a shift the company no
+                            longer defines (company 5 rosters use R). Keep it in
+                            the list so editing another field can't blank it. */}
+                        {(lov.some((l) => l.shift === (r.shift || "")) || !r.shift
+                          ? lov
+                          : [...lov, { shift: r.shift, descr: "current" }]
+                        ).map((l) => (
+                          <option key={l.shift} value={l.shift}>{l.shift} — {l.descr}</option>
+                        ))}
                       </select>
                     ) : (
                       <span className={`inline-flex items-center justify-center h-5 min-w-5 px-1 rounded text-xs font-bold ${isRest ? "bg-sky-200 text-sky-800" : "bg-emerald-100 text-emerald-700"}`}>
@@ -188,7 +478,16 @@ export function DutyRosterPanel({
                   <td className="px-3 py-1.5 text-center text-gray-600 border-r border-gray-100">{dash(r.early_out)}</td>
 
                   {/* Remarks — editable */}
-                  <td className={`px-3 py-1.5 border-r border-gray-100 ${isAbsent && !editing ? "text-red-600 font-medium" : "text-gray-500 italic"}`}>
+                  <td className={`px-3 py-1.5 border-r border-gray-100 ${
+                    isAbsent && !editing ? "text-red-600 font-medium"
+                    : r.is_leave && !editing ? "text-indigo-700"
+                    : "text-gray-500 italic"
+                  }`}>
+                    {!editing && r.is_leave && r.leave_type && (
+                      <span className="inline-flex items-center mr-1.5 px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[11px] font-bold not-italic">
+                        {r.leave_type}
+                      </span>
+                    )}
                     {editing ? (
                       <input
                         type="text"
@@ -217,7 +516,7 @@ export function DutyRosterPanel({
                       </div>
                     ) : (
                       <button
-                        onClick={() => r.pk != null && startEdit(r.pk, r.shift, r.remarks)}
+                        onClick={() => r.pk != null && startEdit(r.pk, r.shift, r.roster_remarks ?? r.remarks)}
                         disabled={r.pk == null || editPk != null}
                         className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-30"
                       >

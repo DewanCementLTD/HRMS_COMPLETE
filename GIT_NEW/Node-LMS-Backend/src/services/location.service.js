@@ -42,6 +42,18 @@ const resolveRecordedAt = (recorded_at) => {
   return s;
 };
 
+/**
+ * Legacy batch insert — kept for app builds that predate offline sync.
+ *
+ * These uploads carry no client_event_id, so they are NOT idempotent: a retry
+ * inserts the point again. New clients must use POST /auth/location/sync
+ * instead (locationSync.service.js).
+ *
+ * The ID now comes from LOCATION_TRACKS_SEQ rather than SELECT MAX(ID)+n, which
+ * two concurrent uploads could resolve to the same value — a real risk once
+ * several phones come back online together. Both insert paths share the one
+ * sequence so they cannot collide with each other either.
+ */
 export const batchInsertLocations = async (card_no, locations) => {
   if (!Array.isArray(locations) || locations.length === 0) {
     return 0;
@@ -69,7 +81,7 @@ export const batchInsertLocations = async (card_no, locations) => {
             ATTENDANCE_DATE
         )
         VALUES (
-            (SELECT NVL(MAX(ID), 0) + :offset FROM LOCATION_TRACKS),
+            LOCATION_TRACKS_SEQ.NEXTVAL,
             :card_no,
             :lat,
             :lng,
@@ -80,7 +92,6 @@ export const batchInsertLocations = async (card_no, locations) => {
         )
         `,
         {
-          offset: inserted + 1,
           card_no,
           lat: Number(loc.latitude),
           lng: Number(loc.longitude),
@@ -154,7 +165,11 @@ export const saveAttendanceOriginPoint = async (card_no, latitude, longitude, ac
           RECORDED_AT, SYNCED_AT, ATTENDANCE_DATE
       )
       SELECT
-          (SELECT NVL(MAX(ID), 0) + 1 FROM LOCATION_TRACKS),
+          -- Same ID source as every other insert into this table. Deriving it
+          -- from MAX(ID)+1 here while the batch paths drew from the sequence
+          -- meant both could hand out the same number, and whichever committed
+          -- second failed with ORA-00001.
+          LOCATION_TRACKS_SEQ.NEXTVAL,
           :card_no, :lat, :lng, :acc,
           SYS_EXTRACT_UTC(SYSTIMESTAMP), SYSTIMESTAMP, TRUNC(SYSDATE)
       FROM DUAL

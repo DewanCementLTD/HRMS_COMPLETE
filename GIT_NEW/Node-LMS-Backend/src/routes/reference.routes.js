@@ -34,7 +34,7 @@ router.get("/qualifications", validate(schemas.readFilterSchema), controllers.li
 router.get("/shifts", validate(schemas.readFilterSchema), controllers.listShifts);
 
 // [x] http://localhost:8000/reference/shift-lov
-router.get("/shift-lov", controllers.listShiftLov);
+router.get("/shift-lov", validate(schemas.readFilterSchema), controllers.listShiftLov);
 
 // [x] http://localhost:8000/reference/blood-groups
 router.get("/blood-groups", validate(schemas.readFilterSchema), controllers.listBloodGroups);
@@ -86,6 +86,8 @@ router.delete("/shifts/:pk", validate(schemas.shiftIdSchema), requireHrAdmin, co
 
 // [-] http://localhost:8000/reference/blood-groups?admin_card_no=100001.1
 //     Body: { "blood_group": "T+" }
+router.put("/blood-groups/:pk", validate(schemas.editBloodGroupSchema), requireHrAdmin, controllers.editBloodGroup);
+router.delete("/blood-groups/:pk", validate(schemas.removeBloodGroupSchema), requireHrAdmin, controllers.removeBloodGroup);
 router.post("/blood-groups", validate(schemas.addBloodGroupSchema), requireHrAdmin, controllers.createBloodGroup);
 
 // [-] http://localhost:8000/reference/cadre?admin_card_no=100001.1
@@ -109,6 +111,7 @@ router.put("/locations/:lcode", validate(schemas.locationUpdateSchema), requireH
 router.post("/emp-statuses", validate(schemas.addEmpStatusSchema), requireHrAdmin, controllers.createEmpStatus);
 
 // [x] http://localhost:8000/reference/emp-statuses/1?admin_card_no=100001.1
+router.put("/emp-statuses/:emp_status", validate(schemas.editEmpStatusSchema), requireHrAdmin, controllers.editEmpStatus);
 router.delete("/emp-statuses/:emp_status", validate(schemas.removeEmpStatusSchema), requireHrAdmin, controllers.removeEmpStatus);
 
 // [-] http://localhost:8000/reference/banks?admin_card_no=100001.1
@@ -116,6 +119,7 @@ router.delete("/emp-statuses/:emp_status", validate(schemas.removeEmpStatusSchem
 router.post("/banks", validate(schemas.addBankSchema), requireHrAdmin, controllers.createBank);
 
 // [x] http://localhost:8000/reference/banks/BNK1?admin_card_no=100001.1
+router.put("/banks/:bnkcode", validate(schemas.editBankSchema), requireHrAdmin, controllers.editBank);
 router.delete("/banks/:bnkcode", validate(schemas.removeBankSchema), requireHrAdmin, controllers.removeBank);
 
 // [-] http://localhost:8000/reference/bank-branches?admin_card_no=100001.1
@@ -123,6 +127,7 @@ router.delete("/banks/:bnkcode", validate(schemas.removeBankSchema), requireHrAd
 router.post("/bank-branches", validate(schemas.addBankBranchSchema), requireHrAdmin, controllers.createBankBranch);
 
 // [x] http://localhost:8000/reference/bank-branches/BNK1/BRN1?admin_card_no=100001.1
+router.put("/bank-branches/:bnkcode/:brncode", validate(schemas.editBankBranchSchema), requireHrAdmin, controllers.editBankBranch);
 router.delete("/bank-branches/:bnkcode/:brncode", validate(schemas.removeBankBranchSchema), requireHrAdmin, controllers.removeBankBranch);
 
 // [-] http://localhost:8000/reference/qualifications?admin_card_no=100001.1
@@ -130,6 +135,7 @@ router.delete("/bank-branches/:bnkcode/:brncode", validate(schemas.removeBankBra
 router.post("/qualifications", validate(schemas.addQualificationSchema), requireHrAdmin, controllers.createQualification);
 
 // [x] http://localhost:8000/reference/qualifications/BSc?admin_card_no=100001.1
+router.put("/qualifications/:descr", validate(schemas.editQualificationSchema), requireHrAdmin, controllers.editQualification);
 router.delete("/qualifications/:descr", validate(schemas.removeQualificationSchema), requireHrAdmin, controllers.removeQualification);
 
 // [x] http://localhost:8000/reference/interview-types
@@ -140,7 +146,15 @@ router.get("/interview-types", validate(schemas.readFilterSchema), controllers.l
 router.post("/interview-types", validate(schemas.addInterviewTypeSchema), requireHrAdmin, controllers.createInterviewType);
 
 // [x] http://localhost:8000/reference/interview-types/1?admin_card_no=100001.1
+router.put("/interview-types/:type_id", validate(schemas.editInterviewTypeSchema), requireHrAdmin, controllers.editInterviewType);
 router.delete("/interview-types/:type_id", validate(schemas.removeInterviewTypeSchema), requireHrAdmin, controllers.removeInterviewType);
+
+// Leave types — master setup, scoped to the admin's company and branch.
+// [x] http://localhost:8000/reference/leave-types?compc=1&brnch=2
+router.get("/leave-types", validate(schemas.readFilterSchema), controllers.listLeaveTypes);
+router.post("/leave-types", validate(schemas.addLeaveTypeSchema), requireHrAdmin, controllers.createLeaveType);
+router.put("/leave-types/:pk", validate(schemas.editLeaveTypeSchema), requireHrAdmin, controllers.editLeaveType);
+router.delete("/leave-types/:pk", validate(schemas.removeLeaveTypeSchema), requireHrAdmin, controllers.removeLeaveType);
 
 
 export default router;

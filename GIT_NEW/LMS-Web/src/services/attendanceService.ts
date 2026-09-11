@@ -66,6 +66,14 @@ export interface AttendanceDetailRow {
   is_late?: boolean;
   is_absent?: boolean;
   is_half_day?: boolean;
+  is_leave?: boolean;
+  /** Derived from TMS_DUTY_ROSTER_V: leave type + reason, "Absent", or the
+   *  roster's own remark. */
+  remarks?: string | null;
+  roster_remarks?: string | null;
+  leave_remarks?: string | null;
+  leave_type?: string | null;
+  leave_desc?: string | null;
 }
 
 function scopeQS(compc?: string, brnch?: string): string {

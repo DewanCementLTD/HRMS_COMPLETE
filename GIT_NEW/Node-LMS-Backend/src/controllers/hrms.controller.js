@@ -10,6 +10,7 @@
 import { resolveFilterLists, adminCanEditSalary } from "../services/adminRights.service.js";
 import {
   createEmployee,
+  resetEmployeePassword,
   getEmployeeByEmpcode,
   getEmployeeCard,
   updateEmployee,
@@ -19,8 +20,11 @@ import {
   getHrAnalytics,
   getBulkAttendanceSummary,
   getBulkAttendanceDetails,
+  getUnpostedPunches,
   getEmployeeRoster,
   updateRosterEntry,
+  bulkUpdateRosterShift,
+  getRosterDaysInRange,
 } from "../services/hrms.service.js";
 
 // GET /hrms/dashboard
@@ -97,9 +101,12 @@ export const registerEmployee = async (req, res, next) => {
     const { admin_card_no } = res.locals.validated.query;
     const data = { ...res.locals.validated.body };
 
-    // Only ULEVL='M' admins may set basic/gross salary.
+    // BASIC is derived by TRG_HR_EMP_MASTER_BIU (gross / 1.55), so it is never
+    // accepted from a client.
+    delete data.basic;
+
+    // Only ULEVL='M' admins may set the gross salary.
     if (!(await adminCanEditSalary(admin_card_no))) {
-      delete data.basic;
       delete data.gross;
     }
 
@@ -126,14 +133,21 @@ export const editEmployee = async (req, res, next) => {
     const existing = await getEmployeeByEmpcode(empcode);
     if (!existing) return res.status(404).json({ detail: "Employee not found" });
 
-    // Drop null/undefined fields (mirrors request.model_dump(exclude_none=True)).
+    // Drop null/undefined fields (mirrors request.model_dump(exclude_none=True)),
+    // except the HOD columns: there a null is the instruction to clear the
+    // approver, and dropping it would make "remove HOD" a silent no-op.
+    const CLEARABLE = new Set(["hod1", "hod2", "hod3"]);
     const data = {};
     for (const [k, v] of Object.entries(res.locals.validated.body)) {
-      if (v !== null && v !== undefined) data[k] = v;
+      if (v !== undefined && (v !== null || CLEARABLE.has(k))) data[k] = v;
     }
 
+    // BASIC is derived by the DB: TRG_HR_EMP_MASTER_BIU sets it to gross / 1.55
+    // on insert and on every gross change. Accepting it here would let a stale
+    // value stick on an update that doesn't touch gross.
+    delete data.basic;
+
     if (!(await adminCanEditSalary(admin_card_no))) {
-      delete data.basic;
       delete data.gross;
     }
 
@@ -166,6 +180,19 @@ export const attendanceDetails = async (req, res, next) => {
     const { finalCompanies, finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
     const items = await getBulkAttendanceDetails(from_date, to_date, finalCompanies, finalBranches);
     res.json({ items, from_date, to_date });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /hrms/attendance/unposted — app punches the ERP roster never took, i.e.
+// days HRMS is reporting as absent for someone who did mark attendance.
+export const unpostedPunches = async (req, res, next) => {
+  try {
+    const { admin_card_no, from_date, to_date, compc, brnch } = res.locals.validated.query;
+    const { finalCompanies, finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
+    const items = await getUnpostedPunches(from_date, to_date, finalCompanies, finalBranches);
+    res.json({ items, count: items.length, from_date, to_date });
   } catch (err) {
     next(err);
   }
@@ -204,6 +231,70 @@ export const editDutyRosterEntry = async (req, res, next) => {
     if (result.status === "error") {
       return res.status(400).json({ detail: result.message });
     }
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// PUT /hrms/duty-roster/bulk — apply one shift to every roster day in a range.
+export const bulkEditDutyRosterShift = async (req, res, next) => {
+  try {
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
+    const { card_no, from_date, to_date, shift, dates } = res.locals.validated.body;
+
+    // Same audit stamp format the single-row edit writes.
+    const now = new Date();
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const stamp = `${admin_card_no} ${String(now.getDate()).padStart(2, "0")}-${months[now.getMonth()]}-`
+      + `${String(now.getFullYear()).slice(-2)} ${String(now.getHours()).padStart(2, "0")}:`
+      + `${String(now.getMinutes()).padStart(2, "0")}`;
+
+    // The branch is re-resolved from the admin's rights, never trusted raw.
+    // finalBranches is the admin's allowed set; a branch outside it is dropped,
+    // leaving the update scoped to the employee alone.
+    const { finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
+    const requested = String(brnch ?? "").trim();
+    const branch = requested && (finalBranches ?? []).map(String).includes(requested)
+      ? requested
+      : null;
+    const result = await bulkUpdateRosterShift(card_no, from_date, to_date, shift, stamp, branch, dates);
+    if (result.status === "error") return res.status(400).json({ detail: result.message });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /hrms/duty-roster/days — the rostered days in a range, so the bulk-shift
+// dialog can list them for HR to pick from.
+export const dutyRosterDays = async (req, res, next) => {
+  try {
+    const { admin_card_no, card_no, from_date, to_date, compc, brnch } = res.locals.validated.query;
+
+    // Resolved from the admin's own rights, exactly as the update does.
+    const { finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
+    const requested = String(brnch ?? "").trim();
+    const branch = requested && (finalBranches ?? []).map(String).includes(requested)
+      ? requested
+      : null;
+
+    const result = await getRosterDaysInRange(card_no, from_date, to_date, branch);
+    if (result.status === "error") return res.status(400).json({ detail: result.message });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /hrms/employees/:empcode/reset-password — HR restores the employee's
+// login password to the initial one on their HRMS record (or sets a new one).
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { empcode } = res.locals.validated.params;
+    const { password } = res.locals.validated.body ?? {};
+    const result = await resetEmployeePassword(empcode, password);
+    if (result.status === "error") return res.status(400).json({ detail: result.message });
     res.json(result);
   } catch (err) {
     next(err);

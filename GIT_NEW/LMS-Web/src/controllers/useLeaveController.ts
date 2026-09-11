@@ -50,23 +50,21 @@ export function useLeaveController() {
 
     // OD types are unlimited — skip balance validation entirely, matching the
     // server-side rule.
-    if (selectedType && !selectedType.is_od) {
-      if (selectedType.balance <= 0) {
-        setError("You have no remaining balance for this leave type.");
-        return;
-      }
-
-      if (!data.half_day && data.from_date && data.to_date) {
-        const d1 = new Date(data.from_date);
-        const d2 = new Date(data.to_date);
-        const requestedDays = Math.floor((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        if (requestedDays > selectedType.balance) {
-          setError(
-            `Insufficient balance. You have ${selectedType.balance} day(s) but requested ${requestedDays} day(s).`
-          );
-          return;
-        }
-      }
+    //
+    // Only the "nothing left at all" case is checked here. The day count itself
+    // is deliberately NOT re-implemented: the server drops rostered off days
+    // (Sundays and holidays) from the charge, so counting calendar days here
+    // warned about a shortfall for days that are never deducted. `balance`
+    // already has leave awaiting approval subtracted, so a second request
+    // cannot silently overdraw the first.
+    if (selectedType && !selectedType.is_od && selectedType.balance <= 0) {
+      const pending = selectedType.pending_days ?? 0;
+      setError(
+        pending > 0
+          ? `Your remaining ${selectedType.leave_desc || selectedType.leave_type} is already committed to ${pending} day(s) awaiting approval.`
+          : "You have no remaining balance for this leave type."
+      );
+      return;
     }
 
     setSubmitting(true);

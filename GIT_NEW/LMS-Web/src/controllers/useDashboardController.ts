@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { fetchDashboard } from "@/services/authService";
@@ -39,7 +40,7 @@ export function useDashboardController() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    toLocalYmd(new Date())
   );
 
   // Ref keeps loadDashboard stable across selectedDate changes
@@ -77,8 +78,8 @@ export function useDashboardController() {
         if (dashData.card_no) {
           const now = new Date();
           const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-          const fromDate = firstDay.toISOString().split("T")[0];
-          const toDate = now.toISOString().split("T")[0];
+          const fromDate = toLocalYmd(firstDay);
+          const toDate = toLocalYmd(now);
           try {
             const summaryData = await fetchAttendanceSummary(
               dashData.card_no,

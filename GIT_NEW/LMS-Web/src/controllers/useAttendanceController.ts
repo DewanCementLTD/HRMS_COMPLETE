@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { fetchAttendanceRange, fetchAttendanceSummary } from "@/services/attendanceService";
@@ -16,8 +17,8 @@ export function useAttendanceController() {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     return {
-      from: firstDay.toISOString().split("T")[0],
-      to: now.toISOString().split("T")[0],
+      from: toLocalYmd(firstDay),
+      to: toLocalYmd(now),
     };
   });
 

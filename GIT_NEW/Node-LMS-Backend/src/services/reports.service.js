@@ -28,6 +28,7 @@
  */
 
 import { getDirectConnection } from "../config/database.js";
+import { deriveRosterDay } from '../utils/rosterStatus.js';
 
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
@@ -52,6 +53,13 @@ const toNum = (v, def = null) => {
 
 // Optional bind: empty string / undefined all collapse to NULL, which the
 // optEq/optRange predicates below read as "no filter".
+/** ERP punch columns hold ':' when there was no punch. */
+const cleanTime = (v) => {
+  const t = String(v ?? '').trim();
+  if (!t || t === ':') return null;
+  return t.slice(0, 5);
+};
+
 const opt = (v) => {
   if (v === null || v === undefined) return null;
   const s = String(v).trim();
@@ -1342,6 +1350,171 @@ export const getPfDetailReport = async ({ unitId, empcode } = {}) => {
         total_pf: employeeContribution * 2 - loanAgainstPf,
       },
       pw_withdrawals: loanRows.map((r) => ({ date: s(r.start_dt), amount: num(r.loan_amt) })),
+      meta,
+    };
+  } finally {
+    await connection?.close();
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// MONTHLY ATTENDANCE REPORT
+//
+// The wide day-grid HR prints each cycle: one row per employee, one column per
+// calendar day, grouped by branch and then department. Cells carry the in/out
+// punch plus the ERP's own flags, so the print can mark late arrivals, half
+// days, absences and approved leave the way the legacy report did.
+//
+// Source is TMS_DUTY_ROSTER_V (with DUTY_ROSTER for the shift letter), the same
+// view the attendance screens read, so a day shown here matches what those show.
+// ═══════════════════════════════════════════════════════════════════
+
+const DOW_LETTER = { SUNDAY: 'S', MONDAY: 'M', TUESDAY: 'T', WEDNESDAY: 'W', THURSDAY: 'T', FRIDAY: 'F', SATURDAY: 'S' };
+
+export const getMonthlyAttendanceReport = async ({
+  unitId, location = null, fromDate, toDate, deptNo = null,
+} = {}) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const binds = {
+      munit: toInt(unitId),
+      mfrom: String(fromDate),
+      mto: String(toDate),
+    };
+    let deptCond = '';
+    if (opt(deptNo) !== null) { deptCond = "AND LTRIM(TO_CHAR(h.DEPT_NO),'0') = LTRIM(TO_CHAR(:mdept),'0')"; binds.mdept = opt(deptNo); }
+    let locCond = '';
+    if (opt(location) !== null) { locCond = 'AND TRIM(h.LOCATION) = TRIM(:mloc)'; binds.mloc = opt(location); }
+
+    const res = await connection.execute(
+      `SELECT TRIM(h.LOCATION)                                   AS BRANCH_CODE,
+              (SELECT MIN(l.DESCR) FROM COM_LOCATION l
+                WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))          AS BRANCH_NAME,
+              (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
+                  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))     AS DEPT_NAME,
+              h.EMPCODE                                          AS CARD_NO,
+              h."ATDTCARD#"                                      AS EMP_NO,
+              h.NAME                                             AS EMP_NAME,
+              TO_CHAR(v.ROSTER_DATE, 'YYYY-MM-DD')               AS ROSTER_DATE,
+              v.DAY_NAME                                         AS DAY_NAME,
+              d2.ROSTER_SHIFT                                    AS SHIFT,
+              v.IN_TIME                                          AS IN_TIME,
+              v.OUT_TIME                                         AS OUT_TIME,
+              v.ABSENT                                           AS ABSENT,
+              v.HOLIDAY_FK                                       AS HOLIDAY_FK,
+              v.MORNING_LATE                                     AS MORNING_LATE,
+              v.EARLY_OUT_LATE                                   AS EARLY_OUT_LATE,
+              v.MORNING_HALF_DAY                                 AS MORNING_HALF_DAY,
+              v.EAR_OUT_HALF_DAY                                 AS EAR_OUT_HALF_DAY,
+              v.LEAVE_TYPE_FK                                    AS LEAVE_TYPE_FK,
+              v.LEAVE_REMARKS                                    AS LEAVE_REMARKS,
+              v.ROSTER_REMARKS                                   AS ROSTER_REMARKS,
+              (SELECT MIN(t.LEAVE_TYPE) FROM LEAVE_TYPES t
+                WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)         AS LEAVE_TYPE
+         FROM TMS_DUTY_ROSTER_V v
+         JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
+         JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+         LEFT JOIN DUTY_ROSTER d2
+                ON TO_CHAR(d2.CARD_NO) = TO_CHAR(v.CARD_NO)
+               AND d2.ROSTER_DATE = v.ROSTER_DATE
+        WHERE TO_CHAR(h.UNIT_ID) = TO_CHAR(:munit)
+          AND h.STATUS = 'A'
+          AND TRUNC(v.ROSTER_DATE) BETWEEN TO_DATE(:mfrom, 'YYYY-MM-DD') AND TO_DATE(:mto, 'YYYY-MM-DD')
+          ${locCond}
+          ${deptCond}
+        ORDER BY BRANCH_NAME NULLS LAST, DEPT_NAME NULLS LAST, h.NAME, v.ROSTER_DATE`,
+      binds,
+      { outFormat: OUT_OBJECT },
+    );
+
+    const str = (v) => String(v ?? '').trim();
+    const days = new Map();          // 'YYYY-MM-DD' -> { date, dow }
+    const branches = new Map();      // branch -> Map(dept -> Map(card -> row))
+
+    for (const raw of res.rows ?? []) {
+      const r = Object.fromEntries(Object.entries(raw).map(([k, v]) => [k.toLowerCase(), v]));
+      const date = str(r.roster_date);
+      if (!date) continue;
+      if (!days.has(date)) {
+        days.set(date, { date, dow: DOW_LETTER[str(r.day_name).toUpperCase()] ?? '' });
+      }
+
+      // One group per branch, with the department carried on the row — the same
+      // { groups: [{ rows }] } shape the other reports use, so the page's
+      // search / selection / print plumbing works unchanged.
+      const branch = str(r.branch_name) || str(r.branch_code) || '—';
+      const dept = str(r.dept_name) || '—';
+      if (!branches.has(branch)) branches.set(branch, new Map());
+      const rowsByCard = branches.get(branch);
+
+      const card = str(r.card_no);
+      const key = `${dept}|${card}`;
+      if (!rowsByCard.has(key)) {
+        rowsByCard.set(key, {
+          code: card,
+          card_no: card,
+          emp_no: str(r.emp_no),
+          employee_name: str(r.emp_name),
+          department: dept,
+          branch,
+          days: {},
+          absent_days: 0,
+          late_days: 0,
+          leave_days: 0,
+          present_days: 0,
+        });
+      }
+      const row = rowsByCard.get(key);
+
+      // Same derivation as every other attendance surface — see
+      // utils/rosterStatus.js. The report used to call a day absent only when
+      // ABSENT = 1 AND there was no punch at all, which disagreed with the HR
+      // attendance screen on the ~700 rows the ERP flags absent despite a punch.
+      const shift = str(r.shift).toUpperCase();
+      const d = deriveRosterDay({ ...r, roster_shift: shift });
+
+      row.days[date] = {
+        in_time: d.in_time,
+        out_time: d.out_time,
+        shift,
+        status: d.status,
+        is_rest: d.is_rest,
+        is_absent: d.is_absent,
+        is_late: d.is_late,
+        is_half_day: d.is_half_day,
+        is_morning_late: d.is_morning_late,
+        is_morning_half_day: d.is_morning_half_day,
+        is_leave: d.is_leave,
+        is_holiday: d.is_holiday,
+        leave_type: d.leave_type,
+        remarks: d.remarks,
+      };
+      if (d.is_absent) row.absent_days += 1;
+      if (d.is_late) row.late_days += 1;
+      if (d.is_leave) row.leave_days += 1;
+      if (d.is_present) row.present_days += 1;
+    }
+
+    const groups = [...branches.entries()].map(([branch, rowsByCard]) => ({
+      branch,
+      rows: [...rowsByCard.values()].sort(
+        (a, b) => a.department.localeCompare(b.department) ||
+                  a.employee_name.localeCompare(b.employee_name),
+      ),
+    }));
+
+    const meta = await buildMeta(connection, {
+      unitId,
+      location,
+      periods: [],
+      filters: { from_date: fromDate, to_date: toDate, dept_no: deptNo },
+    });
+
+    return {
+      days: [...days.values()].sort((a, b) => a.date.localeCompare(b.date)),
+      groups,
       meta,
     };
   } finally {

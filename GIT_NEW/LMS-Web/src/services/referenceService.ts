@@ -47,6 +47,24 @@ export interface BankBranch  { brncode: string; brnname: string }
 export interface Qualification { descr: string }
 export interface InterviewType { type_id: number; descr: string; compc: number | null; brnch: number | null }
 
+/** A row of LEAVE_TYPES as the setup screen sees it. */
+export interface LeaveTypeMaster {
+  leave_type_pk: number;
+  leave_type: string;
+  leave_desc: string;
+  entitlement: number | null;
+  allowed: number | null;
+  type: string;
+  compc: number | null;
+  brnch: number | null;
+  /** One of the standard types every company shares — shown, never edited here. */
+  shared: boolean;
+  /** This company's own addition, so it can be changed and removed. */
+  editable: boolean;
+  /** Whether employees can actually apply for it (ALL_LEAVE_BAL_V covers CL/ML/EL, plus OD). */
+  applyable: boolean;
+}
+
 function cbQuery(compc?: string, brnch?: string, extra = ""): string {
   const parts: string[] = [];
   if (compc) parts.push(`compc=${encodeURIComponent(compc)}`);
@@ -65,8 +83,9 @@ export const fetchDesignations = (grade_cd?: string, compc?: string, brnch?: str
   );
 export const fetchShifts       = (compc?: string, brnch?: string) =>
   apiRequest<{ items: Shift[] }>(`/reference/shifts${cbQuery(compc, brnch)}`);
-export const fetchShiftLov     = () =>
-  apiRequest<{ items: ShiftLov[] }>(`/reference/shift-lov`);
+/** Shifts the given company actually runs (SHIFT_HEAD), not the global list. */
+export const fetchShiftLov     = (compc?: string, brnch?: string) =>
+  apiRequest<{ items: ShiftLov[] }>(`/reference/shift-lov${cbQuery(compc, brnch)}`);
 export const fetchBloodGroups  = (compc?: string, brnch?: string) =>
   apiRequest<{ items: BloodGroup[] }>(`/reference/blood-groups${cbQuery(compc, brnch)}`);
 export const fetchCadre        = (compc?: string, brnch?: string) =>
@@ -157,3 +176,63 @@ export const addInterviewType = (adminCardNo: string, descr: string, compc?: str
   apiRequest<InterviewType>(`/reference/interview-types${qc(adminCardNo, compc)}`, { method: "POST", body: { descr } });
 export const deleteInterviewType = (adminCardNo: string, typeId: number, compc?: string) =>
   apiRequest(`/reference/interview-types/${typeId}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+// ── Reference-data edits ──────────────────────────────────────────
+// These masters could only be added to or deleted; deleting one that employees
+// already reference fails, so a typo was unfixable. The company is re-resolved
+// server-side from the admin's rights, as with the deletes.
+
+const put = (path: string, adminCardNo: string, body: Record<string, string>, compc?: string) =>
+  apiRequest(`/reference/${path}${qc(adminCardNo, compc)}`, { method: "PUT", body });
+
+export const updateEmpStatus = (adminCardNo: string, empStatus: string, descr: string, compc?: string) =>
+  put(`emp-statuses/${encodeURIComponent(empStatus)}`, adminCardNo, { descr }, compc);
+
+export const updateQualification = (adminCardNo: string, oldDescr: string, descr: string, compc?: string) =>
+  put(`qualifications/${encodeURIComponent(oldDescr)}`, adminCardNo, { descr }, compc);
+
+export const updateBank = (adminCardNo: string, bnkcode: string, bnkname: string, compc?: string) =>
+  put(`banks/${encodeURIComponent(bnkcode)}`, adminCardNo, { bnkname }, compc);
+
+export const updateBankBranch = (
+  adminCardNo: string, bnkcode: string, brncode: string, brnname: string, compc?: string,
+) =>
+  put(`bank-branches/${encodeURIComponent(bnkcode)}/${encodeURIComponent(brncode)}`,
+      adminCardNo, { brnname }, compc);
+
+export const updateInterviewType = (adminCardNo: string, typeId: string | number, descr: string, compc?: string) =>
+  put(`interview-types/${encodeURIComponent(String(typeId))}`, adminCardNo, { descr }, compc);
+
+export const updateBloodGroup = (adminCardNo: string, pk: string | number, blood_group: string, compc?: string) =>
+  put(`blood-groups/${encodeURIComponent(String(pk))}`, adminCardNo, { blood_group }, compc);
+
+export const deleteBloodGroup = (adminCardNo: string, pk: string | number, compc?: string) =>
+  apiRequest(`/reference/blood-groups/${encodeURIComponent(String(pk))}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+// ── Leave types (setup master, per company and branch) ────────────
+// The standard CL / ML / EL / OD rows are shared by every company and come back
+// read-only; a company can only maintain what it added itself.
+
+export const fetchLeaveTypes = (compc?: string, brnch?: string) =>
+  apiRequest<{ items: LeaveTypeMaster[] }>(`/reference/leave-types${cbQuery(compc, brnch)}`);
+
+export const addLeaveType = (
+  adminCardNo: string,
+  body: { leave_type: string; leave_desc: string; entitlement?: string; allowed?: string },
+  compc?: string,
+  brnch?: string,
+) =>
+  apiRequest<{ leave_type_pk: number }>(
+    `/reference/leave-types${qc(adminCardNo, compc)}${brnch ? `&brnch=${encodeURIComponent(brnch)}` : ""}`,
+    { method: "POST", body },
+  );
+
+export const updateLeaveType = (
+  adminCardNo: string,
+  pk: number,
+  body: { leave_desc: string; entitlement?: string; allowed?: string },
+  compc?: string,
+) => put(`leave-types/${pk}`, adminCardNo, body, compc);
+
+export const deleteLeaveType = (adminCardNo: string, pk: number, compc?: string) =>
+  apiRequest(`/reference/leave-types/${pk}${qc(adminCardNo, compc)}`, { method: "DELETE" });

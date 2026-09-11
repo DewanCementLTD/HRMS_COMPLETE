@@ -6,11 +6,15 @@ import {
   saveEmergencyContact as saveEmergencyContactService,
 } from "../services/auth.service.js";
 import { forceUpdateBlock } from "../services/appVersion.service.js";
+import {
+  empcodeForCard,
+  getEmployeePhotoAbs,
+} from "../services/documents.service.js";
 
 import { logger } from "../utils/logger.js";
 export const login = async (req, res, next) => {
   try {
-    const { username, password, app_version, app_build, platform } =
+    const { username, password, app_version, app_build, platform, device_id } =
       res.locals.validated.body;
 
     // Bug 5.3: Force-update guard — blocks outdated mobile apps (HTTP 426).
@@ -30,7 +34,7 @@ export const login = async (req, res, next) => {
       });
     }
 
-    const result = await authenticateUser(username, password);
+    const result = await authenticateUser(username, password, device_id);
     if (!result) return res.status(401).json({ detail: "Invalid credentials" }); // exact FastAPI wording — the app shows it verbatim
     res.json(result);
   } catch (err) {
@@ -44,6 +48,26 @@ export const profile = async (req, res, next) => {
     const data = await getProfile(card_no);
     if (!data) return res.status(404).json({ detail: "User not found" }); // exact FastAPI wording
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /auth/profile-picture/:card_no — the employee's photo, as bytes.
+//
+// The same file HRMS web shows (HR_EMP_MASTER.PATH); this is the fallback the
+// mobile app uses when the profile payload carries no photo URL, so it lives
+// under /auth/* and takes the same auth as the rest of the employee endpoints.
+export const profilePicture = async (req, res, next) => {
+  try {
+    const { card_no } = res.locals.validated.params;
+    const empcode = await empcodeForCard(card_no);
+    const photoPath = empcode ? await getEmployeePhotoAbs(empcode) : null;
+    if (!photoPath) {
+      return res.status(404).json({ detail: "No photo" });
+    }
+    res.set("Cache-Control", "no-cache");
+    res.sendFile(photoPath);
   } catch (err) {
     next(err);
   }
@@ -76,20 +100,47 @@ export const updatePassword = async (req, res, next) => {
   }
 };
 
+// POST /auth/emergency-contact/:card_no          (web)
+// POST /auth/profile/emergency-contact/:card_no  (mobile app)
+//
+// One handler for both: the same contact, saved to the same row. The app keeps
+// its own copy on the device only until this returns — the stored value is what
+// survives a reinstall or a new phone, so the response says plainly whether the
+// save landed.
 export const saveEmergencyContact = async (req, res, next) => {
   try {
     const { card_no } = res.locals.validated.params;
-    const { name, relationship, phone } = res.locals.validated.body;
+    const body = res.locals.validated.body;
+    const relation = body.relation ?? body.relationship ?? "";
+    const phone = body.phone || body.phone_number || "";
+
+    if (!String(phone).trim()) {
+      return res
+        .status(400)
+        .json({ success: false, message: "A contact phone number is required." });
+    }
+
     const result = await saveEmergencyContactService(
       card_no,
-      name,
-      relationship,
+      body.name,
+      relation,
       phone,
     );
     if (result.status === "error") {
-      return res.status(500).json({ detail: result.message });
+      return res.status(500).json({ success: false, message: result.message });
     }
-    res.json({ status: "SUCCESS", message: result.message });
+    res.json({
+      success: true,
+      status: "SUCCESS",
+      message: result.message,
+      emergency_contact: {
+        name: body.name,
+        relation,
+        relationship: relation,
+        phone,
+        phone_number: phone,
+      },
+    });
   } catch (err) {
     next(err);
   }

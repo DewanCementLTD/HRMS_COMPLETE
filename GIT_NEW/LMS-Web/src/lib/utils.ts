@@ -62,3 +62,18 @@ export function getAttendanceRowTint(status?: string): string {
       return "";
   }
 }
+
+/**
+ * 'YYYY-MM-DD' for a date in the VIEWER'S timezone.
+ *
+ * `toISOString().split("T")[0]` converts to UTC first, so east of Greenwich a
+ * local midnight lands on the previous day — in Pakistan (UTC+5) the first of
+ * the month was being sent as the 31st, and before 05:00 "today" was sent as
+ * yesterday. Every date range handed to the API must be built with this.
+ */
+export function toLocalYmd(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}

@@ -121,7 +121,11 @@ export default function DashboardPage() {
             </div>
             <div className="min-w-0">
               <p className="text-xs text-gray-500 uppercase tracking-wide">Department</p>
-              <p className="text-sm font-semibold text-gray-900 truncate">{dashboard?.department || "-"}</p>
+              {/* Show the department NAME; the code is only a fallback for a
+                  record whose code has no matching HR_DEPT row. */}
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                {dashboard?.department_name || dashboard?.department || "-"}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -133,7 +137,9 @@ export default function DashboardPage() {
             </div>
             <div className="min-w-0">
               <p className="text-xs text-gray-500 uppercase tracking-wide">Designation</p>
-              <p className="text-sm font-semibold text-gray-900 truncate">{dashboard?.designation || "-"}</p>
+              <p className="text-sm font-semibold text-gray-900 truncate">
+                {dashboard?.designation_name || dashboard?.designation || "-"}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -168,6 +174,10 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {leaveBalances.map((lb, i) => {
                     const displayBalance = Math.max(0, lb.balance);
+                    // Days on requests still awaiting approval are already held
+                    // back from the figure above; saying so stops the drop from
+                    // looking like the leave was approved behind their back.
+                    const pending = lb.pending_days ?? 0;
                     return (
                       <div
                         key={i}
@@ -175,6 +185,9 @@ export default function DashboardPage() {
                       >
                         <p className={`text-2xl font-bold ${displayBalance > 0 ? "text-indigo-600" : "text-gray-400"}`}>{displayBalance}</p>
                         <p className="text-xs text-gray-500 mt-1">{lb.leave_desc || `Type ${lb.leave_type}`}</p>
+                        {pending > 0 && (
+                          <p className="text-[11px] text-amber-600 mt-0.5">{pending} awaiting approval</p>
+                        )}
                       </div>
                     );
                   })}

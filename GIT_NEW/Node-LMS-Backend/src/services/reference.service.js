@@ -326,10 +326,53 @@ export const getShifts = async (compc = null, brnch = null) => {
   }
 };
 
-export const getShiftLov = async () => {
+/**
+ * Shift list of values for the duty roster.
+ *
+ * Shifts are defined per company (and branch) in SHIFT_HEAD — company 5 has only
+ * GENERAL, company 1 has A/B/C/G/N/R — so the roster's shift picker is scoped to
+ * the selected company instead of offering the global HR_SHIFT list, which let
+ * HR assign a shift their company doesn't run.
+ *
+ * Falls back to HR_SHIFT when SHIFT_HEAD holds nothing for that company, so the
+ * dropdown is never empty.
+ */
+export const getShiftLov = async (compc = null, brnch = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
+
+    const scoped = String(compc ?? "").trim();
+    if (scoped) {
+      const binds = { compc: scoped };
+      let branchCond = "";
+      if (String(brnch ?? "").trim()) {
+        branchCond = "AND TO_CHAR(BRNCH) = TO_CHAR(:brnch)";
+        binds.brnch = String(brnch).trim();
+      }
+      try {
+        const res = await conn.execute(
+          `SELECT SHIFT, MIN(SHIFT_DESC)
+             FROM SHIFT_HEAD
+            WHERE TO_CHAR(COMPC) = TO_CHAR(:compc) ${branchCond}
+              AND SHIFT IS NOT NULL
+            GROUP BY SHIFT
+            ORDER BY SHIFT`,
+          binds,
+          { outFormat: OUT_FORMAT_ARRAY }
+        );
+        const rows = res.rows || [];
+        if (rows.length) {
+          return rows.map((r) => ({
+            shift: String(r[0] ?? "").trim(),
+            descr: String(r[1] ?? "").trim(),
+          }));
+        }
+      } catch (e) {
+        logger.info(`[REFERENCE] SHIFT_HEAD lov failed, using HR_SHIFT: ${String(e.message).slice(0, 90)}`);
+      }
+    }
+
     const res = await conn.execute(
       "SELECT SHIFT, DESCR FROM HR_SHIFT WHERE NVL(STATS, 'Y') = 'Y' ORDER BY SHIFT",
       {},
@@ -583,9 +626,13 @@ export const addDesignation = async (gradeCd, desgDesc, compc = 1, brnch = 1) =>
   let conn;
   try {
     conn = await getDirectConnection();
+    // HR_DESG's primary key is (DESG_CD, COMPC) — PK_DESG_NO — so the next code
+    // has to be free within the COMPANY. Taking MAX per GRADE_CD meant a code
+    // already used by another grade in the same company was handed out again,
+    // which is the ORA-00001 on PK_DESG_NO.
     const res = await conn.execute(
-      "SELECT NVL(MAX(DESG_CD), 0) + 1 FROM HR_DESG WHERE GRADE_CD = :g",
-      { g: gradeCd },
+      "SELECT NVL(MAX(DESG_CD), 0) + 1 FROM HR_DESG WHERE TO_CHAR(COMPC) = TO_CHAR(:compc)",
+      { compc },
       { outFormat: OUT_FORMAT_ARRAY }
     );
     const newCd = res.rows[0][0];
@@ -1135,4 +1182,290 @@ export const removeInterviewType = async (type_id, compc = null) => {
   } finally {
     if (conn) await conn.close();
   }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// Reference-data EDITS
+//
+// These master tables could only be added to and deleted from, so fixing a
+// typo meant deleting the row — which fails once employees reference it — and
+// re-adding it under a new code. Each update is scoped by UNIT_ID exactly like
+// the matching delete, so one company cannot rename another's entries; a row
+// belonging to another company simply matches nothing.
+// ═══════════════════════════════════════════════════════════════════
+
+const scopedUpdate = async (sql, params, notMine) => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const res = await conn.execute(sql, params, { autoCommit: true });
+    if (res.rowsAffected === 0) return { status: "error", message: notMine };
+    return { status: "success" };
+  } catch (e) {
+    return { status: "error", message: e.message };
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
+export const updateEmpStatus = async (empStatus, descr, compc = null) =>
+  scopedUpdate(
+    "UPDATE HR_EMP_STATUS SET EMP_STATUS_DESC = :d WHERE EMP_STATUS = :c AND UNIT_ID = :u",
+    { d: String(descr).trim(), c: String(empStatus), u: coerce(compc) },
+    "Only entries added for this company can be edited."
+  );
+
+export const updateQualification = async (oldDescr, descr, compc = null) =>
+  scopedUpdate(
+    "UPDATE HR_EMP_QUALIFICATION SET DESCR = :d WHERE TRIM(DESCR) = :o AND Q_TYPE = 'OPT' AND UNIT_ID = :u",
+    { d: String(descr).trim(), o: String(oldDescr).trim(), u: coerce(compc) },
+    "Only options added for this company can be edited."
+  );
+
+export const updateBank = async (bnkcode, bnkname, compc = null) =>
+  scopedUpdate(
+    "UPDATE HR_BANK SET BNKNAME = :n WHERE BNKCODE = :c AND UNIT_ID = :u",
+    { n: String(bnkname).trim(), c: String(bnkcode), u: coerce(compc) },
+    "Only banks added for this company can be edited."
+  );
+
+export const updateBankBranch = async (bnkcode, brncode, brnname, compc = null) =>
+  scopedUpdate(
+    "UPDATE HR_BRANCH SET BRNNAME = :n WHERE BNKCODE = :b AND BRNCODE = :c AND UNIT_ID = :u",
+    { n: String(brnname).trim(), b: String(bnkcode), c: String(brncode), u: coerce(compc) },
+    "Only branches added for this company can be edited."
+  );
+
+export const updateInterviewType = async (typeId, descr, compc = null) =>
+  scopedUpdate(
+    "UPDATE INTERVIEW_TYPES SET DESCR = :d WHERE TYPE_ID = :t AND TO_CHAR(COMPC) = TO_CHAR(:u)",
+    { d: String(descr).trim().substring(0, 50), t: Number(typeId), u: coerce(compc) },
+    "Only interview types added for this company can be edited."
+  );
+
+export const updateBloodGroup = async (pk, bloodGroup, compc = null) =>
+  scopedUpdate(
+    "UPDATE BLOOD_GROUP SET BLOOD_GROUP = :bg WHERE BLOOD_GROUP_PK = :pk AND TO_CHAR(COMPC) = TO_CHAR(:u)",
+    { bg: String(bloodGroup).trim(), pk: Number(pk), u: coerce(compc) },
+    "Only blood groups added for this company can be edited."
+  );
+
+/** Blood groups had no delete at all — add wired to nothing to remove it. */
+export const deleteBloodGroup = async (pk, compc = null) =>
+  scopedUpdate(
+    "DELETE FROM BLOOD_GROUP WHERE BLOOD_GROUP_PK = :pk AND TO_CHAR(COMPC) = TO_CHAR(:u)",
+    { pk: Number(pk), u: coerce(compc) },
+    "Only blood groups added for this company can be removed."
+  );
+
+// ═══════════════════════════════════════════════════════════════════
+// Leave types (LEAVE_TYPES) — master setup, per company and branch
+//
+// The table carries COMPC and BRNCH, but every row shipped with the system is
+// company 1 / branch 2 and is treated as global: reads return the rows for the
+// selected scope PLUS those unscoped ones, so no company loses the standard
+// CL / ML / EL. Writes always stamp the caller's own company and branch, and
+// edits and deletes only match rows carrying them — one company can neither
+// rename another's types nor the shared originals.
+//
+// A word of warning about new types: ALL_LEAVE_BAL_V, which every balance in
+// the app comes from, hardcodes `leave_type_pk IN (1,2,3)`. A type added here
+// is therefore recorded and reportable but carries no tracked balance, and the
+// apply screen still offers CL, ML, EL and OD only. Extending that means
+// changing the view, which is a database change rather than an app one.
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * The leave types that shipped with the system, PK 1 to 13.
+ *
+ * They are stamped COMPC 1 / BRNCH 2 in the table but are not company 1's in
+ * any meaningful sense: ALL_LEAVE_BAL_V joins them against every employee of
+ * every company, so CL, ML, EL and OD behave the same everywhere. They are
+ * therefore shown to all companies and edited by none — renaming CL or moving
+ * its entitlement here would silently change it for all five companies.
+ *
+ * Identified by PK because the table carries no flag to identify them with;
+ * everything this panel adds gets a higher one.
+ */
+const SYSTEM_LEAVE_TYPE_MAX_PK = 13;
+
+/**
+ * Leave types visible to a company/branch: the system set above, any row with
+ * no company at all, and this company's own additions — narrowed by branch
+ * when one is selected.
+ */
+export const getLeaveTypes = async (compc = null, brnch = null) => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const c = coerce(compc);
+    const b = coerce(brnch);
+
+    const params = { sys: SYSTEM_LEAVE_TYPE_MAX_PK };
+    let scope = "WHERE LEAVE_TYPE_PK <= :sys";
+    if (c !== null && c !== undefined) {
+      params.c = c;
+      let own = "TO_CHAR(COMPC) = TO_CHAR(:c)";
+      if (b !== null && b !== undefined) {
+        params.b = b;
+        // A row with no branch of its own belongs to the whole company.
+        own += " AND (BRNCH IS NULL OR TO_CHAR(BRNCH) = TO_CHAR(:b))";
+      }
+      scope += ` OR COMPC IS NULL OR (${own})`;
+    }
+
+    const res = await conn.execute(
+      `SELECT LEAVE_TYPE_PK, LEAVE_TYPE, LEAVE_DESC, ENTITLEMENT, ALLOWED, TYPE, COMPC, BRNCH
+         FROM LEAVE_TYPES
+         ${scope}
+        ORDER BY LEAVE_TYPE_PK`,
+      params,
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+
+    return (res.rows || []).map((r) => {
+      const pk = Number(r[0]);
+      const rowCompc = coerce(r[6]);
+      const shared = pk <= SYSTEM_LEAVE_TYPE_MAX_PK;
+      return {
+        leave_type_pk: pk,
+        leave_type: String(r[1] ?? "").trim(),
+        leave_desc: String(r[2] ?? "").trim(),
+        entitlement: r[3] === null || r[3] === undefined ? null : Number(r[3]),
+        allowed: r[4] === null || r[4] === undefined ? null : Number(r[4]),
+        type: String(r[5] ?? "").trim(),
+        compc: rowCompc,
+        brnch: coerce(r[7]),
+        /** True for the standard set every company shares. */
+        shared,
+        /** Only this company's own additions can be changed here. */
+        editable: !shared && c !== null && c !== undefined && String(rowCompc ?? "") === String(c),
+        /** What the apply screen can offer — ALL_LEAVE_BAL_V covers 1, 2 and 3. */
+        applyable:
+          [1, 2, 3].includes(pk) ||
+          /OD|OUT\s*DOOR|ON\s*DUTY/i.test(`${r[1] ?? ""} ${r[2] ?? ""}`),
+      };
+    });
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
+export const addLeaveType = async ({ leave_type, leave_desc, entitlement, allowed, compc = null, brnch = null }) => {
+  const code = String(leave_type ?? "").trim().toUpperCase().substring(0, 20);
+  const desc = String(leave_desc ?? "").trim().substring(0, 50);
+  if (!code) return { status: "error", message: "A leave code is required" };
+  if (!desc) return { status: "error", message: "A description is required" };
+
+  const c = coerce(compc);
+  if (c === null || c === undefined) return { status: "error", message: "No company is selected" };
+
+  let conn;
+  try {
+    conn = await getDirectConnection();
+
+    const dup = await conn.execute(
+      `SELECT COUNT(*) FROM LEAVE_TYPES
+        WHERE UPPER(TRIM(LEAVE_TYPE)) = :code
+          AND (COMPC IS NULL OR TO_CHAR(COMPC) = TO_CHAR(:c))`,
+      { code, c },
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+    if (Number(dup.rows[0][0]) > 0) {
+      return { status: "error", message: `Leave code '${code}' is already in use for this company` };
+    }
+
+    // LEAVE_TYPES has a plain numeric PK with no sequence or trigger behind it,
+    // so the next value is read first — a subquery inside VALUES is not legal
+    // here (ORA-01745). The PK is global rather than per company because the
+    // column is the whole key.
+    const next = await conn.execute(
+      "SELECT NVL(MAX(LEAVE_TYPE_PK), 0) + 1 FROM LEAVE_TYPES",
+      {},
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+    const pk = Number(next.rows[0][0]);
+
+    await conn.execute(
+      `INSERT INTO LEAVE_TYPES (LEAVE_TYPE_PK, LEAVE_TYPE, LEAVE_DESC, ENTITLEMENT, ALLOWED, TYPE, COMPC, BRNCH)
+       VALUES (:pk, :code, :descr, :ent, :alw, 'ALL', :c, :b)`,
+      {
+        pk,
+        code,
+        descr: desc,
+        ent: entitlement === "" || entitlement === null || entitlement === undefined ? null : Number(entitlement),
+        alw: allowed === "" || allowed === null || allowed === undefined ? null : Number(allowed),
+        c,
+        b: coerce(brnch) ?? null,
+      },
+      { autoCommit: true },
+    );
+    return { status: "success", leave_type_pk: pk, leave_type: code };
+  } catch (e) {
+    if (conn) await conn.rollback();
+    return { status: "error", message: e.message };
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
+export const updateLeaveType = async (pk, { leave_desc, entitlement, allowed }, compc = null) =>
+  scopedUpdate(
+    `UPDATE LEAVE_TYPES
+        SET LEAVE_DESC  = :d,
+            ENTITLEMENT = :ent,
+            ALLOWED     = :alw
+      WHERE LEAVE_TYPE_PK = :pk
+        AND LEAVE_TYPE_PK > ${SYSTEM_LEAVE_TYPE_MAX_PK}
+        AND TO_CHAR(COMPC) = TO_CHAR(:u)`,
+    {
+      d: String(leave_desc ?? "").trim().substring(0, 50),
+      ent: entitlement === "" || entitlement === null || entitlement === undefined ? null : Number(entitlement),
+      alw: allowed === "" || allowed === null || allowed === undefined ? null : Number(allowed),
+      pk: Number(pk),
+      u: coerce(compc),
+    },
+    "Only leave types added for this company can be edited — the standard ones are shared by every company.",
+  );
+
+/**
+ * Remove a leave type.
+ *
+ * Blocked once anything references it — a type still attached to applications
+ * or allocations cannot be deleted without orphaning those rows, and the error
+ * says which is the case rather than surfacing a constraint violation.
+ */
+export const deleteLeaveType = async (pk, compc = null) => {
+  const id = Number(pk);
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const used = await conn.execute(
+      `SELECT (SELECT COUNT(*) FROM LEAVE_APPLICATION_APPLY WHERE LEAVE_TYPE_FK = :pk1)
+            + (SELECT COUNT(*) FROM LEAVE_APPLICATION       WHERE LEAVE_TYPE_FK = :pk2)
+            + (SELECT COUNT(*) FROM LEAVE_OP                WHERE LEAVE_TYPE_FK = :pk3)
+         FROM DUAL`,
+      { pk1: id, pk2: id, pk3: id },
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+    if (Number(used.rows[0][0]) > 0) {
+      return {
+        status: "error",
+        message: "This leave type is in use by applications or allocations and cannot be removed.",
+      };
+    }
+  } catch (e) {
+    return { status: "error", message: e.message };
+  } finally {
+    if (conn) await conn.close();
+  }
+
+  return scopedUpdate(
+    `DELETE FROM LEAVE_TYPES
+      WHERE LEAVE_TYPE_PK = :pk
+        AND LEAVE_TYPE_PK > ${SYSTEM_LEAVE_TYPE_MAX_PK}
+        AND TO_CHAR(COMPC) = TO_CHAR(:u)`,
+    { pk: id, u: coerce(compc) },
+    "Only leave types added for this company can be removed — the standard ones are shared by every company.",
+  );
 };

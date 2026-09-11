@@ -67,6 +67,14 @@ export const absentSuppSchema = q({
   dept_no: optStr,
 });
 
+// Monthly attendance grid — a date range rather than a payroll period, since
+// the cycle HR prints (21st to 20th) straddles two of them.
+export const monthlyAttendanceSchema = q({
+  from_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "from_date must be YYYY-MM-DD"),
+  to_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "to_date must be YYYY-MM-DD"),
+  dept_no: optStr,
+});
+
 export const activeEmployeesSchema = q({
   // 'A' = all active, 'C' = confirmed only, 'U' = un-confirmed only.
   rtype: z.enum(["A", "U", "C"]).optional().default("A"),

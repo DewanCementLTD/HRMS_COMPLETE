@@ -16,7 +16,8 @@ import {
   leaveCardFilter,
   empDirectFilter,
 } from "../utils/hrmsFilters.js";
-import { cleanHHMM, rosterStatus } from "../utils/rosterStatus.js";
+import { cleanHHMM, deriveRosterDay } from "../utils/rosterStatus.js";
+import { requestDutyRosterBuild } from "./dutyRosterGen.service.js";
 
 import { logger } from '../utils/logger.js';
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
@@ -136,11 +137,87 @@ const saveQualificationDetail = async (connection, empcode, data) => {
   }
 };
 
+/**
+ * Does HR_EMP_MASTER carry INIT_PASWD yet?
+ *
+ * EMPLOYEE is an updatable VIEW over HR_EMP_MASTER, so an employee changing
+ * their own password writes the very column the HRMS form shows as "Initial
+ * Password". INIT_PASWD (added by sql/2026-08-28_initial_password.sql) keeps the
+ * initial value apart from the live one. Until that script is run everything
+ * falls back to USER_PASWD and behaves exactly as before.
+ */
+let initPaswdColumn = null;
+const hasInitPaswd = async (connection) => {
+  if (initPaswdColumn !== null) return initPaswdColumn;
+  try {
+    const r = await connection.execute(
+      `SELECT COUNT(*) FROM USER_TAB_COLS
+        WHERE TABLE_NAME = 'HR_EMP_MASTER' AND COLUMN_NAME = 'INIT_PASWD'`,
+      {},
+      { outFormat: OUT_ARRAY },
+    );
+    initPaswdColumn = Number(r.rows?.[0]?.[0] ?? 0) > 0;
+  } catch {
+    initPaswdColumn = false;
+  }
+  return initPaswdColumn;
+};
+
+/**
+ * Refuse a new employee whose mobile or NIC already belongs to someone else.
+ *
+ * Only enforced on create: the existing data already carries 77 shared mobiles
+ * and 15 shared NICs (many of them card numbers parked in MOBILE#), so applying
+ * this to updates would lock HR out of editing those records entirely.
+ *
+ * Both are compared on digits alone — a NIC is stored with and without dashes,
+ * and a mobile with and without its leading zero or +92.
+ */
+const findDuplicateIdentity = async (connection, data) => {
+  const digits = (v) => String(v ?? '').replace(/\D/g, '');
+  const mobile = digits(data.mobile);
+  const nic = digits(data.nicno);
+  const mobileKey = mobile.length > 10 ? mobile.slice(-10) : mobile;
+
+  if (mobileKey.length >= 10) {
+    const r = await connection.execute(
+      `SELECT EMPCODE, NAME FROM HR_EMP_MASTER
+        WHERE SUBSTR(REGEXP_REPLACE(NVL(TO_CHAR("MOBILE#"), 'x'), '[^0-9]', ''), -10) = :k
+        FETCH FIRST 1 ROWS ONLY`,
+      { k: mobileKey },
+      { outFormat: OUT_OBJECT },
+    );
+    const row = r.rows?.[0];
+    if (row) {
+      return `Mobile number ${data.mobile} is already used by ${String(row.NAME ?? '').trim()} (${row.EMPCODE}).`;
+    }
+  }
+
+  if (nic.length >= 13) {
+    const r = await connection.execute(
+      `SELECT EMPCODE, NAME FROM HR_EMP_MASTER
+        WHERE REGEXP_REPLACE(NVL(NICNO, 'x'), '[^0-9]', '') = :k
+        FETCH FIRST 1 ROWS ONLY`,
+      { k: nic },
+      { outFormat: OUT_OBJECT },
+    );
+    const row = r.rows?.[0];
+    if (row) {
+      return `NIC ${data.nicno} is already used by ${String(row.NAME ?? '').trim()} (${row.EMPCODE}).`;
+    }
+  }
+  return null;
+};
+
 export const createEmployee = async (data) => {
   let connection;
   try {
     const empcode = await getNextEmpcode();
     connection = await getDirectConnection();
+
+    const duplicate = await findDuplicateIdentity(connection, data);
+    if (duplicate) return { status: "error", message: duplicate };
+
     await connection.execute(
       `INSERT INTO HR_EMP_MASTER (
           NAME, FHNAME, "ATDTCARD#",
@@ -210,12 +287,31 @@ export const createEmployee = async (data) => {
       }
     );
     await connection.commit();
+
+    // Record the password HR issued as the INITIAL one, so a later reset has
+    // something to restore even after the employee changes theirs.
+    if (strOrNone(data.user_paswd) && (await hasInitPaswd(connection))) {
+      await connection.execute(
+        `UPDATE HR_EMP_MASTER SET INIT_PASWD = :pw WHERE EMPCODE = :empcode`,
+        { pw: String(data.user_paswd).trim(), empcode },
+        { autoCommit: true },
+      );
+    }
+
     await saveQualificationDetail(connection, empcode, data);
     const empcodeResult = await connection.execute(
       `SELECT EMPCODE FROM HR_EMP_MASTER WHERE NAME = :name`,
       { name: data.name }
     );
     const epcode = empcodeResult.rows?.[0]?.[0] ?? empcode;
+
+    // A new employee has no DUTY_ROSTER rows, so attendance and every report
+    // over TMS_DUTY_ROSTER_V would show nothing for them. CREATE_DUTY_ROSTER_PRO
+    // fills in the missing days; it only ever adds days that do not exist yet,
+    // so nobody's existing roster is touched. Deliberately not awaited — the
+    // procedure takes minutes and the employee is already committed.
+    requestDutyRosterBuild(`employee ${epcode} created`);
+
     return { status: "success", empcode: epcode };
   } catch (err) {
     try { await connection?.rollback(); } catch { /* ignore */ }
@@ -249,6 +345,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           m.HOD1, m.HOD2, m.HOD3,
           m.BASIC, m.GROSS, m.SHIFT, m.W_HOUR,
           m.BLDGRP, m.LOCATION,
+          TO_CHAR(m.TRANSFER_DATE, 'YYYY-MM-DD') AS TRANSFER_DATE,
           m.TRACK_LOCATION, m.TRACK_LOCATION_HR,
           m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
           m.QFICATION,
@@ -285,6 +382,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           HOD1, HOD2, HOD3,
           BASIC, GROSS, SHIFT, W_HOUR,
           BLDGRP, LOCATION,
+          TO_CHAR(TRANSFER_DATE, 'YYYY-MM-DD') AS TRANSFER_DATE,
           TRACK_LOCATION, TRACK_LOCATION_HR
       FROM HR_EMP_MASTER
       WHERE EMPCODE = :empcode`;
@@ -306,6 +404,23 @@ export const getEmployeeByEmpcode = async (empcode) => {
     const emp = renameCardCols(lowerKeys(raw));
     for (const [k, v] of Object.entries(emp)) {
       if (typeof v === "string") emp[k] = v.trim();
+    }
+
+    // The form's "Initial Password" must show what HR set, never what the
+    // employee later changed their login to. USER_PASWD is the live password
+    // (EMPLOYEE is a view over it), so swap in INIT_PASWD where available.
+    if (await hasInitPaswd(connection)) {
+      try {
+        const ip = await connection.execute(
+          `SELECT INIT_PASWD FROM HR_EMP_MASTER WHERE EMPCODE = :empcode`,
+          { empcode },
+          { outFormat: OUT_ARRAY },
+        );
+        const init = ip.rows?.[0]?.[0];
+        emp.user_paswd = init === null || init === undefined ? "" : String(init).trim();
+      } catch (err) {
+        logger.info(`[HRMS] INIT_PASWD read skipped: ${String(err.message).slice(0, 90)}`);
+      }
     }
     return emp;
   } finally {
@@ -443,7 +558,7 @@ const UPDATE_FIELD_MAP = {
   sex: "SEX", nicno: "NICNO", dept_no: "DEPT_NO",
   desg_cd: "DESG_CD", mobile: '"MOBILE#"', email: "EMAIL",
   address: "ADDRESS", unit_id: "UNIT_ID", status: "STATUS",
-  user_paswd: "USER_PASWD", hr_admin: "HR_ADMIN",
+  hr_admin: "HR_ADMIN",
   rpt_officer: "RPT_OFFICER", marstat: "MARSTAT",
   grade_cd: "GRADE_CD", religion: "RELIGION",
   hod1: "HOD1", hod2: "HOD2", hod3: "HOD3",
@@ -453,8 +568,45 @@ const UPDATE_FIELD_MAP = {
   emp_status: "EMP_STATUS", ntn: "NTN", bnkcode: "BNKCODE",
   brncode: "BRNCODE", bnkacct: "BNKACCT", qfication: "QFICATION",
 };
-const UPDATE_DATE_FIELDS = { dtofbrth: "DTOFBRTH", dtofappt: "DTOFAPPT", dtofconfirm: "DTOFCONFIRM" };
-const NUMERIC_STR_FIELDS = new Set(["dept_no", "desg_cd", "location"]);
+// TRANSFER_DATE is a DATE column like the rest, so it is written through
+// TO_DATE and read back as a 'YYYY-MM-DD' string for the date input.
+const UPDATE_DATE_FIELDS = {
+  dtofbrth: "DTOFBRTH", dtofappt: "DTOFAPPT", dtofconfirm: "DTOFCONFIRM",
+  transfer_date: "TRANSFER_DATE",
+};
+const NUMERIC_STR_FIELDS = new Set(["dept_no", "desg_cd", "location", "hod1", "hod2", "hod3"]);
+
+/**
+ * Mirror HOD1/HOD2 onto the EMPLOYEE row.
+ *
+ * The HRMS form edits HR_EMP_MASTER, but leave applications read the applicant's
+ * approvers from EMPLOYEE.HOD1/HOD2 (stamped into HOD1_MNO/HOD2_MNO at apply
+ * time). The two tables hold the same mobile numbers today; without this they
+ * would drift the moment HR changes a HOD, and the new approver would never see
+ * the leave. Non-fatal: a failure here must not fail the employee update.
+ */
+const syncEmployeeHods = async (connection, empcode, data) => {
+  const cols = [];
+  const binds = { empcode };
+  for (const key of ["hod1", "hod2", "hod3"]) {
+    if (!(key in data)) continue;
+    const val = data[key] === null || data[key] === undefined || String(data[key]).trim() === ""
+      ? null
+      : numOrNone(data[key]);
+    cols.push(`${key.toUpperCase()} = :${key}`);
+    binds[key] = val;
+  }
+  if (!cols.length) return;
+  try {
+    await connection.execute(
+      `UPDATE EMPLOYEE SET ${cols.join(", ")} WHERE EMPCODE = :empcode`,
+      binds,
+      { autoCommit: true },
+    );
+  } catch (err) {
+    logger.info(`[HRMS] EMPLOYEE HOD sync skipped (non-fatal): ${String(err.message).slice(0, 90)}`);
+  }
+};
 
 export const updateEmployee = async (empcode, data) => {
   const setParts = [];
@@ -473,6 +625,21 @@ export const updateEmployee = async (empcode, data) => {
     setParts.push(`${col} = :${key}`);
     params[key] = val;
   }
+
+  // A null HOD is an instruction to clear it — the loop above skips nulls, which
+  // is right for every other field but would make removing an approver a no-op.
+  for (const key of ["hod1", "hod2", "hod3"]) {
+    if (key in data && data[key] === null) {
+      setParts.push(`${key.toUpperCase()} = NULL`);
+    }
+  }
+
+  // "Initial Password" edits INIT_PASWD, not the live USER_PASWD: changing it
+  // records what a reset should restore, without silently signing the employee
+  // out of the password they are currently using. Before the INIT_PASWD
+  // migration there is only one column, so it keeps the old behaviour.
+  const wantsInitPassword = data.user_paswd !== undefined && data.user_paswd !== null
+    && String(data.user_paswd).trim() !== "";
 
   for (const [key, col] of Object.entries(UPDATE_DATE_FIELDS)) {
     if (key in data && data[key] !== null && data[key] !== undefined) {
@@ -493,6 +660,13 @@ export const updateEmployee = async (empcode, data) => {
   let connection;
   try {
     connection = await getDirectConnection();
+
+    if (wantsInitPassword) {
+      const col = (await hasInitPaswd(connection)) ? "INIT_PASWD" : "USER_PASWD";
+      setParts.push(`${col} = :user_paswd`);
+      params.user_paswd = String(data.user_paswd).trim();
+    }
+
     if (setParts.length) {
       const result = await connection.execute(
         `UPDATE HR_EMP_MASTER SET ${setParts.join(", ")} WHERE EMPCODE = :empcode`,
@@ -503,8 +677,84 @@ export const updateEmployee = async (empcode, data) => {
         return { status: "error", message: "Employee not found" };
       }
     }
+    await syncEmployeeHods(connection, empcode, data);
     await saveQualificationDetail(connection, empcode, data);
     return { status: "success", message: "Employee updated successfully" };
+  } catch (err) {
+    try { await connection?.rollback(); } catch { /* ignore */ }
+    return { status: "error", message: err.message };
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * Reset an employee's login password back to the initial one HR set.
+ *
+ * Two different columns are in play, and keeping them apart is the point:
+ *   HR_EMP_MASTER.USER_PASWD — the INITIAL password HR sets on the employee
+ *                              form. Nothing else writes it, so it survives
+ *                              whatever the employee later chooses.
+ *   EMPLOYEE.USER_PASWD      — the LIVE login password. /auth/change-password
+ *                              writes only this one.
+ *
+ * A reset copies the initial value over the live one, so it takes effect no
+ * matter what the employee had changed it to. Passing `password` overrides the
+ * stored initial and updates both columns, which is how HR issues a fresh one.
+ */
+export const resetEmployeePassword = async (empcode, password) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+
+    const useInit = await hasInitPaswd(connection);
+    const initCol = useInit ? "NVL(h.INIT_PASWD, h.USER_PASWD)" : "h.USER_PASWD";
+    const r = await connection.execute(
+      `SELECT ${initCol}, h.NAME, TO_CHAR(e.CARD_NO)
+         FROM HR_EMP_MASTER h
+         LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
+        WHERE h.EMPCODE = :empcode
+        FETCH FIRST 1 ROWS ONLY`,
+      { empcode },
+      { outFormat: OUT_ARRAY },
+    );
+    const row = r.rows?.[0];
+    if (!row) return { status: "error", message: "Employee not found" };
+
+    const [storedInitial, name, cardNo] = row;
+    const newPassword = String(password ?? "").trim() || String(storedInitial ?? "").trim();
+    if (!newPassword) {
+      return {
+        status: "error",
+        message: "This employee has no initial password on file — type one to set it.",
+      };
+    }
+
+    // When HR supplies a new password it becomes the initial one too, so a later
+    // reset returns to the same value.
+    if (useInit && String(password ?? "").trim()) {
+      await connection.execute(
+        `UPDATE HR_EMP_MASTER SET INIT_PASWD = :pw WHERE EMPCODE = :empcode`,
+        { pw: newPassword, empcode },
+      );
+    }
+
+    // The live password. EMPLOYEE is a view over this table, so writing
+    // USER_PASWD here is what actually changes the employee's login.
+    const upd = await connection.execute(
+      `UPDATE HR_EMP_MASTER SET USER_PASWD = :pw WHERE EMPCODE = :empcode`,
+      { pw: newPassword, empcode },
+    );
+    await connection.commit();
+
+    if ((upd.rowsAffected ?? 0) === 0) {
+      return { status: "error", message: "Employee not found" };
+    }
+
+    return {
+      status: "success",
+      message: `Password reset for ${String(name ?? "").trim() || empcode}${cardNo ? ` (${cardNo})` : ""}.`,
+    };
   } catch (err) {
     try { await connection?.rollback(); } catch { /* ignore */ }
     return { status: "error", message: err.message };
@@ -1173,6 +1423,70 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
 // BULK ATTENDANCE DETAILS — raw per-day rows (Details tab / CSV)
 // ==================================================================
 
+/**
+ * Punches the employee made in the app that the ERP duty roster never took.
+ *
+ * These days read as ABSENT everywhere in HRMS while the punch sits in
+ * ATTENDANCE_RECORDS, which is why the gap went unnoticed for a month: no
+ * screen compared the two. `erp_filed_as_out` is the tell for the known cause —
+ * a check-in after the branch's SHIFT_HEAD.CHANGE_ST hour was filed as a
+ * check-out — and the cut-off is returned alongside so HR can see the rule that
+ * caught them.
+ */
+export const getUnpostedPunches = async (fromDate, toDate, allowedCompanies = null, allowedBranches = null) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const params = { from_d: fromDate, to_d: toDate };
+    const { sql: filterSql } = empDirectFilter(allowedCompanies, allowedBranches, params);
+
+    const r = await connection.execute(`
+      SELECT h.NAME                                   AS name,
+             ar.EMPCODE                               AS empcode,
+             NVL(h."ATDTCARD#", TO_CHAR(ar.CARD_NO))  AS atdtcard,
+             (SELECT MIN(l.DESCR) FROM COM_LOCATION l
+               WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))            AS branch_name,
+             (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+               WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
+                 AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))       AS dept_name,
+             ar.ATTENDANCE_DATE                       AS punch_date,
+             ar.ENTRY_TIME                            AS app_check_in,
+             ar.EXIT_TIME                             AS app_check_out,
+             dr.OUT_TIME                              AS erp_filed_as_out,
+             (SELECT MIN(TRIM(sh.CHANGE_ST)) FROM SHIFT_HEAD sh
+               WHERE sh.COMPC = TO_NUMBER(h.UNIT_ID)
+                 AND sh.BRNCH = TO_NUMBER(REGEXP_SUBSTR(h.LOCATION, '^[0-9]+'))
+                 AND TRIM(sh.SHIFT) = TRIM(dr.ROSTER_SHIFT))      AS branch_cutoff
+        FROM ATTENDANCE_RECORDS ar
+        JOIN HR_EMP_MASTER h ON h.EMPCODE = ar.EMPCODE
+        JOIN DUTY_ROSTER   dr ON TO_CHAR(dr.CARD_NO) = TO_CHAR(ar.CARD_NO)
+                             AND TRUNC(dr.ROSTER_DATE) = TRUNC(ar.ATTENDANCE_DATE)
+       WHERE ar.ENTRY_TIME IS NOT NULL
+         AND dr.IN_TIME IS NULL
+         AND h.STATUS = 'A'
+         AND TRUNC(ar.ATTENDANCE_DATE) BETWEEN
+             TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
+         ${filterSql}
+       ORDER BY ar.ATTENDANCE_DATE DESC, branch_name NULLS LAST, h.NAME
+       FETCH FIRST 5000 ROWS ONLY`,
+      params, { outFormat: OUT_OBJECT });
+
+    return (r.rows ?? []).map((raw) => {
+      const rec = lowerKeys(raw);
+      rec.punch_date = fmtYmd(rec.punch_date) || null;
+      // The punch is in HRMS, just not on the roster — say which, so nobody
+      // reads this list as "the employee did not mark attendance".
+      rec.reason = rec.erp_filed_as_out
+        ? `App check-in at ${rec.app_check_in} was filed by the ERP as a check-out` +
+          `${rec.branch_cutoff ? ` (branch cut-off ${rec.branch_cutoff})` : ''}`
+        : 'App check-in never reached the duty roster';
+      return rec;
+    });
+  } finally {
+    await connection?.close();
+  }
+};
+
 export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanies = null, allowedBranches = null) => {
   let connection;
   try {
@@ -1203,10 +1517,19 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
           v.IN_TIME                                AS in_time,
           v.OUT_TIME                               AS out_time,
           v.ABSENT                                 AS absent,
+          v.ROSTER_SHIFT                           AS roster_shift,
+          v.HOLIDAY_FK                             AS holiday_fk,
           v.MORNING_LATE                           AS morning_late,
           v.EARLY_OUT_LATE                         AS early_out_late,
           v.MORNING_HALF_DAY                       AS morning_half_day,
-          v.EAR_OUT_HALF_DAY                       AS ear_out_half_day
+          v.EAR_OUT_HALF_DAY                       AS ear_out_half_day,
+          v.ROSTER_REMARKS                         AS roster_remarks,
+          v.LEAVE_REMARKS                          AS leave_remarks,
+          v.LEAVE_TYPE_FK                          AS leave_type_fk,
+          (SELECT MIN(t.LEAVE_TYPE) FROM LEAVE_TYPES t
+             WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)        AS leave_type,
+          (SELECT MIN(t.LEAVE_DESC) FROM LEAVE_TYPES t
+             WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)        AS leave_desc
       FROM TMS_DUTY_ROSTER_V v
       JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
       JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
@@ -1220,20 +1543,35 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
 
     return (r.rows ?? []).map((raw) => {
       const rec = lowerKeys(raw);
-      const inTime = cleanHHMM(rec.in_time);
-      const outTime = cleanHHMM(rec.out_time);
-      const half = (rec.morning_half_day || 0) + (rec.ear_out_half_day || 0);
-      const status = rosterStatus(inTime, outTime, rec.absent, rec.morning_late, rec.early_out_late, half);
+      // One shared derivation for every attendance surface — see
+      // utils/rosterStatus.js for the precedence and why rest/holiday/leave
+      // sit above the "no IN_TIME means absent" rule.
+      const d = deriveRosterDay(rec);
+
       rec.roster_date = fmtYmd(rec.roster_date) || null;
-      rec.in_time = inTime;
-      rec.out_time = outTime;
+      rec.in_time = d.in_time;
+      rec.out_time = d.out_time;
       rec.duty_in = cleanHHMM(rec.duty_in);
       rec.duty_out = null;
-      rec.status = status;
-      rec.is_late = status === "Late";
-      rec.is_absent = status === "Absent";
-      rec.is_half_day = status === "Half Day";
+
+      rec.status = d.status;
+      rec.status_flags = d.flags;
+      rec.is_late = d.is_late;
+      rec.is_absent = d.is_absent;
+      rec.is_half_day = d.is_half_day;
+      rec.is_morning_late = d.is_morning_late;
+      rec.is_morning_half_day = d.is_morning_half_day;
+      rec.is_leave = d.is_leave;
+      rec.is_holiday = d.is_holiday;
+      rec.is_rest = d.is_rest;
+      rec.leave_type = d.leave_type;
+      rec.leave_desc = d.leave_desc;
+      rec.roster_remarks = d.roster_remarks;
+      rec.leave_remarks = d.leave_remarks;
+      rec.remarks = d.remarks;
+
       delete rec.absent;
+      delete rec.holiday_fk;
       delete rec.morning_late;
       delete rec.early_out_late;
       delete rec.morning_half_day;
@@ -1269,35 +1607,82 @@ export const getEmployeeRoster = async (cardNo, month = null) => {
 
     const rows = [];
     if (selected) {
+      // Read the ERP view (the same source the attendance screens use) so the
+      // roster shows its ABSENT flag and leave stamp, and join the table for
+      // DUTY_ROSTER_PK — the view has no PK and editing is by PK.
       const dRes = await connection.execute(`
         SELECT
-            DUTY_ROSTER_PK                     AS pk,
-            TO_CHAR(ROSTER_DATE, 'DD-MON-YY')  AS roster_date,
-            ROSTER_SHIFT                       AS shift,
-            DAY_NAME                           AS day_name,
-            IN_TIME                            AS time_in,
-            OUT_TIME                           AS time_out,
-            LATE_FLAG                          AS fh_late,
-            HALF_DAY_LATE                      AS fh_half_day,
-            LATE_FLAG_OUT                      AS sh_late,
-            HALF_DAY_EARLY_GOING               AS sh_half_day,
-            ABS_EARLY_OUT                      AS early_out,
-            ROSTER_REMARKS                     AS remarks,
-            UPDATED                            AS updated_by
-        FROM DUTY_ROSTER
-        WHERE (TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci)
-          AND ROSTER_MONTH = :m
-        ORDER BY ROSTER_DATE`, { c: card, ci: cint, m: selected }, { outFormat: OUT_OBJECT });
+            d.DUTY_ROSTER_PK                     AS pk,
+            TO_CHAR(d.ROSTER_DATE, 'DD-MON-YY')  AS roster_date,
+            d.ROSTER_SHIFT                       AS shift,
+            d.DAY_NAME                           AS day_name,
+            v.IN_TIME                            AS time_in,
+            v.OUT_TIME                           AS time_out,
+            d.LATE_FLAG                          AS fh_late,
+            d.HALF_DAY_LATE                      AS fh_half_day,
+            d.LATE_FLAG_OUT                      AS sh_late,
+            d.HALF_DAY_EARLY_GOING               AS sh_half_day,
+            d.ABS_EARLY_OUT                      AS early_out,
+            v.ROSTER_REMARKS                     AS roster_remarks,
+            v.ABSENT                             AS absent,
+            v.LEAVE_TYPE_FK                      AS leave_type_fk,
+            v.LEAVE_APPLICATION_FK               AS leave_application_fk,
+            v.LEAVE_REMARKS                      AS leave_remarks,
+            v.LEAVE_DAYS                         AS leave_days,
+            (SELECT MIN(t.LEAVE_TYPE) FROM LEAVE_TYPES t
+              WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK) AS leave_type,
+            (SELECT MIN(t.LEAVE_DESC) FROM LEAVE_TYPES t
+              WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK) AS leave_desc,
+            d.UPDATED                            AS updated_by
+        FROM DUTY_ROSTER d
+        LEFT JOIN TMS_DUTY_ROSTER_V v
+               ON TO_CHAR(v.CARD_NO) = TO_CHAR(d.CARD_NO)
+              AND v.ROSTER_DATE = d.ROSTER_DATE
+        WHERE (TO_CHAR(d.CARD_NO) = :c OR TO_CHAR(d.CARD_NO) = :ci)
+          AND d.ROSTER_MONTH = :m
+        ORDER BY d.ROSTER_DATE`, { c: card, ci: cint, m: selected }, { outFormat: OUT_OBJECT });
       for (const raw of dRes.rows ?? []) {
         const rec = lowerKeys(raw);
         for (const k of Object.keys(rec)) {
           if (typeof rec[k] === "string") rec[k] = rec[k].trim();
         }
+
+        // `remarks` is what the roster prints. An approved leave shows its type
+        // and the employee's own reason; an absent day says so even when the
+        // view left ROSTER_REMARKS empty; otherwise the roster's own remark.
+        const onLeave = rec.leave_type_fk !== null && rec.leave_type_fk !== undefined;
+        rec.is_leave = onLeave;
+        rec.is_absent = !onLeave && Number(rec.absent ?? 0) === 1;
+        rec.remarks = onLeave
+          ? [rec.leave_desc || rec.leave_type, rec.leave_remarks, rec.roster_remarks]
+              .filter(Boolean).join(" — ")
+          : rec.is_absent
+            ? (rec.roster_remarks || "Absent")
+            : (rec.roster_remarks || null);
         rows.push(rec);
       }
     }
 
-    return { months, month: selected, rows };
+    // The company and branch the roster itself is filed under. The shift list
+    // is configured per company AND branch in SHIFT_HEAD, so the picker needs
+    // the employee's own scope — the admin's currently selected branch is a
+    // different thing and is often not set at all.
+    let scope = { compc: null, brnch: null };
+    try {
+      const sRes = await connection.execute(
+        `SELECT TO_CHAR(MAX(COMPC)), TO_CHAR(MAX(BRNCH))
+           FROM DUTY_ROSTER
+          WHERE TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci`,
+        { c: card, ci: cint },
+        { outFormat: OUT_ARRAY },
+      );
+      const row = sRes.rows?.[0];
+      if (row) scope = { compc: row[0] ?? null, brnch: row[1] ?? null };
+    } catch (e) {
+      logger.info(`[ROSTER] scope lookup failed for ${card}: ${e.message ?? e}`);
+    }
+
+    return { months, month: selected, rows, ...scope };
   } finally {
     await connection?.close();
   }
@@ -1307,6 +1692,165 @@ export const getEmployeeRoster = async (cardNo, month = null) => {
  * Edit one DUTY_ROSTER row by PK: shift code and/or remarks, stamping who
  * updated it (UPDATED). Updates ONLY by primary key — never inserts.
  */
+/**
+ * Change the shift on every roster day in a date range for one employee.
+ *
+ * The roster is edited one day at a time, which is impractical for a change
+ * that runs for weeks. Scoped to the employee's own rows and, when given, to a
+ * branch, so a bulk change can never reach beyond the roster on screen.
+ *
+ * Days already marked as approved leave are left alone: their shift is part of
+ * the leave record stamped at approval time.
+ */
+/**
+ * The rostered days between two dates, for the dialog that asks HR which of
+ * them the new shift should apply to.
+ *
+ * Only real DUTY_ROSTER rows are listed: a date with no roster row cannot be
+ * given a shift, and showing it as a choosable day would promise something the
+ * update could not keep. Days already carrying approved leave come back marked
+ * rather than hidden, so it is visible why they cannot be selected.
+ */
+export const getRosterDaysInRange = async (cardNo, fromDate, toDate, brnch = null) => {
+  if (!fromDate || !toDate) return { status: "error", message: "Both dates are required" };
+  if (String(fromDate) > String(toDate)) {
+    return { status: "error", message: "The 'from' date must not be after the 'to' date" };
+  }
+
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const card = String(cardNo);
+    const cint = card.includes(".") ? card.split(".")[0] : card;
+    const binds = { c: card, ci: cint, from_d: fromDate, to_d: toDate };
+    let branchCond = "";
+    if (brnch !== null && brnch !== undefined && String(brnch).trim() !== "") {
+      branchCond = "AND TO_CHAR(BRNCH) = TO_CHAR(:brnch)";
+      binds.brnch = String(brnch).trim();
+    }
+
+    const res = await connection.execute(
+      `SELECT TO_CHAR(ROSTER_DATE, 'YYYY-MM-DD'),
+              TO_CHAR(ROSTER_DATE, 'Dy'),
+              ROSTER_SHIFT,
+              LEAVE_TYPE_FK,
+              HOLIDAY_FK
+         FROM DUTY_ROSTER
+        WHERE (TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci)
+          AND ROSTER_DATE BETWEEN TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
+          ${branchCond}
+        ORDER BY ROSTER_DATE`,
+      binds,
+      { outFormat: 4001 },
+    );
+
+    const items = (res.rows ?? []).map(([date, day, shift, leaveFk, holidayFk]) => {
+      const currentShift = String(shift ?? "").trim().toUpperCase();
+      const onLeave = leaveFk !== null && leaveFk !== undefined;
+      return {
+        date,
+        day: String(day ?? "").trim(),
+        shift: currentShift,
+        on_leave: onLeave,
+        is_holiday: holidayFk !== null && holidayFk !== undefined,
+        // 'R' is REST in SHIFT_HEAD — a rostered off day.
+        is_rest: currentShift === "R",
+        /** Approved leave is left alone, matching what the update itself does. */
+        selectable: !onLeave,
+      };
+    });
+
+    return { status: "success", items };
+  } catch (e) {
+    return { status: "error", message: e.message };
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * Apply one shift to an employee's roster.
+ *
+ * `dates` is the set HR actually ticked in the dialog; when it is empty the
+ * whole [from, to] range is used, which is what the endpoint did before the
+ * day picker existed.
+ */
+export const bulkUpdateRosterShift = async (
+  cardNo, fromDate, toDate, shift, updatedBy = null, brnch = null, dates = null,
+) => {
+  const s = String(shift || "").trim().toUpperCase().substring(0, 1);
+  if (!s) return { status: "error", message: "Pick a shift to apply" };
+  if (!fromDate || !toDate) return { status: "error", message: "Both dates are required" };
+  if (String(fromDate) > String(toDate)) {
+    return { status: "error", message: "The 'from' date must not be after the 'to' date" };
+  }
+
+  const picked = [...new Set((dates ?? []).map((d) => String(d).trim()).filter(Boolean))];
+  const outOfRange = picked.filter((d) => d < String(fromDate) || d > String(toDate));
+  if (outOfRange.length) {
+    return { status: "error", message: `Those days fall outside the range: ${outOfRange.join(", ")}` };
+  }
+
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const card = String(cardNo);
+    const cint = card.includes(".") ? card.split(".")[0] : card;
+    const binds = {
+      shift: s,
+      updated: String(updatedBy || "").substring(0, 50) || null,
+      c: card,
+      ci: cint,
+      from_d: fromDate,
+      to_d: toDate,
+    };
+    let branchCond = "";
+    if (brnch !== null && brnch !== undefined && String(brnch).trim() !== "") {
+      branchCond = "AND TO_CHAR(BRNCH) = TO_CHAR(:brnch)";
+      binds.brnch = String(brnch).trim();
+    }
+
+    // Bound each picked day by name rather than building an IN list out of the
+    // values themselves, so the dates stay data and never become SQL.
+    let dayCond = "";
+    if (picked.length) {
+      const names = picked.map((d, i) => {
+        binds[`d${i}`] = d;
+        return `:d${i}`;
+      });
+      dayCond = `AND TO_CHAR(ROSTER_DATE, 'YYYY-MM-DD') IN (${names.join(", ")})`;
+    }
+
+    const res = await connection.execute(
+      `UPDATE DUTY_ROSTER
+          SET ROSTER_SHIFT = :shift, UPDATED = :updated
+        WHERE (TO_CHAR(CARD_NO) = :c OR TO_CHAR(CARD_NO) = :ci)
+          AND ROSTER_DATE BETWEEN TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
+          AND LEAVE_TYPE_FK IS NULL
+          ${dayCond}
+          ${branchCond}`,
+      binds,
+      { autoCommit: true },
+    );
+
+    const updated = res.rowsAffected ?? 0;
+    if (updated === 0) {
+      return {
+        status: "error",
+        message: picked.length
+          ? "None of the selected days could be changed — they may all be on approved leave."
+          : "No roster days matched — check the dates, or those days may all be on approved leave.",
+      };
+    }
+    return { status: "success", updated, shift: s };
+  } catch (e) {
+    try { await connection?.rollback(); } catch { /* ignore */ }
+    return { status: "error", message: e.message };
+  } finally {
+    await connection?.close();
+  }
+};
+
 export const updateRosterEntry = async (pk, shift = null, remarks = null, updated_by = null) => {
   let connection;
   try {

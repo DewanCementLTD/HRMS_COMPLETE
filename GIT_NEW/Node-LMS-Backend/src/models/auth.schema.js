@@ -13,6 +13,9 @@ export const loginSchema = z.object({
     app_version: z.string().optional(),
     app_build: pyInt().optional(),
     platform: z.string().optional(),
+    // Optional, and only recorded inside the issued session token so a stolen
+    // token can be traced to a handset. Nothing rejects a login without it.
+    device_id: z.string().max(400).optional(),
   }),
 });
 
@@ -40,14 +43,19 @@ export const phoneSchema = z.object({
   }),
 });
 
+// The mobile app posts `relation`; the web posts `relationship`. Both name the
+// same stored column, so either satisfies the schema and the controller reads
+// whichever arrived — requiring one spelling would break the other client.
 export const emergencyContactSchema = z.object({
   params: z.object({
     card_no: z.string().min(1, 'card_no is required'),
   }),
   body: z.object({
     name: z.string().min(1, 'Name is required'),
-    relationship: z.string().default(''),
+    relation: z.string().optional(),
+    relationship: z.string().optional(),
     phone: z.string().default(''),
+    phone_number: z.string().optional(),
   }),
 });
 

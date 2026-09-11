@@ -90,8 +90,12 @@ export function printTimesheetWindow(
         <td>${rec.in_time ? fmtHM(rec.w_hrs, rec.w_mnt) : ""}</td>
         <td style="color:#b45309;font-weight:${isLate ? "bold" : "normal"}">${isLate ? "Late" : ""}</td>
         <td style="color:#c2410c;font-weight:${isHalf ? "bold" : "normal"}">${isHalf ? "Half Day" : ""}</td>
-        <td>${rec.status || ""}</td>
-        <td style="text-align:left;font-style:italic;color:#555">${rec.roster_remarks || ""}</td>
+        <td style="color:${rec.is_leave ? "#3730a3" : "#000"};font-weight:${rec.is_leave ? "bold" : "normal"}">${rec.status || ""}</td>
+        <td style="text-align:left;font-style:${rec.is_leave ? "normal" : "italic"};color:${rec.is_leave ? "#3730a3" : "#555"}">${
+          /* Derived server-side: leave type + the employee's reason, "Absent",
+             or the roster's own remark. */
+          rec.remarks || rec.roster_remarks || ""
+        }</td>
       </tr>`;
   }).join("");
 

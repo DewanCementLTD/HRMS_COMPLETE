@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { useAuth } from "@/context/AuthContext";
 import { printTablePdf } from "@/lib/printTable";
-import { getStatusColor, getAttendanceRowTint } from "@/lib/utils";
+import { getStatusColor, getAttendanceRowTint, toLocalYmd } from "@/lib/utils";
 import {
   fetchBulkAttendance, fetchAttendanceDetails,
   type BulkAttendanceRow, type AttendanceDetailRow,
@@ -34,10 +34,10 @@ function matchesStatusTab(r: AttendanceDetailRow, tab: StatusTab): boolean {
   return !r.is_absent && (!!r.in_time || !!r.out_time);
 }
 
-function todayStr() { return new Date().toISOString().split("T")[0]; }
+function todayStr() { return toLocalYmd(new Date()); }
 function presetRange(p: string): { from: string; to: string } {
   const t = new Date();
-  const iso = (d: Date) => d.toISOString().split("T")[0];
+  const iso = (d: Date) => toLocalYmd(d);
   if (p === "today") return { from: iso(t), to: iso(t) };
   if (p === "week") {
     const s = new Date(t); s.setDate(t.getDate() - t.getDay());
@@ -165,11 +165,12 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
       );
     } else {
       downloadCsv(
-        ["Branch", "Department", "Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status"],
+        ["Branch", "Department", "Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status", "Remarks"],
         filteredDetails.map((r) => [
           r.branch_name ?? "", r.dept_name ?? "",
           r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
           r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
+        r.remarks ?? "",
         ]),
         `attendance-${statusTab}-${from}_to_${to}.csv`,
       );
@@ -198,10 +199,12 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
         companyName: company,
         title: `Attendance — ${tabLabel}${statusTab === "all" ? " (Daily Details)" : ""}`,
         meta, landscape: true,
-        columns: ["Branch", "Department", "Name", "ATDT", "Date", "Duty In", "In Time", "Out Time", "Status"],
+        columns: ["Branch", "Department", "Name", "ATDT", "Date", "Duty In", "In Time", "Out Time", "Status", "Remarks"],
         rows: filteredDetails.map((r) => [
           r.branch_name ?? "", r.dept_name ?? "", r.name ?? "", r.atdtcard || r.card_no || "",
           r.roster_date, r.duty_in ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
+          // Leave type + reason, "Absent", or the roster remark.
+          r.remarks ?? r.leave_remarks ?? r.roster_remarks ?? "",
         ]),
       });
     }
@@ -349,6 +352,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <th className="px-3 py-2 text-left">Check In</th>
                 <th className="px-3 py-2 text-left">Check Out</th>
                 <th className="px-3 py-2 text-left">Status</th>
+                <th className="px-3 py-2 text-left">Remarks</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -356,7 +360,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <Fragment key={branch || "__all__"}>
                   {groupByBranch && (
                     <tr className="bg-indigo-50/70">
-                      <td colSpan={8} className="px-3 py-1.5 text-xs font-semibold text-indigo-800 uppercase tracking-wide">
+                      <td colSpan={9} className="px-3 py-1.5 text-xs font-semibold text-indigo-800 uppercase tracking-wide">
                         {branch}
                         <span className="ml-2 font-normal normal-case text-indigo-500">
                           {rows.length} employee{rows.length > 1 ? "s" : ""}
@@ -388,10 +392,17 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                         </td>
                         <td className="px-3 py-2">
                           {r.status && (
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(r.status)}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+                              r.is_leave ? "bg-indigo-100 text-indigo-800" : getStatusColor(r.status)
+                            }`}>
                               {r.status}
                             </span>
                           )}
+                        </td>
+                        {/* Leave type + the employee's reason, "Absent", or the
+                            roster's own remark — all from TMS_DUTY_ROSTER_V. */}
+                        <td className={`px-3 py-2 max-w-[240px] ${r.is_leave ? "text-indigo-700" : "text-gray-600"}`}>
+                          {r.remarks || "—"}
                         </td>
                       </tr>
                     );

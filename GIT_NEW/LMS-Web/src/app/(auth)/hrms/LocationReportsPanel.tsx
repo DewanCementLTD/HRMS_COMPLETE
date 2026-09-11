@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import { useState, useMemo, useCallback } from "react";
 import { Navigation, Download, RefreshCw, Search, MapPin, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -16,7 +17,7 @@ import {
 type ReportKind = "trail" | "summary";
 
 function todayStr() {
-  return new Date().toISOString().split("T")[0];
+  return toLocalYmd(new Date());
 }
 
 // recorded_at / first_time / last_time come back as UTC without a zone suffix —

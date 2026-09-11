@@ -1,5 +1,6 @@
 "use client";
 
+import { toLocalYmd } from "@/lib/utils";
 import React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -288,8 +289,8 @@ export function HRDashboard({
             <span>{displayDate}</span>
             <input
               type="date"
-              value={selectedDate ?? new Date().toISOString().split("T")[0]}
-              max={new Date().toISOString().split("T")[0]}
+              value={selectedDate ?? toLocalYmd(new Date())}
+              max={toLocalYmd(new Date())}
               onChange={(e) => onDateChange?.(e.target.value)}
               className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             />

@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Alert } from "@/components/ui/Alert";
 import Image from "next/image";
-import { Lock, User } from "lucide-react";
+import { Lock, User, X } from "lucide-react";
 
 const REMEMBER_KEY = "lms_remember";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showForgot, setShowForgot] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const { handleLogin, loading, error } = useAuthController();
   const { user, isLoading } = useAuth();
@@ -144,6 +145,7 @@ export default function LoginPage() {
                 />
               </div>
 
+              <div className="flex items-center justify-between gap-3">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -159,6 +161,19 @@ export default function LoginPage() {
                 <span className="text-sm text-gray-300">Remember me</span>
               </label>
 
+              {/* Password resets go through HR: there is no self-service route,
+                  because only a handful of employees have an email address on
+                  file and no mail is sent from this app. HR restores the
+                  employee's initial password from HRMS > Employees > Edit. */}
+              <button
+                type="button"
+                onClick={() => setShowForgot(true)}
+                className="text-sm text-indigo-300 hover:text-white transition-colors"
+              >
+                Forgot password?
+              </button>
+              </div>
+
               <Button type="submit" loading={loading} className="w-full" size="lg">
                 Sign In
               </Button>
@@ -166,6 +181,41 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {showForgot && (
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowForgot(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <h2 className="text-lg font-semibold text-gray-900">Forgot your password?</h2>
+              <button
+                onClick={() => setShowForgot(false)}
+                aria-label="Close"
+                className="text-gray-400 hover:text-gray-600 rounded-lg p-1 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Ask your HR department to reset it for you. They can restore your
+              original password from the HRMS employee record, and you can change
+              it again from your profile once you are signed in.
+            </p>
+            <p className="text-sm text-gray-600 leading-relaxed mt-3">
+              Have your <span className="font-medium text-gray-800">card number</span> ready
+              so HR can find your record.
+            </p>
+            <div className="flex justify-end mt-5">
+              <Button onClick={() => setShowForgot(false)}>Got it</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

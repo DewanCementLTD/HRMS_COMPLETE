@@ -30,6 +30,18 @@ export const pyFloat = () => z.preprocess(toNumber, z.number());
 /** Pydantic `int` — accepts an int, an int-valued float, or a numeric string. */
 export const pyInt = () => z.preprocess(toNumber, z.number().int());
 
+/**
+ * A string field that also accepts a number.
+ *
+ * Several ERP "codes" are NUMBER columns (LOCATION, DEPT_NO, …) that the read
+ * endpoints return as JSON numbers. The web app round-trips the record straight
+ * back on save, so demanding a string there rejects the very payload the API
+ * just produced — that was a 422 "expected string, received number" on every
+ * employee edit.
+ */
+export const pyStr = (schema = z.string()) =>
+  z.preprocess((v) => (typeof v === 'number' ? String(v) : v), schema);
+
 // Pydantic's lax bool accepts these spellings (case-insensitive) plus 0/1.
 const TRUTHY = new Set(['1', 'on', 't', 'true', 'y', 'yes']);
 const FALSY = new Set(['0', 'off', 'f', 'false', 'n', 'no']);
