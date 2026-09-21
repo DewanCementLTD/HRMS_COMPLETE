@@ -1,0 +1,154 @@
+-- Snapshot taken before 2026-09-16_absent_rule_all_shifts.sql
+-- Restores the absent rule to its previous 'G'-only condition.
+
+CREATE OR REPLACE PROCEDURE CREATE_DUTY_ROSTER_PRO AS
+X NUMBER;
+BEGIN
+   SELECT NVL(MAX(DUTY_rOSTER_PK),0) INTO X FROM DUTY_ROSTER;
+
+FOR I IN (
+select EMP_PK,CARD_NO,COMPC,BRNCH,TIME_ID,MON,DY_NAME ,TO_CHAR(SYSDATE,'DD-MON-YY HH24:MI') DT 
+from cr_roster_v  ORDER BY EMP_PK,TIME_ID
+
+) LOOP 
+
+X:=X+1;
+
+INSERT INTO DUTY_ROSTER (DUTY_ROSTER_PK,EMP_FK,CARD_NO,COMPC,BRNCH,ROSTER_DATE,ROSTER_MONTH,DAY_NAME,ENTRY_DATE)
+VALUES (X,I.EMP_PK,I.CARD_NO,I.COMPC,I.BRNCH,I.TIME_ID,I.MON,I.DY_NAME,I.DT);
+END LOOP;
+COMMIT;
+
+
+-------------------ghazated dayas
+BEGIN
+	FOR I IN (SELECT * FROM HOLIDAYS WHERE TO_DATE(HOLIDAY_DATE,'DD-MON-YY') >= TO_CHAR(SYSDATE-60,'DD-MON-YY') )LOOP		
+      UPDATE DUTY_ROSTER
+      SET STATUS = I.HOLIDAY_REASON,
+      HOLIDAY_FK = I.HOLIDAY_PK  
+      WHERE ROSTER_DATE BETWEEN I.HOLIDAY_DATE AND I.HOLIDAY_DATE2
+      AND HOLIDAY_FK IS NULL;
+--      AND COMPC  = I.COMPC
+--      AND BRNCH  = I.BRNCH;
+	END LOOP;
+COMMIT;
+END;
+
+
+---------NO LATE ON REST AND PUBLIC HOLIDAY 
+ 
+
+         UPDATE DUTY_ROSTER
+          SET 
+              LATE_FLAG  = 'N' ,
+              ABSENT_DAYS  = NULL,
+              ROSTER_REMARKS = NULL
+          WHERE ROSTER_DATE BETWEEN TO_CHAR(SYSDATE-30,'DD-MON-YY') AND TO_CHAR(SYSDATE,'DD-MON-YY')
+          AND (LATE_FLAG = 'Y' OR LATE_FLAG = 'H')
+          AND (ROSTER_SHIFT = 'R' OR HOLIDAY_FK IS NOT NULL);
+        ---  AND IN_TIME IS NOT NULL;
+
+COMMIT;
+
+
+                  ----------------------NORMAL ABSENT
+        UPDATE duty_roster
+        SET
+            absent_days = 1, roster_remarks = 'Absent', late_flag = NULL
+        WHERE
+                1 = 1
+            AND roster_shift = 'G'
+            AND holiday_fk IS NULL
+            AND absent_days IS NULL
+            AND out_time IS NULL
+            AND LEAVE_TYPE_FK IS NULL
+            AND roster_date  BETWEEN  TO_DATE(SYSDATE-7, 'DD-MON-YY') AND TO_DATE(SYSDATE, 'DD-MON-YY')
+            AND in_time IS NULL;
+
+
+
+
+
+
+
+
+/*
+
+ ---------NO LATE ON REST AND PUBLIC HOLIDAY 
+
+         UPDATE DUTY_ROSTER
+          SET 
+              LATE_FLAG  = 'N' ,
+              ABSENT_DAYS  = NULL,
+              ROSTER_REMARKS = NULL
+          WHERE ROSTER_DATE BETWEEN TO_CHAR(SYSDATE-30,'DD-MON-YY') AND TO_CHAR(SYSDATE,'DD-MON-YY')
+          AND (LATE_FLAG = 'Y' OR LATE_FLAG = 'H')
+          AND (ROSTER_SHIFT = 'R' OR HOLIDAY_FK IS NOT NULL);
+        ---  AND IN_TIME IS NOT NULL;
+
+COMMIT;
+
+
+------------------REMOVE absent
+BEGIN
+	UPDATE DUTY_ROSTER
+	SET ABSENT_DAYS = NULL,
+  ROSTER_REMARKS  = NULL
+	WHERE (in_time is NOt null or out_time is not null)
+    and ABSENT_DAYS = 1
+   and LEAVE_TYPE_fK  not in (4,6)
+	AND ROSTER_DATE BETWEEN  TO_CHAR(SYSDATE-15,'DD-MON-YY') AND TO_CHAR(SYSDATE-1,'DD-MON-YY');
+COMMIT;
+END;
+
+
+
+
+
+------------------normal absent
+BEGIN
+	UPDATE DUTY_ROSTER
+	SET ABSENT_DAYS = 1,
+  ROSTER_REMARKS  = 'Absent'
+	WHERE in_time is null  
+    AND OUT_TIME IS NULL
+	AND ROSTER_SHIFT <> 'R'
+	AND HOLIDAY_fK IS NULL
+  and ABSENT_DAYS is null
+ --- AND (LEAVE_TYPE_fK  is null OR LEAVE_TYPE_fK  = 6 OR LEAVE_TYPE_fK  = 4)
+	AND ROSTER_DATE < SYSDATE;
+COMMIT;
+END;
+
+
+UPDATE DUTY_ROSTER
+SET ABSENT_DAYS = NULL
+WHERE ROSTER_SHIFT = 'R'
+AND ROSTER_DATE < SYSDATE
+AND nvl(ABSENT_DAYS,0) IS NOT NULL;
+
+COMMIT;
+
+update duty_roster 
+set late_flag = null
+where late_flag is not null;
+
+commit;
+
+
+
+--------------------SANWISHC ABSENT
+BEGIN
+FOR I IN (SELECT * FROM DUTY_ROSTER WHERE IN_TIME IS NULL AND (ROSTER_SHIFT = 'R' OR holiday_fk IS NOT NULL) AND ROSTER_DATE = TO_CHAR(SYSDATE-7,'DD-MON-YY')) LOOP
+
+DATA_INDEX_SANDWICH (I.CARD_NO,I.COMPC,I.BRNCH,I.ROSTER_DATE);
+
+END LOOP;
+END;
+
+*/
+
+
+END CREATE_DUTY_ROSTER_PRO;
+
+/

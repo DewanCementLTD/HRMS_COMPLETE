@@ -26,6 +26,11 @@ import {
   bulkUpdateRosterShift,
   getRosterDaysInRange,
 } from "../services/hrms.service.js";
+import {
+  listRosterDefaults,
+  saveRosterDefault,
+  applyRosterDefaults,
+} from "../services/rosterDefaults.service.js";
 
 // GET /hrms/dashboard
 export const dashboard = async (req, res, next) => {
@@ -136,7 +141,10 @@ export const editEmployee = async (req, res, next) => {
     // Drop null/undefined fields (mirrors request.model_dump(exclude_none=True)),
     // except the HOD columns: there a null is the instruction to clear the
     // approver, and dropping it would make "remove HOD" a silent no-op.
-    const CLEARABLE = new Set(["hod1", "hod2", "hod3"]);
+    // A null means "clear this" for the HOD columns and for the resignation
+    // dates — for the latter it is the only way to undo a date entered by
+    // mistake, which the salary run otherwise keeps acting on.
+    const CLEARABLE = new Set(["hod1", "hod2", "hod3", "dtofresign", "resg_dt"]);
     const data = {};
     for (const [k, v] of Object.entries(res.locals.validated.body)) {
       if (v !== undefined && (v !== null || CLEARABLE.has(k))) data[k] = v;
@@ -193,6 +201,74 @@ export const unpostedPunches = async (req, res, next) => {
     const { finalCompanies, finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
     const items = await getUnpostedPunches(from_date, to_date, finalCompanies, finalBranches);
     res.json({ items, count: items.length, from_date, to_date });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /hrms/roster-defaults — what each branch runs by default.
+export const rosterDefaults = async (req, res, next) => {
+  try {
+    const { compc, brnch } = res.locals.validated.query;
+    const items = await listRosterDefaults(compc ?? null, brnch ?? null);
+    res.json({ items });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// PUT /hrms/roster-defaults — set a branch's default shift and rest days.
+//
+// Saving only decides what FUTURE generated days get. Existing days are left
+// alone, because rewriting a roster people have already been told about is a
+// separate, deliberate act — that is what /duty-roster/apply-defaults is for.
+export const saveRosterDefaults = async (req, res, next) => {
+  try {
+    const { admin_card_no } = res.locals.validated.query;
+    const { compc, brnch, default_shift, rest_days } = res.locals.validated.body;
+    const result = await saveRosterDefault(compc, brnch, default_shift, rest_days, admin_card_no);
+    if (result.status === "error") return res.status(400).json({ detail: result.message });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /hrms/duty-roster/apply-defaults — the mass shift change.
+//
+// Applies a shift across a whole branch for a date range: the thing that had to
+// be done one employee at a time before. Rest days, public holidays and
+// approved leave are never overwritten.
+export const applyRosterDefaultsToRange = async (req, res, next) => {
+  try {
+    const { admin_card_no } = res.locals.validated.query;
+    const { compc, brnch, from_date, to_date, shift, rest_days, include_edited } =
+      res.locals.validated.body;
+
+    if (String(from_date) > String(to_date)) {
+      return res.status(400).json({ detail: "The 'from' date must not be after the 'to' date" });
+    }
+
+    const result = await applyRosterDefaults(compc, brnch, from_date, to_date, {
+      shift: shift ?? null,
+      restDays: rest_days ?? null,
+      // Days HR edited by hand are protected unless they explicitly ask to
+      // include them — a mass change should not quietly undo deliberate work.
+      untouchedOnly: !include_edited,
+      updatedBy: admin_card_no,
+    });
+    if (result.status === "error") return res.status(400).json({ detail: result.message });
+    if (result.status === "skipped") {
+      return res.status(400).json({
+        detail: "This branch has no default shift configured — set one first, or pass a shift to apply.",
+      });
+    }
+    res.json({
+      ...result,
+      message:
+        `${result.working_days} working day(s) set to ${result.shift}` +
+        `, ${result.rest_days_set} rest day(s) updated`,
+    });
   } catch (err) {
     next(err);
   }

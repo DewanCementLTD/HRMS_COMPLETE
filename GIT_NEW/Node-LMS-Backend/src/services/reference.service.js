@@ -327,12 +327,54 @@ export const getShifts = async (compc = null, brnch = null) => {
 };
 
 /**
+ * The rest day is a roster STATE, not a shift a company runs.
+ *
+ * 'R' means the person is off that day: DUTY_ROSTER.ROSTER_SHIFT = 'R' is what
+ * the attendance derivation, the leave check and the weekly-off calculation all
+ * read. Only company 1 / branch 1 happens to have an 'R' row in SHIFT_HEAD, so
+ * scoping the picker to SHIFT_HEAD left HR unable to mark a rest day for the
+ * other nineteen company/branch combinations. It belongs in every list.
+ */
+const REST_SHIFT_CODE = 'R';
+const REST_SHIFT_FALLBACK_DESC = 'REST';
+
+/** Add the rest day to a shift list that lacks it, keeping the list sorted. */
+const withRestDay = async (conn, rows) => {
+  const hasRest = rows.some(
+    (r) => String(r.shift ?? '').trim().toUpperCase() === REST_SHIFT_CODE,
+  );
+  if (hasRest) return rows;
+
+  // Take HR's own wording for it where the global shift table has one, so the
+  // label does not drift from what the rest of the ERP calls it.
+  let descr = REST_SHIFT_FALLBACK_DESC;
+  try {
+    const res = await conn.execute(
+      "SELECT DESCR FROM HR_SHIFT WHERE TRIM(SHIFT) = :s AND ROWNUM = 1",
+      { s: REST_SHIFT_CODE },
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+    const found = String(res.rows?.[0]?.[0] ?? '').trim();
+    if (found) descr = found;
+  } catch (e) {
+    logger.info(`[REFERENCE] rest-day description lookup failed: ${String(e.message).slice(0, 90)}`);
+  }
+
+  return [...rows, { shift: REST_SHIFT_CODE, descr }].sort((a, b) =>
+    String(a.shift).localeCompare(String(b.shift)),
+  );
+};
+
+/**
  * Shift list of values for the duty roster.
  *
  * Shifts are defined per company (and branch) in SHIFT_HEAD — company 5 has only
  * GENERAL, company 1 has A/B/C/G/N/R — so the roster's shift picker is scoped to
  * the selected company instead of offering the global HR_SHIFT list, which let
  * HR assign a shift their company doesn't run.
+ *
+ * The one exception is the rest day, which every company needs and most do not
+ * define; see withRestDay above.
  *
  * Falls back to HR_SHIFT when SHIFT_HEAD holds nothing for that company, so the
  * dropdown is never empty.
@@ -363,10 +405,13 @@ export const getShiftLov = async (compc = null, brnch = null) => {
         );
         const rows = res.rows || [];
         if (rows.length) {
-          return rows.map((r) => ({
-            shift: String(r[0] ?? "").trim(),
-            descr: String(r[1] ?? "").trim(),
-          }));
+          return await withRestDay(
+            conn,
+            rows.map((r) => ({
+              shift: String(r[0] ?? "").trim(),
+              descr: String(r[1] ?? "").trim(),
+            })),
+          );
         }
       } catch (e) {
         logger.info(`[REFERENCE] SHIFT_HEAD lov failed, using HR_SHIFT: ${String(e.message).slice(0, 90)}`);
@@ -379,7 +424,10 @@ export const getShiftLov = async (compc = null, brnch = null) => {
       { outFormat: OUT_FORMAT_ARRAY }
     );
     const rows = res.rows || [];
-    return rows.map((r) => ({ shift: String(r[0] ?? "").trim(), descr: String(r[1] ?? "").trim() }));
+    return await withRestDay(
+      conn,
+      rows.map((r) => ({ shift: String(r[0] ?? "").trim(), descr: String(r[1] ?? "").trim() })),
+    );
   } finally {
     if (conn) await conn.close();
   }

@@ -1157,6 +1157,113 @@ export const runSalaryProcess = async (compc) => {
   }
 };
 
+/**
+ * Where a period stands: has salary been processed, and has it been posted?
+ *
+ * The two counts are read from exactly the tables HR_SALARY_PROCES_PRO_FINAL
+ * checks itself (HR_SALARY_PROCESS for "processed", HR_SALARY_PROCESS_FINAL for
+ * "already posted"), so what the screen offers can never disagree with what the
+ * procedure will accept.
+ */
+export const getSalaryProcessState = async (unitId, period) => {
+  const u = toInt(unitId);
+  const p = toInt(period);
+  if (u === null) return { status: "error", message: "Company is required" };
+  if (p === null) return { status: "error", message: "Period is required" };
+
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const res = await connection.execute(
+      `SELECT
+         (SELECT COUNT(*) FROM HR_SALARY_PROCESS        WHERE UNIT_ID = :u AND "PERIOD#" = :p) AS process_rows,
+         (SELECT COUNT(*) FROM HR_SALARY_PROCESS_MASTER WHERE UNIT_ID = :u AND "PERIOD#" = :p) AS employees,
+         (SELECT COUNT(*) FROM HR_SALARY_PROCESS_FINAL  WHERE UNIT_ID = :u AND "PERIOD#" = :p) AS final_rows
+       FROM DUAL`,
+      { u, p },
+      { outFormat: OUT_ARRAY }
+    );
+    const row = res.rows?.[0] ?? [0, 0, 0];
+    const processed = Number(row[0]) > 0;
+    const finalized = Number(row[2]) > 0;
+    return {
+      status: "success",
+      period: p,
+      processed,
+      finalized,
+      employees: Number(row[1]) || 0,
+      /** Once posted, neither process nor final may run again for this period. */
+      can_process: !finalized,
+      can_finalize: processed && !finalized,
+    };
+  } catch (err) {
+    logger.info(`[PAYROLL] process-state lookup failed for ${u}/${p}: ${err.message ?? err}`);
+    return { status: "error", message: "Could not read the payroll status for this period." };
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * The procedure raises its own messages for the three things that can go wrong,
+ * and they are already fit to show:
+ *   -20001 wrong password   -20002 salary not processed   -20003 already posted
+ * Anything else is a fault, not a refusal, and must not reach the screen raw.
+ */
+const finalProcedureMessage = (err) => {
+  const raw = String(err?.message ?? "");
+  const m = /ORA-2000[123]:\s*(.+)/.exec(raw);
+  if (m) return { message: m[1].trim(), expected: true };
+  return { message: "The final payroll process failed. Please contact your administrator.", expected: false };
+};
+
+/**
+ * Post the period: HR_SALARY_PROCES_PRO_FINAL copies the processed salary into
+ * the FINAL tables and records the loan recoveries against it.
+ *
+ * The password is checked inside the procedure against HR_SAL_PASWD — it is
+ * never compared here, never logged, and never echoed back in any response.
+ */
+export const runFinalSalaryProcess = async (compc, period, password) => {
+  const u = toInt(compc);
+  const p = toInt(period);
+  if (u === null) return { status: "error", message: "Company is required" };
+  if (p === null) return { status: "error", message: "Period is required" };
+  if (!String(password ?? "").trim()) {
+    return { status: "error", message: "Enter the payroll password to run the final process." };
+  }
+
+  let connection;
+  try {
+    connection = await getDirectConnection();
+
+    await connection.execute(
+      `BEGIN HR_SALARY_PROCES_PRO_FINAL(:unit, :period, :paswd); END;`,
+      { unit: u, period: p, paswd: String(password) }
+    );
+    await connection.commit();
+
+    const countRes = await connection.execute(
+      `SELECT COUNT(*) FROM HR_SALARY_PROCESS_MASTER_FINAL WHERE UNIT_ID = :u AND "PERIOD#" = :p`,
+      { u, p },
+      { outFormat: OUT_ARRAY }
+    );
+    const posted = Number(countRes.rows?.[0]?.[0] || 0);
+    logger.info(`[PAYROLL] final salary process posted period ${p} for unit ${u} (${posted} employees)`);
+    return { status: "success", period: p, posted, message: `Payroll finalised — ${posted} employee(s) posted.` };
+  } catch (err) {
+    try { await connection?.rollback(); } catch { /* ignore */ }
+    const { message, expected } = finalProcedureMessage(err);
+    // A wrong password is an ordinary refusal; anything unexpected is worth a
+    // real log line. Neither logs the password itself.
+    if (expected) logger.info(`[PAYROLL] final process refused for unit ${u} period ${p}: ${message}`);
+    else logger.error(`[PAYROLL] final process failed for unit ${u} period ${p}: ${String(err?.message ?? err)}`);
+    return { status: "error", message };
+  } finally {
+    await connection?.close();
+  }
+};
+
 // ════════════════════════════════════════════════════════════════
 // MODULE 5 — PAY REGISTER (read-only, from HR_PAY_REG_V)
 // ════════════════════════════════════════════════════════════════

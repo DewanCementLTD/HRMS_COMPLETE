@@ -1,5 +1,6 @@
 import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import { applyAllRosterDefaults } from './rosterDefaults.service.js';
 
 // ---------------------------------------------------------------------------
 // Duty roster generation — CREATE_DUTY_ROSTER_PRO
@@ -59,6 +60,23 @@ const runProcedure = async (reason) => {
   }
 };
 
+/**
+ * The window the ERP procedure fills, and therefore the window whose new days
+ * need the branch default applied. CR_ROSTER_V works SYSDATE-60..SYSDATE+60;
+ * only the future half is reshaped, because rewriting the shift on days that
+ * have already been worked would change attendance history.
+ */
+const defaultsWindow = () => {
+  const ymd = (d) => {
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  };
+  const today = new Date();
+  const end = new Date(today);
+  end.setDate(end.getDate() + 60);
+  return { from: ymd(today), to: ymd(end) };
+};
+
 const drain = async (reason) => {
   let result = await runProcedure(reason);
   // Anything requested mid-run gets one more pass, so nobody added during a
@@ -67,6 +85,25 @@ const drain = async (reason) => {
     rerunQueued = false;
     result = await runProcedure('queued while a build was running');
   }
+
+  // The ERP stamps every generated day 'G' (or 'R' on Sunday) regardless of
+  // what the branch actually runs — that decision is hardcoded in the
+  // INSERT_PK_ROSTER trigger. Reshape the days it just created to the branch's
+  // configured default. Days HR has edited by hand are left alone, so this is
+  // safe to run after every build.
+  //
+  // Deliberately outside the success check: a procedure that failed part-way
+  // may still have inserted days, and a branch with no configuration is a
+  // no-op anyway.
+  try {
+    const { from, to } = defaultsWindow();
+    await applyAllRosterDefaults(from, to);
+  } catch (e) {
+    // A roster that generated correctly must not be reported as failed because
+    // the defaults pass stumbled.
+    logger.error(`[ROSTER_GEN] applying branch shift defaults failed: ${e.message ?? e}`);
+  }
+
   return result;
 };
 

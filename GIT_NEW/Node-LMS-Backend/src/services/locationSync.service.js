@@ -1,6 +1,7 @@
 import oracledb from 'oracledb';
 
 import { getDirectConnection } from '../config/database.js';
+import { isActiveStatus } from '../utils/employeeStatus.js';
 import { logger } from '../utils/logger.js';
 
 // ---------------------------------------------------------------------------
@@ -420,6 +421,7 @@ export const getTrackingState = async (cardNo) => {
     const cfg = await connection.execute(
       `SELECT h.EMPCODE           AS "empcode",
               h.NAME              AS "name",
+              h.STATUS            AS "status",
               NVL(h.TRACK_LOCATION, 'N')  AS "track_location",
               h.TRACK_LOCATION_HR AS "track_location_hr"
          FROM HR_EMP_MASTER h
@@ -441,7 +443,14 @@ export const getTrackingState = async (cardNo) => {
     const c = cfg.rows?.[0];
     if (!c) return { status: 'error', message: `Employee ${cardNo} not found`, code: 404 };
 
-    const trackingEnabled = String(c.track_location ?? 'N').trim().toUpperCase() === 'Y';
+    // Someone who has left is not tracked, whatever TRACK_LOCATION still says.
+    // 28 employees marked Left were still carrying TRACK_LOCATION = 'Y', and
+    // nothing read their employment status, so their phones kept reporting.
+    // Deriving it here means HR does not have to remember to switch the flag
+    // off as well as marking the person Left.
+    const employed = isActiveStatus(c.status);
+    const trackingEnabled =
+      employed && String(c.track_location ?? 'N').trim().toUpperCase() === 'Y';
     // TRACK_LOCATION_HR is configured in hours; the app wants minutes. The
     // existing settings endpoint floors it at 1, and so does this.
     const intervalHours = Math.max(1, Number(c.track_location_hr) || 2);
@@ -499,6 +508,14 @@ export const getTrackingState = async (cardNo) => {
 
         tracking_enabled: trackingEnabled,
         tracking_state: trackingState,
+        /**
+         * False when the employee has left. Tracking is then off regardless of
+         * the TRACK_LOCATION flag, and tracking_state is STOPPED. Uploads are
+         * deliberately NOT blocked: a phone may still hold this morning's
+         * points from while the person was employed, and those belong in the
+         * record.
+         */
+        employment_active: employed,
         interval_minutes: intervalMinutes,
         // Kept so callers of the existing settings endpoint see the same unit.
         track_location_hr: intervalHours,

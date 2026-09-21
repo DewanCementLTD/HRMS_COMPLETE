@@ -129,6 +129,28 @@ export const runSalaryProcess = (adminCardNo: string, compc?: string) =>
   apiRequest<{ status: string; period: number; label: string; processed: number }>(
     `/payroll/salary/process?${ac(adminCardNo, compc)}`, { method: "POST" });
 
+/** Where a period stands, and therefore which buttons it offers. */
+export interface SalaryProcessState {
+  period: number;
+  processed: boolean;
+  finalized: boolean;
+  employees: number;
+  can_process: boolean;
+  can_finalize: boolean;
+}
+export const fetchSalaryProcessState = (adminCardNo: string, period: number, compc?: string) =>
+  apiRequest<SalaryProcessState>(
+    `/payroll/salary/process-state?${ac(adminCardNo, compc)}&period=${encodeURIComponent(period)}`);
+
+/**
+ * Post the period. The password is sent in the body — never the query string,
+ * which would end up in the access log and the browser's history.
+ */
+export const runFinalSalaryProcess = (adminCardNo: string, period: number, password: string, compc?: string) =>
+  apiRequest<{ status: string; period: number; posted: number; message: string }>(
+    `/payroll/salary/process-final?${ac(adminCardNo, compc)}`,
+    { method: "POST", body: { period, password } });
+
 // ── Pay Register report (from HR_PAY_REG_V) ──
 export interface PayRegisterPeriod { period: number; label: string; rule_id?: number | null }
 export interface PayRegisterEmployee {

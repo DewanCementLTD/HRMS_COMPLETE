@@ -592,7 +592,7 @@ export function HRDashboard({
             </div>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div className="bg-red-50 rounded-lg py-2">
-                <p className="text-sm font-extrabold text-gray-500 text-[10px]">Inactive/Left</p>
+                <p className="text-sm font-extrabold text-gray-500 text-[10px]">Left</p>
                 <p className="text-[9px] text-gray-400">See HR Records</p>
               </div>
               <div className="bg-emerald-50 rounded-lg py-2">

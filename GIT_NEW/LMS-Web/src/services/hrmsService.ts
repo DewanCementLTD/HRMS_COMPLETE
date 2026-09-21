@@ -231,6 +231,58 @@ export async function bulkUpdateRosterShift(
   return apiRequest(`/hrms/duty-roster/bulk?${q.toString()}`, { method: "PUT", body });
 }
 
+/** What a branch runs by default: the working shift and its weekly rest days. */
+export interface RosterDefault {
+  compc: number;
+  brnch: number;
+  default_shift: string;
+  rest_days: number[];
+  branch_name?: string | null;
+  shift_desc?: string | null;
+  updated_by?: string | null;
+  updated_at?: string | null;
+}
+
+export async function fetchRosterDefaults(
+  adminCardNo: string,
+  scope?: { compc?: string; brnch?: string },
+): Promise<{ items: RosterDefault[] }> {
+  const q = new URLSearchParams({ admin_card_no: adminCardNo });
+  if (scope?.compc) q.set("compc", scope.compc);
+  if (scope?.brnch) q.set("brnch", scope.brnch);
+  return apiRequest(`/hrms/roster-defaults?${q.toString()}`);
+}
+
+/** Save what a branch runs. Affects days generated from now on, not existing ones. */
+export async function saveRosterDefault(
+  adminCardNo: string,
+  body: { compc: string | number; brnch: string | number; default_shift: string; rest_days?: string | number[] },
+): Promise<{ status: string; message?: string }> {
+  return apiRequest(`/hrms/roster-defaults?admin_card_no=${encodeURIComponent(adminCardNo)}`, {
+    method: "PUT",
+    body,
+  });
+}
+
+/**
+ * The mass shift change: apply a shift across a whole branch for a date range.
+ * Rest days, public holidays and approved leave are never overwritten, and days
+ * HR edited by hand are kept unless `include_edited` is set.
+ */
+export async function applyRosterDefaults(
+  adminCardNo: string,
+  body: {
+    compc: string | number; brnch: string | number;
+    from_date: string; to_date: string;
+    shift?: string; rest_days?: string | number[]; include_edited?: boolean;
+  },
+): Promise<{ status: string; message?: string; working_days: number; rest_days_set: number; shift: string }> {
+  return apiRequest(`/hrms/duty-roster/apply-defaults?admin_card_no=${encodeURIComponent(adminCardNo)}`, {
+    method: "POST",
+    body,
+  });
+}
+
 /** One rostered day in the range the bulk-shift dialog is asking about. */
 export interface RosterDay {
   date: string;

@@ -36,6 +36,20 @@ export const login = async (req, res, next) => {
 
     const result = await authenticateUser(username, password, device_id);
     if (!result) return res.status(401).json({ detail: "Invalid credentials" }); // exact FastAPI wording — the app shows it verbatim
+
+    // The credentials were right but the employee has left. 403, not 401: the
+    // password is not the problem, and inviting them to type it again would
+    // send them round in circles.
+    if (result.blocked === "LEFT") {
+      return res.status(403).json({
+        success: false,
+        code: "EMPLOYEE_LEFT",
+        message:
+          "Your employee record is marked as Left, so the app is no longer available to you. Please contact HR.",
+        detail: { code: "EMPLOYEE_LEFT", message: "Employee record is not active" },
+      });
+    }
+
     res.json(result);
   } catch (err) {
     next(err);

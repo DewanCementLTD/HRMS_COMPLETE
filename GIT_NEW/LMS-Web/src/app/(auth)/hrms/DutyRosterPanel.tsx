@@ -450,7 +450,12 @@ export function DutyRosterPanel({
                         onChange={(e) => setEditVals((v) => ({ ...v, shift: e.target.value }))}
                         className="border border-indigo-300 rounded px-1 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400"
                       >
-                        <option value="">—</option>
+                        {/* Disabled on purpose. Picking it used to be possible,
+                            and updateRosterEntry turns an empty shift into NULL
+                            — a roster day with no shift breaks the attendance
+                            status derivation and the weekly-off calculation.
+                            It still shows when a row somehow has no shift. */}
+                        <option value="" disabled>Select shift…</option>
                         {/* A roster row may already carry a shift the company no
                             longer defines (company 5 rosters use R). Keep it in
                             the list so editing another field can't blank it. */}

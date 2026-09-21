@@ -11,6 +11,7 @@ import {
   listLoanTypesSchema, createLoanTypeSchema, deleteLoanTypeSchema,
   listLoansSchema, createLoanSchema, updateLoanSchema, deleteLoanSchema,
   salaryPeriodsSchema, salarySheetSchema, salaryPayslipSchema, salaryOpenPeriodSchema, salaryProcessSchema,
+  salaryProcessStateSchema, salaryProcessFinalSchema,
 } from "../models/payroll.schema.js";
 
 import {
@@ -22,6 +23,7 @@ import {
   getLoanTypes, postLoanType, delLoanType,
   getLoans, postLoan, putLoan, delLoan,
   getSalaryPeriods, getSalarySheet, getSalaryPayslip, getSalaryOpenPeriod, postSalaryProcess,
+  salaryProcessState, postSalaryProcessFinal,
 } from "../controllers/payroll.controller.js";
 
 const router = Router();
@@ -69,5 +71,7 @@ router.get("/salary/sheet", validate(salarySheetSchema), requireHrAdmin, getSala
 router.get("/salary/payslip", validate(salaryPayslipSchema), requireHrAdmin, getSalaryPayslip);
 router.get("/salary/open-period", validate(salaryOpenPeriodSchema), requireHrAdmin, getSalaryOpenPeriod);
 router.post("/salary/process", validate(salaryProcessSchema), requireHrAdmin, postSalaryProcess);
+router.get("/salary/process-state", validate(salaryProcessStateSchema), requireHrAdmin, salaryProcessState); // [x] /payroll/salary/process-state?admin_card_no=100001.1&period=98
+router.post("/salary/process-final", validate(salaryProcessFinalSchema), requireHrAdmin, postSalaryProcessFinal); // [x] Body: {"period":98,"password":"..."} — posts the period into the FINAL tables
 
 export default router;

@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
+import { RosterDefaultPanel } from "./RosterDefaultPanel";
 import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
@@ -19,7 +20,7 @@ import { LeaveTypesSection } from "./LeaveTypesSection";
 
 // ─── Types ────────────────────────────────────────────────
 
-type Tab = "departments" | "designations" | "shifts" | "blood_groups" | "locations"
+type Tab = "departments" | "designations" | "shifts" | "roster_defaults" | "blood_groups" | "locations"
   | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo"
   | "interview_types" | "leave_types";
 
@@ -27,6 +28,7 @@ const TAB_LABEL: Record<Tab, string> = {
   departments: "Departments", designations: "Designations",
   locations: "Locations", emp_statuses: "Employee Status",
   qualifications: "Qualifications", blood_groups: "Blood Groups", shifts: "Shifts",
+  roster_defaults: "Roster Default",
   banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
   interview_types: "Interview Types", leave_types: "Leave Types",
 };
@@ -44,7 +46,7 @@ const GROUPS: SetupGroup[] = [
   {
     id: "employee", label: "Employee", icon: BadgeCheck,
     desc: "Employee attributes used on the employee form.",
-    tabs: ["emp_statuses", "qualifications", "blood_groups", "shifts"],
+    tabs: ["emp_statuses", "qualifications", "blood_groups", "shifts", "roster_defaults"],
   },
   {
     id: "banking", label: "Banking", icon: Landmark,
@@ -827,6 +829,15 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     departments:  deptTable,
     designations: desigTable,
     shifts:       shiftTable,
+    // Self-contained: it loads and saves its own data, so it needs no entry in
+    // the fetch switch above.
+    roster_defaults: (
+      <RosterDefaultPanel
+        adminCardNo={adminCardNo}
+        compc={activeCompany || undefined}
+        brnch={activeBranch || undefined}
+      />
+    ),
     blood_groups: bgTable,
     locations:    locationTable,
     emp_statuses: empStatusTable,

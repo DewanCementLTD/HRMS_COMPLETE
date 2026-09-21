@@ -18,6 +18,9 @@ import {
   createEmployeeSchema,
   updateEmployeeSchema,
   attendanceReportSchema,
+  rosterDefaultsListSchema,
+  rosterDefaultsSaveSchema,
+  rosterApplyDefaultsSchema,
   dutyRosterSchema,
   updateDutyRosterEntrySchema,
   bulkDutyRosterShiftSchema,
@@ -36,6 +39,9 @@ import {
   bulkAttendance,
   attendanceDetails,
   unpostedPunches,
+  rosterDefaults,
+  saveRosterDefaults,
+  applyRosterDefaultsToRange,
   employeeDutyRoster,
   editDutyRosterEntry,
   bulkEditDutyRosterShift,
@@ -59,6 +65,13 @@ router.get('/dashboard',           validate(dashboardQuerySchema), requireHrAdmi
 router.get('/attendance/bulk',    validate(attendanceReportSchema), requireHrAdmin, bulkAttendance); // [X] http://localhost:8000/hrms/attendance/bulk?admin_card_no=100001.1&from_date=2026-06-01&to_date=2026-06-30
 router.get('/attendance/details', validate(attendanceReportSchema), requireHrAdmin, attendanceDetails);  // [x] http://localhost:8000/hrms/attendance/details?admin_card_no=100001.1&from_date=2026-06-01&to_date=2026-06-30
 router.get('/attendance/unposted', validate(attendanceReportSchema), requireHrAdmin, unpostedPunches); // [x] http://localhost:8000/hrms/attendance/unposted?admin_card_no=100001.1&from_date=2026-08-11&to_date=2026-09-10  — app punches the ERP duty roster never took
+
+// ---------------------------------------------------------------------------
+// Roster defaults (what each branch runs) and the mass shift change
+// ---------------------------------------------------------------------------
+router.get('/roster-defaults',  validate(rosterDefaultsListSchema), requireHrAdmin, rosterDefaults); // [x] http://localhost:8000/hrms/roster-defaults?admin_card_no=100001.1
+router.put('/roster-defaults',  validate(rosterDefaultsSaveSchema), requireHrAdmin, saveRosterDefaults); // [x] Body: {"compc":3,"brnch":16,"default_shift":"N","rest_days":"7"}
+router.post('/duty-roster/apply-defaults', validate(rosterApplyDefaultsSchema), requireHrAdmin, applyRosterDefaultsToRange); // [x] Body: {"compc":3,"brnch":16,"from_date":"2026-10-01","to_date":"2026-10-31","shift":"N"}
 
 // ---------------------------------------------------------------------------
 // Leave allocation (LEAVE_OP) — HR grants each employee their yearly leave.

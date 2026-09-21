@@ -71,12 +71,14 @@ import {
 
 type View = "list" | "register" | "edit" | "report" | "roster";
 
-type StatusTab = "" | "A" | "I" | "L";
+type StatusTab = "" | "A" | "L";
 
+// Two statuses only. A Left employee keeps their record and history but cannot
+// log in, mark attendance or be location-tracked; the backend enforces all
+// three. The retired "Inactive" ('I'/'D') rows are shown under Left.
 const STATUS_TABS: { value: StatusTab; label: string }[] = [
   { value: "", label: "All" },
   { value: "A", label: "Active" },
-  { value: "I", label: "Inactive" },
   { value: "L", label: "Left" },
 ];
 
@@ -156,9 +158,22 @@ const sexOptions = [
 
 const statusOptions = [
   { value: "A", label: "Active" },
-  { value: "I", label: "Inactive" },
   { value: "L", label: "Left" },
 ];
+
+/**
+ * Bind any stored status to one of the two options above.
+ *
+ * The API normalises this too, but a <select> whose value matches no <option>
+ * shows the FIRST option while still holding the original value — so a legacy
+ * 'D'/'I' row displayed "Active" and saved as Left the moment anything was
+ * saved. Never let the form hold a value the dropdown cannot show.
+ */
+const toStatusOption = (raw?: string) =>
+  String(raw ?? "").trim().toUpperCase() === "L" ||
+  ["D", "I"].includes(String(raw ?? "").trim().toUpperCase())
+    ? "L"
+    : "A";
 
 const hrAdminOptions = [
   { value: "N", label: "No" },
@@ -288,7 +303,7 @@ function downloadEmployeesCSV(
     desigs.find((d) => String(d.desg_cd) === String(cd))?.desg_desc || cd || "";
   const sexLabel = (s?: string) => (s === "M" ? "Male" : s === "F" ? "Female" : s || "");
   const statusText = (s?: string) =>
-    ({ A: "Active", I: "Inactive", D: "Inactive", L: "Left" }[s || ""] || s || "");
+    ({ A: "Active", I: "Left", D: "Left", L: "Left" }[s || ""] || s || "");
 
   const headers = [
     "Employee Code", "Name", "Father/Husband Name", "Card No", "Attendance Card",
@@ -328,7 +343,7 @@ function downloadEmployeesPDF(
     desigs.find((d) => String(d.desg_cd) === String(cd))?.desg_desc || cd || "";
   const sexLabel = (s?: string) => (s === "M" ? "Male" : s === "F" ? "Female" : s || "");
   const statusText = (s?: string) =>
-    ({ A: "Active", I: "Inactive", D: "Inactive", L: "Left" }[s || ""] || s || "");
+    ({ A: "Active", I: "Left", D: "Left", L: "Left" }[s || ""] || s || "");
 
   printTablePdf({
     companyName,
@@ -349,16 +364,19 @@ function downloadEmployeesPDF(
 // ──────────────────────────────────────────────
 
 function StatusBadge({ status }: { status?: string }) {
+  // The retired codes share the Left styling — two badges both reading "Left"
+  // in different colours would look like two different things.
   const map: Record<string, string> = {
     A: "bg-emerald-50 text-emerald-700",
-    I: "bg-gray-100 text-gray-600",
-    D: "bg-gray-100 text-gray-600",
+    I: "bg-red-50 text-red-600",
+    D: "bg-red-50 text-red-600",
     L: "bg-red-50 text-red-600",
   };
   const label: Record<string, string> = {
     A: "Active",
-    I: "Inactive",
-    D: "Inactive",
+    // Retired codes, still present on rows that predate the two-status rule.
+    I: "Left",
+    D: "Left",
     L: "Left",
   };
   const cls = map[status || ""] || "bg-gray-100 text-gray-500";
@@ -490,7 +508,7 @@ export default function HRMSPage() {
       // TRANSFER_DATE is a DATE column; an <input type="date"> silently blanks
       // on anything but YYYY-MM-DD, so trim a time component if one comes back.
       transfer_date: String(e.transfer_date || "").slice(0, 10),
-      status: e.status || "A",
+      status: toStatusOption(e.status),
       user_paswd: e.user_paswd || "",
       hr_admin: e.hr_admin || "N",
       rpt_officer: e.rpt_officer || "",

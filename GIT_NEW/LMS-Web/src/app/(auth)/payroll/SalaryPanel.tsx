@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange, FileSpreadsheet, Lock, Unlock } from "lucide-react";
+import { RefreshCw, Search, FileText, Users, Loader2, Cog, CalendarRange, FileSpreadsheet, Lock, Unlock, ShieldCheck, KeyRound, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
@@ -9,8 +9,11 @@ import { useAuth } from "@/context/AuthContext";
 import {
   fetchSalaryPeriods, fetchSalarySheet, fetchPayslip,
   fetchSalaryOpenPeriod, runSalaryProcess,
+  fetchSalaryProcessState, runFinalSalaryProcess,
   type SalaryPeriod, type SalarySheetRow, type Payslip as PayslipData, type SalaryOpenPeriod,
+  type SalaryProcessState,
 } from "@/services/payrollService";
+import { Modal } from "@/components/ui/Modal";
 import { Payslip } from "./Payslip";
 
 const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
@@ -32,6 +35,15 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
   const [processing, setProcessing] = useState(false);
   const [processMsg, setProcessMsg] = useState<string | null>(null);
   const [processedPeriod, setProcessedPeriod] = useState<number | null>(null);
+
+  // Where the selected period stands: processed yet, and posted yet. The server
+  // reads the same tables the ERP procedure checks, so the buttons can never
+  // offer something the procedure would then refuse.
+  const [state, setState] = useState<SalaryProcessState | null>(null);
+  const [finalOpen, setFinalOpen] = useState(false);
+  const [finalPassword, setFinalPassword] = useState("");
+  const [finalizing, setFinalizing] = useState(false);
+  const [finalError, setFinalError] = useState<string | null>(null);
 
   const loadPeriods = useCallback(async () => {
     try {
@@ -56,6 +68,11 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
     catch { setOpenPeriod(null); }
   }, [adminCardNo, compc]);
 
+  const loadState = useCallback(async (p: number) => {
+    try { setState(await fetchSalaryProcessState(adminCardNo, p, compc)); }
+    catch { setState(null); }
+  }, [adminCardNo, compc]);
+
   const loadSheet = useCallback(async (p: number) => {
     setLoading(true); setError(null);
     try { const r = await fetchSalarySheet(adminCardNo, p, compc, undefined, brnch); setRows(r.items || []); }
@@ -67,6 +84,7 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
   useEffect(() => { loadPeriods(); }, [loadPeriods]);
   useEffect(() => { loadOpenPeriod(); }, [loadOpenPeriod]);
   useEffect(() => { if (period != null) loadSheet(period); }, [period, loadSheet]);
+  useEffect(() => { if (period != null) loadState(period); }, [period, loadState]);
 
   async function runProcess() {
     if (!openPeriod) return;
@@ -85,8 +103,30 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
       // Jump to the just-processed period so the sheet shows the new results.
       setPeriod(r.period);
       await loadSheet(r.period);
+      await loadState(r.period);
     } catch (e) { setError(e instanceof Error ? e.message : "Salary process failed"); }
     finally { setProcessing(false); }
+  }
+
+  async function runFinal() {
+    if (period == null) return;
+    if (!finalPassword.trim()) { setFinalError("Enter the payroll password"); return; }
+    setFinalizing(true); setFinalError(null);
+    try {
+      const r = await runFinalSalaryProcess(adminCardNo, period, finalPassword, compc);
+      setProcessMsg(r.message || "Payroll finalised.");
+      setFinalOpen(false);
+      // Never leave the password sitting in component state once it is spent.
+      setFinalPassword("");
+      await loadState(period);
+      await loadSheet(period);
+    } catch (e) {
+      // The procedure's own wording — wrong password, not processed, already
+      // posted — is shown as-is; it is written for whoever is standing there.
+      setFinalError(e instanceof Error ? e.message : "The final process failed");
+    } finally {
+      setFinalizing(false);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -112,11 +152,63 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
   const selected = useMemo(() => periods.find((p) => p.period === period) ?? null, [periods, period]);
   // Only the open period may be processed — the procedure itself only ever
   // targets STATUS='O', so offering it for a closed month would be a lie.
-  const canProcess = Boolean(openPeriod) && selected?.is_open === true;
+  // Posting is final: once a period is in the FINAL tables neither button may
+  // run again for it, whatever else is true.
+  const finalized = state?.finalized === true;
+  const canProcess = Boolean(openPeriod) && selected?.is_open === true && !finalized;
+  // The final step only appears once there is something to post.
+  const canFinalize = state?.can_finalize === true;
 
   return (
     <div className="space-y-4">
       {slip && <Payslip data={slip} onClose={() => setSlip(null)} />}
+
+      {/* Final payroll — the password is checked by the ERP procedure against
+          HR_SAL_PASWD, so it is sent straight through and never held here
+          beyond the request. */}
+      {finalOpen && (
+        <Modal
+          title="Run Final Payroll"
+          subtitle={`${selected?.label ?? "This period"} — posting is permanent`}
+          size="sm"
+          onClose={() => { if (!finalizing) { setFinalOpen(false); setFinalPassword(""); setFinalError(null); } }}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => { setFinalOpen(false); setFinalPassword(""); setFinalError(null); }} disabled={finalizing}>
+                Cancel
+              </Button>
+              <Button onClick={runFinal} disabled={finalizing || !finalPassword.trim()}>
+                {finalizing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <ShieldCheck className="h-4 w-4 mr-1.5" />}
+                {finalizing ? "Finalising…" : "Finalise Payroll"}
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600">
+              This posts <span className="font-semibold">{selected?.label ?? "the selected period"}</span> to the
+              final payroll tables and records loan recoveries against it. Once posted, this period can no
+              longer be processed or finalised again.
+            </p>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-700">Payroll password</label>
+              <div className="relative">
+                <KeyRound className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  autoFocus
+                  value={finalPassword}
+                  onChange={(e) => { setFinalPassword(e.target.value); setFinalError(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" && finalPassword.trim() && !finalizing) runFinal(); }}
+                  placeholder="Enter the payroll password"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+            </div>
+            {finalError && <p className="text-sm text-red-600">{finalError}</p>}
+          </div>
+        </Modal>
+      )}
       {error && <div className="p-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">{error}</div>}
       {processMsg && (
         <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-100 text-sm text-emerald-700 flex flex-wrap items-center justify-between gap-2">
@@ -151,12 +243,18 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
                 <Lock className="h-3.5 w-3.5" /> Viewing {selected.label} (closed) — read only
               </span>
             )}
+            {finalized && (
+              <span className="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-2.5 py-1">
+                <CheckCircle2 className="h-3.5 w-3.5" /> {selected?.label ?? "This period"} is finalised
+              </span>
+            )}
             <Button
               onClick={runProcess}
               disabled={processing || !canProcess}
               className="ml-auto"
               title={
-                !openPeriod ? "No open period"
+                finalized ? `${selected?.label ?? "This period"} has been finalised — it can no longer be reprocessed.`
+                  : !openPeriod ? "No open period"
                   : !canProcess ? `${selected?.label ?? "This period"} is closed. Only the open period (${openPeriod.label}) can be processed.`
                   : `Run the salary process for ${openPeriod.label}`
               }
@@ -164,6 +262,24 @@ export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: s
               {processing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Cog className="h-4 w-4 mr-1.5" />}
               {processing ? "Processing…" : "Run Salary Process"}
             </Button>
+
+            {/* Only offered once the salary process has produced something to
+                post, and never again after it has been posted. */}
+            {(canFinalize || finalized) && (
+              <Button
+                variant="secondary"
+                onClick={() => { setFinalError(null); setFinalPassword(""); setFinalOpen(true); }}
+                disabled={finalizing || finalized}
+                title={
+                  finalized
+                    ? `${selected?.label ?? "This period"} has already been finalised.`
+                    : `Post ${selected?.label ?? "this period"} to the final payroll tables`
+                }
+              >
+                {finalizing ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <ShieldCheck className="h-4 w-4 mr-1.5" />}
+                {finalized ? "Payroll Finalised" : "Run Final Payroll"}
+              </Button>
+            )}
           </div>
 
           {openPeriod && selected && !selected.is_open && (

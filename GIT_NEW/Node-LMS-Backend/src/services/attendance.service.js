@@ -16,6 +16,7 @@ import { getDirectConnection } from '../config/database.js';
 import { cardInt } from '../utils/conversionHelpers.js';
 import { saveAttendanceOriginPoint } from './location.service.js';
 import { deriveRosterDay } from '../utils/rosterStatus.js';
+import { isActiveStatus, LEFT_EMPLOYEE_MESSAGE } from '../utils/employeeStatus.js';
 
 import { logger } from '../utils/logger.js';
 const OBJ = { outFormat: oracledb.OUT_FORMAT_OBJECT };
@@ -235,24 +236,34 @@ const getEmpcode = async (card_no) => {
   }
 };
 
-/** Does this card belong to a real employee? */
-const employeeExists = async (card_no) => {
+/**
+ * Does this card belong to a real employee, and do they still work here?
+ *
+ * Returns { found, active }. Employment status lives on HR_EMP_MASTER, so this
+ * reaches across from EMPLOYEE — a card with no master row is treated as active
+ * rather than locked out, since the missing row is a data gap, not a departure.
+ */
+const employeeMarkability = async (card_no) => {
   let connection;
   try {
     connection = await getDirectConnection();
     const result = await connection.execute(
-      `SELECT 1 AS "hit" FROM EMPLOYEE
-        WHERE TO_CHAR(CARD_NO) = :card OR TO_CHAR(CARD_NO) = :card_int
+      `SELECT h.STATUS AS "status", h.NAME AS "name"
+         FROM EMPLOYEE e
+         LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+        WHERE TO_CHAR(e.CARD_NO) = :card OR TO_CHAR(e.CARD_NO) = :card_int
         FETCH FIRST 1 ROWS ONLY`,
       { card: String(card_no), card_int: cardInt(card_no) },
       OBJ,
     );
-    return Boolean(result.rows?.[0]);
+    const row = result.rows?.[0];
+    if (!row) return { found: false, active: false };
+    return { found: true, active: isActiveStatus(row.status), name: row.name };
   } catch (e) {
-    // A lookup that could not run is not proof the employee is missing; let the
-    // mark proceed and be judged by whether the row actually persists.
-    logger.info(`[ATTENDANCE] employee existence check failed for ${card_no}: ${e.message ?? e}`);
-    return true;
+    // A lookup that could not run is not proof of anything; let the mark
+    // proceed and be judged by whether the row actually persists.
+    logger.info(`[ATTENDANCE] employee status check failed for ${card_no}: ${e.message ?? e}`);
+    return { found: true, active: true };
   } finally {
     await connection?.close();
   }
@@ -598,12 +609,21 @@ const markAttendance = async (card_no, attendance_type = 'check_in', opts = {}) 
   // A card nobody works under cannot be marked. Without this the punch reached
   // the MERGE, where an ERP trigger rejected it for having no company — and the
   // employee was still told they were checked in.
-  if (!(await employeeExists(card_no))) {
+  const markability = await employeeMarkability(card_no);
+  if (!markability.found) {
     logger.warn(`[ATTENDANCE] mark refused: no employee for card=${card_no}`);
     return {
       status: 'error',
       message: 'This card is not registered as an employee. Attendance not marked.',
     };
+  }
+
+  // Someone who has left keeps their history but stops accruing new attendance.
+  // Nothing checked this before, and eight people who had already left punched
+  // in the thirty days to 2026-09-15.
+  if (!markability.active) {
+    logger.warn(`[ATTENDANCE] mark refused: card=${card_no} is not an active employee`);
+    return { status: 'error', message: LEFT_EMPLOYEE_MESSAGE };
   }
 
   const record = await getTodayRecord(card_no);

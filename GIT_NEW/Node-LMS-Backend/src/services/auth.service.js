@@ -3,6 +3,7 @@ import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
 import { issueEmployeeToken, employeeSessionDays } from './employeeSession.service.js';
 import { getWorkSchedule } from './workSchedule.service.js';
+import { isActiveStatus, LEFT_EMPLOYEE_MESSAGE } from '../utils/employeeStatus.js';
 const OBJ = { outFormat: 4002 };
 
 // ---------------------------------------------------------------------------
@@ -278,7 +279,7 @@ const authenticateStep = async (username, password) => {
     try {
       const r = await connection.execute(
         `SELECT TO_CHAR(e.CARD_NO) AS "card_no", e.USER_PASWD AS "user_paswd", h.NAME AS "name",
-                h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard"
+                h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard", h.STATUS AS "status"
          FROM HR_EMP_MASTER h
          LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
          WHERE h."MOBILE#" IN (:l1, :l2, :l3)
@@ -292,6 +293,17 @@ const authenticateStep = async (username, password) => {
         const storedPaswd = String(row.user_paswd ?? '').trim();
         if (storedPaswd && storedPaswd !== String(password ?? '').trim()) {
           return null;
+        }
+
+        // Someone who has left keeps their record and their history, but not
+        // their access. Checked AFTER the password so a wrong password still
+        // answers "invalid credentials" and this never becomes a way to probe
+        // who has left the company.
+        if (!isActiveStatus(row.status)) {
+          logger.info(
+            `[AUTH] login refused for ${row.empcode} — employment status is ${String(row.status ?? '').trim() || 'unset'}`,
+          );
+          return { blocked: 'LEFT', emp_name: String(row.name ?? '').trim() };
         }
         return {
           card_no,
@@ -359,6 +371,9 @@ const authenticateStep = async (username, password) => {
 export const authenticateUser = async (username, password, deviceId = null) => {
   const user = await authenticateStep(username, password);
   if (!user) return null;
+  // Right credentials, but the person no longer works here. Passed up as its
+  // own outcome so the caller can say so instead of "invalid credentials".
+  if (user.blocked) return user;
   if (user.card_no) {
     try {
       const flags = await getEmployeeFlags(user.card_no);

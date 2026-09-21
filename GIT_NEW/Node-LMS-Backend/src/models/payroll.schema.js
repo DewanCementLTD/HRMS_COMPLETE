@@ -237,3 +237,23 @@ export const salaryOpenPeriodSchema = z.object({
 export const salaryProcessSchema = z.object({
   query: z.object({ ...adminQuery, compc: z.string().optional() }),
 });
+
+// GET /payroll/salary/process-state — drives which buttons a period offers.
+export const salaryProcessStateSchema = z.object({
+  query: z.object({
+    ...adminQuery,
+    compc: z.string().optional(),
+    period: z.string().min(1, "period is required"),
+  }),
+});
+
+// POST /payroll/salary/process-final
+// The password travels in the BODY, never the query string: query strings are
+// written to the access log and kept in browser history.
+export const salaryProcessFinalSchema = z.object({
+  query: z.object({ ...adminQuery, compc: z.string().optional() }),
+  body: z.object({
+    period: z.union([z.string(), z.number()]),
+    password: z.string().min(1, "Enter the payroll password"),
+  }),
+});

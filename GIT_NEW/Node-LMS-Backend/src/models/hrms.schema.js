@@ -36,6 +36,9 @@ const employeeBody = {
   email: z.string().optional(),
   address: z.string().optional(),
   unit_id: z.number().int().min(0, "must include a valid unit_id"),
+  // Employment status is exactly two values now: 'A' (Active) or 'L' (Left).
+  // The legacy 'I'/'D' codes are folded to 'L' server-side; anything else is
+  // rejected so a typo cannot invent a third state.
   status: z.string().optional(),
   user_paswd: z.string().min(8, "Password must be at least 8 characters long"),
   hr_admin: z.string().optional(),
@@ -70,6 +73,11 @@ const employeeBody = {
   qfication: z.string().optional(),
   qual_detail: z.string().optional(),
   dtofconfirm: z.string().optional(),
+  // Nullable on purpose: null is how HR removes a resignation date that was
+  // entered by mistake. Without that, the salary run keeps marking the person
+  // as departed however often they are set back to Active.
+  dtofresign: z.string().nullable().optional(),
+  resg_dt: z.string().nullable().optional(),
 };
 
 // GET /hrms/dashboard, /hrms/dashboard/analytics
@@ -143,6 +151,47 @@ export const updateEmployeeSchema = z.object({
     admin_card_no: z.string().min(1, "admin_card_no is required"),
   }),
   body: z.preprocess(dropBlankHods, z.object(employeeBody)),
+});
+
+// GET /hrms/roster-defaults
+export const rosterDefaultsListSchema = z.object({
+  query: z.object({
+    admin_card_no: z.string().min(1, "admin_card_no is required"),
+    compc: z.string().optional(),
+    brnch: z.string().optional(),
+  }),
+});
+
+// PUT /hrms/roster-defaults
+export const rosterDefaultsSaveSchema = z.object({
+  query: z.object({
+    admin_card_no: z.string().min(1, "admin_card_no is required"),
+  }),
+  body: z.object({
+    compc: z.union([z.string(), z.number()]),
+    brnch: z.union([z.string(), z.number()]),
+    default_shift: z.string().min(1, "default_shift is required"),
+    // ISO weekday numbers, 1 = Monday … 7 = Sunday. Accepts "6,7" or [6,7].
+    rest_days: z.union([z.string(), z.array(z.union([z.string(), z.number()]))]).optional(),
+  }),
+});
+
+// POST /hrms/duty-roster/apply-defaults — the mass shift change
+export const rosterApplyDefaultsSchema = z.object({
+  query: z.object({
+    admin_card_no: z.string().min(1, "admin_card_no is required"),
+  }),
+  body: z.object({
+    compc: z.union([z.string(), z.number()]),
+    brnch: z.union([z.string(), z.number()]),
+    from_date: z.string().min(1, "from_date is required"),
+    to_date: z.string().min(1, "to_date is required"),
+    // Omit to use the branch's configured default.
+    shift: z.string().optional(),
+    rest_days: z.union([z.string(), z.array(z.union([z.string(), z.number()]))]).optional(),
+    // Off by default: days HR edited by hand stay as they are.
+    include_edited: z.boolean().optional(),
+  }),
 });
 
 // GET /hrms/attendance/bulk  and  /hrms/attendance/details

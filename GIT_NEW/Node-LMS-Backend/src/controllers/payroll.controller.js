@@ -17,6 +17,7 @@ import {
   listLoanTypes, addLoanType, deleteLoanType,
   listLoans, createLoan, updateLoan, deleteLoan,
   listSalaryPeriods, listProcessedSalaries, getPayslip, getOpenPeriod, runSalaryProcess,
+  getSalaryProcessState, runFinalSalaryProcess,
 } from "../services/payroll.service.js";
 
 // ── Pay Register ──
@@ -333,6 +334,31 @@ export const getSalaryOpenPeriod = async (req, res, next) => {
   try {
     const { admin_card_no, compc } = res.locals.validated.query;
     res.json({ open_period: await getOpenPeriod(await resolveCompany(admin_card_no, compc)) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /payroll/salary/process-state
+export const salaryProcessState = async (req, res, next) => {
+  try {
+    const { admin_card_no, compc, period } = res.locals.validated.query;
+    checked(res, await getSalaryProcessState(await resolveCompany(admin_card_no, compc), period));
+  } catch (err) {
+    next(err);
+  }
+};
+
+// POST /payroll/salary/process-final
+//
+// Posts the period into the FINAL tables. The password is validated inside the
+// ERP procedure against HR_SAL_PASWD; it is never compared, logged or echoed
+// here, and it is read from the body so it never lands in an access log.
+export const postSalaryProcessFinal = async (req, res, next) => {
+  try {
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { period, password } = res.locals.validated.body;
+    checked(res, await runFinalSalaryProcess(await resolveCompany(admin_card_no, compc), period, password));
   } catch (err) {
     next(err);
   }

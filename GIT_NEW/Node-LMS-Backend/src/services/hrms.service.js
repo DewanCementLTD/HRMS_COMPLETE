@@ -20,6 +20,12 @@ import { cleanHHMM, deriveRosterDay } from "../utils/rosterStatus.js";
 import { requestDutyRosterBuild } from "./dutyRosterGen.service.js";
 
 import { logger } from '../utils/logger.js';
+import {
+  EMPLOYEE_STATUS,
+  LEFT_CODES,
+  normalizeStatus,
+  parseStatusInput,
+} from "../utils/employeeStatus.js";
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
 
@@ -51,6 +57,16 @@ const renameCardCols = (rec) => {
   delete rec["atdtcard#"];
   rec.mobile = rec["mobile#"] ?? null;
   delete rec["mobile#"];
+
+  // Employment status leaves this API as one of the two values the system has:
+  // 'A' or 'L'. The legacy 'D' and 'I' codes are still written by the ERP's own
+  // forms, and handing one to the employee screen used to break saving outright
+  // — the dropdown has no option for 'D', so the browser displayed the first
+  // option ("Active") while the form still held 'D', and saving wrote whatever
+  // the form held. Normalising here fixes every consumer at once, the payroll
+  // screens included, instead of each one having to know about retired codes.
+  // Only touched when the row actually carries a status.
+  if ("status" in rec) rec.status = normalizeStatus(rec.status);
   return rec;
 };
 
@@ -212,6 +228,17 @@ const findDuplicateIdentity = async (connection, data) => {
 export const createEmployee = async (data) => {
   let connection;
   try {
+    // Validated before anything is written, so an unrecognised code is an
+    // error rather than being quietly defaulted to Active.
+    if (data.status !== null && data.status !== undefined && String(data.status).trim() !== "") {
+      if (parseStatusInput(data.status) === undefined) {
+        return {
+          status: "error",
+          message: `Employment status must be Active or Left (got "${data.status}")`,
+        };
+      }
+    }
+
     const empcode = await getNextEmpcode();
     connection = await getDirectConnection();
 
@@ -261,7 +288,7 @@ export const createEmployee = async (data) => {
         email: strOrNone(data.email),
         address: strOrNone(data.address),
         unit_id: numOrNone(data.unit_id) || 1,
-        status: data.status || "A",
+        status: parseStatusInput(data.status) ?? EMPLOYEE_STATUS.ACTIVE,
         user_paswd: strOrNone(data.user_paswd),
         hr_admin: data.hr_admin || "N",
         rpt_officer: strOrNone(data.rpt_officer),
@@ -573,8 +600,18 @@ const UPDATE_FIELD_MAP = {
 const UPDATE_DATE_FIELDS = {
   dtofbrth: "DTOFBRTH", dtofappt: "DTOFAPPT", dtofconfirm: "DTOFCONFIRM",
   transfer_date: "TRANSFER_DATE",
+  // Resignation dates are editable because the ERP treats them as the real
+  // signal of a departure: RESIGN_CASE, which HR_SALARY_PROCES_PRO calls on
+  // every salary run, sets STATUS on anyone who has DTOFRESIGN filled in. Until
+  // these were writable, a date left here by mistake could not be removed
+  // through the app at all, and the employee was flipped back to "left" at the
+  // next payroll run no matter how often HR set them Active.
+  dtofresign: "DTOFRESIGN", resg_dt: "RESG_DT",
 };
 const NUMERIC_STR_FIELDS = new Set(["dept_no", "desg_cd", "location", "hod1", "hod2", "hod3"]);
+
+/** Date fields where an explicit blank means "remove this", not "leave it". */
+const CLEARABLE_DATE_FIELDS = new Set(["dtofresign", "resg_dt", "transfer_date"]);
 
 /**
  * Mirror HOD1/HOD2 onto the EMPLOYEE row.
@@ -612,6 +649,35 @@ export const updateEmployee = async (empcode, data) => {
   const setParts = [];
   const params = { empcode };
 
+  // Employment status is the one field with only two legal values. Fold the
+  // retired 'I'/'D' codes and refuse anything else outright — a bad status is
+  // what decides whether a person can log in and mark attendance, so it must
+  // never be written on a guess.
+  if ("status" in data && data.status !== null && data.status !== undefined) {
+    const parsed = parseStatusInput(data.status);
+    if (parsed === undefined) {
+      return {
+        status: "error",
+        message: `Employment status must be Active or Left (got "${data.status}")`,
+      };
+    }
+    if (parsed !== null) data = { ...data, status: parsed };
+
+    // Active and "has a resignation date" contradict each other, and the ERP
+    // settles that argument on its own terms: RESIGN_CASE — called by
+    // HR_SALARY_PROCES_PRO on every salary run — sets STATUS on anyone who is
+    // Active with DTOFRESIGN filled in. So marking somebody Active while a
+    // resignation date sits on their record produced a save that looked
+    // successful, held until the next payroll run, and then silently reverted.
+    //
+    // Making them Active IS the statement that they did not leave, so the dates
+    // go with it, unless this same request is explicitly setting one.
+    if (data.status === EMPLOYEE_STATUS.ACTIVE) {
+      if (!("dtofresign" in data)) data = { ...data, dtofresign: null };
+      if (!("resg_dt" in data)) data = { ...data, resg_dt: null };
+    }
+  }
+
   for (const [key, col] of Object.entries(UPDATE_FIELD_MAP)) {
     if (!(key in data) || data[key] === null || data[key] === undefined) continue;
     let val = data[key];
@@ -642,12 +708,21 @@ export const updateEmployee = async (empcode, data) => {
     && String(data.user_paswd).trim() !== "";
 
   for (const [key, col] of Object.entries(UPDATE_DATE_FIELDS)) {
-    if (key in data && data[key] !== null && data[key] !== undefined) {
-      const dateVal = strOrNone(data[key]);
-      if (dateVal === null) continue;
-      setParts.push(`${col} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
-      params[key] = dateVal;
+    if (!(key in data)) continue;
+    const dateVal = data[key] === null || data[key] === undefined ? null : strOrNone(data[key]);
+    if (dateVal === null) {
+      // An explicit null or blank on a resignation date means "this person did
+      // not resign" — clearing it is the only way to undo a date entered by
+      // mistake, and leaving it would have the salary run keep marking them as
+      // departed. Every other date keeps the old behaviour of ignoring blanks,
+      // so a form that posts an empty birth date cannot wipe one.
+      if (CLEARABLE_DATE_FIELDS.has(key) && key in data) {
+        setParts.push(`${col} = NULL`);
+      }
+      continue;
     }
+    setParts.push(`${col} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
+    params[key] = dateVal;
   }
 
   const hasQual =
@@ -818,11 +893,15 @@ export const listEmployeesHrms = async (status = null, allowedCompanies = null, 
     const CAP = ` FETCH FIRST 2000 ROWS ONLY`;
 
     let sql;
-    if (status === "I") {
-      sql = EMP_LIST_SELECT + ` WHERE h.STATUS IN ('I', 'D')${filterSql} ORDER BY h.NAME` + CAP;
-    } else if (status === "A" || status === "L") {
-      params.status = status;
-      sql = EMP_LIST_SELECT + ` WHERE h.STATUS = :status${filterSql} ORDER BY h.NAME` + CAP;
+    // Two statuses only. "Left" also covers the retired 'I' and 'D' codes, so
+    // nobody vanishes from the listing if a row has not been migrated yet.
+    if (status === "L" || status === "I") {
+      const ph = LEFT_CODES.map((_, i) => `:st${i}`).join(", ");
+      LEFT_CODES.forEach((code, i) => { params[`st${i}`] = code; });
+      sql = EMP_LIST_SELECT + ` WHERE h.STATUS IN (${ph})${filterSql} ORDER BY h.NAME` + CAP;
+    } else if (status === "A") {
+      // A missing status has always been read as active by the dashboards.
+      sql = EMP_LIST_SELECT + ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)${filterSql} ORDER BY h.NAME` + CAP;
     } else if (parts.length) {
       sql = EMP_LIST_SELECT + ` WHERE ${parts.join(" AND ")} ORDER BY h.NAME` + CAP;
     } else {
@@ -1858,10 +1937,17 @@ export const updateRosterEntry = async (pk, shift = null, remarks = null, update
     const sets = [];
     const binds = { pk: Number(pk) };
     
+    // A rostered day always has a shift — 'R' is how a day off is expressed, not
+    // an empty shift. Blanking the column would leave a row that the attendance
+    // status derivation, the leave off-day check and the weekly-off calculation
+    // all read as "no roster", so an empty value is left alone rather than
+    // written through. Passing null (the default) already means "don't touch".
     if (shift !== null) {
       const s = String(shift || "").trim().toUpperCase().substring(0, 1);
-      sets.push("ROSTER_SHIFT = :shift");
-      binds.shift = s || null;
+      if (s) {
+        sets.push("ROSTER_SHIFT = :shift");
+        binds.shift = s;
+      }
     }
     
     if (remarks !== null) {
