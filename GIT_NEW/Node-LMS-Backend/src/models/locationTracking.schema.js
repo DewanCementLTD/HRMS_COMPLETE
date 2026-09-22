@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+// 2026-09-22: these two answered with no login at all and listed every
+// tracked employee's name, today's check-in time and duty status — put
+// behind the same admin_card_no + requireHrAdmin check /auth/location/summary
+// uses, even though nothing found was calling them (grep of LMS-Web + a
+// month of access logs).
+export const adminOnlySchema = z.object({
+  query: z.object({
+    admin_card_no: z.string().min(1, "admin_card_no is required"),
+  }),
+});
+
 export const getTrackingSettingsSchema = z.object({
   params: z.object({
     emp_code: z.string().min(1, "emp_code is required"),

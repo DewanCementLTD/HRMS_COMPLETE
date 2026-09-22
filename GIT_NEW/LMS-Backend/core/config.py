@@ -20,6 +20,20 @@ class Settings(BaseSettings):
     # if the face service moves to another host/port.
     FACE_SERVICE_URL: str = "http://127.0.0.1:8002"
 
+    # HMAC signing key for the session tokens issued at /auth/login and
+    # checked by POST /auth/location/batch (core/tokens.py). Set a long random
+    # value in .env before turning LOCATION_BATCH_ENFORCE_TOKEN on — tokens
+    # signed with the empty-string fallback are forgeable by anyone who can
+    # read this source.
+    JWT_SECRET_KEY: str = ""
+
+    # Phase 2 of the 2026-09-22 location-batch auth rollout: while False,
+    # missing/invalid tokens on POST /auth/location/batch are only logged
+    # (older app builds may not send one yet). Flip to True in .env — no code
+    # change or redeploy needed — once the token-sending app build has had a
+    # few days to roll out, to start rejecting with 401.
+    LOCATION_BATCH_ENFORCE_TOKEN: bool = False
+
     class Config:
         env_file = str(_ENV_FILE)
         # Ignore unrelated environment variables. The CV pipeline (AI/config.py)

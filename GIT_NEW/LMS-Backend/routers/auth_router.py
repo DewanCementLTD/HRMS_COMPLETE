@@ -26,6 +26,7 @@ from services.auth_service import (
 )
 from repositories.user_repository import lookup_by_phone
 from repositories.app_version_repository import force_update_block
+from core.tokens import issue_token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -68,6 +69,7 @@ def login(request: LoginRequest):
         company_list=user.get("company_list", []),
         branch_list=user.get("branch_list", []),
         can_edit_salary=user.get("can_edit_salary", False),
+        token=issue_token(user["card_no"]),
     )
 
 

@@ -218,6 +218,12 @@ export const faceAttendance = async (req, res, next) => {
       // day will read as absent until corrected). null = not applicable.
       // The punch is stored either way; this is never a reason to fail the mark.
       posted_to_erp: result.posted_to_erp ?? null,
+      // Check-in only (2026-09-22): when location tracking must stop for this
+      // session, and the roster day it belongs to (the START day for a night
+      // shift). Null on a check-out/noop mark, or when the cutoff could not be
+      // computed — the app then falls back to its own 18h cap either way.
+      tracking_cutoff_at: result.tracking_cutoff_at ?? null,
+      attendance_date: result.attendance_date ?? null,
       tracking,
     };
 

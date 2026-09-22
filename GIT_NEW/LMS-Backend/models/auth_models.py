@@ -40,6 +40,10 @@ class LoginResponse(BaseModel):
     company_list: List[CompanyItem] = []
     branch_list: List[BranchItem] = []
     can_edit_salary: bool = False   # SEC_USERNAME.ULEVL == 'M'
+    # Session token (core/tokens.py), added 2026-09-22 for POST
+    # /auth/location/batch. Optional/additive — older app builds that ignore
+    # unknown JSON fields keep working unchanged.
+    token: Optional[str] = None
 
 
 class ChangePasswordRequest(BaseModel):

@@ -3,6 +3,7 @@ import oracledb from 'oracledb';
 import { getDirectConnection } from '../config/database.js';
 import { isActiveStatus } from '../utils/employeeStatus.js';
 import { logger } from '../utils/logger.js';
+import { getLatestSessionWindow, sessionStatus } from './sessionWindow.service.js';
 
 // ---------------------------------------------------------------------------
 // Offline location sync
@@ -465,6 +466,25 @@ export const getTrackingState = async (cardNo) => {
     if (s.entry_time && s.exit_time) attendanceStatus = 'CHECKED_OUT';
     else if (s.entry_time) attendanceStatus = 'CHECKED_IN';
 
+    // 2026-09-22: the session's actual window (check-in through checkout, or
+    // shift-end + TRACKING_GRACE_MINUTES when there's no checkout). Used only
+    // to catch the case below — a CHECKED_IN employee who never checked out —
+    // which previously stayed ACTIVE forever. isShiftOver above (no grace)
+    // still decides INTERMEDIATE vs FINAL for an existing checkout; that
+    // question is "is the shift still running", not "has the grace expired".
+    let missingCheckout = false;
+    if (attendanceStatus === 'CHECKED_IN') {
+      try {
+        const today = new Date();
+        const p2 = (n) => String(n).padStart(2, '0');
+        const rosterDate = `${today.getFullYear()}-${p2(today.getMonth() + 1)}-${p2(today.getDate())}`;
+        const window = await getLatestSessionWindow(cardNo, rosterDate, connection);
+        missingCheckout = sessionStatus(window).missing_checkout;
+      } catch (e) {
+        logger.info(`[TRACKING_STATE] cutoff check skipped for ${cardNo}: ${e.message ?? e}`);
+      }
+    }
+
     let checkoutState = 'NONE';
     let trackingState = 'STOPPED';
     let isFinalCheckout = false;
@@ -477,7 +497,9 @@ export const getTrackingState = async (cardNo) => {
         isFinalCheckout = checkoutState === 'FINAL';
       }
     } else if (attendanceStatus === 'CHECKED_IN') {
-      trackingState = 'ACTIVE';
+      // Past the shift-end+grace cutoff with no checkout: the session is
+      // closed as a missing checkout, not "still present, in progress".
+      trackingState = missingCheckout ? 'STOPPED' : 'ACTIVE';
       checkoutState = 'NONE';
     } else if (attendanceStatus === 'CHECKED_OUT') {
       // The rule this whole endpoint exists for. `shiftOver === false` means we
@@ -526,6 +548,9 @@ export const getTrackingState = async (cardNo) => {
         latest_checkout: s.exit_time,
         checkout_state: checkoutState,
         is_final_checkout: isFinalCheckout,
+        // True once CHECKED_IN has run past the shift-end+grace cutoff with
+        // no checkout — the session is closed, not "still present". Additive.
+        missing_checkout: missingCheckout,
 
         shift: s.shift,
         shift_start: s.shift_start,

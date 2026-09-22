@@ -5,6 +5,12 @@ import {
   buildNumericInClause,
   buildStringInClause,
 } from "../utils/buildInClause.js";
+import {
+  getSessionWindows,
+  isWithinAnyWindow,
+  addDaysYmd,
+  utcNaiveToLocalYmd,
+} from "./sessionWindow.service.js";
 
 // Format a Date's components (local or UTC) as a naive Oracle timestamp string
 // "YYYY-MM-DD HH24:MI:SS.FF6" — no timezone, matching Python's naive datetime.
@@ -53,20 +59,64 @@ const resolveRecordedAt = (recorded_at) => {
  * two concurrent uploads could resolve to the same value — a real risk once
  * several phones come back online together. Both insert paths share the one
  * sequence so they cannot collide with each other either.
+ *
+ * 2026-09-22: no longer stamps ATTENDANCE_DATE = TRUNC(SYSDATE) (the day the
+ * batch ARRIVED). Each point is now attributed to whichever attendance
+ * session (see sessionWindow.service.js) its own RECORDED_AT actually falls
+ * inside — checked-in, and before checkout / the shift-end+grace cutoff — so
+ * a point synced days late still lands on the day it was recorded, and a
+ * point outside every session (no check-in that day, after checkout, past
+ * cutoff) is never stored at all. Always returns HTTP 200 either way: the app
+ * treats any non-200 as "retry forever", so an out-of-window point is
+ * reported via `discarded`, never a per-point status the app would loop on.
  */
 export const batchInsertLocations = async (card_no, locations) => {
   if (!Array.isArray(locations) || locations.length === 0) {
-    return 0;
+    return { inserted: 0, discarded: 0 };
   }
 
   let connection;
   let inserted = 0;
+  let discarded = 0;
+  // One DB round trip per distinct roster date touched by this batch, not per
+  // point — a batch is typically many points for the same one or two days.
+  const windowsCache = new Map(); // "YYYY-MM-DD" -> window[] (one entry per check-in/checkout pair that day)
 
   try {
     connection = await getDirectConnection();
 
+    const windowsFor = async (ymd) => {
+      if (windowsCache.has(ymd)) return windowsCache.get(ymd);
+      const w = await getSessionWindows(card_no, ymd, connection);
+      windowsCache.set(ymd, w);
+      return w;
+    };
+
     for (const loc of locations) {
-      const recAt = resolveRecordedAt(loc.recorded_at);
+      const recAt = resolveRecordedAt(loc.recorded_at); // UTC-naive "YYYY-MM-DD HH:MM:SS.ffffff"
+      const recAtSec = recAt.slice(0, 19);
+
+      // The point's own local (Asia/Karachi) calendar date, since RECORDED_AT
+      // is UTC wall time. Try that day's sessions first, then the PREVIOUS
+      // local day's — a night-shift point recorded after local midnight still
+      // belongs to yesterday's roster/session. A day can hold several
+      // check-in/checkout pairs, so a point counts if it falls in ANY of them.
+      const localYmd = utcNaiveToLocalYmd(recAtSec);
+      const prevYmd = addDaysYmd(localYmd, -1);
+
+      let attendanceDate = null;
+      for (const candidate of [localYmd, prevYmd]) {
+        const windows = await windowsFor(candidate);
+        if (isWithinAnyWindow(windows, recAtSec)) {
+          attendanceDate = candidate;
+          break;
+        }
+      }
+
+      if (!attendanceDate) {
+        discarded++;
+        continue;
+      }
 
       await connection.execute(
         `
@@ -88,7 +138,7 @@ export const batchInsertLocations = async (card_no, locations) => {
             :acc,
             TO_TIMESTAMP(:rec_at, 'YYYY-MM-DD HH24:MI:SS.FF6'),
             SYSTIMESTAMP,
-            TRUNC(SYSDATE)
+            TO_DATE(:att_date, 'YYYY-MM-DD')
         )
         `,
         {
@@ -97,6 +147,7 @@ export const batchInsertLocations = async (card_no, locations) => {
           lng: Number(loc.longitude),
           acc: Number(loc.accuracy ?? 0),
           rec_at: recAt,
+          att_date: attendanceDate,
         },
         {
           autoCommit: false,
@@ -108,9 +159,11 @@ export const batchInsertLocations = async (card_no, locations) => {
 
     await connection.commit();
 
-    logger.info(`[LOCATION] Saved ${inserted} points for card=${card_no}`);
+    logger.info(
+      `[LOCATION] card=${card_no} inserted=${inserted} discarded=${discarded} (out of session window)`,
+    );
 
-    return inserted;
+    return { inserted, discarded };
   } catch (err) {
     if (connection) {
       try {
@@ -143,10 +196,22 @@ export const batchInsertLocations = async (card_no, locations) => {
  * exists for this card today. RECORDED_AT is stored in UTC (SYS_EXTRACT_UTC) to
  * match the convention used by the periodic location batch. Returns true if a
  * new point was inserted, false otherwise.
+ *
+ * `attendanceDate` ("YYYY-MM-DD") is required (2026-09-22) — the caller
+ * (attendance.service.js) passes the same roster date it computes for the
+ * check-in response's `attendance_date`, rather than this insert deciding its
+ * own via TRUNC(SYSDATE). They're the same value for an actual fresh
+ * check-in (this runs synchronously at that instant), but deriving it twice
+ * with two different rules was exactly the kind of drift the rest of this
+ * file's insert paths were fixed to avoid.
  */
-export const saveAttendanceOriginPoint = async (card_no, latitude, longitude, accuracy = null) => {
+export const saveAttendanceOriginPoint = async (card_no, latitude, longitude, accuracy = null, attendanceDate) => {
   if (latitude === null || latitude === undefined || longitude === null || longitude === undefined)
     return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(attendanceDate ?? ''))) {
+    logger.info(`[LOCATION] Attendance-origin insert skipped for card=${card_no}: no attendanceDate given`);
+    return false;
+  }
 
   const lat = Number(latitude);
   const lon = Number(longitude);
@@ -171,17 +236,17 @@ export const saveAttendanceOriginPoint = async (card_no, latitude, longitude, ac
           -- second failed with ORA-00001.
           LOCATION_TRACKS_SEQ.NEXTVAL,
           :card_no, :lat, :lng, :acc,
-          SYS_EXTRACT_UTC(SYSTIMESTAMP), SYSTIMESTAMP, TRUNC(SYSDATE)
+          SYS_EXTRACT_UTC(SYSTIMESTAMP), SYSTIMESTAMP, TO_DATE(:att_date, 'YYYY-MM-DD')
       FROM DUAL
       WHERE NOT EXISTS (
           SELECT 1 FROM LOCATION_TRACKS lt
           WHERE TO_CHAR(lt.CARD_NO) = :card_no
-            AND lt.ATTENDANCE_DATE = TRUNC(SYSDATE)
+            AND lt.ATTENDANCE_DATE = TO_DATE(:att_date, 'YYYY-MM-DD')
             AND ROUND(lt.LATITUDE, 6)  = ROUND(:lat, 6)
             AND ROUND(lt.LONGITUDE, 6) = ROUND(:lng, 6)
       )
       `,
-      { card_no: String(card_no), lat, lng: lon, acc },
+      { card_no: String(card_no), lat, lng: lon, acc, att_date: attendanceDate },
       { autoCommit: true },
     );
     const inserted = result.rowsAffected ?? 0;
@@ -202,12 +267,27 @@ export const saveAttendanceOriginPoint = async (card_no, latitude, longitude, ac
   }
 };
 
+// 2026-09-22: bounded to that roster date's session window (check-in through
+// checkout/cutoff), not just ATTENDANCE_DATE. Ingest now only ever stores
+// points inside a session's window, so this is belt-and-braces for rows
+// synced before that fix shipped, and for an employee with no check-in that
+// day at all (window is null -> no points, matching the summary endpoint).
 export const getLocationHistory = async (card_no, date) => {
   let connection;
   try {
     connection = await getDirectConnection();
     const card = String(card_no);
     const card_int = card.includes(".") ? card.split(".")[0] : card;
+
+    // A day can hold several check-in/checkout pairs (see
+    // sessionWindow.service.js); fetch the whole span they cover, then keep
+    // only points that actually fall inside one of them.
+    const windows = await getSessionWindows(card_no, date, connection);
+    if (windows.length === 0) {
+      return { card_no: card, date, points: [] };
+    }
+    const spanStart = windows[0].match_start_utc_naive;
+    const spanEnd = windows[windows.length - 1].match_end_utc_naive;
 
     const sql = `
       SELECT
@@ -220,7 +300,9 @@ export const getLocationHistory = async (card_no, date) => {
         TO_CHAR(CARD_NO) = :card
         OR TO_CHAR(CARD_NO) = :card_int
     )
-      AND ATTENDANCE_DATE = TO_DATE(:dt, 'YYYY-MM-DD')
+      AND RECORDED_AT BETWEEN
+          TO_TIMESTAMP(:span_start, 'YYYY-MM-DD HH24:MI:SS')
+          AND TO_TIMESTAMP(:span_end, 'YYYY-MM-DD HH24:MI:SS')
       ORDER BY RECORDED_AT ASC
     `;
 
@@ -229,25 +311,26 @@ export const getLocationHistory = async (card_no, date) => {
       {
         card,
         card_int,
-        dt: date,
+        span_start: spanStart,
+        span_end: spanEnd,
       },
       {
         outFormat: 4002,
       },
     );
 
-    const res = (result.rows ?? []).map((row) => ({
-      latitude: row.LATITUDE != null ? Number(row.LATITUDE) : null,
-      longitude: row.LONGITUDE != null ? Number(row.LONGITUDE) : null,
-      accuracy: Number(row.ACCURACY ?? 0),
-      recorded_at: row.RECORDED_AT ? row.RECORDED_AT.toString() : null,
-    }));
+    const res = (result.rows ?? [])
+      .filter((row) => isWithinAnyWindow(windows, row.RECORDED_AT.toString()))
+      .map((row) => ({
+        latitude: row.LATITUDE != null ? Number(row.LATITUDE) : null,
+        longitude: row.LONGITUDE != null ? Number(row.LONGITUDE) : null,
+        accuracy: Number(row.ACCURACY ?? 0),
+        recorded_at: row.RECORDED_AT ? row.RECORDED_AT.toString() : null,
+      }));
     return {
-    
       "card_no": card,
       "date": date,
       "points": res,
-      
     };
   } finally {
     await connection?.close();
@@ -256,6 +339,13 @@ export const getLocationHistory = async (card_no, date) => {
 
 /**
  * HR-only: all employees with location data for a given date, restricted to the given allowed companies/branches. Mirrors get_all_locations_summary in the FastAPI LMS-Backend (repositories/location_repository.py).
+ *
+ * 2026-09-22: bounded per employee by that day's session window (check-in
+ * through checkout/cutoff), the same way getLocationHistory is — not just
+ * ATTENDANCE_DATE. Ingest now only ever stores in-window points, so this is
+ * belt-and-braces for rows synced before that fix, and it drops an employee
+ * entirely when they have no check-in that day at all, even if stray rows
+ * still carry that ATTENDANCE_DATE from before the repair runs.
  */
 export const getLocationSummary = async (
   date,
@@ -275,38 +365,70 @@ export const getLocationSummary = async (
       .map((clause) => ` AND ${clause}`)
       .join("");
 
+    // Candidates: everyone with a row dated this day, in the admin's scope.
+    // Per-employee figures are then recomputed against that employee's own
+    // session window below, rather than trusted straight from this query.
     const sql = `
       SELECT
           lt.CARD_NO,
           NVL(h.NAME, lt.CARD_NO) AS EMPLOYEE_NAME,
-          h.EMPCODE,
-          COUNT(*) AS POINT_COUNT,
-          TO_CHAR(MAX(lt.RECORDED_AT), 'YYYY-MM-DD HH24:MI:SS') AS LAST_SEEN,
-          MAX(lt.LATITUDE) KEEP (DENSE_RANK LAST ORDER BY lt.RECORDED_AT) AS LAST_LAT,
-          MAX(lt.LONGITUDE) KEEP (DENSE_RANK LAST ORDER BY lt.RECORDED_AT) AS LAST_LNG,
-          MAX(lt.ACCURACY) KEEP (DENSE_RANK LAST ORDER BY lt.RECORDED_AT) AS LAST_ACC
+          h.EMPCODE
       FROM LOCATION_TRACKS lt
       INNER JOIN EMPLOYEE e ON TO_CHAR(e.CARD_NO) = lt.CARD_NO
                             OR e.CARD_NO = TO_NUMBER(REGEXP_SUBSTR(lt.CARD_NO, '^[0-9]+'))
       INNER JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
       WHERE lt.ATTENDANCE_DATE = TO_DATE(:dt, 'YYYY-MM-DD')${extraFilter}
       GROUP BY lt.CARD_NO, h.NAME, h.EMPCODE
-      ORDER BY MAX(lt.RECORDED_AT) DESC
     `;
 
     const result = await connection.execute(sql, binds, { outFormat: 4002 });
-    const rows = result.rows ?? [];
+    const candidates = result.rows ?? [];
 
-    return rows.map((r) => ({
-      card_no: r.CARD_NO,
-      employee_name: r.EMPLOYEE_NAME,
-      empcode: r.EMPCODE,
-      point_count: Number(r.POINT_COUNT),
-      last_seen: r.LAST_SEEN ?? null,
-      last_latitude: r.LAST_LAT != null ? Number(r.LAST_LAT) : null,
-      last_longitude: r.LAST_LNG != null ? Number(r.LAST_LNG) : null,
-      last_accuracy: Number(r.LAST_ACC ?? 0),
-    }));
+    const summary = [];
+    for (const c of candidates) {
+      // A day can hold several check-in/checkout pairs; fetch the whole span
+      // they cover, then keep only points that actually fall inside one of
+      // them (isWithinAnyWindow) before aggregating in JS.
+      const windows = await getSessionWindows(c.CARD_NO, date, connection);
+      if (windows.length === 0) continue; // no check-in that day -> not present, whatever stray rows say
+
+      const spanStart = windows[0].match_start_utc_naive;
+      const spanEnd = windows[windows.length - 1].match_end_utc_naive;
+
+      const pts = await connection.execute(
+        `
+        SELECT LATITUDE, LONGITUDE, ACCURACY,
+               TO_CHAR(RECORDED_AT, 'YYYY-MM-DD HH24:MI:SS') AS RECORDED_AT
+        FROM LOCATION_TRACKS
+        WHERE TO_CHAR(CARD_NO) = :card
+          AND RECORDED_AT BETWEEN
+              TO_TIMESTAMP(:span_start, 'YYYY-MM-DD HH24:MI:SS')
+              AND TO_TIMESTAMP(:span_end, 'YYYY-MM-DD HH24:MI:SS')
+        ORDER BY RECORDED_AT ASC
+        `,
+        { card: c.CARD_NO, span_start: spanStart, span_end: spanEnd },
+        { outFormat: 4002 },
+      );
+      const inWindow = (pts.rows ?? []).filter((row) =>
+        isWithinAnyWindow(windows, row.RECORDED_AT.toString()),
+      );
+      if (inWindow.length === 0) continue; // every point for this card that day was out-of-window
+
+      const last = inWindow[inWindow.length - 1];
+      summary.push({
+        card_no: c.CARD_NO,
+        employee_name: c.EMPLOYEE_NAME,
+        empcode: c.EMPCODE,
+        point_count: inWindow.length,
+        last_seen: last.RECORDED_AT ?? null,
+        last_latitude: last.LATITUDE != null ? Number(last.LATITUDE) : null,
+        last_longitude: last.LONGITUDE != null ? Number(last.LONGITUDE) : null,
+        last_accuracy: Number(last.ACCURACY ?? 0),
+      });
+    }
+
+    summary.sort((a, b) => String(b.last_seen ?? '').localeCompare(String(a.last_seen ?? '')));
+    return summary;
   } finally {
     await connection?.close();
   }

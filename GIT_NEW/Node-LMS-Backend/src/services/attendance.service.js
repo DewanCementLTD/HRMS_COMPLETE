@@ -17,6 +17,7 @@ import { cardInt } from '../utils/conversionHelpers.js';
 import { saveAttendanceOriginPoint } from './location.service.js';
 import { deriveRosterDay } from '../utils/rosterStatus.js';
 import { isActiveStatus, LEFT_EMPLOYEE_MESSAGE } from '../utils/employeeStatus.js';
+import { getLatestSessionWindow } from './sessionWindow.service.js';
 
 import { logger } from '../utils/logger.js';
 const OBJ = { outFormat: oracledb.OUT_FORMAT_OBJECT };
@@ -381,9 +382,13 @@ const insertCheckIn = async (card_no, empcode, opts = {}) => {
 
     // LOCATION_TRACKS — record the marking location as the day's first track
     // point. Best-effort: any failure here must not affect the attendance result.
+    // attendanceDate = todayYmd(): the same roster day smartMarkAttendance
+    // reports as `attendance_date` on this same check-in's response — this
+    // insert happens synchronously at check-in, so "today" IS that session's
+    // start day, for a night shift too.
     if (latitude !== null && latitude !== undefined && longitude !== null && longitude !== undefined) {
       try {
-        await saveAttendanceOriginPoint(card_no, latitude, longitude, accuracy);
+        await saveAttendanceOriginPoint(card_no, latitude, longitude, accuracy, todayYmd());
       } catch (locErr) {
         logger.info(`[CHECK_IN] LOCATION_TRACKS origin point failed (non-fatal): ${locErr.message ?? locErr}`);
       }
@@ -777,6 +782,25 @@ export const smartMarkAttendance = async (card_no, attendance_type = 'check_in',
     logger.info(`[ATTENDANCE] roster verification skipped for ${card_no}: ${e.message ?? e}`);
     result.posted_to_erp = null;
   }
+
+  // Tell the app when location tracking must stop for this session, so it
+  // never has to guess (2026-09-22). Additive and check-in only: attendance_date
+  // is today's roster day (the START day, even for a night shift that runs
+  // past midnight — the app matches its own session against this before
+  // adopting the cutoff). A failure here must never fail the check-in itself.
+  if (result.action === 'check_in') {
+    try {
+      const rosterDate = todayYmd();
+      const window = await getLatestSessionWindow(card_no, rosterDate);
+      result.tracking_cutoff_at = window?.cutoff_at ?? null;
+      result.attendance_date = rosterDate;
+    } catch (e) {
+      logger.info(`[ATTENDANCE] tracking cutoff lookup skipped for ${card_no}: ${e.message ?? e}`);
+      result.tracking_cutoff_at = null;
+      result.attendance_date = null;
+    }
+  }
+
   return result;
 };
 

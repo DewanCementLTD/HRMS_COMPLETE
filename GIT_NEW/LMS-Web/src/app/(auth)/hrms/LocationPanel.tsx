@@ -6,6 +6,7 @@ import { MapPin, RefreshCw, ChevronRight, Clock, Navigation, Settings, Save, X }
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { apiRequest } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 import { updateLocationTracking } from "@/services/hrmsService";
 import type { HRMSSearchResult } from "@/models/hrms";
 import { LocationReportsPanel } from "./LocationReportsPanel";
@@ -308,11 +309,15 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
   const [localSettings, setLocalSettings] = useState<
     Record<string, { track: "Y" | "N"; hr: number }>
   >({});
+  const { activeCompany, activeBranch } = useAuth();
 
   useEffect(() => {
     setLoading(true);
+    const p = new URLSearchParams({ admin_card_no: adminCardNo });
+    if (activeCompany) p.set("compc", activeCompany);
+    if (activeBranch) p.set("brnch", activeBranch);
     apiRequest<{ items: HRMSSearchResult[] }>(
-      `/hrms/employees?admin_card_no=${adminCardNo}`
+      `/hrms/employees?${p.toString()}`
     )
       .then((r) => {
         const rows: TrackRow[] = r.items.map((e) => ({
@@ -335,7 +340,7 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [adminCardNo]);
+  }, [adminCardNo, activeCompany, activeBranch]);
 
   async function saveRow(empcode: string) {
     const s = localSettings[empcode];
@@ -576,12 +581,16 @@ export function LocationPanel({
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<EmployeeLocationSummary | null>(null);
   const focusApplied = useRef(false);
+  const { activeCompany, activeBranch } = useAuth();
 
   const load = useCallback(() => {
     setLoading(true);
     setError(null);
+    const p = new URLSearchParams({ date, admin_card_no: adminCardNo });
+    if (activeCompany) p.set("compc", activeCompany);
+    if (activeBranch) p.set("brnch", activeBranch);
     apiRequest<{ body: { employees: EmployeeLocationSummary[] } }>(
-      `/auth/location/summary?date=${date}&admin_card_no=${adminCardNo}`
+      `/auth/location/summary?${p.toString()}`
     )
       .then((r) => {
         const employees = r.body.employees;
@@ -596,7 +605,7 @@ export function LocationPanel({
         setError(e instanceof Error ? e.message : "Failed to load locations")
       )
       .finally(() => setLoading(false));
-  }, [date, adminCardNo, focusCardNo]);
+  }, [date, adminCardNo, focusCardNo, activeCompany, activeBranch]);
 
   useEffect(() => {
     if (focusCardNo) { setLocTab("live"); focusApplied.current = false; }

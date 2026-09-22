@@ -13,6 +13,11 @@ DDL (run once on Oracle DB):
         CONSTRAINT LOCATION_TRACKS_PK PRIMARY KEY (ID)
     );
     CREATE INDEX LT_CARD_DATE_IDX ON LOCATION_TRACKS(CARD_NO, ATTENDANCE_DATE);
+
+IDs come from LOCATION_TRACKS_SEQ (see sql/2026-09-04_location_offline_sync.sql),
+not SELECT MAX(ID)+1 — two concurrent uploads (foreground + background sync)
+racing on MAX(ID) would compute the same next ID and one insert would fail;
+NEXTVAL is allocated atomically by Oracle so this can't happen (2026-09-22).
 """
 
 from datetime import datetime
@@ -48,13 +53,12 @@ def insert_location_batch(card_no: str, locations: list) -> int:
                     ID, CARD_NO, LATITUDE, LONGITUDE, ACCURACY,
                     RECORDED_AT, SYNCED_AT, ATTENDANCE_DATE
                 ) VALUES (
-                    (SELECT NVL(MAX(ID), 0) + :offset FROM LOCATION_TRACKS),
+                    LOCATION_TRACKS_SEQ.NEXTVAL,
                     :card_no, :lat, :lng, :acc,
                     :rec_at, SYSTIMESTAMP, TRUNC(SYSDATE)
                 )
                 """,
                 {
-                    "offset": inserted + 1,
                     "card_no": card_no,
                     "lat": float(loc.get("latitude", 0)),
                     "lng": float(loc.get("longitude", 0)),
@@ -114,7 +118,7 @@ def save_attendance_origin_point(card_no: str, latitude, longitude, accuracy=Non
                 RECORDED_AT, SYNCED_AT, ATTENDANCE_DATE
             )
             SELECT
-                (SELECT NVL(MAX(ID), 0) + 1 FROM LOCATION_TRACKS),
+                LOCATION_TRACKS_SEQ.NEXTVAL,
                 :card_no, :lat, :lng, :acc,
                 SYS_EXTRACT_UTC(SYSTIMESTAMP), SYSTIMESTAMP, TRUNC(SYSDATE)
             FROM DUAL

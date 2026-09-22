@@ -9,7 +9,6 @@ import hrRoutes from './hr.routes.js';
 import hrmsRoutes from './hrms.routes.js';
 import referenceRoutes from './reference.routes.js';
 import locationTrackingRoutes from './locationTracking.routes.js';
-import faceRoutes from './face.routes.js';
 import recruitmentRoutes from './recruitment.routes.js';
 import payrollRoutes from './payroll.routes.js';
 import payrollEntryRoutes from './payrollEntry.routes.js';
@@ -45,7 +44,17 @@ router.use('/hr', reqLogger('hr'), hrRoutes);
 router.use('/hrms', reqLogger('hrms'), hrmsRoutes);
 router.use('/reference', reqLogger('reference'), referenceRoutes);
 router.use('/location-tracking', reqLogger('location-tracking'), locationTrackingRoutes);
-router.use('/face', reqLogger('face'), faceRoutes);
+// 2026-09-22: the public /face/* stub routes (register/verify/identify/
+// status/delete) were removed — /face/identify ignored the submitted photos
+// and returned the first enrolled employee, so anyone could get any
+// identification with junk frames. The mobile app sends all face work to the
+// real face service (face.sysnovix.com); the web app never calls /face/*.
+// POST /auth/attendance/face already calls the real service directly
+// (services/faceVerification.service.js), not this. /hr/face/enroll (HR
+// admin enrolling a face) is untouched — it uses face.service.js directly,
+// not this router. Do not remount a /face/* router here; if a mobile-facing
+// identify/verify endpoint is ever needed again, it must proxy to the real
+// face service, never reimplement matching locally.
 router.use('/recruitment', reqLogger('recruitment'), recruitmentRoutes);
 router.use('/payroll', reqLogger('payroll'), payrollRoutes);
 router.use('/payroll-entry', reqLogger('payroll-entry'), payrollEntryRoutes);

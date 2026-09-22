@@ -3,7 +3,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from routers.auth_router import router as auth_router
 from routers.attendance_router import router as attendance_router
-from routers.face_router import router as face_router
 from routers.hr_router import router as hr_router
 from routers.hrms_router import router as hrms_router
 from routers.location_router import router as location_router
@@ -31,8 +30,13 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(auth_router)
 # Attendance routes (also /auth prefix — smart check-in/out)
 app.include_router(attendance_router)
-# Face authentication routes (/face/register, /face/verify, /face/status)
-app.include_router(face_router)
+# NOTE: the unused /face/* stub routes (register/verify/identify/status/delete)
+# were removed 2026-09-22 — real face work goes to the standalone face service
+# (port 8002 / face.sysnovix.com) via services/face_verification_service.py,
+# which this backend's /auth/attendance/face already calls. Do not re-add a
+# /face/* router here; if a mobile-facing identify/verify endpoint is ever
+# needed again on this backend, it must proxy to the real face service, never
+# reimplement matching locally.
 # HR admin routes (/hr/employees/search, /hr/face/enroll)
 app.include_router(hr_router)
 # HRMS routes (/hrms/employees — register, search, edit, HR dashboard)
