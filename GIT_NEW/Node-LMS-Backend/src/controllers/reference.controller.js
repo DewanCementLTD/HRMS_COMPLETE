@@ -140,8 +140,8 @@ export const listReligions = async (req, res, next) => {
 
 export const listReportingOfficers = async (req, res, next) => {
   try {
-    const { compc, brnch } = res.locals.validated.query;
-    res.json({ items: await refService.getReportingOfficers(compc, brnch) });
+    const { compc } = res.locals.validated.query;
+    res.json({ items: await refService.getReportingOfficers(compc) });
   } catch (err) { next(err); }
 };
 

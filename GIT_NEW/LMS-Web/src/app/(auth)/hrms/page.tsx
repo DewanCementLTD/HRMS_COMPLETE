@@ -446,34 +446,55 @@ export default function HRMSPage() {
 
   // Reference data — refetched when the selected company/branch changes so
   // employee-register/edit dropdowns only show options for the active scope.
-  // Units, locations, religions, reporting-officers stay global on purpose.
+  // Units, locations and religions stay global on purpose.
   useEffect(() => {
     const c = activeCompany || undefined;
     const b = activeBranch || undefined;
     Promise.all([
       fetchDepartments(c, b), fetchDesignations(undefined, c, b),
       fetchBloodGroups(c, b), fetchCadre(c, b), fetchUnits(),
-      fetchReligions(), fetchReportingOfficers(),
+      fetchReligions(),
       fetchEmpStatuses(c), fetchBanks(c), fetchQualifications(c),
       fetchLocations(c),
-      user?.card_no
-        ? fetchHodOptions(user.card_no, c, b).catch(() => ({ items: [] as HodOption[] }))
-        : Promise.resolve({ items: [] as HodOption[] }),
-    ]).then(([d, des, bg, ca, u, rel, rpt, est, bk, ql, loc, hods]) => {
+    ]).then(([d, des, bg, ca, u, rel, est, bk, ql, loc]) => {
       setRefDepts(d.items);
       setRefDesigs(des.items);
       setRefBG(bg.items);
       setRefCadre(ca.items);
       setRefUnits(u.items);
       setRefReligions(rel.items);
-      setRefRptOfficers(rpt.items);
       setRefEmpStatuses(est.items);
       setRefBanks(bk.items);
       setRefQuals(ql.items);
       setRefLocations(loc.items);
-      setRefHods(hods.items);
     }).catch(console.error);
   }, [activeCompany, activeBranch]);
+
+  // HOD 1/2 and Reporting Officer must be from the employee's own company, but
+  // may be in any of its branches. So these lists are keyed on the company of
+  // the record being edited (not the sidebar branch), and are left empty when
+  // no company is known rather than showing everyone.
+  const pickerCompany =
+    form.unit_id != null && String(form.unit_id) !== "" ? String(form.unit_id) : (activeCompany || "");
+  useEffect(() => {
+    if (!pickerCompany) {
+      setRefHods([]);
+      setRefRptOfficers([]);
+      return;
+    }
+    let cancelled = false;
+    Promise.all([
+      fetchReportingOfficers(pickerCompany).catch(() => ({ items: [] as ReportingOfficer[] })),
+      user?.card_no
+        ? fetchHodOptions(user.card_no, pickerCompany).catch(() => ({ items: [] as HodOption[] }))
+        : Promise.resolve({ items: [] as HodOption[] }),
+    ]).then(([rpt, hods]) => {
+      if (cancelled) return;
+      setRefRptOfficers(rpt.items);
+      setRefHods(hods.items);
+    });
+    return () => { cancelled = true; };
+  }, [pickerCompany, user?.card_no]);
 
   // ---- Populate the edit form once per employee ----
   //

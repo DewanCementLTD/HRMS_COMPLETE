@@ -504,57 +504,35 @@ export const getReligions = async () => {
   }
 };
 
-export const getReportingOfficers = async (compc = null, brnch = null) => {
+// A reporting officer must be from the employee's own company, but may be in
+// any of its branches — so the list is scoped by company only (brnch is
+// ignored). Without a company nothing is returned: the old unfiltered fallback
+// is what let people from other companies show up.
+export const getReportingOfficers = async (compc = null) => {
+  const vals = compc === null || compc === undefined || compc === ""
+    ? [] : (Array.isArray(compc) ? compc : [compc]);
+  const compNums = vals.map((x) => parseInt(String(x).trim(), 10)).filter((x) => !isNaN(x));
+  if (!compNums.length) return [];
+
   let conn;
   try {
     conn = await getDirectConnection();
-    
-    const ints = (v) => {
-      if (v === null || v === undefined || v === "") return [];
-      const vals = Array.isArray(v) ? v : [v];
-      return vals.map((x) => parseInt(String(x).trim(), 10)).filter((x) => !isNaN(x));
-    };
-
-    const base = "(STATUS = 'A' OR STATUS IS NULL) AND NAME IS NOT NULL";
-    const compNums = ints(compc);
-    const brnNums = ints(brnch);
-
-    const attempts = [];
-    if (compNums.length && brnNums.length) {
-      const p = {};
-      const cph = compNums.map((_, i) => `:c${i}`).join(", ");
-      const bph = brnNums.map((_, i) => `:b${i}`).join(", ");
-      compNums.forEach((n, i) => { p[`c${i}`] = n; });
-      brnNums.forEach((n, i) => { p[`b${i}`] = n; });
-      attempts.push({
-        where: `${base} AND TO_NUMBER(UNIT_ID) IN (${cph}) AND TO_NUMBER(LOCATION) IN (${bph})`,
-        params: p,
-      });
+    const params = {};
+    compNums.forEach((n, i) => { params[`c${i}`] = String(n); });
+    const cph = compNums.map((_, i) => `:c${i}`).join(", ");
+    // TO_CHAR rather than TO_NUMBER so a stray non-numeric UNIT_ID row cannot
+    // make the whole query fail.
+    const sql = `SELECT EMPCODE, NAME FROM HR_EMP_MASTER
+                  WHERE (STATUS = 'A' OR STATUS IS NULL) AND NAME IS NOT NULL
+                    AND LTRIM(TRIM(TO_CHAR(UNIT_ID)), '0') IN (${cph})
+                  ORDER BY NAME`;
+    try {
+      const res = await conn.execute(sql, params, { outFormat: OUT_FORMAT_ARRAY });
+      return (res.rows || []).map((r) => ({ empcode: r[0], name: String(r[1] ?? "").trim() }));
+    } catch (e) {
+      logger.info(`[REPORTING_OFFICERS] query failed: ${e?.message}`);
+      return [];
     }
-    if (compNums.length) {
-      const p = {};
-      const cph = compNums.map((_, i) => `:c${i}`).join(", ");
-      compNums.forEach((n, i) => { p[`c${i}`] = n; });
-      attempts.push({
-        where: `${base} AND TO_NUMBER(UNIT_ID) IN (${cph})`,
-        params: p,
-      });
-    }
-    attempts.push({ where: base, params: {} });
-
-    let lastErr = null;
-    for (const { where, params } of attempts) {
-      try {
-        const sql = `SELECT EMPCODE, NAME FROM HR_EMP_MASTER WHERE ${where} ORDER BY NAME`;
-        const res = await conn.execute(sql, params, { outFormat: OUT_FORMAT_ARRAY });
-        return (res.rows || []).map((r) => ({ empcode: r[0], name: String(r[1] ?? "").trim() }));
-      } catch (e) {
-        lastErr = e;
-        continue;
-      }
-    }
-    logger.info(`[REPORTING_OFFICERS] all attempts failed: ${lastErr?.message}`);
-    return [];
   } finally {
     if (conn) await conn.close();
   }

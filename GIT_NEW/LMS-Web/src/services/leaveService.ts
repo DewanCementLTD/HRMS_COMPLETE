@@ -40,15 +40,12 @@ export async function decideHodApproval(
   });
 }
 
-/** Employees of one company, for the HOD 1 / HOD 2 pickers. */
+/** Employees of one company (any branch), for the HOD 1 / HOD 2 pickers. */
 export async function fetchHodOptions(
   adminCardNo: string,
-  compc?: string,
-  brnch?: string
+  compc: string
 ): Promise<{ items: HodOption[] }> {
-  const params = new URLSearchParams({ admin_card_no: adminCardNo });
-  if (compc) params.set("compc", compc);
-  if (brnch) params.set("brnch", brnch);
+  const params = new URLSearchParams({ admin_card_no: adminCardNo, compc });
   return apiRequest<{ items: HodOption[] }>(`/hrms/hod-options?${params.toString()}`);
 }
 

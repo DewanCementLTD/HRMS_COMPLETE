@@ -82,8 +82,8 @@ export const decideHodApproval = async (req, res, next) => {
 // number that HOD1/HOD2 actually store.
 export const getHodOptions = async (req, res, next) => {
   try {
-    const { compc, brnch } = res.locals.validated.query;
-    const items = await getHodOptionsData(compc, brnch);
+    const { compc } = res.locals.validated.query;
+    const items = await getHodOptionsData(compc);
     res.json({ items });
   } catch (err) {
     next(err);

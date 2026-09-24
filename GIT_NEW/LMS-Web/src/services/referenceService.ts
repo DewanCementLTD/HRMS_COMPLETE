@@ -100,7 +100,10 @@ export const fetchQualifications = (compc?: string) =>
   apiRequest<{ items: Qualification[] }>(`/reference/qualifications${compc ? `?compc=${encodeURIComponent(compc)}` : ""}`);
 export const fetchUnits              = () => apiRequest<{ items: Unit[]             }>("/reference/units");
 export const fetchReligions          = () => apiRequest<{ items: Religion[]         }>("/reference/religions");
-export const fetchReportingOfficers  = () => apiRequest<{ items: ReportingOfficer[] }>("/reference/reporting-officers");
+// Company-only on purpose: a reporting officer can be in any branch of the
+// employee's company, never in another company.
+export const fetchReportingOfficers  = (compc: string) =>
+  apiRequest<{ items: ReportingOfficer[] }>(`/reference/reporting-officers?compc=${encodeURIComponent(compc)}`);
 export const fetchLocations          = (compc?: string, adminCardNo?: string) => {
   const parts: string[] = [];
   if (compc) parts.push(`compc=${encodeURIComponent(compc)}`);

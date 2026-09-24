@@ -454,20 +454,16 @@ export const decideHodApprovalData = async (card_no, pk, decision) => {
 // ---------------------------------------------------------------------------
 // HOD LOV — employees of one company, keyed by mobile (what HOD1/HOD2 store)
 // ---------------------------------------------------------------------------
-export const getHodOptionsData = async (compc, brnch) => {
+// A HOD must belong to the employee's own company but may sit in any of its
+// branches, so the list is scoped by company only. Without a company there is
+// nothing safe to offer — returning every company's staff is the bug this avoids.
+export const getHodOptionsData = async (compc) => {
+  if (compc === null || compc === undefined || String(compc).trim() === '') return [];
   let connection;
   try {
     connection = await getDirectConnection();
-    const binds = {};
-    const conds = [`h."MOBILE#" IS NOT NULL`];
-    if (compc !== null && compc !== undefined && String(compc).trim() !== '') {
-      conds.push('TO_CHAR(h.UNIT_ID) = TO_CHAR(:compc)');
-      binds.compc = String(compc).trim();
-    }
-    if (brnch !== null && brnch !== undefined && String(brnch).trim() !== '') {
-      conds.push('TO_CHAR(h.LOCATION) = TO_CHAR(:brnch)');
-      binds.brnch = String(brnch).trim();
-    }
+    const binds = { compc: String(compc).trim() };
+    const conds = [`h."MOBILE#" IS NOT NULL`, 'TO_CHAR(h.UNIT_ID) = TO_CHAR(:compc)'];
 
     const r = await connection.execute(
       `SELECT TO_CHAR(h."MOBILE#"), h.NAME, h.EMPCODE, h.UNIT_ID,
