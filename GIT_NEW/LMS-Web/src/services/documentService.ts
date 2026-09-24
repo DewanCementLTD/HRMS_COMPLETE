@@ -55,6 +55,10 @@ export const deleteDocument = (docId: number, adminCardNo: string) =>
 export const employeePhotoUrl = (empcode: string, adminCardNo: string, bust?: number | string) =>
   `${API_BASE}/documents/employee-photo?empcode=${encodeURIComponent(empcode)}&admin_card_no=${encodeURIComponent(adminCardNo)}${bust ? `&t=${bust}` : ""}`;
 
+// A colleague's photo for the org chart (same-branch peer, no HR admin needed).
+export const orgChartPhotoUrl = (empcode: string, callerCardNo: string) =>
+  `${API_BASE}/documents/org-chart-photo?empcode=${encodeURIComponent(empcode)}&card_no=${encodeURIComponent(callerCardNo)}`;
+
 async function postFile(url: string, file: File) {
   const form = new FormData();
   form.append("file", file);

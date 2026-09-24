@@ -10,13 +10,13 @@ function initials(name?: string) {
 
 /** Shows the employee's uploaded photo, falling back to initials if none. */
 export function EmployeeAvatar({
-  empcode, adminCardNo, name, className = "", textClass = "text-2xl",
+  empcode, adminCardNo, photoUrl, name, className = "", textClass = "text-2xl",
 }: {
-  empcode?: string; adminCardNo?: string; name?: string; className?: string; textClass?: string;
+  empcode?: string; adminCardNo?: string; photoUrl?: string; name?: string; className?: string; textClass?: string;
 }) {
   const [err, setErr] = useState(false);
   useEffect(() => { setErr(false); }, [empcode]);
-  const url = empcode && adminCardNo ? employeePhotoUrl(empcode, adminCardNo) : null;
+  const url = photoUrl ?? (empcode && adminCardNo ? employeePhotoUrl(empcode, adminCardNo) : null);
 
   if (url && !err) {
     // eslint-disable-next-line @next/next/no-img-element

@@ -8,6 +8,7 @@ import {
   uploadDocumentSchema,
   employeePhotoSchema,
   myPhotoSchema,
+  orgChartPhotoSchema,
   companyLogoGetSchema,
   companyLogoUploadSchema,
   downloadDocumentSchema,
@@ -23,6 +24,7 @@ import {
   getEmployeePhoto,
   uploadMyPhoto,
   getMyPhoto,
+  getOrgChartPhoto,
   uploadCompanyLogo,
   getCompanyLogo,
 } from '../controllers/documents.controller.js';
@@ -52,6 +54,11 @@ router.post('/employee-photo', uploadSingleFile, validate(employeePhotoSchema), 
 // ---------------------------------------------------------------------------
 router.get('/my-photo', validate(myPhotoSchema), getMyPhoto); // [*] http://localhost:8000/documents/my-photo?card_no=100660.1
 router.post('/my-photo', uploadSingleFile, validate(myPhotoSchema), uploadMyPhoto); // [*] http://localhost:8000/documents/my-photo?card_no=100660.1  Body (form-data): file=<image>
+
+// ---------------------------------------------------------------------------
+// Org chart photo (same-branch peer — no HR admin required, but scoped)
+// ---------------------------------------------------------------------------
+router.get('/org-chart-photo', validate(orgChartPhotoSchema), getOrgChartPhoto); // [x] http://localhost:8000/documents/org-chart-photo?empcode=100011.2&card_no=100660.1
 
 // ---------------------------------------------------------------------------
 // Company logo (GET is public branding; POST is HR-admin gated)

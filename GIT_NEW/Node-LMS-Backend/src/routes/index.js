@@ -7,6 +7,7 @@ import authRoutes from './auth.routes.js';
 import documentsRoutes from './documents.routes.js';
 import hrRoutes from './hr.routes.js';
 import hrmsRoutes from './hrms.routes.js';
+import orgChartRoutes from './orgChart.routes.js';
 import referenceRoutes from './reference.routes.js';
 import locationTrackingRoutes from './locationTracking.routes.js';
 import recruitmentRoutes from './recruitment.routes.js';
@@ -42,6 +43,7 @@ router.use('/auth', reqLogger('auth'), authRoutes);
 router.use('/documents', reqLogger('documents'), documentsRoutes);
 router.use('/hr', reqLogger('hr'), hrRoutes);
 router.use('/hrms', reqLogger('hrms'), hrmsRoutes);
+router.use('/org-chart', reqLogger('org-chart'), orgChartRoutes);
 router.use('/reference', reqLogger('reference'), referenceRoutes);
 router.use('/location-tracking', reqLogger('location-tracking'), locationTrackingRoutes);
 // 2026-09-22: the public /face/* stub routes (register/verify/identify/

@@ -22,6 +22,7 @@ import {
   employeePhotoTarget,
   setEmployeePhotoPath,
   getEmployeePhotoAbs,
+  getEmployeeUnitLocation,
   companyLogoTarget,
   setCompanyLogo,
   getCompanyLogoAbs,
@@ -221,6 +222,30 @@ export const getMyPhoto = async (req, res, next) => {
     const { card_no } = res.locals.validated.query;
     const empcode = await empcodeForCard(card_no);
     const photoPath = empcode ? await getEmployeePhotoAbs(empcode) : null;
+    if (!photoPath) {
+      return res.status(404).json({ detail: 'No photo' });
+    }
+    res.set('Cache-Control', 'no-cache');
+    res.sendFile(photoPath);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /documents/org-chart-photo — a colleague's photo for the org chart,
+// scoped to same-company/same-branch peers only (not full HR access).
+export const getOrgChartPhoto = async (req, res, next) => {
+  try {
+    const { empcode, card_no } = res.locals.validated.query;
+    const callerEmpcode = await empcodeForCard(card_no);
+    const caller = callerEmpcode ? await getEmployeeUnitLocation(callerEmpcode) : null;
+    const target = await getEmployeeUnitLocation(empcode);
+    // Generic 404 whether the caller, the target, or the branch match fails —
+    // never leak which case it was.
+    if (!caller || !target || caller.unit_id !== target.unit_id || caller.location !== target.location) {
+      return res.status(404).json({ detail: 'No photo' });
+    }
+    const photoPath = await getEmployeePhotoAbs(empcode);
     if (!photoPath) {
       return res.status(404).json({ detail: 'No photo' });
     }

@@ -24,6 +24,7 @@ import {
   Wallet,
   FileText,
   ClipboardCheck,
+  Network,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { CompanyItem, BranchItem } from "@/models/auth";
@@ -34,6 +35,9 @@ import { fetchHodApprovals } from "@/services/leaveService";
 // Dashboard is shown to everyone who has either employee features OR hr_admin
 // (SEC_USERNAME-only admins see it as the HR dashboard).
 const dashboardNavItem = { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard };
+// Shown to everyone who can see the dashboard — HR admins get the company-wide
+// view, other employees get their own branch's chart.
+const orgChartNavItem = { href: "/org-chart", label: "Organogram", icon: Network };
 
 const employeeNavItems = [
   { href: "/leave/apply", label: "Apply Leave", icon: CalendarPlus },
@@ -159,6 +163,7 @@ export function Sidebar() {
 
   const navItems = [
     ...(showDashboard ? [dashboardNavItem] : []),
+    ...(showDashboard ? [orgChartNavItem] : []),
     ...(showEmployeeNav ? employeeNavItems : []),
     ...(hodPending !== null ? [hodNavItem] : []),
     ...(user?.hr_admin ? hrNavItems : []),

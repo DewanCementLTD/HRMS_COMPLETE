@@ -303,6 +303,25 @@ export const getEmployeePhotoAbs = async (empcode) => {
   }
 };
 
+/** { unit_id, location } for an employee, or null if not found. Used to scope peer photo access to same-branch colleagues. */
+export const getEmployeeUnitLocation = async (empcode) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const r = (
+      await connection.execute(
+        `SELECT UNIT_ID, LOCATION FROM HR_EMP_MASTER WHERE EMPCODE = :e`,
+        { e: String(empcode) },
+        { outFormat: oracledb.OUT_FORMAT_ARRAY }
+      )
+    ).rows?.[0];
+    if (!r) return null;
+    return { unit_id: r[0], location: String(r[1] ?? '').trim() };
+  } finally {
+    await connection?.close();
+  }
+};
+
 /** Resolve an employee's EMPCODE from their login card_no. (mirror _empcode_for_card) */
 export const empcodeForCard = async (cardNo) => {
   let connection;

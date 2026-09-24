@@ -54,6 +54,14 @@ export const myPhotoSchema = z.object({
   }),
 });
 
+// GET /documents/org-chart-photo (peer-in-same-branch — org chart nodes)
+export const orgChartPhotoSchema = z.object({
+  query: z.object({
+    empcode: z.string().min(1, "empcode is required"),
+    card_no: z.string().min(1, "card_no is required"),
+  }),
+});
+
 // GET /documents/company-logo (public — branding)
 export const companyLogoGetSchema = z.object({
   query: z.object({
