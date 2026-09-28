@@ -20,8 +20,8 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variants = {
-    primary: "bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm",
-    secondary: "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 active:bg-gray-100",
+    primary: "bg-brand text-white hover:bg-blue-700 active:bg-blue-800 shadow-sm",
+    secondary: "bg-white text-slate-700 border border-line hover:bg-slate-50 active:bg-slate-100",
     danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800",
     ghost: "text-gray-600 hover:bg-gray-100 active:bg-gray-200",
   };

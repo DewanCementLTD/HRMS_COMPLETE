@@ -27,6 +27,7 @@ export interface LoginResponse {
   company_list: CompanyItem[];
   branch_list: BranchItem[];
   can_edit_salary?: boolean;
+  session_token?: string | null;
 }
 
 export interface User {
@@ -42,4 +43,7 @@ export interface User {
   selected_company: CompanyItem | null;
   selected_branch: BranchItem | null;
   can_edit_salary?: boolean;
+  // Signed employee token from login. Required by self-service endpoints that
+  // return private data (e.g. /auth/pf) so a card number alone is not enough.
+  session_token?: string | null;
 }

@@ -12,12 +12,13 @@ import {
   UpcomingBirthday, UpcomingAnniversary, UpcomingLeave, ShiftStat,
 } from "@/models/hrms";
 import { Card, CardContent } from "@/components/ui/Card";
+import { WelcomeHero } from "@/components/layout/WelcomeHero";
 import {
   Users, UserCheck, UserX, TreePalm, Clock, Zap, Timer, UserPlus,
   TrendingUp, TrendingDown, AlertTriangle, Activity,
   CalendarDays, BarChart2, FileText, ClipboardList, Download,
   Brain, ToggleRight, UserMinus, Info,
-  ClipboardCheck, UserCog, AlarmClock, FileDown,
+  ClipboardCheck, UserCog, AlarmClock, FileDown, ChevronDown,
 } from "lucide-react";
 
 // ─── Colour tokens ─────────────────────────────────────────
@@ -60,7 +61,7 @@ function HalfGauge({
   return (
     <svg viewBox="0 0 220 118" className="w-full" style={{ overflow: "visible" }}>
       {/* grey background arc */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#e5e7eb" strokeWidth="13"
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#eef2f7" strokeWidth="13"
         strokeLinecap="round"
         strokeDasharray={`${halfCirc} ${halfCirc * 2}`}
         transform={rot} />
@@ -71,7 +72,7 @@ function HalfGauge({
         transform={rot}
         style={{ transition: "stroke-dasharray 0.8s ease" }} />
       {/* value */}
-      <text x={cx} y={cy - 16} textAnchor="middle" fontSize="30" fontWeight="800" fill="#111827">
+      <text x={cx} y={cy - 16} textAnchor="middle" fontSize="30" fontWeight="800" fill="#0f1e46">
         {centerLabel}
       </text>
       {subLabel && (
@@ -80,33 +81,6 @@ function HalfGauge({
         </text>
       )}
     </svg>
-  );
-}
-
-// ─── Shift circle ──────────────────────────────────────────
-function ShiftRing({ label, pct, present, total, color }: {
-  label: string; pct: number; present: number; total: number; color: string;
-}) {
-  const r = 34, circ = 2 * Math.PI * r;
-  const filled = (pct / 100) * circ;
-  return (
-    <div className="flex flex-col items-center gap-1.5">
-      <p className="text-xs font-semibold text-gray-600">{label}</p>
-      <div className="relative h-20 w-20">
-        <svg className="h-20 w-20 -rotate-90" viewBox="0 0 80 80">
-          <circle cx="40" cy="40" r={r} fill="none" stroke="#e5e7eb" strokeWidth="7" />
-          <circle cx="40" cy="40" r={r} fill="none" stroke={color} strokeWidth="7"
-            strokeLinecap="round"
-            strokeDasharray={`${filled} ${circ}`}
-            style={{ transition: "stroke-dasharray 0.8s ease" }} />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-bold text-gray-900">{pct}%</span>
-        </div>
-      </div>
-      <p className="text-xs font-semibold text-emerald-600">{present}/{total}</p>
-      <p className="text-[10px] text-gray-400">Present</p>
-    </div>
   );
 }
 
@@ -199,6 +173,116 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// ─── Full ring (absenteeism / turnover) ────────────────────
+function RingGauge({ pct, color, center, sub }: {
+  pct: number; color: string; center: string; sub?: React.ReactNode;
+}) {
+  const r = 54, circ = 2 * Math.PI * r;
+  const filled = (Math.min(Math.max(pct, 0), 100) / 100) * circ;
+  return (
+    <div className="relative h-40 w-40 mx-auto">
+      <svg className="h-40 w-40 -rotate-90" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r={r} fill="none" stroke="#eef2f7" strokeWidth="14" />
+        <circle cx="70" cy="70" r={r} fill="none" stroke={color} strokeWidth="14"
+          strokeLinecap="round" strokeDasharray={`${filled} ${circ}`}
+          style={{ transition: "stroke-dasharray 0.8s ease" }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        <span className="text-2xl font-extrabold text-ink leading-none">{center}</span>
+        {sub && <span className="mt-1">{sub}</span>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Multi-segment donut (shift split) ─────────────────────
+function SegmentDonut({ segments, center, caption }: {
+  segments: { value: number; color: string }[]; center: string | number; caption: string;
+}) {
+  const r = 50, circ = 2 * Math.PI * r;
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  let offset = 0;
+  return (
+    <div className="relative h-36 w-36 shrink-0">
+      <svg className="h-36 w-36 -rotate-90" viewBox="0 0 130 130">
+        <circle cx="65" cy="65" r={r} fill="none" stroke="#eef2f7" strokeWidth="16" />
+        {total > 0 && segments.map((s, i) => {
+          const len = (s.value / total) * circ;
+          const el = (
+            <circle key={i} cx="65" cy="65" r={r} fill="none" stroke={s.color} strokeWidth="16"
+              strokeDasharray={`${len} ${circ}`} strokeDashoffset={-offset} />
+          );
+          offset += len;
+          return el;
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-extrabold text-ink leading-none">{center}</span>
+        <span className="text-[11px] text-slate-500 mt-1">{caption}</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Date pill ─────────────────────────────────────────────
+// A transparent <input type="date"> laid over a button only opens its picker
+// from the tiny calendar glyph in Chrome, so the whole pill is a button that
+// opens the (visually hidden) input's picker itself.
+function DatePill({ value, label, onChange }: {
+  value: string; label: string; onChange: (v: string) => void;
+}) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const open = () => {
+    const el = inputRef.current;
+    if (!el) return;
+    try {
+      el.showPicker();
+    } catch {
+      // Older browsers without showPicker(): focusing + clicking opens it there.
+      el.focus();
+      el.click();
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={open}
+      className="relative flex items-center gap-2 text-sm font-medium text-slate-700 bg-white/90 backdrop-blur border border-white rounded-xl px-3.5 py-2 cursor-pointer hover:bg-white transition-colors shadow-sm"
+    >
+      <CalendarDays className="h-4 w-4 text-brand shrink-0" />
+      <span>{label}</span>
+      <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+      <input
+        ref={inputRef}
+        type="date"
+        tabIndex={-1}
+        aria-hidden="true"
+        value={value}
+        max={toLocalYmd(new Date())}
+        onChange={(e) => e.target.value && onChange(e.target.value)}
+        className="absolute left-0 bottom-0 w-full h-0 opacity-0 pointer-events-none"
+      />
+    </button>
+  );
+}
+
+// ─── Card title row ────────────────────────────────────────
+function PanelTitle({ icon: Icon, title, right }: {
+  icon: React.ElementType; title: React.ReactNode; right?: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="flex items-center gap-2 min-w-0">
+        <Icon className="h-5 w-5 text-brand shrink-0" />
+        <p className="text-sm sm:text-base font-bold text-ink truncate">{title}</p>
+      </div>
+      {right}
+    </div>
+  );
+}
+
+const DEPT_PREVIEW = 5;
+
 // ══════════════════════════════════════════════════════════
 // MAIN HR DASHBOARD
 // ══════════════════════════════════════════════════════════
@@ -213,6 +297,7 @@ export function HRDashboard({
   refreshing?: boolean;
 }) {
   const router  = useRouter();
+  const [showAllDepts, setShowAllDepts] = React.useState(false);
   const kpis    = analytics?.kpis;
   const daily14 = (analytics?.daily_attendance ?? []).slice(-14);
   const monthly = analytics?.monthly_attendance ?? [];
@@ -240,499 +325,462 @@ export function HRDashboard({
       pct:     s.pct,
       color:   shiftColors[i] ?? G,
     }));
+  const shiftPresentTotal = shiftRows.reduce((s, x) => s + x.present, 0);
 
   // Top absence reasons — live data only, no fallback
   const reasons = stats.top_reasons ?? [];
   const reasonTotal = reasons.reduce((s, r) => s + r.count, 0) || 1;
 
   // Dept totals
-  const deptPresentTotal = stats.department_breakdown?.reduce((s, d) => s + d.present, 0) ?? 0;
-  const deptTotal        = stats.department_breakdown?.reduce((s, d) => s + d.total, 0) ?? 0;
+  const depts = stats.department_breakdown ?? [];
+  const deptPresentTotal = depts.reduce((s, d) => s + d.present, 0);
+  const deptTotal        = depts.reduce((s, d) => s + d.total, 0);
   const deptAbsentTotal  = deptTotal - deptPresentTotal;
+  const visibleDepts = showAllDepts ? depts : depts.slice(0, DEPT_PREVIEW);
+  const hiddenDepts  = depts.length - DEPT_PREVIEW;
 
   const displayDate = selectedDate
     ? new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
     : new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
   const kpiCards = [
-    { label: "Total Employees",     sub: "All Employees",  value: stats.total_employees,                                icon: Users,    bg: "bg-indigo-50",  ic: "text-indigo-500",  today: stats.total_employees,  yest: 0, inv: false },
+    { label: "Total Employees",     sub: "All Employees",  value: stats.total_employees,                                icon: Users,    bg: "bg-blue-50",    ic: "text-blue-600",    today: stats.total_employees,  yest: 0, inv: false },
     { label: "Present Today",       sub: `${presentPct.toFixed(1)}% of total`, value: stats.present_today,             icon: UserCheck,bg: "bg-emerald-50", ic: "text-emerald-500", today: stats.present_today,    yest: stats.yesterday_present ?? 0, inv: false },
     { label: "Absent Today",        sub: `${absentPct.toFixed(1)}% of total`,  value: stats.absent_today,              icon: UserX,    bg: "bg-red-50",     ic: "text-red-500",     today: stats.absent_today,     yest: stats.yesterday_absent ?? 0, inv: true },
     { label: "On Leave",            sub: `${onLeavePct.toFixed(1)}% of total`, value: stats.on_leave_today,            icon: CalendarDays, bg: "bg-purple-50", ic: "text-purple-500", today: stats.on_leave_today,  yest: stats.yesterday_on_leave ?? 0, inv: false },
     { label: "Late Logins",         sub: "Today",          value: kpis?.late_logins ?? stats.late_today,               icon: Clock,    bg: "bg-amber-50",   ic: "text-amber-500",   today: kpis?.late_logins ?? 0, yest: 0, inv: true },
-    { label: "On-Time Logins",      sub: "Today",          value: kpis?.early_logins ?? (stats.present_today - stats.late_today), icon: Zap, bg: "bg-teal-50", ic: "text-teal-500", today: kpis?.early_logins ?? 0, yest: stats.yesterday_present ?? 0, inv: false },
+    { label: "On-Time Logins",      sub: "Today",          value: kpis?.early_logins ?? (stats.present_today - stats.late_today), icon: Zap, bg: "bg-emerald-50", ic: "text-emerald-500", today: kpis?.early_logins ?? 0, yest: stats.yesterday_present ?? 0, inv: false },
     { label: "Overtime Hours",      sub: "Today",          value: `${kpis?.overtime_hours ?? 0}h`,                     icon: Timer,    bg: "bg-violet-50",  ic: "text-violet-500",  today: kpis?.overtime_hours ?? 0, yest: 0, inv: false },
     { label: "New Joiners",         sub: "Last 30 days",   value: stats.recent_hires,                                  icon: UserPlus, bg: "bg-cyan-50",    ic: "text-cyan-500",    today: stats.recent_hires,     yest: 0, inv: false },
   ];
 
+  const axisTick = { fontSize: 10, fill: "#94a3b8" };
+
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
 
-      {/* ══ HEADER ════════════════════════════════════════════ */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-white">HR Dashboard</h1>
-            {refreshing && (
-              <svg className="animate-spin h-4 w-4 text-indigo-500" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
-            )}
-          </div>
-          <p className="text-xs text-gray-400">Organization-wide overview</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Date picker */}
-          <label className="relative flex items-center gap-1.5 text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-gray-100 transition-colors overflow-hidden">
-            <CalendarDays className="h-3.5 w-3.5 shrink-0" />
-            <span>{displayDate}</span>
-            <input
-              type="date"
+      {/* ══ HERO ═════════════════════════════════════════════ */}
+      <WelcomeHero
+        title="Welcome to HR Dashboard"
+        subtitle="Here's what's happening across your organization today."
+        busy={refreshing}
+        actions={
+          <>
+            {/* Date picker */}
+            <DatePill
               value={selectedDate ?? toLocalYmd(new Date())}
-              max={toLocalYmd(new Date())}
-              onChange={(e) => onDateChange?.(e.target.value)}
-              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              label={displayDate}
+              onChange={(v) => onDateChange?.(v)}
             />
-          </label>
-          {onSwitch && (
-            <button
-              onClick={onSwitch}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors text-xs font-medium whitespace-nowrap"
-            >
-              <ToggleRight className="h-4 w-4" />
-              <span className="hidden sm:inline">Switch to Personal</span>
-              <span className="sm:hidden">Personal</span>
-            </button>
-          )}
-        </div>
-      </div>
+            {onSwitch && (
+              <button
+                onClick={onSwitch}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand text-white hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap shadow-sm"
+              >
+                <ToggleRight className="h-4 w-4" />
+                Switch to Personal
+              </button>
+            )}
+          </>
+        }
+      />
 
-      {/* ══ KPI SECTION: Health Score spans 2 rows + 8 equal cards ══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4" style={{ gridTemplateRows: "auto auto" }}>
-
-        {/* Health Score — full width on mobile, spans both rows on desktop */}
-        <Card className="col-span-2 lg:col-span-1 lg:row-span-2">
-          <CardContent className="h-full flex flex-col justify-center pt-3 pb-4 px-3">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-semibold text-gray-700">Attendance Health Score</p>
-              <Info className="h-3.5 w-3.5 text-gray-400" />
-            </div>
-            <HalfGauge value={presentPct} color={healthColor} centerLabel={String(healthScore)} subLabel={healthLabel} />
-            <div className="text-center mt-2 space-y-1">
-              {stats.yesterday_present !== undefined && stats.yesterday_present > 0 && (
-                <Delta today={stats.present_today} yesterday={stats.yesterday_present} />
-              )}
-              <p className="text-[10px] text-gray-400 leading-tight px-1">
-                {healthScore >= 75 ? "Great! Attendance is on track." : "Action needed to improve attendance."}
-              </p>
-            </div>
-            {/* Mini legend */}
-            <div className="mt-4 space-y-1.5 text-[10px]">
-              <div className="flex justify-between text-gray-500">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400 inline-block"/>Present</span>
-                <span className="font-bold text-gray-700">{stats.present_today}</span>
-              </div>
-              <div className="flex justify-between text-gray-500">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-400 inline-block"/>Absent</span>
-                <span className="font-bold text-gray-700">{stats.absent_today}</span>
-              </div>
-              <div className="flex justify-between text-gray-500">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-purple-400 inline-block"/>On Leave</span>
-                <span className="font-bold text-gray-700">{stats.on_leave_today}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 8 KPI cards — 4 per row, filling remaining 4 cols × 2 rows */}
+      {/* ══ KPI TILES ════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 2xl:grid-cols-8 gap-3">
         {kpiCards.map(({ label, sub, value, icon: Icon, bg, ic, today, yest, inv }) => (
-          <Card key={label}>
-            <CardContent className="py-4 px-4 h-full min-h-[100px]">
-              <div className="flex items-start gap-3 h-full">
-                <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
-                  <Icon className={`h-5 w-5 ${ic}`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-2xl font-extrabold text-gray-900 leading-tight">{value}</p>
-                  <p className="text-xs text-gray-500 leading-tight">{label}</p>
-                  <p className="text-[10px] text-gray-400">{sub}</p>
-                  <div className="h-4 flex items-center">
-                    {yest > 0 ? <Delta today={Number(today)} yesterday={Number(yest)} invert={inv} /> : null}
-                  </div>
+          <Card key={label} className="p-3.5">
+            <div className="flex items-start gap-3">
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${bg}`}>
+                <Icon className={`h-5 w-5 ${ic}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-extrabold text-ink leading-tight">{value}</p>
+                <p className="text-xs text-slate-600 leading-tight">{label}</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>
+                <div className="min-h-4 flex items-center">
+                  {yest > 0 ? <Delta today={Number(today)} yesterday={Number(yest)} invert={inv} /> : null}
                 </div>
               </div>
-            </CardContent>
+            </div>
           </Card>
         ))}
       </div>
 
-      {/* ══ ROW 3: Dept | Trend | Monthly | AI Insights ══════ */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-
-        {/* Department Breakdown */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">Department Breakdown</p>
-              <div className="flex gap-2 text-[10px] text-gray-500">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500 inline-block" />Present</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-red-400 inline-block" />Absent</span>
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              {(stats.department_breakdown ?? []).slice(0, 10).map((d, i) => {
-                const pPct = d.total > 0 ? Math.round((d.present / d.total) * 100) : 0;
-                const aPct = 100 - pPct;
-                const absent = d.total - d.present;
-                return (
-                  <div key={i} className="flex items-center gap-1.5">
-                    <p className="w-24 text-[10px] text-gray-600 truncate shrink-0">{d.department}</p>
-                    <div className="flex-1 flex h-4 rounded overflow-hidden text-[9px] font-bold">
-                      {pPct > 0 && (
-                        <div className="bg-emerald-500 flex items-center justify-center text-white leading-none"
-                          style={{ width: `${pPct}%`, minWidth: pPct > 0 ? "32px" : "0" }}>
-                          {pPct > 12 ? `${d.present} (${pPct}%)` : ""}
-                        </div>
-                      )}
-                      {aPct > 0 && (
-                        <div className="bg-red-400 flex items-center justify-center text-white leading-none"
-                          style={{ width: `${aPct}%`, minWidth: aPct > 0 ? "24px" : "0" }}>
-                          {aPct > 8 ? `${absent} (${aPct}%)` : ""}
-                        </div>
-                      )}
-                    </div>
-                    <p className="w-6 text-[10px] text-gray-400 text-right shrink-0">{d.total}</p>
-                  </div>
-                );
-              })}
-            </div>
-            {/* Total row */}
-            {deptTotal > 0 && (
-              <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
-                <p className="w-24 text-[10px] font-bold text-gray-700 shrink-0">Total</p>
-                <div className="flex-1 flex text-[9px] font-bold gap-2">
-                  <span className="text-emerald-600">{deptPresentTotal} ({Math.round(deptPresentTotal/deptTotal*100)}%)</span>
-                  <span className="text-red-500">{deptAbsentTotal} ({Math.round(deptAbsentTotal/deptTotal*100)}%)</span>
-                </div>
-                <p className="w-6 text-[10px] font-bold text-gray-700 text-right shrink-0">{deptTotal}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* ══ ROW: Trend | Monthly | Department ════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
 
         {/* Attendance Trend — 14 days */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">
-                Attendance Trend <span className="text-amber-500">(Last 14 Days)</span>
-              </p>
-            </div>
-            {daily14.length === 0 ? (
-              <p className="text-xs text-gray-400 py-8 text-center">No data</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <LineChart data={daily14} margin={{ top: 14, right: 8, left: -28, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis dataKey="day" tick={{ fontSize: 8 }} interval={2} />
-                  <YAxis tick={{ fontSize: 8 }} />
-                  <Tooltip content={<ChartTip />} />
-                  <Line type="monotone" dataKey="on_time" name="Present" stroke={G} strokeWidth={2}
-                    dot={{ r: 3, fill: G }} activeDot={{ r: 5 }}>
-                    <LabelList dataKey="on_time" position="top" style={{ fontSize: 7, fill: G }} />
-                  </Line>
-                  <Line type="monotone" dataKey="absent" name="Absent" stroke={R} strokeWidth={1.5}
-                    strokeDasharray="4 2" dot={{ r: 2, fill: R }} />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={BarChart2} title="Attendance Trend" right={
+            <span className="text-[11px] font-medium text-slate-500 border border-line rounded-lg px-2 py-1 whitespace-nowrap">Last 14 Days</span>
+          } />
+          <div className="flex gap-3 text-[11px] text-slate-500 mb-1">
+            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" />Present</span>
+            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-500" />Absent</span>
+          </div>
+          {daily14.length === 0 ? (
+            <p className="text-xs text-slate-400 py-8 text-center">No data</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={210}>
+              <LineChart data={daily14} margin={{ top: 14, right: 8, left: -24, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" vertical={false} />
+                <XAxis dataKey="day" tick={axisTick} interval={2} tickLine={false} axisLine={{ stroke: "#e6ebf3" }} />
+                <YAxis tick={axisTick} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTip />} />
+                <Line type="monotone" dataKey="on_time" name="Present" stroke={G} strokeWidth={2}
+                  dot={{ r: 3, fill: G }} activeDot={{ r: 5 }}>
+                  <LabelList dataKey="on_time" position="top" style={{ fontSize: 8, fill: G }} />
+                </Line>
+                <Line type="monotone" dataKey="absent" name="Absent" stroke={R} strokeWidth={1.5}
+                  strokeDasharray="4 2" dot={{ r: 2, fill: R }} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </Card>
 
         {/* Monthly Overview — grouped bars */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">Monthly Overview</p>
-              <div className="flex gap-2 text-[10px] text-gray-500">
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-emerald-500" />Present</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-red-400" />Absent</span>
-              </div>
-            </div>
-            {monthly.length === 0 ? (
-              <p className="text-xs text-gray-400 py-8 text-center">No data</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={monthly} barCategoryGap="25%" barGap={3} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
-                  <XAxis dataKey="month" tick={{ fontSize: 9 }} />
-                  <YAxis tick={{ fontSize: 9 }} allowDecimals={false} />
-                  <Tooltip content={<ChartTip />} />
-                  <Bar dataKey="available" name="Present" fill={G} radius={[3, 3, 0, 0]} maxBarSize={18} />
-                  <Bar dataKey="absent"    name="Absent"  fill={R} radius={[3, 3, 0, 0]} maxBarSize={18} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </CardContent>
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={BarChart2} title="Monthly Overview" />
+          <div className="flex gap-3 text-[11px] text-slate-500 mb-1">
+            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" />Present</span>
+            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-500" />Absent</span>
+          </div>
+          {monthly.length === 0 ? (
+            <p className="text-xs text-slate-400 py-8 text-center">No data</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={210}>
+              <BarChart data={monthly} barCategoryGap="25%" barGap={3} margin={{ top: 14, right: 4, left: -24, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" vertical={false} />
+                <XAxis dataKey="month" tick={axisTick} tickLine={false} axisLine={{ stroke: "#e6ebf3" }} />
+                <YAxis tick={axisTick} allowDecimals={false} tickLine={false} axisLine={false} />
+                <Tooltip content={<ChartTip />} cursor={{ fill: "#f4f7fc" }} />
+                <Bar dataKey="available" name="Present" fill={G} radius={[3, 3, 0, 0]} maxBarSize={16} />
+                <Bar dataKey="absent"    name="Absent"  fill={R} radius={[3, 3, 0, 0]} maxBarSize={16} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </Card>
 
-        {/* HR AI Insights */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <Brain className="h-4 w-4 text-indigo-500" />
-                <p className="text-xs font-semibold text-gray-800">HR AI Insights</p>
-              </div>
-              <span className="text-[9px] font-bold bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded">AI</span>
-            </div>
-            <div className="space-y-2">
-              {insights.length === 0 ? (
-                <p className="text-xs text-gray-400">No insights yet.</p>
-              ) : (
-                insights.map((ins, i) => {
-                  const cfg = {
-                    alert: { bg: "bg-red-50",    border: "border-red-400",    Icon: AlertTriangle, ic: "text-red-500" },
-                    warn:  { bg: "bg-amber-50",  border: "border-amber-400",  Icon: AlertTriangle, ic: "text-amber-500" },
-                    info:  { bg: "bg-blue-50",   border: "border-blue-400",   Icon: Info,          ic: "text-blue-500" },
-                  }[ins.level];
-                  return (
-                    <div key={i} className={`flex gap-2 border-l-4 rounded-r-lg px-2.5 py-2 ${cfg.bg} ${cfg.border}`}>
-                      <cfg.Icon className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${cfg.ic}`} />
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-gray-700 leading-snug">{ins.text}</p>
-                        <p className="text-[9px] text-gray-400 mt-0.5">{ins.ago}</p>
-                      </div>
-                    </div>
-                  );
-                })
+        {/* Department Attendance */}
+        <Card className="p-4 sm:p-5 lg:col-span-2 xl:col-span-1">
+          <PanelTitle icon={ClipboardList} title="Department Attendance" />
+          {depts.length === 0 ? (
+            <p className="text-xs text-slate-400 py-8 text-center">No data</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-500">
+                    <th className="py-2 px-2.5 text-left font-semibold rounded-l-lg">Department</th>
+                    <th className="py-2 px-2 text-right font-semibold">Present</th>
+                    <th className="py-2 px-2 text-right font-semibold">Absent</th>
+                    <th className="py-2 px-2.5 text-right font-semibold rounded-r-lg">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleDepts.map((d, i) => (
+                    <tr key={i} className="border-b border-line/70 last:border-0">
+                      <td className="py-2 px-2.5 text-slate-700 max-w-[140px] truncate" title={d.department}>{d.department}</td>
+                      <td className="py-2 px-2 text-right font-semibold text-emerald-600">{d.present}</td>
+                      <td className="py-2 px-2 text-right font-semibold text-red-500">{d.total - d.present}</td>
+                      <td className="py-2 px-2.5 text-right text-slate-700">{d.total}</td>
+                    </tr>
+                  ))}
+                  {deptTotal > 0 && (
+                    <tr className="border-t border-line font-bold">
+                      <td className="py-2 px-2.5 text-ink">Total</td>
+                      <td className="py-2 px-2 text-right text-emerald-600">{deptPresentTotal} <span className="font-medium text-[10px]">({Math.round(deptPresentTotal/deptTotal*100)}%)</span></td>
+                      <td className="py-2 px-2 text-right text-red-500">{deptAbsentTotal} <span className="font-medium text-[10px]">({Math.round(deptAbsentTotal/deptTotal*100)}%)</span></td>
+                      <td className="py-2 px-2.5 text-right text-ink">{deptTotal}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              {hiddenDepts > 0 && (
+                <button
+                  onClick={() => setShowAllDepts(!showAllDepts)}
+                  className="mt-2 flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                >
+                  {showAllDepts ? "Show fewer departments" : `Show ${hiddenDepts} more department${hiddenDepts > 1 ? "s" : ""}`}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAllDepts ? "rotate-180" : ""}`} />
+                </button>
               )}
             </div>
-          </CardContent>
+          )}
         </Card>
       </div>
 
-      {/* ══ ROW 4: Absenteeism | Reasons | Shift | Turnover | Birthdays ══ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* ══ ROW: Insights | Health | Absenteeism | Shift ═════ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
-        {/* Absenteeism Rate */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <p className="text-xs font-semibold text-gray-800 mb-1">Absenteeism Rate</p>
-            <HalfGauge value={absentPct} color={R} centerLabel={`${absentPct.toFixed(2)}%`} subLabel="Today" />
-            <div className="text-center mt-1 space-y-0.5">
-              {stats.yesterday_absent !== undefined && stats.yesterday_absent > 0 && (
-                <Delta today={stats.absent_today} yesterday={stats.yesterday_absent} invert />
-              )}
-              <p className="text-[10px] text-gray-400">Target: &lt; 10%</p>
-            </div>
-          </CardContent>
+        {/* HR Insights */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={Brain} title="HR Insights" right={
+            <span className="text-[9px] font-bold bg-brand-soft text-brand px-1.5 py-0.5 rounded">AI</span>
+          } />
+          <div className="space-y-2">
+            {insights.length === 0 ? (
+              <p className="text-xs text-slate-400">No insights yet.</p>
+            ) : (
+              insights.map((ins, i) => {
+                const cfg = {
+                  alert: { bg: "bg-red-50",   Icon: AlertTriangle, ic: "text-red-500" },
+                  warn:  { bg: "bg-amber-50", Icon: AlertTriangle, ic: "text-amber-500" },
+                  info:  { bg: "bg-blue-50",  Icon: Info,          ic: "text-blue-500" },
+                }[ins.level];
+                return (
+                  <div key={i} className={`flex gap-2.5 rounded-xl px-3 py-2.5 ${cfg.bg}`}>
+                    <cfg.Icon className={`h-4 w-4 mt-0.5 shrink-0 ${cfg.ic}`} />
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-slate-700 leading-snug">{ins.text}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{ins.ago}</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
         </Card>
 
-        {/* Top Reasons for Absence */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <p className="text-xs font-semibold text-gray-800 mb-1">Top Reasons for Absence</p>
-            {reasons.length === 0 ? (
-              <p className="text-[10px] text-gray-400 py-8 text-center">No leave data this year</p>
-            ) : (
-              <>
-                <ResponsiveContainer width="100%" height={110}>
-                  <PieChart>
-                    <Pie data={reasons} cx="50%" cy="50%" innerRadius={28} outerRadius={46}
-                      dataKey="count" nameKey="reason" paddingAngle={2}>
-                      {reasons.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(v) => [`${Math.round(Number(v) / reasonTotal * 100)}%`]} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-0.5 mt-1">
-                  {reasons.slice(0, 5).map((r, i) => (
-                    <div key={i} className="flex items-center gap-1.5 text-[10px]">
-                      <span className="h-2 w-2 rounded-sm shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
-                      <span className="text-gray-600 truncate flex-1">{r.reason}</span>
-                      <span className="font-bold text-gray-700">{Math.round(r.count / reasonTotal * 100)}%</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[9px] text-gray-400 mt-1.5">Total Records: {reasonTotal}</p>
-              </>
+        {/* Attendance Health Score */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={Activity} title="Attendance Health Score" />
+          <div className="max-w-[240px] mx-auto">
+            <HalfGauge value={presentPct} color={healthColor} centerLabel={String(healthScore)} subLabel={healthLabel} />
+          </div>
+          <div className="text-center mt-2 space-y-1">
+            {stats.yesterday_present !== undefined && stats.yesterday_present > 0 && (
+              <Delta today={stats.present_today} yesterday={stats.yesterday_present} />
             )}
-          </CardContent>
+            <p className="text-[11px] text-slate-400 leading-tight px-1">
+              {healthScore >= 75 ? "Great! Attendance is on track." : "Action needed to improve attendance."}
+            </p>
+          </div>
+          <div className="mt-3 space-y-1.5 text-xs">
+            {[
+              { label: "Present",  value: stats.present_today,  dot: "bg-emerald-500" },
+              { label: "Absent",   value: stats.absent_today,   dot: "bg-red-500" },
+              { label: "On Leave", value: stats.on_leave_today, dot: "bg-purple-500" },
+            ].map((r) => (
+              <div key={r.label} className="flex justify-between text-slate-500">
+                <span className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full ${r.dot}`} />{r.label}</span>
+                <span className="font-bold text-ink">{r.value}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Absenteeism Rate */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={UserX} title="Absenteeism Rate" />
+          <RingGauge
+            pct={absentPct}
+            color={R}
+            center={`${absentPct.toFixed(2)}%`}
+            sub={
+              stats.yesterday_absent !== undefined && stats.yesterday_absent > 0
+                ? <Delta today={stats.absent_today} yesterday={stats.yesterday_absent} invert />
+                : <span className="text-[11px] text-slate-400">Today</span>
+            }
+          />
+          <p className="text-[11px] text-slate-400 text-center mt-3">Target: &lt; 10%</p>
         </Card>
 
         {/* Shift Wise Attendance */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <p className="text-xs font-semibold text-gray-800 mb-2">Shift Wise Attendance</p>
-            <div className="flex justify-around">
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={BarChart2} title="Shift-wise Attendance" />
+          <div className="flex flex-col items-center gap-4">
+            <SegmentDonut
+              segments={shiftRows.map((s) => ({ value: s.present, color: s.color }))}
+              center={shiftPresentTotal}
+              caption="Present"
+            />
+            <div className="w-full space-y-2">
               {shiftRows.map((s, i) => (
-                <ShiftRing key={i} label={s.label} pct={s.pct} present={s.present} total={s.total} color={s.color} />
+                <div key={i} className="flex items-center gap-2 text-xs">
+                  <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: s.color }} />
+                  <span className="text-slate-600 flex-1 truncate">{s.label}</span>
+                  <span className="text-slate-400">{s.present}/{s.total}</span>
+                  <span className="font-bold text-ink w-10 text-right">{s.pct}%</span>
+                </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Employee Turnover YTD */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-semibold text-gray-800">Employee Turnover (YTD)</p>
-            </div>
-            <div className="flex flex-col items-center py-2">
-              <p className="text-3xl font-extrabold text-rose-500">{stats.turnover_ytd ?? 0}%</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">Turnover Rate</p>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-1.5 mt-1 mb-3">
-              <div className="h-full bg-rose-400 rounded-full"
-                style={{ width: `${Math.min(stats.turnover_ytd ?? 0, 100)}%` }} />
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="bg-red-50 rounded-lg py-2">
-                <p className="text-sm font-extrabold text-gray-500 text-[10px]">Left</p>
-                <p className="text-[9px] text-gray-400">See HR Records</p>
-              </div>
-              <div className="bg-emerald-50 rounded-lg py-2">
-                <p className="text-sm font-extrabold text-emerald-500">{stats.recent_hires}</p>
-                <p className="text-[9px] text-gray-400">Hired (30d)</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Birthdays */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">Upcoming Birthdays</p>
-            </div>
-            {!(stats.upcoming_birthdays?.length) ? (
-              <p className="text-[10px] text-gray-400 py-4 text-center">No birthdays in next 14 days</p>
-            ) : (
-              <div className="space-y-2">
-                {(stats.upcoming_birthdays ?? []).slice(0, 4).map((b: UpcomingBirthday, i: number) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Avatar name={b.name} size={8} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold text-gray-800 truncate">{b.name}</p>
-                      <p className="text-[9px] text-gray-400 truncate">{b.dept}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[10px] font-bold text-pink-500">{b.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
+          </div>
         </Card>
       </div>
 
-      {/* ══ ROW 5: Quick Actions | Leave Requests | Work Anniversary ══ */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      {/* ══ ROW: Reasons | Turnover | Birthdays | Anniversary ═ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
-        {/* Quick Actions */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <p className="text-xs font-semibold text-gray-800 mb-3">Quick Actions</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {QUICK.map(({ label, Icon, bg, ic, href }) => (
-                <button key={label}
-                  onClick={() => router.push(href)}
-                  className={`flex flex-col items-center gap-1.5 p-2 rounded-xl ${bg} hover:scale-105 active:scale-95 transition-transform cursor-pointer`}>
-                  <Icon className={`h-5 w-5 ${ic}`} />
-                  <span className="text-[9px] font-medium text-gray-600 text-center leading-tight whitespace-pre-line">{label}</span>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Leave Requests */}
-        <Card className="lg:col-span-2">
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">Upcoming Leave Requests</p>
-              <span className="text-[10px] text-gray-400">Next 30 days</span>
-            </div>
-            {!(stats.upcoming_leaves?.length) ? (
-              <p className="text-[10px] text-gray-400 py-4 text-center">No upcoming leave requests</p>
-            ) : (
-              <>
-                {/* Mobile card view */}
-                <div className="sm:hidden space-y-2">
-                  {(stats.upcoming_leaves ?? []).map((lv: UpcomingLeave, i: number) => (
-                    <div key={i} className="bg-gray-50 rounded-lg p-2.5">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[11px] font-semibold text-gray-800">{lv.name}</p>
-                        <StatusBadge status={lv.status} />
-                      </div>
-                      <p className="text-[10px] text-gray-500 mb-1">{lv.dept} · Type {lv.leave_type}</p>
-                      <p className="text-[10px] text-gray-500">{lv.from_date} → {lv.to_date} · <span className="font-semibold text-gray-700">{lv.days}d</span></p>
-                    </div>
-                  ))}
-                </div>
-                {/* Desktop table view */}
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="w-full text-[10px]">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        {["Employee","Department","Leave Type","From","To","Days","Status"].map(h => (
-                          <th key={h} className="py-1.5 px-1.5 text-left font-semibold text-gray-400 whitespace-nowrap">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(stats.upcoming_leaves ?? []).map((lv: UpcomingLeave, i: number) => (
-                        <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                          <td className="py-1.5 px-1.5 font-medium text-gray-800 whitespace-nowrap">{lv.name}</td>
-                          <td className="py-1.5 px-1.5 text-gray-500">{lv.dept}</td>
-                          <td className="py-1.5 px-1.5 text-gray-600 whitespace-nowrap">Type {lv.leave_type}</td>
-                          <td className="py-1.5 px-1.5 text-gray-600 whitespace-nowrap">{lv.from_date}</td>
-                          <td className="py-1.5 px-1.5 text-gray-600 whitespace-nowrap">{lv.to_date}</td>
-                          <td className="py-1.5 px-1.5 text-center font-semibold text-gray-700">{lv.days}</td>
-                          <td className="py-1.5 px-1.5 text-center"><StatusBadge status={lv.status} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Work Anniversary */}
-        <Card>
-          <CardContent className="py-3 px-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-gray-800">Work Anniversary</p>
-            </div>
-            {!(stats.upcoming_anniversaries?.length) ? (
-              <p className="text-[10px] text-gray-400 py-4 text-center">No anniversaries in next 14 days</p>
-            ) : (
-              <div className="space-y-2">
-                {(stats.upcoming_anniversaries ?? []).slice(0, 4).map((a: UpcomingAnniversary, i: number) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Avatar name={a.name} size={8} />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold text-gray-800 truncate">{a.name}</p>
-                      <p className="text-[9px] font-bold text-amber-500">{a.years} Year{a.years > 1 ? "s" : ""}</p>
-                    </div>
-                    <p className="text-[10px] font-medium text-gray-400 shrink-0">{a.date}</p>
+        {/* Top Reasons for Absence */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={FileText} title="Top Reasons for Absence" />
+          {reasons.length === 0 ? (
+            <p className="text-xs text-slate-400 py-8 text-center">No leave data this year</p>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={130}>
+                <PieChart>
+                  <Pie data={reasons} cx="50%" cy="50%" innerRadius={36} outerRadius={56}
+                    dataKey="count" nameKey="reason" paddingAngle={2}>
+                    {reasons.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v) => [`${Math.round(Number(v) / reasonTotal * 100)}%`]} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-1 mt-2">
+                {reasons.slice(0, 5).map((r, i) => (
+                  <div key={i} className="flex items-center gap-2 text-xs">
+                    <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                    <span className="text-slate-600 truncate flex-1">{r.reason}</span>
+                    <span className="font-bold text-ink">{Math.round(r.count / reasonTotal * 100)}%</span>
                   </div>
                 ))}
               </div>
-            )}
-          </CardContent>
+              <p className="text-[10px] text-slate-400 mt-2">Total Records: {reasonTotal}</p>
+            </>
+          )}
+        </Card>
+
+        {/* Employee Turnover YTD */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={UserMinus} title="Employee Turnover (YTD)" />
+          <RingGauge
+            pct={stats.turnover_ytd ?? 0}
+            color="#f43f5e"
+            center={`${stats.turnover_ytd ?? 0}%`}
+            sub={<span className="text-[11px] text-slate-400">Turnover Rate</span>}
+          />
+          <div className="grid grid-cols-2 gap-2 text-center mt-4">
+            <div className="bg-red-50 rounded-xl py-2.5">
+              <p className="text-xs font-bold text-red-500">Left</p>
+              <p className="text-[10px] text-slate-400">See HR Records</p>
+            </div>
+            <div className="bg-emerald-50 rounded-xl py-2.5">
+              <p className="text-lg font-extrabold text-emerald-600 leading-none">{stats.recent_hires}</p>
+              <p className="text-[10px] text-slate-400 mt-1">Hired (30d)</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Upcoming Birthdays */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={CalendarDays} title="Upcoming Birthdays" />
+          {!(stats.upcoming_birthdays?.length) ? (
+            <p className="text-xs text-slate-400 py-6 text-center">No birthdays in next 14 days</p>
+          ) : (
+            <div className="space-y-3">
+              {(stats.upcoming_birthdays ?? []).slice(0, 4).map((b: UpcomingBirthday, i: number) => (
+                <div key={i} className="flex items-center gap-2.5">
+                  <Avatar name={b.name} size={8} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink truncate">{b.name}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{b.dept}</p>
+                  </div>
+                  <p className="text-xs font-bold text-pink-500 shrink-0">{b.date}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Work Anniversary */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={CalendarDays} title="Work Anniversary" />
+          {!(stats.upcoming_anniversaries?.length) ? (
+            <p className="text-xs text-slate-400 py-6 text-center">No anniversaries in next 14 days</p>
+          ) : (
+            <div className="space-y-3">
+              {(stats.upcoming_anniversaries ?? []).slice(0, 4).map((a: UpcomingAnniversary, i: number) => (
+                <div key={i} className="flex items-center gap-2.5">
+                  <Avatar name={a.name} size={8} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold text-ink truncate">{a.name}</p>
+                    <p className="text-[10px] font-bold text-amber-500">{a.years} Year{a.years > 1 ? "s" : ""}</p>
+                  </div>
+                  <p className="text-xs font-medium text-slate-400 shrink-0">{a.date}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* ══ ROW: Quick Actions | Leave Requests ══════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* Quick Actions */}
+        <Card className="p-4 sm:p-5">
+          <PanelTitle icon={Zap} title="Quick Actions" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-3 gap-2.5">
+            {QUICK.map(({ label, Icon, bg, ic, href }) => (
+              <button key={label}
+                onClick={() => router.push(href)}
+                className={`flex flex-col items-center gap-2 px-2 py-3 rounded-xl ${bg} hover:-translate-y-0.5 hover:shadow-sm active:scale-95 transition-all cursor-pointer`}>
+                <Icon className={`h-5 w-5 ${ic}`} />
+                <span className="text-[10px] font-semibold text-slate-700 text-center leading-tight whitespace-pre-line">{label}</span>
+              </button>
+            ))}
+          </div>
+        </Card>
+
+        {/* Upcoming Leave Requests */}
+        <Card className="p-4 sm:p-5 lg:col-span-2">
+          <PanelTitle icon={FileText} title="Upcoming Leave Requests" right={
+            <span className="text-[11px] text-slate-400 whitespace-nowrap">Next 30 days</span>
+          } />
+          {!(stats.upcoming_leaves?.length) ? (
+            <p className="text-xs text-slate-400 py-6 text-center">No upcoming leave requests</p>
+          ) : (
+            <>
+              {/* Mobile card view */}
+              <div className="sm:hidden space-y-2">
+                {(stats.upcoming_leaves ?? []).map((lv: UpcomingLeave, i: number) => (
+                  <div key={i} className="bg-slate-50 rounded-xl p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-xs font-semibold text-ink truncate">{lv.name}</p>
+                      <StatusBadge status={lv.status} />
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-1">{lv.dept} · Type {lv.leave_type}</p>
+                    <p className="text-[11px] text-slate-500">{lv.from_date} → {lv.to_date} · <span className="font-semibold text-slate-700">{lv.days}d</span></p>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop table view */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500">
+                      {["Employee","Department","Leave Type","From","To","Days","Status"].map((h, i, arr) => (
+                        <th key={h} className={`py-2 px-2.5 text-left font-semibold whitespace-nowrap ${i === 0 ? "rounded-l-lg" : ""} ${i === arr.length - 1 ? "rounded-r-lg" : ""}`}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(stats.upcoming_leaves ?? []).map((lv: UpcomingLeave, i: number) => (
+                      <tr key={i} className="border-b border-line/70 last:border-0 hover:bg-slate-50 transition-colors">
+                        <td className="py-2 px-2.5 font-medium text-ink whitespace-nowrap">{lv.name}</td>
+                        <td className="py-2 px-2.5 text-slate-500">{lv.dept}</td>
+                        <td className="py-2 px-2.5 text-slate-600 whitespace-nowrap">Type {lv.leave_type}</td>
+                        <td className="py-2 px-2.5 text-slate-600 whitespace-nowrap">{lv.from_date}</td>
+                        <td className="py-2 px-2.5 text-slate-600 whitespace-nowrap">{lv.to_date}</td>
+                        <td className="py-2 px-2.5 font-semibold text-slate-700">{lv.days}</td>
+                        <td className="py-2 px-2.5"><StatusBadge status={lv.status} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </Card>
       </div>
     </div>
   );
 }
+
 
 // ─── Backward-compat export (analytics-only view) ─────────
 export function HRDashboardCharts({ data }: { data: HRAnalytics }) {

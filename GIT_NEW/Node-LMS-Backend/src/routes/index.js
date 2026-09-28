@@ -13,6 +13,7 @@ import locationTrackingRoutes from './locationTracking.routes.js';
 import recruitmentRoutes from './recruitment.routes.js';
 import payrollRoutes from './payroll.routes.js';
 import payrollEntryRoutes from './payrollEntry.routes.js';
+import pfRoutes from './pf.routes.js';
 import reportsRoutes from './reports.routes.js';
 import superAdminRoutes from './superAdmin.routes.js';
 
@@ -60,6 +61,7 @@ router.use('/location-tracking', reqLogger('location-tracking'), locationTrackin
 router.use('/recruitment', reqLogger('recruitment'), recruitmentRoutes);
 router.use('/payroll', reqLogger('payroll'), payrollRoutes);
 router.use('/payroll-entry', reqLogger('payroll-entry'), payrollEntryRoutes);
+router.use('/pf', reqLogger('pf'), pfRoutes);
 router.use('/reports', reqLogger('reports'), reportsRoutes);
 router.use('/admin', reqLogger('admin'), superAdminRoutes);
 

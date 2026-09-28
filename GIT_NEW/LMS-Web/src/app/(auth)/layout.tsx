@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { TopBar } from "@/components/layout/TopBar";
 import { SidebarProvider, useSidebar } from "@/components/layout/sidebar-context";
 import { Spinner } from "@/components/ui/Spinner";
 
@@ -51,16 +52,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 function AuthShell({ children }: { children: React.ReactNode }) {
   const { collapsed, resetKey } = useSidebar();
   return (
-    <div className="min-h-screen relative">
-      {/* Background image with dark overlay */}
-      <div
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/background.png')" }}
-      />
-      <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm" />
-
+    <div className="min-h-screen relative bg-background">
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative">
         <Sidebar />
         {/* min-w-0 + overflow-x-clip stop any over-wide child (long location rows,
             action button groups, wide tables) from pushing the whole shell
@@ -69,9 +63,10 @@ function AuthShell({ children }: { children: React.ReactNode }) {
             The left padding tracks the sidebar width so the content reclaims the
             space when the sidebar is collapsed. */}
         <main className={`transition-all duration-300 min-w-0 overflow-x-clip ${collapsed ? "lg:pl-20" : "lg:pl-64"}`}>
+          <TopBar />
           {/* Keyed on resetKey so re-pressing the active sidebar item remounts
               the page and returns it to its own home view. */}
-          <div key={resetKey} className="p-6 lg:p-8 max-w-7xl mx-auto min-w-0">
+          <div key={resetKey} className="p-4 sm:p-6 lg:p-8 max-w-[1440px] mx-auto min-w-0">
             {children}
           </div>
         </main>

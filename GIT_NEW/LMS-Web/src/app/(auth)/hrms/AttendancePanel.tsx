@@ -213,7 +213,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
   const count = mode === "summary" ? filteredSummary.length : filteredDetails.length;
 
   return (
-    <div className="bg-white/95 rounded-2xl p-4 sm:p-6 shadow-lg">
+    <div className="bg-white rounded-2xl border border-line p-4 sm:p-6 shadow-sm">
       {/* Header + mode toggle */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="flex items-center gap-2">

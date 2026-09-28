@@ -942,7 +942,23 @@ export const listProcessedSalaries = async (compc, period, q = null, brnch = nul
   }
 };
 
-export const getPayslip = async (compc, empcode, period) => {
+// The two pairs of salary tables a payslip can be read from. "working" is what
+// HR_SALARY_PROCES_PRO writes (and wipes per unit on every run); "final" is what
+// HR_SALARY_PROCES_PRO_FINAL posts once HR closes the month.
+const SALARY_TABLES = {
+  working: { master: "HR_SALARY_PROCESS_MASTER", lines: "HR_SALARY_PROCESS" },
+  final: { master: "HR_SALARY_PROCESS_MASTER_FINAL", lines: "HR_SALARY_PROCESS_FINAL" },
+};
+
+/**
+ * One employee's payslip for one period.
+ *
+ * `finalOnly` reads the posted (_FINAL) tables — master row, line items and the
+ * fiscal/calendar year-to-date sums alike — so an employee never sees figures
+ * from a run HR has not finalised. The HR screen keeps the working tables.
+ */
+export const getPayslip = async (compc, empcode, period, { finalOnly = false } = {}) => {
+  const { master: masterTable, lines: linesTable } = SALARY_TABLES[finalOnly ? "final" : "working"];
   let connection;
   try {
     connection = await getDirectConnection();
@@ -966,7 +982,7 @@ export const getPayslip = async (compc, empcode, period) => {
               m.LOCATION, m.BNKACCT, m.EMP_STATUS, m.OLD_EMPCODE,
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
               (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(m.LOCATION))
-       FROM HR_SALARY_PROCESS_MASTER m
+       FROM ${masterTable} m
        WHERE m.OLD_EMPCODE IN (:e, :ec) AND m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
        FETCH FIRST 1 ROWS ONLY`,
       { e: key, ec: String(empcode), p: per, u },
@@ -1016,7 +1032,7 @@ export const getPayslip = async (compc, empcode, period) => {
               MAX(CASE WHEN l.TRANS_TYPE='A' THEN a.ALLOWANCE_DESC ELSE d.DED_DESC END),
               MAX(NVL(CASE WHEN l.TRANS_TYPE='A' THEN a.PAY_SEQ ELSE d.PAY_SEQ END, 999)),
               MAX(NVL(a.ALLOWANCE_TYPE, 2)), l.TRANS_ID
-       FROM HR_SALARY_PROCESS l
+       FROM ${linesTable} l
        LEFT JOIN HR_ATTND_PERIOD pp ON pp."PERIOD#" = l."PERIOD#" AND pp.UNIT_ID = l.UNIT_ID
        LEFT JOIN HR_ALLOWANCE a ON l.TRANS_TYPE='A' AND TRIM(TO_CHAR(a.ALLOWANCE_ID)) = TRIM(l.TRANS_ID)
        LEFT JOIN HR_DEDUCTION d ON l.TRANS_TYPE='D' AND TRIM(TO_CHAR(d.DED_CD)) = TRIM(l.TRANS_ID)
@@ -1083,6 +1099,100 @@ export const getPayslip = async (compc, empcode, period) => {
   } finally {
     await connection?.close();
   }
+};
+
+// ── Employee self-service payslips (mobile) ──
+//
+// Only the posted history (HR_SALARY_PROCESS_MASTER_FINAL / …_FINAL) is ever
+// read here. A month that has been processed but not finalised lives only in
+// the working tables and is invisible to the employee until HR posts it.
+
+/**
+ * The salary key (OLD_EMPCODE) for a session card. Matches on CARD_NO / EMPCODE
+ * only — ATDTCARD# is not unique across companies, so it could hand one
+ * employee another's slips.
+ */
+const selfServiceKey = async (connection, cardNo) => {
+  const card = String(cardNo ?? "").trim();
+  if (!card) return null;
+  const r = await connection.execute(
+    `SELECT h.OLD_EMPCODE, h.EMPCODE
+       FROM HR_EMP_MASTER h
+       LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
+      WHERE TO_CHAR(e.CARD_NO) = :c OR h.EMPCODE = :c
+      FETCH FIRST 1 ROWS ONLY`,
+    { c: card },
+    { outFormat: OUT_ARRAY }
+  );
+  const row = r.rows?.[0];
+  if (!row) return null;
+  return trimOrEmpty(row[0]) || trimOrEmpty(row[1]) || null;
+};
+
+/** Every finalised payslip for the employee behind `cardNo`, newest first. Null = unknown card. */
+export const listMyFinalPayslips = async (cardNo) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const key = await selfServiceKey(connection, cardNo);
+    if (!key) return null;
+    const result = await connection.execute(
+      `SELECT f."PERIOD#", f.UNIT_ID,
+              TO_CHAR(p.PERIOD_FRM,'YYYY-MM-DD'), TO_CHAR(p.PERIOD_TO,'YYYY-MM-DD'),
+              NVL(f.TOTAL_EARNING,0), f.SAL,
+              (SELECT NVL(SUM(s.TRANS_AMOUNT),0) FROM HR_SALARY_PROCESS_FINAL s
+                WHERE s.OLD_EMPCODE = f.OLD_EMPCODE AND s."PERIOD#" = f."PERIOD#"
+                  AND s.UNIT_ID = f.UNIT_ID AND s.TRANS_TYPE = 'D')
+         FROM HR_SALARY_PROCESS_MASTER_FINAL f
+         LEFT JOIN HR_ATTND_PERIOD p ON p."PERIOD#" = f."PERIOD#" AND p.UNIT_ID = f.UNIT_ID
+        WHERE f.OLD_EMPCODE = :e
+        ORDER BY p.PERIOD_FRM DESC NULLS LAST, f."PERIOD#" DESC`,
+      { e: key },
+      { outFormat: OUT_ARRAY }
+    );
+    return (result.rows ?? []).map((r) => {
+      const earning = Number(r[4] || 0);
+      const deduction = Number(r[6] || 0);
+      return {
+        period: Number(r[0]),
+        period_frm: r[2], period_to: r[3],
+        label: label(r[2]) || `Period ${Number(r[0])}`,
+        total_earning: earning,
+        total_deduction: deduction,
+        // Same rule as getPayslip's totals.net_payable.
+        net_payable: r[5] !== null && r[5] !== undefined ? Number(r[5]) : earning - deduction,
+      };
+    });
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * One finalised payslip for the employee behind `cardNo`, in the same shape the
+ * HR screen's payslip uses. Null when the card is unknown or that period has
+ * not been posted for them — the caller cannot tell the two apart, on purpose.
+ */
+export const getMyFinalPayslip = async (cardNo, period) => {
+  let connection;
+  let key;
+  let unitId;
+  try {
+    connection = await getDirectConnection();
+    key = await selfServiceKey(connection, cardNo);
+    if (!key) return null;
+    const r = await connection.execute(
+      `SELECT UNIT_ID FROM HR_SALARY_PROCESS_MASTER_FINAL
+        WHERE OLD_EMPCODE = :e AND "PERIOD#" = :p FETCH FIRST 1 ROWS ONLY`,
+      { e: key, p: toInt(period) },
+      { outFormat: OUT_ARRAY }
+    );
+    if (!r.rows?.length) return null;
+    unitId = r.rows[0][0];
+  } finally {
+    await connection?.close();
+  }
+  return getPayslip(unitId, key, period, { finalOnly: true });
 };
 
 export const getOpenPeriod = async (compc) => {

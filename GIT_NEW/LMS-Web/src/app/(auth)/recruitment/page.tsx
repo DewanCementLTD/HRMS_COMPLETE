@@ -222,7 +222,7 @@ export default function RecruitmentPage() {
       {/* ── HEADER ────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-bold text-white">
+          <h1 className="text-xl font-extrabold text-ink">
             Welcome{user?.emp_name ? `, ${user.emp_name.split(" ")[0]}` : ""} 👋
           </h1>
           {scheduled.length > 0 && (

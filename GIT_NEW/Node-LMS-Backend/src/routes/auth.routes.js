@@ -54,6 +54,10 @@ import {
   locationSyncStatus,
 } from '../controllers/locationSync.controller.js';
 import { requireEmployee } from '../middlewares/employeeAuth.middleware.js';
+import { myPayslipsSchema, myPayslipSchema } from '../models/payslip.schema.js';
+import { myPayslips, myPayslip, myPayslipPdf } from '../controllers/payslip.controller.js';
+import { myPfSchema } from '../models/pf.schema.js';
+import { myPf } from '../controllers/pf.controller.js';
 
 const router = Router();
 // Append /auth to all routes defined in this file
@@ -121,5 +125,16 @@ router.get( '/location/report/trail',    validate(locationReportSchema), require
 router.get( '/location/summary',         validate(locationSummarySchema), requireHrAdmin, locationSummary); // [x] http://localhost:8000/auth/location/summary?date=2026-07-01&admin_card_no=100017.3
 router.get( '/location/my-history/:card_no', validate(myLocationHistorySchema), locationHistory);  // [x] http://localhost:8000/auth/location/my-history/100660.1?date=2026-07-03
 router.get( '/location/history/:card_no', validate(locationHistorySchema), requireHrAdmin, locationHistory); // [x] http://localhost:8000/auth/location/history/100002.1?date=2026-07-01&admin_card_no=100017.3
+
+// ---------------------------------------------------------------------------
+// Payslips (employee self-service, mobile)
+// ---------------------------------------------------------------------------
+// Finalised months only (HR_SALARY_PROCESS_*_FINAL). Salary is private, so
+// unlike most of this file these require the session token from /auth/login,
+// and the card in the path must be the token's own card.
+router.get('/payslips/:card_no',             validate(myPayslipsSchema), requireEmployee, myPayslips);   // [x] GET /auth/payslips/100002.1  Bearer <session_token>
+router.get('/payslips/:card_no/:period',     validate(myPayslipSchema),  requireEmployee, myPayslip);    // [x] GET /auth/payslips/100002.1/97  Bearer <session_token>
+router.get('/payslips/:card_no/:period/pdf', validate(myPayslipSchema),  requireEmployee, myPayslipPdf); // [x] GET /auth/payslips/100002.1/97/pdf  Bearer <session_token>  (application/pdf)
+router.get('/pf/:card_no',                   validate(myPfSchema),       requireEmployee, myPf);          // [x] GET /auth/pf/100002.1  Bearer <session_token>  (own PF balance + statement only)
 
 export default router;

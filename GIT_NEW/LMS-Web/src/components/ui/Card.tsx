@@ -14,7 +14,7 @@ export function Card({ children, className, onClick }: CardProps) {
     <div
       onClick={onClick}
       className={cn(
-        "bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300",
+        "bg-white rounded-2xl border border-line shadow-[0_1px_3px_rgba(15,30,70,0.04)] hover:shadow-[0_6px_20px_rgba(15,30,70,0.06)] transition-all duration-300",
         onClick && "cursor-pointer",
         className
       )}
@@ -26,7 +26,7 @@ export function Card({ children, className, onClick }: CardProps) {
 
 export function CardHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("px-6 py-4 border-b border-gray-50", className)}>
+    <div className={cn("px-6 py-4 border-b border-line/70", className)}>
       {children}
     </div>
   );

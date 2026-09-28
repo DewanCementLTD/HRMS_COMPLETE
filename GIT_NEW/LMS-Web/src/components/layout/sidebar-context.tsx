@@ -32,7 +32,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("sidebar-collapsed") === "1") {
+    // Phones/tablets always start with the drawer closed so it doesn't cover the page.
+    if (
+      typeof window !== "undefined" &&
+      (localStorage.getItem("sidebar-collapsed") === "1" || window.innerWidth < 1024)
+    ) {
       setCollapsed(true);
     }
   }, []);

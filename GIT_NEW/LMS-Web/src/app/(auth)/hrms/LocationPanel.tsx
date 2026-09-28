@@ -618,13 +618,13 @@ export function LocationPanel({
   return (
     <div className="flex flex-col min-h-[calc(100vh-13rem)]">
       {/* Sub-tab nav */}
-      <div className="flex items-center gap-4 border-b border-white/20 pb-0 mb-5">
+      <div className="flex items-center gap-4 border-b border-line pb-0 mb-5">
         <button
           onClick={() => setLocTab("live")}
           className={`flex items-center gap-1.5 px-1 pb-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
             locTab === "live"
-              ? "border-indigo-400 text-white"
-              : "border-transparent text-white/60 hover:text-white/90"
+              ? "border-brand text-brand"
+              : "border-transparent text-slate-500 hover:text-ink"
           }`}
         >
           <MapPin className="h-4 w-4" />
@@ -634,8 +634,8 @@ export function LocationPanel({
           onClick={() => setLocTab("settings")}
           className={`flex items-center gap-1.5 px-1 pb-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
             locTab === "settings"
-              ? "border-indigo-400 text-white"
-              : "border-transparent text-white/60 hover:text-white/90"
+              ? "border-brand text-brand"
+              : "border-transparent text-slate-500 hover:text-ink"
           }`}
         >
           <Settings className="h-4 w-4" />
@@ -645,8 +645,8 @@ export function LocationPanel({
           onClick={() => setLocTab("reports")}
           className={`flex items-center gap-1.5 px-1 pb-3 text-sm font-medium border-b-2 transition-colors -mb-px ${
             locTab === "reports"
-              ? "border-indigo-400 text-white"
-              : "border-transparent text-white/60 hover:text-white/90"
+              ? "border-brand text-brand"
+              : "border-transparent text-slate-500 hover:text-ink"
           }`}
         >
           <Navigation className="h-4 w-4" />
@@ -656,14 +656,14 @@ export function LocationPanel({
 
       {/* ── Settings tab ── */}
       {locTab === "settings" && (
-        <div className="bg-white/95 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div className="bg-white rounded-2xl border border-line p-4 sm:p-6 shadow-sm">
           <TrackSettingsTab adminCardNo={adminCardNo} />
         </div>
       )}
 
       {/* ── Reports tab (Features 1 & 2) ── */}
       {locTab === "reports" && (
-        <div className="bg-white/95 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div className="bg-white rounded-2xl border border-line p-4 sm:p-6 shadow-sm">
           <LocationReportsPanel adminCardNo={adminCardNo} />
         </div>
       )}
@@ -674,9 +674,9 @@ export function LocationPanel({
           {/* Toolbar */}
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <div className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-white/80" />
+              <MapPin className="h-5 w-5 text-brand" />
               {/* ← White heading as requested */}
-              <h2 className="text-lg font-semibold text-white">Employee Locations</h2>
+              <h2 className="text-lg font-bold text-ink">Employee Locations</h2>
             </div>
             <div className="ml-auto flex items-center gap-2">
               <input
@@ -684,7 +684,7 @@ export function LocationPanel({
                 value={date}
                 max={todayStr()}
                 onChange={(e) => setDate(e.target.value)}
-                className="border border-white/30 bg-white/10 text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 placeholder:text-white/50"
+                className="border border-line bg-white text-slate-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/30"
               />
               <Button variant="secondary" size="sm" onClick={load} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
@@ -706,7 +706,7 @@ export function LocationPanel({
           )}
 
           {!loading && !error && summary.length === 0 && (
-            <div className="flex flex-1 flex-col items-center justify-center py-16 text-white/60">
+            <div className="flex flex-1 flex-col items-center justify-center py-16 text-slate-400">
               <MapPin className="h-12 w-12 mb-4 opacity-30" />
               <p className="text-sm font-medium">No location data recorded for {date}</p>
               <p className="text-xs mt-1 opacity-70">
@@ -718,7 +718,7 @@ export function LocationPanel({
           {!loading && summary.length > 0 && (
             <>
               {/* ── Desktop table ── */}
-              <div className="hidden sm:block overflow-x-auto rounded-2xl border border-white/20 shadow-sm bg-white/95">
+              <div className="hidden sm:block overflow-x-auto rounded-2xl border border-line shadow-sm bg-white">
                 <table className="min-w-full divide-y divide-gray-100">
                   <thead className="bg-gray-50">
                     <tr>
@@ -786,7 +786,7 @@ export function LocationPanel({
                   <div
                     key={emp.card_no}
                     onClick={() => setSelected(emp)}
-                    className="bg-white/95 rounded-xl border border-white/20 shadow-sm p-4 cursor-pointer hover:border-indigo-300 transition-all active:scale-[0.98]"
+                    className="bg-white rounded-xl border border-line shadow-sm p-4 cursor-pointer hover:border-indigo-300 transition-all active:scale-[0.98]"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">

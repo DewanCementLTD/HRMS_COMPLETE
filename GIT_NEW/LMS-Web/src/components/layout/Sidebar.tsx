@@ -16,18 +16,14 @@ import {
   Briefcase,
   LogOut,
   ChevronLeft,
-  Menu,
-  Building2,
-  MapPin,
-  ChevronDown,
   IdCard,
   Wallet,
   FileText,
   ClipboardCheck,
   Network,
+  PiggyBank,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { CompanyItem, BranchItem } from "@/models/auth";
+import { useState, useEffect } from "react";
 import { useSidebar } from "./sidebar-context";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import { fetchHodApprovals } from "@/services/leaveService";
@@ -43,6 +39,7 @@ const employeeNavItems = [
   { href: "/leave/apply", label: "Apply Leave", icon: CalendarPlus },
   { href: "/leave/status", label: "Leave Status", icon: ClipboardList },
   { href: "/attendance", label: "Attendance", icon: Clock },
+  { href: "/my-pf", label: "My PF", icon: PiggyBank },
   { href: "/profile", label: "Profile", icon: User },
 ];
 
@@ -53,92 +50,14 @@ const hrNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
   { href: "/payroll", label: "Payroll", icon: Wallet },
+  { href: "/provident-fund", label: "Provident Fund", icon: PiggyBank },
   { href: "/id-cards", label: "ID Cards", icon: IdCard },
   { href: "/reports", label: "Reports", icon: FileText },
 ];
 
-function SwitcherDropdown<T extends { code: string; name: string }>({
-  items,
-  selected,
-  onSelect,
-  icon: Icon,
-  collapsed,
-  allowAll = false,
-  allLabel = "All",
-}: {
-  items: T[];
-  selected: T | null;
-  onSelect: (item: T) => void;
-  icon: React.ElementType;
-  collapsed: boolean;
-  allowAll?: boolean;
-  allLabel?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
-
-  if (items.length === 0) return null;
-
-  // Prepend a synthetic "All" entry (empty code = no filter) when allowed.
-  const displayItems: T[] = allowAll
-    ? ([{ code: "", name: allLabel } as T, ...items])
-    : items;
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => displayItems.length > 1 && setOpen(!open)}
-        className={cn(
-          "flex items-center gap-2 w-full text-left px-2 py-1.5 rounded-lg transition-colors text-xs",
-          displayItems.length > 1
-            ? "hover:bg-gray-100 cursor-pointer"
-            : "cursor-default",
-          collapsed && "justify-center"
-        )}
-        title={selected?.name ?? ""}
-      >
-        <Icon className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-        {!collapsed && (
-          <>
-            <span className="text-gray-600 truncate flex-1">{selected?.name ?? "—"}</span>
-            {displayItems.length > 1 && (
-              <ChevronDown className={cn("h-3 w-3 text-gray-400 shrink-0 transition-transform", open && "rotate-180")} />
-            )}
-          </>
-        )}
-      </button>
-
-      {open && !collapsed && (
-        <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden">
-          {displayItems.map((item) => (
-            <button
-              key={item.code}
-              onClick={() => { onSelect(item); setOpen(false); }}
-              className={cn(
-                "w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 hover:text-indigo-700 transition-colors",
-                selected?.code === item.code && "bg-indigo-50 text-indigo-700 font-medium"
-              )}
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, switchCompany, switchBranch } = useAuth();
+  const { user } = useAuth();
   const { handleLogout } = useAuthController();
   const { collapsed, setCollapsed, resetView } = useSidebar();
 
@@ -179,118 +98,64 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile overlay button */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-xl shadow-md"
-      >
-        <Menu className="h-5 w-5 text-gray-600" />
-      </button>
-
       {/* Mobile backdrop — tapping outside closes the drawer */}
       {!collapsed && (
         <div
           onClick={() => setCollapsed(true)}
-          className="lg:hidden fixed inset-0 bg-black/30 z-30"
+          className="lg:hidden fixed inset-0 bg-slate-900/30 z-40"
         />
       )}
 
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full bg-white border-r border-gray-100 z-40 transition-all duration-300 flex flex-col",
+          "fixed left-0 top-0 h-full bg-white border-r border-line z-50 transition-all duration-300 flex flex-col",
           collapsed ? "w-20" : "w-64",
-          "max-lg:-translate-x-full max-lg:data-[open=true]:translate-x-0"
+          "max-lg:w-64 max-lg:-translate-x-full max-lg:data-[open=true]:translate-x-0 max-lg:shadow-xl"
         )}
         data-open={!collapsed}
       >
-        {/* Logo — logo on the first row, product name wraps onto the second. */}
-        <div className={cn("px-4 py-3 border-b border-gray-100", collapsed && "px-2")}>
-          <div className="flex items-center justify-between gap-2">
-            {/* Company logo once uploaded, otherwise the default LMS mark. */}
+        {/* Brand */}
+        <div className={cn("h-20 flex items-center gap-3 px-5 shrink-0", collapsed && "lg:px-3 lg:justify-center")}>
+          {/* Company logo once uploaded, otherwise the default LMS mark. */}
+          <div className="h-11 w-11 shrink-0 rounded-xl bg-brand-soft flex items-center justify-center overflow-hidden">
             <CompanyLogo
               compc={companyCompc}
-              className="h-9 max-w-full min-w-0"
+              className="h-9 w-9"
               fallback={
-                <Image
-                  src="/LMS_Black.png"
-                  alt="LMS Logo"
-                  width={36}
-                  height={36}
-                  className="shrink-0"
-                />
+                <Image src="/LMS_Black.png" alt="LMS Logo" width={30} height={30} className="shrink-0" />
               }
             />
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block shrink-0"
-            >
-              <ChevronLeft
-                className={cn(
-                  "h-5 w-5 text-gray-400 transition-transform",
-                  collapsed && "rotate-180"
-                )}
-              />
-            </button>
           </div>
-          {!collapsed && (
-           <h1 className="text-xs font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-  Human Resource Management System
-</h1>
-          )}
-        </div>
-
-        {/* User info + company/branch */}
-        <div className={cn("px-4 py-3 border-b border-gray-100 space-y-1", collapsed && "px-2")}>
-          {/* Avatar + name */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shrink-0">
-              {user?.emp_name?.charAt(0)?.toUpperCase() || "U"}
-            </div>
-            {!collapsed && (
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
-                  {user?.emp_name || "User"}
-                </p>
-                <p className="text-xs text-gray-400">ID: {user?.card_no}</p>
-              </div>
+          <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
+            <p className="text-lg font-extrabold text-ink leading-none tracking-tight">HRMS</p>
+            <p className="text-[11px] text-slate-500 leading-tight mt-1">
+              Human Resource<br />Management System
+            </p>
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              "p-1.5 rounded-lg hover:bg-slate-100 transition-colors shrink-0",
+              collapsed && "lg:hidden"
             )}
-          </div>
-
-          {/* Company switcher */}
-          {(user?.company_list?.length ?? 0) > 0 && (
-            <SwitcherDropdown<CompanyItem>
-              items={user!.company_list}
-              selected={user!.selected_company}
-              onSelect={(c) => { switchCompany(c); closeOnMobile(); }}
-              icon={Building2}
-              collapsed={collapsed}
-            />
-          )}
-
-          {/* Branch switcher — only the selected company's branches.
-              (Branches carry compc; older sessions without it are shown as-is.) */}
-          {(() => {
-            const companyCode = user?.selected_company?.code ?? "";
-            const branchesForCompany = (user?.branch_list ?? []).filter(
-              (b) => !companyCode || !b.compc || String(b.compc) === String(companyCode)
-            );
-            if (branchesForCompany.length === 0) return null;
-            return (
-              <SwitcherDropdown<BranchItem>
-                items={branchesForCompany}
-                selected={user!.selected_branch}
-                onSelect={(b) => { switchBranch(b); closeOnMobile(); }}
-                icon={MapPin}
-                collapsed={collapsed}
-                allowAll
-                allLabel="All Branches"
-              />
-            );
-          })()}
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="h-5 w-5 text-slate-400" />
+          </button>
         </div>
+        {/* Expand handle when collapsed on desktop */}
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            className="hidden lg:flex mx-auto mb-2 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Expand sidebar"
+          >
+            <ChevronLeft className="h-5 w-5 text-slate-400 rotate-180" />
+          </button>
+        )}
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -298,23 +163,30 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                title={collapsed ? item.label : undefined}
                 onClick={() => {
                   closeOnMobile();
                   // Already inside this section: send it back to its home view.
                   if (isActive) resetView();
                 }}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                  "relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-indigo-50 text-indigo-700 shadow-sm"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                  collapsed && "justify-center px-2"
+                    ? "bg-brand-soft text-brand font-semibold"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-ink",
+                  collapsed && "lg:justify-center lg:px-2"
                 )}
               >
-                <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-indigo-600" : "text-gray-400")} />
-                {!collapsed && <span className="flex-1">{item.label}</span>}
-                {!collapsed && item.href === hodNavItem.href && !!hodPending && (
-                  <span className="bg-indigo-600 text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center">
+                {isActive && (
+                  <span className="absolute -left-3 top-1.5 bottom-1.5 w-1 rounded-r-full bg-brand" />
+                )}
+                <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-brand" : "text-slate-400")} />
+                <span className={cn("flex-1", collapsed && "lg:hidden")}>{item.label}</span>
+                {item.href === hodNavItem.href && !!hodPending && (
+                  <span className={cn(
+                    "bg-brand text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center",
+                    collapsed && "lg:absolute lg:top-1 lg:right-1 lg:min-w-[16px] lg:text-[9px]"
+                  )}>
                     {hodPending}
                   </span>
                 )}
@@ -324,16 +196,16 @@ export function Sidebar() {
         </nav>
 
         {/* Logout */}
-        <div className="px-3 py-4 border-t border-gray-100">
+        <div className="px-3 py-4 mx-2 border-t border-line">
           <button
             onClick={handleLogout}
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 w-full",
-              collapsed && "justify-center px-2"
+              "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-all duration-200 w-full",
+              collapsed && "lg:justify-center lg:px-2"
             )}
           >
             <LogOut className="h-5 w-5 shrink-0" />
-            {!collapsed && <span>Logout</span>}
+            <span className={cn(collapsed && "lg:hidden")}>Logout</span>
           </button>
         </div>
       </aside>
