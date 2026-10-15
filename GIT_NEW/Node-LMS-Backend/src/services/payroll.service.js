@@ -1061,6 +1061,17 @@ export const getPayslip = async (compc, empcode, period, { finalOnly = false } =
       w_day: Number(m[4]), absent_days: Number(m[5]),
       total_earning: Number(m[6]), net_pay: m[7] !== null && m[7] !== undefined ? Number(m[7]) : null,
     };
+    // W_DAY is already net of absences (HR_EMP_DAYS.DAYS - ABSENT), so it is the
+    // earning days; the absences are what HR entered for the period. Working
+    // days = earning + absent (the whole month, or from the joining date).
+    const absRes = await connection.execute(
+      `SELECT NVL(SUM(ABSENT_DAYS),0) FROM HR_ABSENT_DAYS
+        WHERE OLD_EMPCODE IN (:e, :ec) AND "PERIOD#" = :p AND (:u IS NULL OR UNIT_ID = :u)`,
+      { e: key, ec: String(empcode), p: per, u },
+      { outFormat: OUT_ARRAY }
+    );
+    const absentDays = Number(absRes.rows?.[0]?.[0] || 0);
+
     const dedThis = deductions.reduce((s, d) => s + d.this, 0);
     const dedFiscal = deductions.reduce((s, d) => s + d.fiscal, 0);
     const dedCal = deductions.reduce((s, d) => s + d.cal, 0);
@@ -1086,8 +1097,8 @@ export const getPayslip = async (compc, empcode, period, { finalOnly = false } =
         bank_acct: trimOrEmpty(h[8] || m[11]), company_name: trimOrEmpty(h[9]),
         company_compc: u !== null ? String(u) : "",
         period_label: pfrm ? label(pfrm) : `Period ${per}`,
-        w_day: master.w_day, absent_days: master.absent_days,
-        earning_days: master.w_day - master.absent_days,
+        w_day: master.w_day + absentDays, absent_days: absentDays,
+        earning_days: master.w_day,
       },
       earnings, deductions, master,
       totals: {

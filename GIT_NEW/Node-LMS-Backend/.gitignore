@@ -1,13 +1,14 @@
-node_modules/
+﻿node_modules/
 
-# Secrets — DB credentials and the Gemini API key live here.
+# Secrets â€” DB credentials and the Gemini API key live here.
 .env
+.env.*
 
 # Runtime logs (pino writes one file per route group).
 logs/
 *.log
 
-# Uploaded/served files — same reasoning as LMS-Backend/EMP_DOCS: sensitive,
+# Uploaded/served files â€” same reasoning as LMS-Backend/EMP_DOCS: sensitive,
 # lives on disk, never in git. The real roots are EMP_DOCS_ROOT / COMP_LOGO_ROOT.
 EMP_DOCS/
 EMP_PHOTOS/

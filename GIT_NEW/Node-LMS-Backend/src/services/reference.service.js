@@ -243,7 +243,7 @@ export const getDesignations = async (grade_cd = null, compc = null, brnch = nul
       baseFilter += " AND GRADE_CD = :gradecd";
       baseParams.gradecd = grade_cd;
     }
-    const template = `SELECT GRADE_CD, DESG_CD, DESG_DESC FROM HR_DESG WHERE ${baseFilter} {filter} ORDER BY GRADE_CD, DESG_CD`;
+    const template = `SELECT GRADE_CD, DESG_CD, DESG_DESC, FPO_AMOUNT FROM HR_DESG WHERE ${baseFilter} {filter} ORDER BY GRADE_CD, DESG_CD`;
     
     const attempts = [];
     if (compc && brnch) {
@@ -284,7 +284,32 @@ export const getDesignations = async (grade_cd = null, compc = null, brnch = nul
       grade_cd: String(r[0] ?? "").trim(),
       desg_cd: String(r[1] ?? "").trim(),
       desg_desc: String(r[2] ?? "").trim(),
+      fpo_amount: r[3] === null || r[3] === undefined ? null : Number(r[3]),
     }));
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
+// FPO amount of a designation (HR_DESG.FPO_AMOUNT, keyed by DESG_CD + COMPC).
+// The PF formula deducts it: PF = (earned gross − FPO) / 1.55 × 8.33%.
+export const updateDesignationFpo = async (desgCd, fpoAmount, compc) => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const res = await conn.execute(
+      "UPDATE HR_DESG SET FPO_AMOUNT = :fpo, USR_DATE_UPD = SYSDATE WHERE DESG_CD = :cd AND TO_CHAR(COMPC) = TO_CHAR(:compc)",
+      { fpo: fpoAmount, cd: coerce(desgCd), compc }
+    );
+    if (!res.rowsAffected) {
+      await conn.rollback();
+      return { status: "error", message: "Designation not found in this company" };
+    }
+    await conn.commit();
+    return { status: "success", desg_cd: String(desgCd), fpo_amount: fpoAmount };
+  } catch (e) {
+    if (conn) await conn.rollback();
+    return { status: "error", message: e.message };
   } finally {
     if (conn) await conn.close();
   }

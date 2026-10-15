@@ -14,3 +14,14 @@ export const uploadSingleFile = upload.single('file');
 
 // Bulk CV uploads take an array of files under the "files" field.
 export const uploadCvArray = upload.array('files', 20);
+
+// Training course outlines: one document under "file", capped at 20 MB. A
+// multer error (too large) is answered as a readable 400 instead of reaching
+// the global handler as a 500.
+const outlineUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } }).single('file');
+export const uploadOutlineFile = (req, res, next) =>
+  outlineUpload(req, res, (err) => {
+    if (!err) return next();
+    const detail = err.code === 'LIMIT_FILE_SIZE' ? 'File is larger than 20 MB' : err.message || 'Upload failed';
+    return res.status(400).json({ detail });
+  });

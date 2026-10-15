@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
+  fetchDepartments, fetchGrades, fetchDesignations, updateDesignationFpo, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
   fetchLeaveTypes, type LeaveTypeMaster,
 } from "@/services/referenceService";
 import { ShiftsSection } from "./ShiftsSection";
@@ -665,12 +665,21 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
             <option key={g.grade_cd} value={g.grade_cd}>{g.grade_cd} — {g.descr}</option>
           ))}
         </select>
+        <span className="text-xs text-gray-400 ml-auto">
+          Click the pencil on a row to set its PF FPO (e.g. 625 below Manager, 300 Manager &amp; above) — PF = (earned gross − FPO) ÷ 1.55 × 8.33%.
+        </span>
       </div>
       <MasterTable
-        columns={["Grade", "Desig Code", "Description"]}
-        rows={filteredDesigs.map((d) => [d.grade_cd, d.desg_cd, d.desg_desc])}
+        columns={["Grade", "Desig Code", "Description", "PF FPO (Rs.)"]}
+        rows={filteredDesigs.map((d) => [d.grade_cd, d.desg_cd, d.desg_desc, d.fpo_amount])}
         loading={loading}
         onRefresh={() => load("designations")}
+        editColumn={3}
+        onEdit={async (i, v) => {
+          const n = Number(v);
+          if (!Number.isFinite(n) || n < 0) throw new Error("Enter the FPO amount in rupees, e.g. 625 or 300 (0 to clear)");
+          await updateDesignationFpo(adminCardNo, filteredDesigs[i].desg_cd, String(n), activeCompany);
+        }}
         addFields={[
           { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1" },
           { key: "desg_desc", label: "Designation",  placeholder: "e.g. Senior Officer" },

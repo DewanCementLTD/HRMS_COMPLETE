@@ -15,9 +15,10 @@
  * repeatedly:
  *
  *   1. A day HR has edited by hand is never touched. Both edit paths stamp
- *      DUTY_ROSTER.UPDATED, so `UPDATED IS NULL` identifies the days that are
- *      still just whatever the generator produced. 88 of the 50,311 future rows
- *      are hand-edited today; those stay exactly as they are.
+ *      DUTY_ROSTER.UPDATED with the editor's card; a branch-default change
+ *      stamps 'DEFAULT:<card>' instead. So `UPDATED IS NULL OR LIKE 'DEFAULT:%'`
+ *      identifies the days that are still just whatever the generator or the
+ *      branch setting produced — and only those get rewritten.
  *
  *   2. Approved leave and public holidays are never overwritten. A day someone
  *      is on leave is not a day to reassign a shift to.
@@ -33,8 +34,16 @@ export const FALLBACK_SHIFT = 'G';
 export const REST_SHIFT = 'R';
 export const DEFAULT_REST_DAYS = '7'; // Sunday — identical to today's behaviour
 
-/** '6,7' -> [6, 7]; anything unparseable -> Sunday, never an empty week. */
+/** Stored REST_DAYS value for a branch that works every day (column is NOT NULL). */
+export const NO_REST_DAYS = '0';
+
+/**
+ * '6,7' -> [6, 7]; '0' or [] -> [] (no weekly off, every day worked);
+ * anything unparseable -> Sunday.
+ */
 export const parseRestDays = (raw) => {
+  if (Array.isArray(raw) && raw.length === 0) return [];
+  if (String(raw ?? '').trim() === NO_REST_DAYS) return [];
   const days = String(raw ?? '')
     .split(/[,\s]+/)
     .map((d) => Number(String(d).trim()))
@@ -45,7 +54,36 @@ export const parseRestDays = (raw) => {
   return unique.length && unique.length < 7 ? unique : [7];
 };
 
-export const formatRestDays = (days) => parseRestDays(days).join(',');
+export const formatRestDays = (days) => {
+  const d = parseRestDays(days);
+  return d.length ? d.join(',') : NO_REST_DAYS;
+};
+
+/**
+ * What a branch-default change stamps into DUTY_ROSTER.UPDATED. It is not a
+ * hand edit — it is the branch setting itself — so the next change of that
+ * setting must be able to rewrite it. Without a distinct mark every applied
+ * day looked hand-edited, and changing a branch from Sunday off to Friday off
+ * silently changed nothing.
+ */
+const DEFAULT_STAMP_PREFIX = 'DEFAULT:';
+const defaultStamp = (who) => `${DEFAULT_STAMP_PREFIX}${String(who ?? '').trim()}`.slice(0, 50);
+
+/** How far ahead the roster is generated, and so how far a saved default reaches. */
+const ROSTER_DAYS_AHEAD = 60;
+
+const ymd = (d) => {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
+
+/** Today .. the end of the generated roster: the days a saved default governs. */
+export const futureRosterWindow = () => {
+  const today = new Date();
+  const end = new Date(today);
+  end.setDate(end.getDate() + ROSTER_DAYS_AHEAD);
+  return { from: ymd(today), to: ymd(end) };
+};
 
 /**
  * The configured defaults, one row per company/branch.
@@ -169,7 +207,34 @@ export const saveRosterDefault = async (compc, brnch, defaultShift, restDays, up
       { autoCommit: true },
     );
 
-    return { status: 'success', message: 'Default shift saved' };
+    // The roster is already generated 60 days ahead, so a default that only
+    // reached newly generated days would take two months to show. Bring the
+    // days already generated from today onwards in line now; past days are
+    // attendance history and are left alone.
+    const { from, to } = futureRosterWindow();
+    const applied = await applyRosterDefaults(compc, brnch, from, to, {
+      shift,
+      restDays: restDays ?? DEFAULT_REST_DAYS,
+      updatedBy,
+      connection,
+    });
+    if (applied.status === 'success') await connection.commit();
+    else await connection.rollback();
+
+    if (applied.status !== 'success') {
+      return {
+        status: 'success',
+        message: 'Default saved, but the upcoming roster could not be updated — use "Apply to range".',
+      };
+    }
+    return {
+      status: 'success',
+      message:
+        `Default saved. Upcoming roster (${from} to ${to}) updated: ` +
+        `${applied.working_days} working day(s), ${applied.rest_days_set} off day(s) changed.`,
+      working_days: applied.working_days,
+      rest_days_set: applied.rest_days_set,
+    };
   } catch (e) {
     logger.error({ err: e }, `[ROSTER_DEFAULT] save failed for ${compc}/${brnch}`);
     return { status: 'error', message: 'The default shift could not be saved. Please try again.' };
@@ -222,9 +287,13 @@ export const applyRosterDefaults = async (
     const restPlaceholders = rest.map((_, i) => `:rd${i}`).join(', ');
     rest.forEach((d, i) => { binds[`rd${i}`] = d; });
 
-    const untouched = untouchedOnly ? 'AND UPDATED IS NULL' : '';
+    // "Untouched" = never edited, or last set by a branch default (which a new
+    // default is entitled to replace). Only a genuine hand edit is protected.
+    const untouched = untouchedOnly
+      ? `AND (UPDATED IS NULL OR UPDATED LIKE '${DEFAULT_STAMP_PREFIX}%')`
+      : '';
     const stamp = updatedBy ? ', UPDATED = :usr' : '';
-    if (updatedBy) binds.usr = String(updatedBy).slice(0, 50);
+    if (updatedBy) binds.usr = defaultStamp(updatedBy);
 
     // Leave and holidays are never reassigned: the day is already spoken for.
     const PROTECTED = 'AND LEAVE_TYPE_FK IS NULL AND HOLIDAY_FK IS NULL';
@@ -234,6 +303,44 @@ export const applyRosterDefaults = async (
          AND TO_CHAR(BRNCH) = TO_CHAR(:b)
          AND TRUNC(ROSTER_DATE) BETWEEN TO_DATE(:from_d,'YYYY-MM-DD') AND TO_DATE(:to_d,'YYYY-MM-DD')
          ${PROTECTED} ${untouched}`;
+
+    // No weekly off at all: only the off days change. Each one takes that
+    // employee's own usual working shift (so a night-shift worker's Sunday
+    // becomes a night shift), falling back to the branch shift. Working days
+    // are left as they are.
+    if (!rest.length) {
+      const { shift: _unused, ...noRestBinds } = binds;
+      const toWork = await connection.execute(
+        `MERGE INTO DUTY_ROSTER t
+         USING (
+           SELECT r.DUTY_ROSTER_PK AS PK,
+                  NVL((SELECT TRIM(x.ROSTER_SHIFT)
+                         FROM DUTY_ROSTER x
+                        WHERE x.CARD_NO = r.CARD_NO
+                          AND x.ROSTER_DATE BETWEEN TRUNC(SYSDATE) - 60 AND TRUNC(SYSDATE) + 60
+                          AND TRIM(x.ROSTER_SHIFT) IS NOT NULL
+                          AND TRIM(x.ROSTER_SHIFT) <> '${REST_SHIFT}'
+                        GROUP BY TRIM(x.ROSTER_SHIFT)
+                        ORDER BY COUNT(*) DESC
+                        FETCH FIRST 1 ROWS ONLY), :fallback) AS NEW_SHIFT
+             FROM DUTY_ROSTER r
+             ${SCOPE}
+              AND TRIM(ROSTER_SHIFT) = '${REST_SHIFT}'
+         ) s
+         ON (t.DUTY_ROSTER_PK = s.PK)
+         WHEN MATCHED THEN UPDATE SET t.ROSTER_SHIFT = s.NEW_SHIFT ${updatedBy ? ', t.UPDATED = :usr' : ''}`,
+        { ...noRestBinds, fallback: workingShift },
+        { autoCommit: false },
+      );
+      if (!existing) await connection.commit();
+      return {
+        status: 'success',
+        shift: workingShift,
+        rest_days: [],
+        working_days: toWork.rowsAffected ?? 0,
+        rest_days_set: 0,
+      };
+    }
 
     // Working days: everything that is not a configured rest day.
     const work = await connection.execute(
@@ -325,4 +432,27 @@ export const applyAllRosterDefaults = async (fromDate, toDate) => {
   } finally {
     await connection?.close();
   }
+};
+
+/**
+ * Keep the upcoming roster in line with the branch defaults.
+ *
+ * The ERP adds a new day to the end of the 60-day roster on its own schedule,
+ * not only when we trigger a build, and it always stamps that day with its
+ * hardcoded Sunday off. A pass shortly after startup and then every few hours
+ * catches those days. It only rewrites untouched / default-set days, so it is
+ * a no-op when nothing new has appeared.
+ */
+const DEFAULTS_PASS_EVERY_MS = 6 * 60 * 60 * 1000;
+let defaultsTimer = null;
+
+export const startRosterDefaultsSchedule = () => {
+  if (defaultsTimer) return;
+  const pass = async () => {
+    const { from, to } = futureRosterWindow();
+    await applyAllRosterDefaults(from, to);
+  };
+  setTimeout(() => { pass().catch(() => {}); }, 60 * 1000).unref();
+  defaultsTimer = setInterval(() => { pass().catch(() => {}); }, DEFAULTS_PASS_EVERY_MS);
+  defaultsTimer.unref();
 };

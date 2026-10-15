@@ -11,6 +11,8 @@ import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { formatDate } from "@/lib/utils";
 import { uploadMyPhoto, myPhotoUrl } from "@/services/documentService";
+import { TrainerProfileCard } from "@/components/training/TrainerProfileCard";
+import { AppraisalProfileCard } from "@/components/appraisal/AppraisalProfileCard";
 import {
   User,
   Mail,
@@ -169,6 +171,8 @@ export default function ProfilePage() {
               </div>
             </CardContent>
           </Card>
+          <TrainerProfileCard card={user?.card_no ?? ""} token={user?.session_token ?? ""} />
+          <AppraisalProfileCard card={user?.card_no ?? ""} token={user?.session_token ?? ""} />
         </div>
 
         {/* Change Password */}

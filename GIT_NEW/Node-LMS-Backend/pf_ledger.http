@@ -1,0 +1,88 @@
+@localUrl=http://localhost:8000
+
+@admin_card=100001.1
+@compc=1
+@empcode=K-51
+
+### ============================================================================
+### PROVIDENT FUND MODULE (/pf/*) — 15 endpoints
+### Needs sql/2026-10-01_provident_fund.sql applied first.
+### Flip #* [ ] to #* [x] once confirmed against a running Node server.
+### All amounts are exact (no rounding); rates are fractions (0.0587 = 5.87%).
+### ============================================================================
+
+### 1. Settings  #* [ ]
+# 🔍 CHECK: {pf_ded_code "12", loan_codes ["5"], loan_spread 0.01, zakat_rate 0.025, profit_divisor 365}
+GET {{localUrl}}/pf/settings?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 2. Save settings — PF deduction code and the HR_LOAN_TYPE codes that are PF loans  #* [ ]
+PUT {{localUrl}}/pf/settings?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "loan_codes": ["5"] }
+
+### 3. Declare a year's profit rate  #* [ ]
+POST {{localUrl}}/pf/rates?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "fy_from": "2025-07-01", "profit_rate": 0.0587, "remarks": "Trustees meeting" }
+
+### 4. List rates (+ posted member count / profit per year)  #* [ ]
+GET {{localUrl}}/pf/rates?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 5. Delete an unposted rate  #* [ ]
+DELETE {{localUrl}}/pf/rates/2025-07-01?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 6. Take-on balance from the Excel statement (as at the first system year)  #* [ ]
+# K-51 closing of 2024-25 → opening of 2025-26: contribution B/F 989,026.8425, profit B/F 800,335.6772.
+# *_deductions must carry what Excel only subtracted at settlement: permanent withdrawals made so far
+# plus their "profit thereof", and loan interest charged (employee side). Fill them from the sheet;
+# 0 below is a placeholder.
+PUT {{localUrl}}/pf/openings/{{empcode}}?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "as_of_fy": "2025-07-01", "emp_contrib": 989026.8425, "emp_profit": 800335.6772, "emp_deductions": 0,
+  "co_contrib": 989026.8425, "co_profit": 800335.6772, "co_deductions": 0, "remarks": "From K-51-NEW04.XLS" }
+
+### 7. List take-on balances  #* [ ]
+GET {{localUrl}}/pf/openings?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 8. Delete a take-on balance (only before any year is posted for the member)  #* [ ]
+DELETE {{localUrl}}/pf/openings/{{empcode}}?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 9. Import every member's opening balance from HR_PF_BALANCES  #* [ ]
+# 🔍 CHECK: {imported, skipped[]}; members with posted years are never touched; overwrite=true replaces existing take-ons
+POST {{localUrl}}/pf/openings/import?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "as_of_fy": "2026-07-01", "overwrite": false }
+
+### 10. List permanent withdrawals (HR_LOAN_MST loan type 16 — entered in the payroll Loans screen)  #* [ ]
+GET {{localUrl}}/pf/withdrawals?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}
+
+### 11. Member statement (Part I + Part II, monthly product lines, loan sheet)  #* [ ]
+# 🔍 CHECK: years[].lines days: JUL 334 … JUN 0; years[].provisional = true when the year's rate is not declared yet
+# 🔍 CHECK: CONTRIB lines: emp_amt = (earned_gross - fpo) / 1.55 × 8.33%, payroll_deducted = what payroll actually cut
+GET {{localUrl}}/pf/statement?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}
+
+### 12. Final settlement (defaults to the exit date)  #* [ ]
+# 🔍 CHECK: amount_payable = employee_part - zakat + company_part - less_loan_outstanding
+# 🔍 CHECK: zakat = 2.5% of employee_part unless the member's exemption is on file (#14/#15)
+GET {{localUrl}}/pf/settlement?admin_card_no={{admin_card}}&compc={{compc}}&empcode={{empcode}}
+
+### 13. Post (freeze) a financial year for every member  #* [ ]
+# 🔍 CHECK: {members_posted, total_profit, skipped[]}; earlier years must be posted first
+POST {{localUrl}}/pf/years/post?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "fy_from": "2025-07-01" }
+
+### 14. Zakat status of every employee (no declaration on file = not exempt)  #* [ ]
+GET {{localUrl}}/pf/zakat?admin_card_no={{admin_card}}&compc={{compc}}
+
+### 15. Record a member's zakat exemption declaration (CZ-50)  #* [ ]
+# 🔍 CHECK: 400 when zakat_exempt=true without decl_date; send zakat_exempt=false to withdraw it
+PUT {{localUrl}}/pf/zakat/{{empcode}}?admin_card_no={{admin_card}}&compc={{compc}}
+Content-Type: application/json
+
+{ "zakat_exempt": true, "decl_date": "2026-07-01", "decl_ref": "CZ-50 / affidavit", "remarks": "Submitted" }

@@ -18,11 +18,10 @@ import { fetchShiftLov, type ShiftLov } from "@/services/referenceService";
  * Two separate things, deliberately shown together because they answer the same
  * question at different times:
  *
- *   Default   — the shift newly generated roster days get. Rosters are built 60
- *               days ahead, so on its own this takes up to two months to become
- *               visible.
- *   Apply now — rewrites an existing date range to that shift, which is what HR
- *               actually wants when a site changes what it runs.
+ *   Default   — the branch's working shift and weekly off days. Saving it also
+ *               rewrites the roster already generated from today onwards, and
+ *               newly generated days keep following it.
+ *   Apply now — rewrites a chosen date range (e.g. past days) to that setting.
  *
  * Neither ever touches a public holiday, a day of approved leave, or a day
  * somebody edited by hand.
@@ -53,6 +52,7 @@ export function RosterDefaultPanel({
 
   const [range, setRange] = useState({ from: "", to: "" });
   const [applying, setApplying] = useState(false);
+  const [includeEdited, setIncludeEdited] = useState(false);
 
   const scoped = Boolean(compc && brnch);
 
@@ -70,7 +70,8 @@ export function RosterDefaultPanel({
       const found = (defaults.items || [])[0] || null;
       setCurrent(found);
       setShift(found?.default_shift || "");
-      setRestDays(found?.rest_days?.length ? found.rest_days : [7]);
+      // A saved branch with an empty list genuinely has no weekly off.
+      setRestDays(found ? found.rest_days : [7]);
     } catch (e) {
       setMsg({ kind: "err", text: e instanceof Error ? e.message : "Could not load the branch default" });
     } finally {
@@ -85,7 +86,7 @@ export function RosterDefaultPanel({
 
   async function onSave() {
     if (!shift) { setMsg({ kind: "err", text: "Pick the shift this branch runs" }); return; }
-    if (!restDays.length) { setMsg({ kind: "err", text: "Pick at least one rest day" }); return; }
+    if (restDays.length === 7) { setMsg({ kind: "err", text: "At least one day must be a working day" }); return; }
     setSaving(true);
     setMsg(null);
     try {
@@ -112,6 +113,7 @@ export function RosterDefaultPanel({
         compc: compc!, brnch: brnch!,
         from_date: range.from, to_date: range.to,
         shift, rest_days: restDays,
+        include_edited: includeEdited,
       });
       setMsg({ kind: "ok", text: res.message || "Roster updated" });
     } catch (e) {
@@ -134,11 +136,18 @@ export function RosterDefaultPanel({
     <div className="space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-4">
         <div>
-          <h3 className="text-sm font-bold text-gray-900">What this branch runs</h3>
+          <h3 className="text-sm font-bold text-gray-900">Shift &amp; weekly off days</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Applies to roster days generated from now on. Every branch was previously
-            fixed to General with Sunday off, whatever it actually ran.
+            Saving updates this branch&apos;s roster from today onwards and every day
+            generated later. Public holidays, approved leave and days edited by hand
+            for a single employee are left untouched.
           </p>
+          {!current && (
+            <p className="text-xs text-amber-600 mt-1">
+              Not set for this branch yet — its roster currently uses the ERP default
+              (General shift, Sunday off).
+            </p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -162,7 +171,7 @@ export function RosterDefaultPanel({
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700">Weekly rest days</label>
+            <label className="block text-sm font-medium text-gray-700">Weekly off days</label>
             <div className="flex flex-wrap gap-1.5">
               {WEEKDAYS.map((d) => (
                 <button
@@ -179,19 +188,24 @@ export function RosterDefaultPanel({
                 </button>
               ))}
             </div>
+            <p className="text-xs text-gray-500">
+              {restDays.length ? "Click a day to toggle it." : "No off days — every day is a working day."}
+            </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <Button onClick={onSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save default
+            Save &amp; apply
           </Button>
           {current && (
             <span className="text-xs text-gray-500">
               Currently {current.default_shift}
-              {current.shift_desc ? ` — ${current.shift_desc}` : ""}, resting{" "}
-              {current.rest_days.map((i) => WEEKDAYS.find((w) => w.iso === i)?.label).join(", ")}
+              {current.shift_desc ? ` — ${current.shift_desc}` : ""}, off on{" "}
+              {current.rest_days.length
+                ? current.rest_days.map((i) => WEEKDAYS.find((w) => w.iso === i)?.label).join(", ")
+                : "no day (works all week)"}
             </span>
           )}
         </div>
@@ -201,10 +215,9 @@ export function RosterDefaultPanel({
         <div>
           <h3 className="text-sm font-bold text-gray-900">Apply to existing dates</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Rosters are built 60 days ahead, so the default above only reaches days
-            generated later. Use this to change a range that already exists — for every
-            employee in the branch at once. Rest days, public holidays, approved leave and
-            days edited by hand are left untouched.
+            Use this for a specific range, such as days before today — for every
+            employee in the branch at once, using the shift and off days above. Public
+            holidays and approved leave are always left untouched.
           </p>
         </div>
 
@@ -234,6 +247,16 @@ export function RosterDefaultPanel({
             </Button>
           </div>
         </div>
+
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={includeEdited}
+            onChange={(e) => setIncludeEdited(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          Also overwrite days that were edited by hand
+        </label>
       </div>
 
       {msg && (

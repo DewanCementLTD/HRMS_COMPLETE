@@ -117,6 +117,8 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   qfication: "",
   qual_detail: "",
   dtofconfirm: "",
+  pf_ind: "N",
+  pf_mem_dt: "",
 };
 
 // Format an NIC as 4XXXX-XXXXXXX-X (5 digits - 7 digits - 1 digit).
@@ -555,6 +557,8 @@ export default function HRMSPage() {
       qfication: e.qfication || "",
       qual_detail: e.qual_detail || "",
       dtofconfirm: e.dtofconfirm || "",
+      pf_ind: e.pf_ind === "Y" ? "Y" : "N",
+      pf_mem_dt: e.pf_mem_dt || "",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, ctrl.selectedEmployee, populatedFor]);
@@ -1677,6 +1681,45 @@ export default function HRMSPage() {
                 value={form.dtofconfirm || ""}
                 onChange={(e) => updateField("dtofconfirm", e.target.value)}
               />
+              {/* Provident Fund membership — the salary process deducts PF only
+                  for members (PF_IND = Y) who are Permanent, from the
+                  membership date. Saved with the rest of the profile. */}
+              {isEdit && (
+                <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/40 p-3 space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-800 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-indigo-600"
+                      checked={form.pf_ind === "Y"}
+                      onChange={(e) => {
+                        const on = e.target.checked;
+                        updateField("pf_ind", on ? "Y" : "N");
+                        if (on && !form.pf_mem_dt) updateField("pf_mem_dt", form.dtofconfirm || todayStr());
+                      }}
+                    />
+                    Provident Fund member (deduct PF from salary)
+                  </label>
+                  {form.pf_ind === "Y" && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                      <Input
+                        label="PF Member Since"
+                        type="date"
+                        value={form.pf_mem_dt || ""}
+                        onChange={(e) => updateField("pf_mem_dt", e.target.value)}
+                      />
+                      {form.emp_status !== "2" ? (
+                        <p className="text-xs text-amber-700 pb-2">
+                          PF is deducted only for Permanent employees — set Employee Status to Permanent.
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500 pb-2">
+                          PF = (earned gross − designation FPO) ÷ 1.55 × 8.33%, company adds the same.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <SearchableSelect
                 label="Qualification"
                 value={form.qfication || ""}

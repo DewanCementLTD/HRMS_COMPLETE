@@ -411,6 +411,16 @@ export const editInterviewType = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+export const editDesignationFpo = async (req, res, next) => {
+  try {
+    const { desg_cd } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { fpo_amount } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateDesignationFpo(desg_cd, fpo_amount, company));
+  } catch (err) { next(err); }
+};
+
 export const editBloodGroup = async (req, res, next) => {
   try {
     const { pk } = res.locals.validated.params;

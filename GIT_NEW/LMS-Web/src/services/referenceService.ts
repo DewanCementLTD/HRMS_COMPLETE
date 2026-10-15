@@ -2,7 +2,7 @@ import { apiRequest } from "./api";
 
 export interface Department  { dept_no: number; dept_name: string }
 export interface Grade       { grade_cd: string; descr: string }
-export interface Designation { grade_cd: string; desg_cd: string; desg_desc: string }
+export interface Designation { grade_cd: string; desg_cd: string; desg_desc: string; fpo_amount?: number | null }
 export interface Shift {
   shift_head_pk?: number;
   shift: string;
@@ -187,6 +187,10 @@ export const deleteInterviewType = (adminCardNo: string, typeId: number, compc?:
 
 const put = (path: string, adminCardNo: string, body: Record<string, string>, compc?: string) =>
   apiRequest(`/reference/${path}${qc(adminCardNo, compc)}`, { method: "PUT", body });
+
+// FPO of a designation (HR_DESG.FPO_AMOUNT) — deducted from earned gross in the PF formula.
+export const updateDesignationFpo = (adminCardNo: string, desgCd: string, fpo_amount: string, compc?: string) =>
+  put(`designations/${encodeURIComponent(desgCd)}/fpo`, adminCardNo, { fpo_amount }, compc);
 
 export const updateEmpStatus = (adminCardNo: string, empStatus: string, descr: string, compc?: string) =>
   put(`emp-statuses/${encodeURIComponent(empStatus)}`, adminCardNo, { descr }, compc);

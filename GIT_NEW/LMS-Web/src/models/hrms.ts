@@ -44,6 +44,10 @@ export interface HRMSEmployee {
   qfication?: string;
   qual_detail?: string;
   dtofconfirm?: string;
+  /** Provident Fund member: "Y" / "N" (HR_EMP_MASTER.PF_IND). */
+  pf_ind?: string;
+  /** PF membership start, YYYY-MM-DD (HR_EMP_MASTER.PF_MEM_DT). */
+  pf_mem_dt?: string;
   sal_gross?: number;   // view-only (HR_EMP_MASTER_SAL latest period)
   sal_basic?: number;   // view-only
 }
@@ -93,6 +97,10 @@ export interface HRMSEmployeeCreate {
   qfication?: string;
   qual_detail?: string;
   dtofconfirm?: string;
+  /** Provident Fund member: "Y" / "N" (HR_EMP_MASTER.PF_IND). */
+  pf_ind?: string;
+  /** PF membership start, YYYY-MM-DD (HR_EMP_MASTER.PF_MEM_DT). */
+  pf_mem_dt?: string;
 }
 
 export interface HRDashboardStats {

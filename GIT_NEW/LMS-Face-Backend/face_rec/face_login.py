@@ -34,8 +34,22 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 # ******** INSIGHTFACE
-face_app = FaceAnalysis(name="buffalo_s", providers=["CPUExecutionProvider"])
-face_app.prepare(ctx_id=0, det_size=(640, 640))
+# Only detection + recognition are loaded. buffalo_s also ships two landmark
+# models and a gender/age model; FaceAnalysis.get() runs every loaded model on
+# every face, and nothing here uses their output. Measured on this 8-core box
+# (single-face 720x1280 frame): all models ~320 ms/frame, det+rec ~78 ms.
+#
+# FACE_DET_SIZE is the detector input size (square). A selfie face fills the
+# frame, so 320 finds it as well as 640 does and brings a frame to ~56 ms. Set
+# FACE_DET_SIZE=640 (start_all.bat) if faces far from the camera stop being
+# detected ("no face detected" in logs/face_identify.log).
+FACE_DET_SIZE = int(os.environ.get("FACE_DET_SIZE", "320"))
+face_app = FaceAnalysis(
+    name="buffalo_s",
+    allowed_modules=["detection", "recognition"],
+    providers=["CPUExecutionProvider"],
+)
+face_app.prepare(ctx_id=0, det_size=(FACE_DET_SIZE, FACE_DET_SIZE))
 
 # ******** ORACLE
 # Same schema the other two backends use. Read from the environment so the
@@ -57,11 +71,17 @@ index = None
 labels = []
 
 # ******** LOAD FAISS FROM DB
+# The DB read and index build happen without faiss_lock; only the final swap
+# takes it. delete_face used to hold the lock across the whole Oracle round trip,
+# stalling every identify/verify behind it. Do NOT call this while holding
+# faiss_lock (it is not re-entrant).
 def load_faiss_from_db():
     global index, labels
 
     conn = None
     cursor = None
+    new_index = None
+    new_labels = []
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -73,7 +93,6 @@ def load_faiss_from_db():
         """)
 
         vecs = []
-        new_labels = []
 
         for empcode, blob in cursor:
             emb = np.frombuffer(blob.read(), dtype=np.float32)
@@ -82,18 +101,16 @@ def load_faiss_from_db():
 
         if vecs:
             vecs = np.array(vecs).astype("float32")
-            index = faiss.IndexFlatIP(512)
-            index.add(vecs)
-        else:
-            index = None
+            new_index = faiss.IndexFlatIP(512)
+            new_index.add(vecs)
 
-        labels = new_labels
-        logger.info(f"[FAISS] Loaded {len(labels)} embeddings")
+        logger.info(f"[FAISS] Loaded {len(new_labels)} embeddings")
 
     except Exception as e:
-        logger.error(f"[FAISS] load failed: {e}")
-        index = None
-        labels = []
+        # Keep serving with the index already in memory; a transient DB error
+        # on a reload must not wipe every registered face until restart.
+        logger.error(f"[FAISS] load failed, keeping current index: {e}")
+        return
     finally:
         if cursor:
             try: cursor.close()
@@ -101,6 +118,10 @@ def load_faiss_from_db():
         if conn:
             try: conn.close()
             except: pass
+
+    with faiss_lock:
+        index = new_index
+        labels = new_labels
 
 # Load at startup
 load_faiss_from_db()
@@ -277,15 +298,19 @@ def verify_face(card_no1, b64_images):
         if emb is not None:
             emb = emb.astype("float32").reshape(1, -1)
 
-            D, I = index.search(emb, 1)
-            idx = int(I[0][0])
-
-            # FAISS returns -1 when the index is empty or search fails
-            if idx < 0 or idx >= len(labels):
-                continue
+            # Search + label lookup under the lock so a concurrent reload
+            # can't swap index/labels between the two.
+            with faiss_lock:
+                if index is None:
+                    continue
+                D, I = index.search(emb, 1)
+                idx = int(I[0][0])
+                # FAISS returns -1 when the index is empty or search fails
+                if idx < 0 or idx >= len(labels):
+                    continue
+                matched_emp = labels[idx]
 
             sim = float(D[0][0])
-            matched_emp = labels[idx]
 
             print(f"[VERIFY] Match: {matched_emp}, Similarity: {sim:.4f}")
 
@@ -337,9 +362,8 @@ def delete_face(card_no1):
         except:
             pass
 
-    # Reload FAISS
-    with faiss_lock:
-        load_faiss_from_db()
+    # Reload FAISS (takes faiss_lock itself, only for the swap)
+    load_faiss_from_db()
 
     return {"body": {"status": "SUCCESS"}}
 
@@ -376,12 +400,14 @@ def identify_face(b64_images):
     vote_scores = {}  # card_no -> max similarity
     for emb in embeddings:
         with faiss_lock:
+            if index is None:
+                continue
             D, I = index.search(emb, 1)
-        idx = int(I[0][0])
-        if idx < 0 or idx >= len(labels):
-            continue
+            idx = int(I[0][0])
+            if idx < 0 or idx >= len(labels):
+                continue
+            matched = labels[idx]
         sim = float(D[0][0])
-        matched = labels[idx]
         if matched not in vote_scores or sim > vote_scores[matched]:
             vote_scores[matched] = sim
 

@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 import app from './app.js';
 import { getDirectConnection, closePool } from './config/database.js';
+import { startRosterDefaultsSchedule } from './services/rosterDefaults.service.js';
 
 import { logger, installProcessHandlers } from './utils/logger.js';
 
@@ -27,6 +28,10 @@ const startServer = async () => {
     const server = app.listen(PORT, () => {
       logger.info(`ERP Server is running in ESM mode on http://localhost:${PORT}`);
     });
+
+    // Keep days the ERP generates on its own in line with each branch's
+    // configured shift and off days.
+    startRosterDefaultsSchedule();
 
     // 4. Graceful shutdown — stop accepting new requests, let in-flight ones
     // finish, then hand the Oracle sessions back. Without this, a restart drops

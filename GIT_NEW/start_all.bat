@@ -140,7 +140,14 @@ start "CV Watcher" cmd /k "cd /d %ROOT%\LMS-Backend\AI && call %VENV%\Scripts\ac
 :: -- Face Recognition Backend (FastAPI, port 8002) ------------
 :: Shares the backend venv (insightface/onnxruntime are installed there), so
 :: face_rec\venv310 from the old box is not used.
-echo Starting Face Backend on port 8002...
+:: FACE_DET_SIZE = face detector input size. 320 is ~5x faster than the old 640
+:: and is enough for selfie-distance faces. If logs\face_identify.log starts
+:: showing many "no face detected" rejects, change this to 640 and restart.
+:: Keep ONE uvicorn worker (no --workers N / no --reload): the FAISS index
+:: lives in process memory, so a second worker would not see faces registered
+:: or deleted through the first one until restart.
+set "FACE_DET_SIZE=320"
+echo Starting Face Backend on port 8002 (det size %FACE_DET_SIZE%)...
 start "Face Backend" cmd /k "cd /d %ROOT%\LMS-Face-Backend\face_rec && %VENV%\Scripts\python.exe -m uvicorn api:app --host 0.0.0.0 --port 8002"
 
 :: -- Next.js Frontend (port 3000) -----------------------------

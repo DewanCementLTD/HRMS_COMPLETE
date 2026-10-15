@@ -219,9 +219,9 @@ export const rosterDefaults = async (req, res, next) => {
 
 // PUT /hrms/roster-defaults — set a branch's default shift and rest days.
 //
-// Saving only decides what FUTURE generated days get. Existing days are left
-// alone, because rewriting a roster people have already been told about is a
-// separate, deliberate act — that is what /duty-roster/apply-defaults is for.
+// Saving also brings the already-generated roster from today onwards in line
+// (skipping hand-edited days, leave and holidays). Past days are never touched
+// here — /duty-roster/apply-defaults is for a deliberate change to a set range.
 export const saveRosterDefaults = async (req, res, next) => {
   try {
     const { admin_card_no } = res.locals.validated.query;

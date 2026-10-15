@@ -161,6 +161,9 @@ const editQuery = z.object({
 
 const editSchema = (params, body) => z.object({ params: z.object(params), query: editQuery, body: z.object(body) });
 
+// FPO amount (rupees) deducted from earned gross in the PF formula. 0 clears it.
+export const editDesignationFpoSchema = editSchema(
+  { desg_cd: z.string().min(1) }, { fpo_amount: z.coerce.number().min(0, "FPO cannot be negative") });
 export const editEmpStatusSchema = editSchema(
   { emp_status: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
 export const editQualificationSchema = editSchema(

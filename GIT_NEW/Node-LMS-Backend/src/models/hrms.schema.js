@@ -73,6 +73,9 @@ const employeeBody = {
   qfication: z.string().optional(),
   qual_detail: z.string().optional(),
   dtofconfirm: z.string().optional(),
+  // Provident Fund membership (HR_EMP_MASTER.PF_IND / PF_MEM_DT).
+  pf_ind: z.enum(["Y", "N"]).optional(),
+  pf_mem_dt: z.string().optional(),
   // Nullable on purpose: null is how HR removes a resignation date that was
   // entered by mistake. Without that, the salary run keeps marking the person
   // as departed however often they are set back to Active.

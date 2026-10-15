@@ -377,6 +377,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
           m.QFICATION,
           TO_CHAR(m.DTOFCONFIRM, 'YYYY-MM-DD') AS DTOFCONFIRM,
+          m.PF_IND, TO_CHAR(m.PF_MEM_DT, 'YYYY-MM-DD') AS PF_MEM_DT,
           (SELECT MAX(s.GROSS) FROM HR_EMP_MASTER_SAL s
              WHERE s.OLD_EMPCODE = m.OLD_EMPCODE AND s.UNIT_ID = m.UNIT_ID
                AND s.PERIOD# = (SELECT MAX(s2.PERIOD#) FROM HR_EMP_MASTER_SAL s2
@@ -594,12 +595,16 @@ const UPDATE_FIELD_MAP = {
   track_location: "TRACK_LOCATION", track_location_hr: "TRACK_LOCATION_HR",
   emp_status: "EMP_STATUS", ntn: "NTN", bnkcode: "BNKCODE",
   brncode: "BRNCODE", bnkacct: "BNKACCT", qfication: "QFICATION",
+  // Provident Fund membership: the salary process deducts PF only for
+  // PF_IND = 'Y' (and permanent staff), from PF_MEM_DT.
+  pf_ind: "PF_IND",
 };
 // TRANSFER_DATE is a DATE column like the rest, so it is written through
 // TO_DATE and read back as a 'YYYY-MM-DD' string for the date input.
 const UPDATE_DATE_FIELDS = {
   dtofbrth: "DTOFBRTH", dtofappt: "DTOFAPPT", dtofconfirm: "DTOFCONFIRM",
   transfer_date: "TRANSFER_DATE",
+  pf_mem_dt: "PF_MEM_DT",
   // Resignation dates are editable because the ERP treats them as the real
   // signal of a departure: RESIGN_CASE, which HR_SALARY_PROCES_PRO calls on
   // every salary run, sets STATUS on anyone who has DTOFRESIGN filled in. Until
@@ -684,6 +689,8 @@ export const updateEmployee = async (empcode, data) => {
     if (key === "religion") {
       val = (strOrNone(String(val)) ?? "").slice(0, 4) || null;
       if (val === null) continue;
+    } else if (key === "pf_ind") {
+      val = String(val).trim().toUpperCase() === "Y" ? "Y" : "N";
     } else if (NUMERIC_STR_FIELDS.has(key)) {
       val = numOrNone(val);
       if (val === null) continue;
@@ -723,6 +730,12 @@ export const updateEmployee = async (empcode, data) => {
     }
     setParts.push(`${col} = TO_DATE(:${key}, 'YYYY-MM-DD')`);
     params[key] = dateVal;
+  }
+
+  // Enrolling in PF without a date: keep an existing membership date, else
+  // start from the confirmation date, else today.
+  if (params.pf_ind === "Y" && !params.pf_mem_dt) {
+    setParts.push("PF_MEM_DT = NVL(PF_MEM_DT, NVL(DTOFCONFIRM, TRUNC(SYSDATE)))");
   }
 
   const hasQual =

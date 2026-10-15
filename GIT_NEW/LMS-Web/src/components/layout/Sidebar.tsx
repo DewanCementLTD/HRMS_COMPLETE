@@ -22,11 +22,18 @@ import {
   ClipboardCheck,
   Network,
   PiggyBank,
+  GraduationCap,
+  BookOpenCheck,
+  Presentation,
+  Target,
+  ClipboardPen,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSidebar } from "./sidebar-context";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import { fetchHodApprovals } from "@/services/leaveService";
+import { hodApi, trainerApi } from "@/services/trainingService";
+import { apprReviewApi } from "@/services/appraisalService";
 
 // Dashboard is shown to everyone who has either employee features OR hr_admin
 // (SEC_USERNAME-only admins see it as the HR dashboard).
@@ -40,17 +47,26 @@ const employeeNavItems = [
   { href: "/leave/status", label: "Leave Status", icon: ClipboardList },
   { href: "/attendance", label: "Attendance", icon: Clock },
   { href: "/my-pf", label: "My PF", icon: PiggyBank },
+  { href: "/training", label: "My Training", icon: GraduationCap },
+  { href: "/appraisal", label: "My Appraisal", icon: Target },
   { href: "/profile", label: "Profile", icon: User },
 ];
 
 // Shown only to HODs (see the lookup in Sidebar below).
 const hodNavItem = { href: "/leave/approvals", label: "Leave Approvals", icon: ClipboardCheck };
+const trainingHodNavItem = { href: "/training-approvals", label: "Training Approvals", icon: BookOpenCheck };
+// Reporting officers, HODs and management approvers of at least one appraisal.
+const appraisalReviewNavItem = { href: "/appraisal-review", label: "Appraisal Reviews", icon: ClipboardPen };
+// Shown only to employees HR has set up as internal trainers.
+const trainerNavItem = { href: "/trainer", label: "Trainer Portal", icon: Presentation };
 
 const hrNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
   { href: "/payroll", label: "Payroll", icon: Wallet },
   { href: "/provident-fund", label: "Provident Fund", icon: PiggyBank },
+  { href: "/training-admin", label: "Training", icon: GraduationCap },
+  { href: "/appraisal-admin", label: "Appraisal", icon: Target },
   { href: "/id-cards", label: "ID Cards", icon: IdCard },
   { href: "/reports", label: "Reports", icon: FileText },
 ];
@@ -80,11 +96,52 @@ export function Sidebar() {
     return () => { cancelled = true; };
   }, [user?.card_no]);
 
+  // Same rule for training requests. The call needs the signed session token;
+  // without one (an older login) the item simply stays hidden.
+  const [trainingPending, setTrainingPending] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const card = user?.card_no;
+    const token = user?.session_token;
+    if (!card || !token) return;
+    hodApi.requests(card, token)
+      .then((res) => { if (!cancelled) setTrainingPending(res.is_hod ? res.pending : null); })
+      .catch(() => { if (!cancelled) setTrainingPending(null); });
+    return () => { cancelled = true; };
+  }, [user?.card_no, user?.session_token]);
+
+  const [appraisalPending, setAppraisalPending] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const card = user?.card_no;
+    const token = user?.session_token;
+    if (!card || !token) return;
+    apprReviewApi.inbox(card, token)
+      .then((res) => { if (!cancelled) setAppraisalPending(res.is_reviewer ? res.pending : null); })
+      .catch(() => { if (!cancelled) setAppraisalPending(null); });
+    return () => { cancelled = true; };
+  }, [user?.card_no, user?.session_token]);
+
+  const [isTrainer, setIsTrainer] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    const card = user?.card_no;
+    const token = user?.session_token;
+    if (!card || !token) return;
+    trainerApi.profile(card, token)
+      .then((res) => { if (!cancelled) setIsTrainer(res.is_trainer); })
+      .catch(() => { if (!cancelled) setIsTrainer(false); });
+    return () => { cancelled = true; };
+  }, [user?.card_no, user?.session_token]);
+
   const navItems = [
     ...(showDashboard ? [dashboardNavItem] : []),
     ...(showDashboard ? [orgChartNavItem] : []),
     ...(showEmployeeNav ? employeeNavItems : []),
     ...(hodPending !== null ? [hodNavItem] : []),
+    ...(trainingPending !== null ? [trainingHodNavItem] : []),
+    ...(appraisalPending !== null ? [appraisalReviewNavItem] : []),
+    ...(isTrainer ? [trainerNavItem] : []),
     ...(user?.hr_admin ? hrNavItems : []),
   ];
 
@@ -182,12 +239,13 @@ export function Sidebar() {
                 )}
                 <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-brand" : "text-slate-400")} />
                 <span className={cn("flex-1", collapsed && "lg:hidden")}>{item.label}</span>
-                {item.href === hodNavItem.href && !!hodPending && (
+                {((item.href === hodNavItem.href && !!hodPending) || (item.href === trainingHodNavItem.href && !!trainingPending)
+                  || (item.href === appraisalReviewNavItem.href && !!appraisalPending)) && (
                   <span className={cn(
                     "bg-brand text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center",
                     collapsed && "lg:absolute lg:top-1 lg:right-1 lg:min-w-[16px] lg:text-[9px]"
                   )}>
-                    {hodPending}
+                    {item.href === hodNavItem.href ? hodPending : item.href === trainingHodNavItem.href ? trainingPending : appraisalPending}
                   </span>
                 )}
               </Link>
