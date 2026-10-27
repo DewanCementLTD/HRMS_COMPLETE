@@ -1,0 +1,3 @@
+# Per-tenant DB credentials (.env = sysnovix, .env.ydc = YDC).
+.env
+.env.*

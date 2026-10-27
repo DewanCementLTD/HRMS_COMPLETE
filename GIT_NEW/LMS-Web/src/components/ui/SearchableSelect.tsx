@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export interface SSOption { value: string | number; label: string }
+// disabled: listed (and searchable) but not pickable, e.g. a HOD with no mobile.
+export interface SSOption { value: string | number; label: string; disabled?: boolean }
 
 /** A type-ahead combobox: shows the selected label, click/focus to open a
  * filterable list. Drop-in for places that used a plain <Select>. */
@@ -67,7 +68,7 @@ export function SearchableSelect({
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") { e.preventDefault(); setOpen(true); setActive((a) => Math.min(a + 1, filtered.length - 1)); }
             else if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
-            else if (e.key === "Enter") { e.preventDefault(); if (open && filtered[active]) pick(String(filtered[active].value)); }
+            else if (e.key === "Enter") { e.preventDefault(); if (open && filtered[active] && !filtered[active].disabled) pick(String(filtered[active].value)); }
             else if (e.key === "Escape") { setOpen(false); setQuery(""); }
           }}
           className={cn(
@@ -93,11 +94,13 @@ export function SearchableSelect({
               <button
                 key={String(o.value)}
                 type="button"
+                disabled={o.disabled}
                 onMouseEnter={() => setActive(i)}
-                onClick={() => pick(String(o.value))}
+                onClick={() => { if (!o.disabled) pick(String(o.value)); }}
                 className={cn(
                   "w-full text-left px-3 py-2 text-sm flex items-center justify-between transition-colors",
-                  i === active ? "bg-indigo-50 text-indigo-700" : "hover:bg-gray-50",
+                  o.disabled ? "text-gray-400 cursor-not-allowed"
+                    : i === active ? "bg-indigo-50 text-indigo-700" : "hover:bg-gray-50",
                   String(o.value) === String(value ?? "") && "font-semibold",
                 )}
               >

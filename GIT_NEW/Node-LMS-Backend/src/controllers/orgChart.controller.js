@@ -3,7 +3,8 @@
  *
  * /company is HR-admin gated and scoped via resolveFilterLists, exactly as
  * the /hrms/* listing endpoints are (never trusting raw compc/brnch).
- * /branch is employee self-service, scoped to the caller's own branch.
+ * /branch is employee self-service, scoped to the caller's own department
+ * (within their company).
  */
 
 import { resolveFilterLists } from "../services/adminRights.service.js";

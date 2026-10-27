@@ -1,4 +1,5 @@
 import { getDirectConnection } from '../config/database.js';
+import { APPROVER_PICKER_SCOPE } from '../config/tenant.js';
 import { logger } from '../utils/logger.js';
 
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
@@ -457,13 +458,24 @@ export const decideHodApprovalData = async (card_no, pk, decision) => {
 // A HOD must belong to the employee's own company but may sit in any of its
 // branches, so the list is scoped by company only. Without a company there is
 // nothing safe to offer — returning every company's staff is the bug this avoids.
+// Exception: a tenant with APPROVER_PICKER_SCOPE=all (YDC) gets every active
+// employee in its schema, whatever the company — including those with no usable
+// mobile, returned with mobile: null so the form can show them as not
+// selectable (a HOD is stored and matched by mobile, so they cannot approve).
 export const getHodOptionsData = async (compc) => {
-  if (compc === null || compc === undefined || String(compc).trim() === '') return [];
+  const allCompanies = APPROVER_PICKER_SCOPE === 'all';
+  const noCompany = compc === null || compc === undefined || String(compc).trim() === '';
+  if (!allCompanies && noCompany) return [];
   let connection;
   try {
     connection = await getDirectConnection();
-    const binds = { compc: String(compc).trim() };
-    const conds = [`h."MOBILE#" IS NOT NULL`, 'TO_CHAR(h.UNIT_ID) = TO_CHAR(:compc)'];
+    const binds = {};
+    const conds = ['1 = 1'];
+    if (!allCompanies) {
+      conds.push(`h."MOBILE#" IS NOT NULL`);
+      binds.compc = String(compc).trim();
+      conds.push('TO_CHAR(h.UNIT_ID) = TO_CHAR(:compc)');
+    }
 
     const r = await connection.execute(
       `SELECT TO_CHAR(h."MOBILE#"), h.NAME, h.EMPCODE, h.UNIT_ID,
@@ -487,7 +499,12 @@ export const getHodOptionsData = async (compc) => {
       // MOBILE# is free text and some records hold a card number ("100346.1")
       // rather than a phone. Those can never match a HODn_MNO, so keep only
       // values that look like a mobile.
-      if (!m || m.length !== 10 || norm(mobile).includes('.')) continue;
+      if (!m || m.length !== 10 || norm(mobile).includes('.')) {
+        if (allCompanies && norm(name)) {
+          items.push({ mobile: null, name: norm(name), empcode: norm(empcode), unit_id: unitId, department: norm(dept) });
+        }
+        continue;
+      }
       if (seen.has(m)) continue;
       seen.add(m);
       items.push({

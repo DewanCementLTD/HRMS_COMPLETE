@@ -17,7 +17,7 @@ import {
 } from "@/services/payrollEntryService";
 import { EntryPeriodSelect, ClosedPeriodNotice } from "./EntryPeriodSelect";
 
-const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString("en-US"));
 
 export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) {
   const { activeCompany, activeBranch } = useAuth();
@@ -127,7 +127,7 @@ export function MonthlyDeductionPanel({ adminCardNo }: { adminCardNo: string }) 
                 placeholder="Type a name or code…" options={empOptions} />
               <SearchableSelect label="Deduction" value={form.deduction_id} onChange={(v) => setForm((f) => ({ ...f, deduction_id: v }))}
                 placeholder="Search deduction…" options={types.map((t) => ({ value: t.deduction_id, label: t.deduction_desc }))} />
-              <Input label="Amount" type="number" min="0" inputMode="decimal" value={form.amount}
+              <Input label="Amount" amount value={form.amount}
                 onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value.replace(/[^0-9.]/g, "") }))} placeholder="0" />
               <Input label="Remarks" value={form.remarks} onChange={(e) => setForm((f) => ({ ...f, remarks: e.target.value }))} placeholder="Optional" />
             </div>

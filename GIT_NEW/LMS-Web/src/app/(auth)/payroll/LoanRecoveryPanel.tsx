@@ -15,7 +15,7 @@ import {
   type RecoverableLoan, type LoanRecovery, type RecoveryType, type OpenPeriod,
 } from "@/services/payrollEntryService";
 
-const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString("en-US"));
 
 export function LoanRecoveryPanel({ adminCardNo }: { adminCardNo: string }) {
   const { activeCompany, activeBranch } = useAuth();
@@ -115,7 +115,7 @@ export function LoanRecoveryPanel({ adminCardNo }: { adminCardNo: string }) {
                 options={loans.map((l) => ({ value: String(l.doc), label: `#${l.doc} · ${l.name} · ${l.loan_desc} (Bal ${money(l.balance)})` }))} />
               <Select label="Recovery Type" value={recType} onChange={(e) => setRecType(e.target.value)}
                 options={types.map((t) => ({ value: t.value, label: t.label }))} />
-              <Input label="Recovery Amount" type="number" min="0" inputMode="decimal" value={amount}
+              <Input label="Recovery Amount" amount value={amount}
                 onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} placeholder="0" />
               <Input label="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Optional" />
             </div>

@@ -668,8 +668,8 @@ function JobsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { compc?
             <div className="border-t border-gray-200 pt-6">
               <p className="text-sm font-semibold text-gray-900 mb-3">Compensation and status</p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Input label="Salary Min" type="number" min={0} value={form.salary_min} onChange={(e) => setForm({ ...form, salary_min: e.target.value })} placeholder="e.g. 150000" />
-                <Input label="Salary Max" type="number" min={0} value={form.salary_max} onChange={(e) => setForm({ ...form, salary_max: e.target.value })} placeholder="e.g. 220000" />
+                <Input label="Salary Min" amount value={form.salary_min} onChange={(e) => setForm({ ...form, salary_min: e.target.value })} placeholder="e.g. 150000" />
+                <Input label="Salary Max" amount value={form.salary_max} onChange={(e) => setForm({ ...form, salary_max: e.target.value })} placeholder="e.g. 220000" />
                 {editJob && (
                   <Select label="Status" options={JOB_STATUS_OPTS} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} />
                 )}
@@ -2939,7 +2939,7 @@ function OffersTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { comp
               <div className="sm:col-span-2">
                 <Select label="Candidate *" options={appOptions} value={form.app_id} onChange={(e) => setForm({ ...form, app_id: e.target.value })} />
               </div>
-              <Input label="Salary Offered" type="number" value={form.salary_offered} onChange={(e) => setForm({ ...form, salary_offered: e.target.value })} placeholder="e.g. 50000" />
+              <Input label="Salary Offered" amount value={form.salary_offered} onChange={(e) => setForm({ ...form, salary_offered: e.target.value })} placeholder="e.g. 50000" />
               <Input label="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Any remarks..." />
             </div>
             <div className="flex gap-3 mt-4">
@@ -2986,7 +2986,7 @@ function OffersTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { comp
                       <td className="py-3 pr-4 text-gray-600">{o.job_title}</td>
                       <td className="py-3 pr-4 text-gray-600">{o.offer_date || "—"}</td>
                       <td className="py-3 pr-4 text-gray-700 font-medium">
-                        {o.salary_offered ? `PKR ${o.salary_offered.toLocaleString()}` : "—"}
+                        {o.salary_offered ? `PKR ${o.salary_offered.toLocaleString("en-US")}` : "—"}
                       </td>
                       <td className="py-3 pr-4"><Badge status={o.status} /></td>
                       <td className="py-3">
@@ -3038,7 +3038,7 @@ function AnalyticsTab({ adminCardNo, scope }: { adminCardNo: string; scope?: { c
     { label: "Interviews", value: data.total_interviews, icon: <ClipboardList className="h-6 w-6 text-purple-500" />, color: "purple" },
     { label: "Hires This Month", value: data.hires_this_month, icon: <Users className="h-6 w-6 text-emerald-500" />, color: "emerald" },
     { label: "Avg Time to Hire", value: `${data.avg_time_to_hire_days} days`, icon: <Clock className="h-6 w-6 text-orange-500" />, color: "orange" },
-    { label: "Avg Cost per Hire", value: data.avg_cost_per_hire ? `PKR ${data.avg_cost_per_hire.toLocaleString()}` : "—", icon: <BarChart2 className="h-6 w-6 text-red-400" />, color: "red" },
+    { label: "Avg Cost per Hire", value: data.avg_cost_per_hire ? `PKR ${data.avg_cost_per_hire.toLocaleString("en-US")}` : "—", icon: <BarChart2 className="h-6 w-6 text-red-400" />, color: "red" },
   ];
 
   const maxHires = Math.max(...data.monthly_hires.map((m) => m.hires), 1);

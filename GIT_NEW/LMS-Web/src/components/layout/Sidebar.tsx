@@ -21,7 +21,7 @@ import {
   FileText,
   ClipboardCheck,
   Network,
-  PiggyBank,
+  Vault,
   GraduationCap,
   BookOpenCheck,
   Presentation,
@@ -39,17 +39,17 @@ import { apprReviewApi } from "@/services/appraisalService";
 // (SEC_USERNAME-only admins see it as the HR dashboard).
 const dashboardNavItem = { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard };
 // Shown to everyone who can see the dashboard — HR admins get the company-wide
-// view, other employees get their own branch's chart.
+// view, other employees get their own department's chart.
 const orgChartNavItem = { href: "/org-chart", label: "Organogram", icon: Network };
 
 const employeeNavItems = [
+  { href: "/profile", label: "Profile", icon: User },
+  { href: "/attendance", label: "Attendance", icon: Clock },
   { href: "/leave/apply", label: "Apply Leave", icon: CalendarPlus },
   { href: "/leave/status", label: "Leave Status", icon: ClipboardList },
-  { href: "/attendance", label: "Attendance", icon: Clock },
-  { href: "/my-pf", label: "My PF", icon: PiggyBank },
+  { href: "/my-pf", label: "My PF", icon: Vault },
   { href: "/training", label: "My Training", icon: GraduationCap },
   { href: "/appraisal", label: "My Appraisal", icon: Target },
-  { href: "/profile", label: "Profile", icon: User },
 ];
 
 // Shown only to HODs (see the lookup in Sidebar below).
@@ -60,16 +60,25 @@ const appraisalReviewNavItem = { href: "/appraisal-review", label: "Appraisal Re
 // Shown only to employees HR has set up as internal trainers.
 const trainerNavItem = { href: "/trainer", label: "Trainer Portal", icon: Presentation };
 
-const hrNavItems = [
+// HR admin items, split into sidebar sections.
+const hrPeopleNavItems = [
   { href: "/hrms", label: "HRMS", icon: UserCog },
   { href: "/recruitment", label: "Recruitment", icon: Briefcase },
+  { href: "/id-cards", label: "ID Cards", icon: IdCard },
+];
+const hrPayNavItems = [
   { href: "/payroll", label: "Payroll", icon: Wallet },
-  { href: "/provident-fund", label: "Provident Fund", icon: PiggyBank },
+  { href: "/provident-fund", label: "Provident Fund", icon: Vault },
+];
+const hrTalentNavItems = [
   { href: "/training-admin", label: "Training", icon: GraduationCap },
   { href: "/appraisal-admin", label: "Appraisal", icon: Target },
-  { href: "/id-cards", label: "ID Cards", icon: IdCard },
+];
+const hrReportNavItems = [
   { href: "/reports", label: "Reports", icon: FileText },
 ];
+
+type NavItem = { href: string; label: string; icon: React.ElementType };
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -134,16 +143,24 @@ export function Sidebar() {
     return () => { cancelled = true; };
   }, [user?.card_no, user?.session_token]);
 
-  const navItems = [
-    ...(showDashboard ? [dashboardNavItem] : []),
-    ...(showDashboard ? [orgChartNavItem] : []),
-    ...(showEmployeeNav ? employeeNavItems : []),
-    ...(hodPending !== null ? [hodNavItem] : []),
-    ...(trainingPending !== null ? [trainingHodNavItem] : []),
-    ...(appraisalPending !== null ? [appraisalReviewNavItem] : []),
-    ...(isTrainer ? [trainerNavItem] : []),
-    ...(user?.hr_admin ? hrNavItems : []),
-  ];
+  const isHr = !!user?.hr_admin;
+  const navGroups: { title: string; items: NavItem[] }[] = [
+    { title: "Overview", items: showDashboard ? [dashboardNavItem, orgChartNavItem] : [] },
+    { title: "My Workspace", items: showEmployeeNav ? employeeNavItems : [] },
+    {
+      title: "Team & Approvals",
+      items: [
+        ...(hodPending !== null ? [hodNavItem] : []),
+        ...(trainingPending !== null ? [trainingHodNavItem] : []),
+        ...(appraisalPending !== null ? [appraisalReviewNavItem] : []),
+        ...(isTrainer ? [trainerNavItem] : []),
+      ],
+    },
+    { title: "People", items: isHr ? hrPeopleNavItems : [] },
+    { title: "Payroll & Benefits", items: isHr ? hrPayNavItems : [] },
+    { title: "Talent", items: isHr ? hrTalentNavItems : [] },
+    { title: "Analytics", items: isHr ? hrReportNavItems : [] },
+  ].filter((g) => g.items.length > 0);
 
   const companyCompc = user?.selected_company?.code ?? "";
 
@@ -212,45 +229,55 @@ export function Sidebar() {
         )}
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                title={collapsed ? item.label : undefined}
-                onClick={() => {
-                  closeOnMobile();
-                  // Already inside this section: send it back to its home view.
-                  if (isActive) resetView();
-                }}
-                className={cn(
-                  "relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-brand-soft text-brand font-semibold"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-ink",
-                  collapsed && "lg:justify-center lg:px-2"
-                )}
-              >
-                {isActive && (
-                  <span className="absolute -left-3 top-1.5 bottom-1.5 w-1 rounded-r-full bg-brand" />
-                )}
-                <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-brand" : "text-slate-400")} />
-                <span className={cn("flex-1", collapsed && "lg:hidden")}>{item.label}</span>
-                {((item.href === hodNavItem.href && !!hodPending) || (item.href === trainingHodNavItem.href && !!trainingPending)
-                  || (item.href === appraisalReviewNavItem.href && !!appraisalPending)) && (
-                  <span className={cn(
-                    "bg-brand text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center",
-                    collapsed && "lg:absolute lg:top-1 lg:right-1 lg:min-w-[16px] lg:text-[9px]"
-                  )}>
-                    {item.href === hodNavItem.href ? hodPending : item.href === trainingHodNavItem.href ? trainingPending : appraisalPending}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 px-3 py-3 overflow-y-auto">
+          {navGroups.map((group, gi) => (
+            <div key={group.title} className={cn(gi > 0 && "mt-4")}>
+              <p className={cn("px-4 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400", collapsed && "lg:hidden")}>
+                {group.title}
+              </p>
+              {gi > 0 && <div className={cn("hidden mx-3 mb-2 border-t border-line", collapsed && "lg:block")} />}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      title={collapsed ? item.label : undefined}
+                      onClick={() => {
+                        closeOnMobile();
+                        // Already inside this section: send it back to its home view.
+                        if (isActive) resetView();
+                      }}
+                      className={cn(
+                        "relative flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                        isActive
+                          ? "bg-brand-soft text-brand font-semibold"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-ink",
+                        collapsed && "lg:justify-center lg:px-2"
+                      )}
+                    >
+                      {isActive && (
+                        <span className="absolute -left-3 top-1.5 bottom-1.5 w-1 rounded-r-full bg-brand" />
+                      )}
+                      <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-brand" : "text-slate-400")} />
+                      <span className={cn("flex-1", collapsed && "lg:hidden")}>{item.label}</span>
+                      {((item.href === hodNavItem.href && !!hodPending) || (item.href === trainingHodNavItem.href && !!trainingPending)
+                        || (item.href === appraisalReviewNavItem.href && !!appraisalPending)) && (
+                        <span className={cn(
+                          "bg-brand text-white text-[11px] font-bold rounded-full px-1.5 min-w-[20px] text-center",
+                          collapsed && "lg:absolute lg:top-1 lg:right-1 lg:min-w-[16px] lg:text-[9px]"
+                        )}>
+                          {item.href === hodNavItem.href ? hodPending : item.href === trainingHodNavItem.href ? trainingPending : appraisalPending}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Logout */}

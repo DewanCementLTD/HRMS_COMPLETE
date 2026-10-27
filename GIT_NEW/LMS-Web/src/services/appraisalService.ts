@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, withSession } from "./api";
 import { downloadPdf, type Hr, type Department, type EmployeeLite, type Course } from "./trainingService";
 
 // Performance Appraisal — DCL process. Backend: Node-LMS-Backend/src/routes/appraisal.routes.js
@@ -316,7 +316,7 @@ export const apprHrApi = {
   reassign: (h: Hr, aid: number, body: { rpt_empcode?: string | null; hod1_empcode?: string | null; hod2_empcode?: string | null }) =>
     send<{ stage: Stage }>(h, "PUT", `/appraisals/${aid}/approvers`, body),
   cancel: (h: Hr, aid: number, remarks: string) => send(h, "POST", `/appraisals/${aid}/cancel`, { remarks }),
-  evidencePath: (h: Hr, aid: number, attId: number) => `/api${A}/appraisals/${aid}/evidence/${attId}?${q(h)}`,
+  evidencePath: (h: Hr, aid: number, attId: number) => withSession(`/api${A}/appraisals/${aid}/evidence/${attId}?${q(h)}`),
 
   cases: (h: Hr, f: { cycle_id?: number | string; status?: string }) => get<{ items: CaseRow[] }>(h, "/promotion-cases", f),
   case: (h: Hr, id: number) => get<PromotionCase>(h, `/promotion-cases/${id}`),

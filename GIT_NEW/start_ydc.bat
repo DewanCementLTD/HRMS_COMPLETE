@@ -34,8 +34,10 @@ echo [2/2] Starting YDC servers...
 :: .env.ydc instead of .env without any code change.
 start "YDC Backend (Node 8013)" cmd /k "cd /d %ROOT%\Node-LMS-Backend && set DOTENV_CONFIG_PATH=.env.ydc&& npm start"
 
-:: face_login.py reads DB_* from the environment.
-start "YDC Face Backend (8012)" cmd /k "cd /d %ROOT%\LMS-Face-Backend\face_rec && set DB_USER=hrms_ydc&& set DB_PASSWORD=hrms_ydc&& set DB_DSN=127.0.0.1:1521/orclpdb&& set FACE_DET_SIZE=320&& %VENV%\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8012"
+:: face_login.py loads DB_* from the env file named by FACE_ENV_FILE
+:: (LMS-Face-Backend\face_rec\.env.ydc -> schema HRMS_YDC). Without it the
+:: service would load .env, the sysnovix schema.
+start "YDC Face Backend (8012)" cmd /k "cd /d %ROOT%\LMS-Face-Backend\face_rec && set FACE_ENV_FILE=.env.ydc&& set FACE_DET_SIZE=320&& %VENV%\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8012"
 
 echo.
 echo  YDC Node Backend: http://localhost:8013  (schema HRMS_YDC)

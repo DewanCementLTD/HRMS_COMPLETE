@@ -146,7 +146,7 @@ function ApplyModal({ h, r, lk, onClose, onDone }: { h: Hr; r: RecRow; lk: Looku
               <p className="text-sm text-gray-600">Current gross <b>{money(gross)}</b> → new gross <b>{money(gross + (Number(amount) || 0))}</b>.
                 Basic, house rent and utility are recalculated from the gross by the payroll setup.</p>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Input label="Increment amount (monthly)" type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Input label="Increment amount (monthly)" amount value={amount} onChange={(e) => setAmount(e.target.value)} />
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-gray-700">Effective payroll period</label>
                   <select className="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm" value={period} onChange={(e) => setPeriod(e.target.value)}>

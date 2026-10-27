@@ -1,5 +1,6 @@
 import oracledb from "oracledb";
 import { getDirectConnection } from "../config/database.js";
+import { APPROVER_PICKER_SCOPE } from "../config/tenant.js";
 
 import { logger } from '../utils/logger.js';
 const OUT_FORMAT_OBJECT = 4002;
@@ -533,27 +534,34 @@ export const getReligions = async () => {
 // any of its branches — so the list is scoped by company only (brnch is
 // ignored). Without a company nothing is returned: the old unfiltered fallback
 // is what let people from other companies show up.
+// Exception: a tenant with APPROVER_PICKER_SCOPE=all (YDC) gets every active
+// employee in its schema, whatever the company.
 export const getReportingOfficers = async (compc = null) => {
+  const allCompanies = APPROVER_PICKER_SCOPE === "all";
   const vals = compc === null || compc === undefined || compc === ""
     ? [] : (Array.isArray(compc) ? compc : [compc]);
   const compNums = vals.map((x) => parseInt(String(x).trim(), 10)).filter((x) => !isNaN(x));
-  if (!compNums.length) return [];
+  if (!allCompanies && !compNums.length) return [];
 
   let conn;
   try {
     conn = await getDirectConnection();
     const params = {};
-    compNums.forEach((n, i) => { params[`c${i}`] = String(n); });
-    const cph = compNums.map((_, i) => `:c${i}`).join(", ");
-    // TO_CHAR rather than TO_NUMBER so a stray non-numeric UNIT_ID row cannot
-    // make the whole query fail.
-    const sql = `SELECT EMPCODE, NAME FROM HR_EMP_MASTER
+    let companyCond = "";
+    if (!allCompanies) {
+      compNums.forEach((n, i) => { params[`c${i}`] = String(n); });
+      const cph = compNums.map((_, i) => `:c${i}`).join(", ");
+      // TO_CHAR rather than TO_NUMBER so a stray non-numeric UNIT_ID row cannot
+      // make the whole query fail.
+      companyCond = `AND LTRIM(TRIM(TO_CHAR(UNIT_ID)), '0') IN (${cph})`;
+    }
+    const sql = `SELECT EMPCODE, NAME, UNIT_ID FROM HR_EMP_MASTER
                   WHERE (STATUS = 'A' OR STATUS IS NULL) AND NAME IS NOT NULL
-                    AND LTRIM(TRIM(TO_CHAR(UNIT_ID)), '0') IN (${cph})
+                    ${companyCond}
                   ORDER BY NAME`;
     try {
       const res = await conn.execute(sql, params, { outFormat: OUT_FORMAT_ARRAY });
-      return (res.rows || []).map((r) => ({ empcode: r[0], name: String(r[1] ?? "").trim() }));
+      return (res.rows || []).map((r) => ({ empcode: r[0], name: String(r[1] ?? "").trim(), unit_id: r[2] }));
     } catch (e) {
       logger.info(`[REPORTING_OFFICERS] query failed: ${e?.message}`);
       return [];

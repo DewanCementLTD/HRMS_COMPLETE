@@ -148,7 +148,8 @@ start "CV Watcher" cmd /k "cd /d %ROOT%\LMS-Backend\AI && call %VENV%\Scripts\ac
 :: or deleted through the first one until restart.
 set "FACE_DET_SIZE=320"
 echo Starting Face Backend on port 8002 (det size %FACE_DET_SIZE%)...
-start "Face Backend" cmd /k "cd /d %ROOT%\LMS-Face-Backend\face_rec && %VENV%\Scripts\python.exe -m uvicorn api:app --host 0.0.0.0 --port 8002"
+:: DB credentials come from LMS-Face-Backend\face_rec\.env (schema HRMS).
+start "Face Backend" cmd /k "cd /d %ROOT%\LMS-Face-Backend\face_rec && set FACE_ENV_FILE=.env&& %VENV%\Scripts\python.exe -m uvicorn api:app --host 0.0.0.0 --port 8002"
 
 :: -- Next.js Frontend (port 3000) -----------------------------
 :: LMS-Web\next.config.ts rewrites /api/* to BACKEND_URL (from .env)

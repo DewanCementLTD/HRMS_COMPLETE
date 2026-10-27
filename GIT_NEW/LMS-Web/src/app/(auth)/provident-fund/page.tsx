@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { PiggyBank, LayoutGrid, Users, HandCoins, FileText, SlidersHorizontal, Landmark, ShieldCheck } from "lucide-react";
+import { Vault, LayoutGrid, Users, HandCoins, FileText, SlidersHorizontal, Landmark, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PfOverviewPanel } from "./PfOverviewPanel";
 import { PfMembersPanel } from "./PfMembersPanel";
@@ -32,7 +32,7 @@ export default function ProvidentFundPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <PiggyBank className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <Vault className="h-12 w-12 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
           <p className="text-gray-500 mt-2">You don&apos;t have HR admin privileges.</p>
         </div>

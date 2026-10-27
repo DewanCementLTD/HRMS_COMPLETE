@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, sessionHeaders, withSession } from "./api";
 
 const API_BASE = "/api";
 
@@ -33,6 +33,7 @@ export async function uploadDocument(
   const res = await fetch(`${API_BASE}/documents?admin_card_no=${encodeURIComponent(adminCardNo)}`, {
     method: "POST",
     body: form, // browser sets multipart boundary automatically
+    headers: sessionHeaders(),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Upload failed" }));
@@ -43,7 +44,7 @@ export async function uploadDocument(
 
 // URL the browser can open directly for viewing (inline) or downloading (attachment).
 export const documentFileUrl = (docId: number, adminCardNo: string, inline = false) =>
-  `${API_BASE}/documents/${docId}/download?admin_card_no=${encodeURIComponent(adminCardNo)}${inline ? "&inline=true" : ""}`;
+  withSession(`${API_BASE}/documents/${docId}/download?admin_card_no=${encodeURIComponent(adminCardNo)}${inline ? "&inline=true" : ""}`);
 
 export const deleteDocument = (docId: number, adminCardNo: string) =>
   apiRequest<{ status: string }>(
@@ -53,7 +54,7 @@ export const deleteDocument = (docId: number, adminCardNo: string) =>
 
 // ── Employee profile photo (shown on the ID card) ──
 export const employeePhotoUrl = (empcode: string, adminCardNo: string, bust?: number | string) =>
-  `${API_BASE}/documents/employee-photo?empcode=${encodeURIComponent(empcode)}&admin_card_no=${encodeURIComponent(adminCardNo)}${bust ? `&t=${bust}` : ""}`;
+  withSession(`${API_BASE}/documents/employee-photo?empcode=${encodeURIComponent(empcode)}&admin_card_no=${encodeURIComponent(adminCardNo)}${bust ? `&t=${bust}` : ""}`);
 
 // A colleague's photo for the org chart (same-branch peer, no HR admin needed).
 export const orgChartPhotoUrl = (empcode: string, callerCardNo: string) =>
@@ -62,7 +63,7 @@ export const orgChartPhotoUrl = (empcode: string, callerCardNo: string) =>
 async function postFile(url: string, file: File) {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(url, { method: "POST", body: form });
+  const res = await fetch(url, { method: "POST", body: form, headers: sessionHeaders() });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Upload failed" }));
     throw new Error(typeof err.detail === "string" ? err.detail : "Upload failed");

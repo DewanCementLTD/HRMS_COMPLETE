@@ -6,7 +6,7 @@ import { printTablePdf } from "@/lib/printTable";
 import type { PfStatement } from "@/services/pfService";
 
 export const pfMoney = (v?: number | null) =>
-  v == null ? "—" : Number(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  v == null ? "—" : Number(v).toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 const TYPE_STYLE: Record<string, string> = {
   opening: "bg-slate-100 text-slate-700",

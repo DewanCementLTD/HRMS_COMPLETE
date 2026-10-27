@@ -1,6 +1,40 @@
 // Use Next.js rewrite proxy to avoid CORS issues with the backend
 const API_BASE_URL = "/api";
 
+/** The signed login token of the signed-in user, if any. */
+export function getSessionToken(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const u = JSON.parse(window.localStorage.getItem("lms_user") || "null");
+    return typeof u?.session_token === "string" && u.session_token ? u.session_token : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Authorization header for raw fetch() calls (uploads, downloads). */
+export function sessionHeaders(): Record<string, string> {
+  const t = getSessionToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+/**
+ * Adds the login token to an API URL the browser loads by itself (<img src>,
+ * download links), which cannot carry an Authorization header.
+ */
+export function withSession(url: string): string {
+  const t = getSessionToken();
+  if (!t) return url;
+  return `${url}${url.includes("?") ? "&" : "?"}session_token=${encodeURIComponent(t)}`;
+}
+
+/** The server no longer accepts this login (missing, expired or forged token). */
+function endSession() {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem("lms_user");
+  if (window.location.pathname !== "/") window.location.href = "/";
+}
+
 interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -17,6 +51,7 @@ export async function apiRequest<T>(
     method,
     headers: {
       "Content-Type": "application/json",
+      ...sessionHeaders(),
       ...headers,
     },
   };
@@ -29,6 +64,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: "Request failed" }));
+    if (response.status === 401 && error?.detail?.code === "SESSION_REQUIRED") endSession();
     // `detail` may be a string, an object (e.g. FORCE_UPDATE), or a list of
     // validation errors (FastAPI 422). Always surface a readable string so the
     // UI never shows "[object Object]".

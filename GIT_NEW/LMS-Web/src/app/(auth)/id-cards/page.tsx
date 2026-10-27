@@ -28,7 +28,7 @@ export default function IDCardsPage() {
     setLoading(true);
     try {
       const r = await listHRMSEmployees(
-        user.card_no, undefined, activeCompany || undefined, activeBranch || undefined,
+        user.card_no, "A", activeCompany || undefined, activeBranch || undefined,
       );
       setEmps(r.items || []);
     } catch (e) {

@@ -57,7 +57,11 @@ export const getOrgChartCompanyView = async (allowedCompanies = null, allowedBra
   }
 };
 
-/** Active employees in one employee's own branch (self-service, no HR gate). */
+/**
+ * Active employees in one employee's own department within their company
+ * (self-service, no HR gate). Department spans branches so the department's
+ * reporting line stays intact.
+ */
 export const getOrgChartBranchView = async (empcode) => {
   let connection;
   try {
@@ -65,7 +69,7 @@ export const getOrgChartBranchView = async (empcode) => {
 
     const own = (
       await connection.execute(
-        `SELECT UNIT_ID, LOCATION FROM HR_EMP_MASTER WHERE EMPCODE = :e`,
+        `SELECT UNIT_ID, DEPT_NO FROM HR_EMP_MASTER WHERE EMPCODE = :e`,
         { e: empcode },
         { outFormat: OUT_OBJECT }
       )
@@ -73,10 +77,14 @@ export const getOrgChartBranchView = async (empcode) => {
     if (!own) return [];
     const ownRow = lowerKeys(own);
 
-    const params = { u: ownRow.unit_id, l: String(ownRow.location ?? "").trim() };
+    const dept = String(ownRow.dept_no ?? "").trim();
+    if (!dept) return [];
+
+    const params = { u: ownRow.unit_id, d: dept };
     const sql =
       ORG_CHART_SELECT +
-      ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL) AND h.UNIT_ID = :u AND TRIM(h.LOCATION) = :l ORDER BY h.NAME`;
+      ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL) AND h.UNIT_ID = :u
+          AND LTRIM(TRIM(h.DEPT_NO),'0') = LTRIM(:d,'0') ORDER BY h.NAME`;
 
     const result = await connection.execute(sql, params, { outFormat: OUT_OBJECT });
     return (result.rows ?? []).map(mapRow);

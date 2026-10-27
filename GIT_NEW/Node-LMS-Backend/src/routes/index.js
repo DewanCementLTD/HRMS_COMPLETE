@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import pinoHttp from 'pino-http';
-import { getRouteLogger, logger } from '../utils/logger.js';
+import { getRouteLogger, logger, redactUrl } from '../utils/logger.js';
 
 import appVersionRoutes from './appVersion.routes.js';
 import authRoutes from './auth.routes.js';
@@ -33,10 +33,10 @@ const reqLogger = (prefix) => pinoHttp({
     return 'info';
   },
 
-  customSuccessMessage: (req, res) => `HTTP ${req.method} ${req.url} completed with ${res.statusCode}`,
-  customErrorMessage: (req, res, err) => `HTTP ${req.method} ${req.url} failed with ${res.statusCode} - ${err.message}`,
+  customSuccessMessage: (req, res) => `HTTP ${req.method} ${redactUrl(req.url)} completed with ${res.statusCode}`,
+  customErrorMessage: (req, res, err) => `HTTP ${req.method} ${redactUrl(req.url)} failed with ${res.statusCode} - ${err.message}`,
   serializers: {
-    req: (req) => ({ method: req.method, url: req.url }),
+    req: (req) => ({ method: req.method, url: redactUrl(req.url) }),
     res: (res) => ({ statusCode: res.statusCode }),
   },
 });

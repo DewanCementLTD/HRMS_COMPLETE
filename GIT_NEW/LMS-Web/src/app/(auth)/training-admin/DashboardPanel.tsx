@@ -55,7 +55,7 @@ export function DashboardPanel({ h, onGo }: { h: Hr; onGo: (tab: "requests" | "s
           sub={`${d.sessions.COMPLETED ?? 0} completed · ${(d.sessions.OPEN ?? 0) + (d.sessions.PLANNED ?? 0) + (d.sessions.IN_PROGRESS ?? 0)} upcoming/ongoing`} onClick={() => onGo("sessions")} />
         <Tile icon={Users} label="Employees trained" value={d.employees_trained} tone="text-emerald-600 bg-emerald-50"
           sub={d.completion_rate != null ? `${d.completion_rate}% completion rate` : "No evaluations yet"} />
-        <Tile icon={Clock} label="Training hours" value={Math.round(d.training_hours).toLocaleString()} tone="text-amber-600 bg-amber-50" sub="Hours × attendance" />
+        <Tile icon={Clock} label="Training hours" value={Math.round(d.training_hours).toLocaleString("en-US")} tone="text-amber-600 bg-amber-50" sub="Hours × attendance" />
         <Tile icon={Wallet} label="Training cost" value={money(d.cost)} tone="text-rose-600 bg-rose-50"
           sub={d.budget != null ? `${d.budget_used_pct}% of budget ${money(d.budget)}` : "No budget set"} onClick={() => onGo("budget")} />
         <Tile icon={Award} label="Certificates issued" value={d.certificates} tone="text-yellow-700 bg-yellow-50" />

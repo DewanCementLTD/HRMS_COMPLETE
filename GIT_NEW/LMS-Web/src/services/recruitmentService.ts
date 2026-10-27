@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, sessionHeaders, withSession } from "./api";
 import {
   Job, Application, Interview, Offer, RecruitmentAnalytics,
   CandidateListItem, CandidateDetail, TopCandidatesResponse,
@@ -49,7 +49,7 @@ export async function uploadCvsBulk(
   const jobQS = jobId != null ? `&job_id=${jobId}` : "";
   const res = await fetch(
     `/api/recruitment/candidates/upload-cvs?${q(adminCardNo, jobQS + scopeQS(scope))}`,
-    { method: "POST", body: form },  // browser sets the multipart boundary
+    { method: "POST", body: form, headers: sessionHeaders() },  // browser sets the multipart boundary
   );
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Upload failed" }));
@@ -250,7 +250,7 @@ export async function uploadCandidateCv(
   form.append("file", file);
   const res = await fetch(
     `/api/recruitment/candidates/${candidateId}/cv?${q(adminCardNo, scopeQS(scope))}`,
-    { method: "POST", body: form },  // browser sets the multipart boundary
+    { method: "POST", body: form, headers: sessionHeaders() },  // browser sets the multipart boundary
   );
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "CV upload failed" }));
@@ -263,4 +263,4 @@ export async function uploadCandidateCv(
 export const candidateCvUrl = (
   adminCardNo: string, candidateId: number, inline = false, scope?: RecruitmentScope,
 ) =>
-  `/api/recruitment/candidates/${candidateId}/cv?${q(adminCardNo, scopeQS(scope))}${inline ? "&inline=true" : ""}`;
+  withSession(`/api/recruitment/candidates/${candidateId}/cv?${q(adminCardNo, scopeQS(scope))}${inline ? "&inline=true" : ""}`);

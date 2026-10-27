@@ -16,7 +16,7 @@ import {
 import { Modal } from "@/components/ui/Modal";
 import { Payslip } from "./Payslip";
 
-const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString("en-US"));
 
 export function SalaryPanel({ adminCardNo, onViewPayRegister }: { adminCardNo: string; onViewPayRegister?: (period: number) => void }) {
   const { activeCompany, activeBranch } = useAuth();

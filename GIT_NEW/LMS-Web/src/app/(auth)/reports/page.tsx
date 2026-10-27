@@ -52,7 +52,7 @@ const TD = "px-3 py-2 whitespace-nowrap";
 const STICKY_CHECK = "sticky left-0 z-20 bg-inherit w-12 min-w-[3rem] max-w-[3rem]";
 const STICKY_ID = "sticky left-12 z-20 bg-inherit border-r border-gray-200";
 
-const money = (v?: number | null) => (v == null || v === 0 ? "—" : Math.round(v).toLocaleString());
+const money = (v?: number | null) => (v == null || v === 0 ? "—" : Math.round(v).toLocaleString("en-US"));
 
 export default function ReportsPage() {
   const { user, activeCompany, activeBranch } = useAuth();

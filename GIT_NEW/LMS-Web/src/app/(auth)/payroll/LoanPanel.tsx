@@ -17,7 +17,7 @@ import {
   type Loan, type LoanType,
 } from "@/services/payrollService";
 
-const money = (v?: number) => (v == null ? "—" : Number(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Number(v).toLocaleString("en-US"));
 const EMPTY = {
   empcode: "", loan_cd: "", loan_date: "", loan_amt: "", instalment_amt: "",
   nof_instalment: "", start_dt: "", charge_int: "N", int_rate: "", chq_no: "", chq_dt: "", remarks: "",
@@ -169,8 +169,8 @@ export function LoanPanel({ adminCardNo }: { adminCardNo: string }) {
                   placeholder="Search type…"
                   options={types.map((t) => ({ value: t.loan_cd, label: t.loan_desc }))} />
                 <Input label="Loan Date" type="date" value={form.loan_date} onChange={(e) => setForm((f) => ({ ...f, loan_date: e.target.value }))} />
-                <Input label="Loan Amount" type="number" value={form.loan_amt} onChange={(e) => setForm((f) => ({ ...f, loan_amt: e.target.value }))} />
-                <Input label="Installment Amount" type="number" value={form.instalment_amt} onChange={(e) => setForm((f) => ({ ...f, instalment_amt: e.target.value }))} />
+                <Input label="Loan Amount" amount value={form.loan_amt} onChange={(e) => setForm((f) => ({ ...f, loan_amt: e.target.value }))} />
+                <Input label="Installment Amount" amount value={form.instalment_amt} onChange={(e) => setForm((f) => ({ ...f, instalment_amt: e.target.value }))} />
                 <Input label="No. of Installments (auto)" type="number" value={computedNof || form.nof_instalment} readOnly disabled
                   placeholder="amount ÷ installment" />
                 <Input label="Start Date" type="date" value={form.start_dt} onChange={(e) => setForm((f) => ({ ...f, start_dt: e.target.value }))} />

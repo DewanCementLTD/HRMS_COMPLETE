@@ -108,7 +108,7 @@ export function BudgetPanel({ h }: { h: Hr }) {
           <div className="space-y-3">
             <Select label="Applies to" value={edit.dept} disabled={edit.locked} onChange={(e) => setEdit({ ...edit, dept: e.target.value || "COMPANY" })}
               options={[{ value: "COMPANY", label: "Company (all departments)" }, ...depts.map((d) => ({ value: d.dept_no, label: d.dept_name }))]} />
-            <Input label="Amount" type="number" min={0} value={edit.amount} onChange={(e) => setEdit({ ...edit, amount: e.target.value })} />
+            <Input label="Amount" amount value={edit.amount} onChange={(e) => setEdit({ ...edit, amount: e.target.value })} />
             <Input label="Remarks" value={edit.remarks} onChange={(e) => setEdit({ ...edit, remarks: e.target.value })} />
           </div>
         </Modal>

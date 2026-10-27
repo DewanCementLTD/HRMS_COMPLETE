@@ -17,7 +17,7 @@ import {
 } from "@/services/payrollEntryService";
 import { EntryPeriodSelect, ClosedPeriodNotice } from "./EntryPeriodSelect";
 
-const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Math.round(v).toLocaleString("en-US"));
 
 export function MonthlyAllowancePanel({ adminCardNo }: { adminCardNo: string }) {
   const { activeCompany, activeBranch } = useAuth();
@@ -129,7 +129,7 @@ export function MonthlyAllowancePanel({ adminCardNo }: { adminCardNo: string }) 
                 placeholder="Type a name or code…" options={empOptions} />
               <SearchableSelect label="Allowance" value={form.allowance_id} onChange={(v) => setForm((f) => ({ ...f, allowance_id: v }))}
                 placeholder="Search allowance…" options={types.map((t) => ({ value: t.allowance_id, label: t.allowance_desc }))} />
-              <Input label="Amount" type="number" min="0" inputMode="decimal" value={form.amount}
+              <Input label="Amount" amount value={form.amount}
                 onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value.replace(/[^0-9.]/g, "") }))} placeholder="0" />
               <Input label="OT Hours (optional)" type="number" min="0" value={form.ot_hour}
                 onChange={(e) => setForm((f) => ({ ...f, ot_hour: e.target.value.replace(/[^0-9.]/g, "") }))} placeholder="—" />

@@ -189,5 +189,7 @@ test('a session may only act for its own card', () => {
   assert.equal(sessionOwnsCard(session, '100002'), true);
   // A colleague's card is not this session's to submit for.
   assert.equal(sessionOwnsCard(session, '100003.1'), false);
+  // Same number in another company is a different person.
+  assert.equal(sessionOwnsCard(session, '100002.3'), false);
   assert.equal(sessionOwnsCard(null, '100002.1'), false);
 });

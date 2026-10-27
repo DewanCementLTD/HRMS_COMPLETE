@@ -5,6 +5,7 @@ import { versionCheckSchema } from '../models/appVersion.schema.js';
 // Controllers
 import { versionCheck, downloadLatestApk } from '../controllers/appVersion.controller.js';
 import { logger } from '../utils/logger.js';
+import { uiConfig } from '../config/tenant.js';
 
 const router = Router();
 // Mounted at /app. Mirrors FastAPI routers/app_version_router.py. No auth —
@@ -26,5 +27,10 @@ router.get('/test-logs', (req, res) => {
 // Latest APK download (drop the release into static/apk/app-latest.apk)
 // ---------------------------------------------------------------------------
 router.get('/download/latest', downloadLatestApk); // http://localhost:8000/app/download/latest
+
+// ---------------------------------------------------------------------------
+// Tenant UI switches for the shared web app (no secrets; see config/tenant.js)
+// ---------------------------------------------------------------------------
+router.get('/ui-config', (req, res) => res.json(uiConfig())); // http://localhost:8003/app/ui-config
 
 export default router;

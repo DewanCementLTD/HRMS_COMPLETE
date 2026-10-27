@@ -1,6 +1,21 @@
 import { getDirectConnection } from "../config/database.js";
+import { verifyEmployeeToken, sessionOwnsCard } from "../services/employeeSession.service.js";
 
 import { logger } from '../utils/logger.js';
+
+// The signed session token issued at login (see employeeSession.service.js).
+// Read from the Authorization header, or from ?session_token= for URLs the
+// browser loads itself (<img src>, download links) and so cannot add a header.
+const sessionTokenFrom = (req) => {
+  const header = String(req.headers.authorization ?? '');
+  if (header.toLowerCase().startsWith('bearer ')) return header.slice(7).trim();
+  return String(req.query?.session_token ?? '').trim();
+};
+
+// Escape hatch only: HR_ADMIN_REQUIRE_SESSION=false turns the token check back
+// into a logged warning, for an older client that cannot send it yet.
+const requireSession = () => String(process.env.HR_ADMIN_REQUIRE_SESSION ?? 'true').trim().toLowerCase() !== 'false';
+
 export const requireHrAdmin = async (req, res, next) => {
   let connection;
 
@@ -16,6 +31,21 @@ export const requireHrAdmin = async (req, res, next) => {
       return res.status(422).json({
         detail: [{ type: 'missing', loc: ['query', 'admin_card_no'], msg: 'Field required', input: null }],
       });
+    }
+
+    // The card number alone proves nothing (it is printed on ID cards and sits
+    // in URLs). The caller must hold a login token for that same card.
+    const session = verifyEmployeeToken(sessionTokenFrom(req));
+    if (!session) {
+      if (requireSession()) {
+        return res.status(401).json({
+          detail: { code: 'SESSION_REQUIRED', message: 'Sign in again to continue' },
+        });
+      }
+      logger.warn(`[HR_ADMIN] no session token for admin_card_no=${admin_card_no} on ${req.method} ${req.originalUrl.split('?')[0]}`);
+    } else if (!sessionOwnsCard(session, admin_card_no)) {
+      logger.warn(`[HR_ADMIN] card mismatch: token=${session.card_no} sent admin_card_no=${admin_card_no}`);
+      return res.status(403).json({ detail: 'HR admin access required' });
     }
 
     let mobile = "";

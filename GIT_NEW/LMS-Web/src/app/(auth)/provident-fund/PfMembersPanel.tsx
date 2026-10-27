@@ -273,7 +273,7 @@ export function PfMembersPanel({ adminCardNo }: { adminCardNo: string }) {
             <Button onClick={saveOpening} disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin mr-1" />} Save</Button>
           </>}>
           <div className="space-y-3">
-            <Input label="Opening PF balance" type="number" min={0} value={openingAmt} onChange={(e) => setOpeningAmt(e.target.value)} />
+            <Input label="Opening PF balance" amount value={openingAmt} onChange={(e) => setOpeningAmt(e.target.value)} />
             <p className="text-xs text-gray-500">
               The balance carried in from before this system. It replaces the current opening
               ({pfMoney(openingFor.opening)}). Enter 0 to remove it. Monthly contributions are not affected.

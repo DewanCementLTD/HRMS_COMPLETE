@@ -310,13 +310,17 @@ export const getEmployeeUnitLocation = async (empcode) => {
     connection = await getDirectConnection();
     const r = (
       await connection.execute(
-        `SELECT UNIT_ID, LOCATION FROM HR_EMP_MASTER WHERE EMPCODE = :e`,
+        `SELECT UNIT_ID, LOCATION, DEPT_NO FROM HR_EMP_MASTER WHERE EMPCODE = :e`,
         { e: String(empcode) },
         { outFormat: oracledb.OUT_FORMAT_ARRAY }
       )
     ).rows?.[0];
     if (!r) return null;
-    return { unit_id: r[0], location: String(r[1] ?? '').trim() };
+    return {
+      unit_id: r[0],
+      location: String(r[1] ?? '').trim(),
+      dept_no: String(r[2] ?? '').trim().replace(/^0+/, ''),
+    };
   } finally {
     await connection?.close();
   }

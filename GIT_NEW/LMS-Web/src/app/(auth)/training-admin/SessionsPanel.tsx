@@ -247,10 +247,10 @@ export function SessionsPanel({ h, openSessionId, onOpened }: { h: Hr; openSessi
             <div>
               <p className="text-sm font-medium text-gray-700 mb-1.5">Cost</p>
               <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-                <Input label="Trainer" labelClassName="text-xs text-gray-500" type="number" min={0} value={edit.f.trainer_cost} onChange={(e) => set({ trainer_cost: e.target.value })} />
-                <Input label="Venue" labelClassName="text-xs text-gray-500" type="number" min={0} value={edit.f.venue_cost} onChange={(e) => set({ venue_cost: e.target.value })} />
-                <Input label="Material" labelClassName="text-xs text-gray-500" type="number" min={0} value={edit.f.material_cost} onChange={(e) => set({ material_cost: e.target.value })} />
-                <Input label="Other" labelClassName="text-xs text-gray-500" type="number" min={0} value={edit.f.other_cost} onChange={(e) => set({ other_cost: e.target.value })} />
+                <Input label="Trainer" labelClassName="text-xs text-gray-500" amount value={edit.f.trainer_cost} onChange={(e) => set({ trainer_cost: e.target.value })} />
+                <Input label="Venue" labelClassName="text-xs text-gray-500" amount value={edit.f.venue_cost} onChange={(e) => set({ venue_cost: e.target.value })} />
+                <Input label="Material" labelClassName="text-xs text-gray-500" amount value={edit.f.material_cost} onChange={(e) => set({ material_cost: e.target.value })} />
+                <Input label="Other" labelClassName="text-xs text-gray-500" amount value={edit.f.other_cost} onChange={(e) => set({ other_cost: e.target.value })} />
               </div>
             </div>
             <TextArea label="Remarks" value={edit.f.remarks} onChange={(v) => set({ remarks: v })} rows={2} />

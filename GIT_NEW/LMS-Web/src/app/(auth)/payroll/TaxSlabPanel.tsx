@@ -12,7 +12,7 @@ import {
   type TaxMaster, type TaxDetail,
 } from "@/services/payrollService";
 
-const money = (v?: number) => (v == null ? "—" : Number(v).toLocaleString());
+const money = (v?: number) => (v == null ? "—" : Number(v).toLocaleString("en-US"));
 
 export function TaxSlabPanel({ adminCardNo }: { adminCardNo: string }) {
   const [masters, setMasters] = useState<TaxMaster[]>([]);
@@ -154,11 +154,11 @@ export function TaxSlabPanel({ adminCardNo }: { adminCardNo: string }) {
           </div>
           {showAddSlab && selected != null && (
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 items-end mb-4 p-3 bg-indigo-50/50 rounded-xl">
-              <Input label="Slab From" type="number" value={sForm.slab_from} onChange={(e) => setSForm((f) => ({ ...f, slab_from: e.target.value }))} />
-              <Input label="Slab To" type="number" value={sForm.slab_to} onChange={(e) => setSForm((f) => ({ ...f, slab_to: e.target.value }))} />
+              <Input label="Slab From" amount value={sForm.slab_from} onChange={(e) => setSForm((f) => ({ ...f, slab_from: e.target.value }))} />
+              <Input label="Slab To" amount value={sForm.slab_to} onChange={(e) => setSForm((f) => ({ ...f, slab_to: e.target.value }))} />
               <Input label="Rate %" type="number" value={sForm.slab_rate} onChange={(e) => setSForm((f) => ({ ...f, slab_rate: e.target.value }))} />
-              <Input label="Fixed Tax" type="number" value={sForm.fixed_tax} onChange={(e) => setSForm((f) => ({ ...f, fixed_tax: e.target.value }))} />
-              <Input label="Deduction" type="number" value={sForm.slab_ded} onChange={(e) => setSForm((f) => ({ ...f, slab_ded: e.target.value }))} />
+              <Input label="Fixed Tax" amount value={sForm.fixed_tax} onChange={(e) => setSForm((f) => ({ ...f, fixed_tax: e.target.value }))} />
+              <Input label="Deduction" amount value={sForm.slab_ded} onChange={(e) => setSForm((f) => ({ ...f, slab_ded: e.target.value }))} />
               <Input label="Date From" type="date" value={sForm.date_from} onChange={(e) => setSForm((f) => ({ ...f, date_from: e.target.value }))} />
               <div className="flex gap-2 items-end">
                 <Input label="Date To" type="date" value={sForm.date_to} onChange={(e) => setSForm((f) => ({ ...f, date_to: e.target.value }))} />

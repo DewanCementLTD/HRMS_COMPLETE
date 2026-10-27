@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+import { apiRequest, sessionHeaders, withSession } from "./api";
 
 // Training Management (L&D). Backend: Node-LMS-Backend/src/routes/training.routes.js
 //   HR:       /training/admin/*        admin_card_no + selected company
@@ -233,12 +233,12 @@ export const hrApi = {
     send<{ saved: number }>(h, "PUT", `/sessions/${sid}/attendance`, { date, rows }),
   sessionFeedback: (h: Hr, sid: number, body: Record<string, unknown>) => send(h, "POST", `/sessions/${sid}/feedback`, body),
   attempts: (h: Hr, pid: number) => get<{ items: AttemptRow[] }>(h, `/participants/${pid}/attempts`),
-  certificateUrl: (h: Hr, pid: number) => `/api${A}/participants/${pid}/certificate?${q(h.card, h.compc)}`,
-  trainerCertificateUrl: (h: Hr, sid: number) => `/api${A}/sessions/${sid}/trainer-certificate?${q(h.card, h.compc)}`,
+  certificateUrl: (h: Hr, pid: number) => withSession(`/api${A}/participants/${pid}/certificate?${q(h.card, h.compc)}`),
+  trainerCertificateUrl: (h: Hr, sid: number) => withSession(`/api${A}/sessions/${sid}/trainer-certificate?${q(h.card, h.compc)}`),
   saveOutline: (h: Hr, sid: number, text: string) => send(h, "PUT", `/sessions/${sid}/outline`, { text }),
   uploadOutline: (h: Hr, sid: number, file: File) => uploadFile(`/api${A}/sessions/${sid}/outline/file?${q(h.card, h.compc)}`, file),
   deleteOutlineFile: (h: Hr, sid: number) => send(h, "DELETE", `/sessions/${sid}/outline/file`),
-  outlineFileUrl: (h: Hr, sid: number) => `/api${A}/sessions/${sid}/outline/file?${q(h.card, h.compc)}`,
+  outlineFileUrl: (h: Hr, sid: number) => withSession(`/api${A}/sessions/${sid}/outline/file?${q(h.card, h.compc)}`),
 
   requests: (h: Hr, status?: string) => get<{ items: TrainingRequest[] }>(h, "/requests", { status }),
   decide: (h: Hr, id: number, body: { decision: "approve" | "reject"; remarks?: string; session_id?: number | null; course_id?: number | null }) =>
@@ -348,7 +348,7 @@ export const trainerTestApi = (card: string, token: string): TestApi => ({
 async function uploadFile(url: string, file: File, token?: string) {
   const form = new FormData();
   form.append("file", file);
-  const res = await fetch(url, { method: "POST", body: form, headers: token ? auth(token) : {} });
+  const res = await fetch(url, { method: "POST", body: form, headers: token ? auth(token) : sessionHeaders() });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
     const d = err?.detail;
@@ -377,7 +377,7 @@ export const hodApi = {
 
 /** Download a file from an API path (optionally with a bearer token) and save it. */
 export async function downloadPdf(url: string, filename: string, token?: string) {
-  const res = await fetch(url, { headers: token ? auth(token) : {} });
+  const res = await fetch(url, { headers: token ? auth(token) : sessionHeaders() });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: `HTTP ${res.status}` }));
     const d = err?.detail;

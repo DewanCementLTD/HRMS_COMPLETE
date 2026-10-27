@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PiggyBank, RefreshCw, LogIn } from "lucide-react";
+import { Vault, RefreshCw, LogIn } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -71,7 +71,7 @@ export default function MyPfPage() {
       ) : !current ? (
         <Card>
           <CardContent className="py-10 text-center">
-            <PiggyBank className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+            <Vault className="h-10 w-10 text-slate-300 mx-auto mb-3" />
             <p className="font-semibold text-ink">No Provident Fund account</p>
             <p className="text-sm text-slate-500 mt-1">You are not enrolled in PF and have no PF balance. Contact HR for details.</p>
           </CardContent>

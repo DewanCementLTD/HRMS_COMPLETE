@@ -7,8 +7,20 @@ import numpy as np
 from insightface.app import FaceAnalysis
 from threading import Lock
 import oracledb
+from dotenv import load_dotenv
 
 # ******** ENV
+# One env file per tenant, next to this file: .env = sysnovix (schema HRMS),
+# .env.ydc = YDC (schema HRMS_YDC). FACE_ENV_FILE picks the file (start_ydc.bat
+# sets it to .env.ydc); default .env. override=True so a DB_* left in the
+# machine/shell environment can never point a tenant at the other's schema.
+_env_file = os.environ.get("FACE_ENV_FILE", ".env")
+if not os.path.isabs(_env_file):
+    _env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), _env_file)
+if not os.path.isfile(_env_file):
+    raise RuntimeError(f"Face service env file not found: {_env_file}")
+load_dotenv(_env_file, override=True)
+
 # Where insightface caches the buffalo_s model pack. Overridable so a move to a
 # box with a different profile path doesn't force a code edit; the default is
 # the per-user cache insightface would pick anyway. If the pack isn't there,
@@ -52,14 +64,15 @@ face_app = FaceAnalysis(
 face_app.prepare(ctx_id=0, det_size=(FACE_DET_SIZE, FACE_DET_SIZE))
 
 # ******** ORACLE
-# Same schema the other two backends use. Read from the environment so the
-# credentials live in one place (start_all.bat / the machine env) instead of
-# being baked in here — the old hard-coded hrms/oracle123@localhost:1521/orcl
-# is the previous server's, and gets ORA-01017 on this box (19c CDB: the HRMS
-# schema is in the orclpdb PDB, not the orcl root).
-DB_USER = os.environ.get("DB_USER", "hrms")
-DB_PASSWORD = os.environ.get("DB_PASSWORD", "Sysnovix#2026")
-DB_DSN = os.environ.get("DB_DSN", "127.0.0.1:1521/orclpdb")
+# Same schema as the tenant's Node backend, read from the env file loaded above.
+# No defaults on purpose: a fallback would silently connect a tenant to the
+# other tenant's schema and match faces against the wrong employees.
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_DSN = os.environ.get("DB_DSN")
+if not (DB_USER and DB_PASSWORD and DB_DSN):
+    raise RuntimeError(f"DB_USER / DB_PASSWORD / DB_DSN missing in {_env_file}")
+logger.info(f"[STARTUP] env={os.path.basename(_env_file)} schema={DB_USER} dsn={DB_DSN}")
 
 
 def get_db_connection():

@@ -71,7 +71,21 @@ export default function OrgChartPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const roots = useMemo(() => buildOrgTree(nodes), [nodes]);
+  const departments = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const n of nodes) if (n.dept_no && !seen.has(n.dept_no)) seen.set(n.dept_no, n.department || n.dept_no);
+    return [...seen.entries()].map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [nodes]);
+
+  // The department filter removes everyone outside the department (same as a
+  // branch switch); a stale selection from another company/branch is ignored.
+  const activeDept = departments.some((d) => d.code === selectedDept) ? selectedDept : "";
+  const shownNodes = useMemo(
+    () => (activeDept ? nodes.filter((n) => n.dept_no === activeDept) : nodes),
+    [nodes, activeDept]
+  );
+
+  const roots = useMemo(() => buildOrgTree(shownNodes), [shownNodes]);
 
   // Expand/collapse state resets whenever a new tree is fetched; keyed on the
   // tree itself instead of resetting from an effect.
@@ -100,22 +114,15 @@ export default function OrgChartPage() {
 
   const deptColors = useMemo(() => buildDeptColorMap(nodes.map((n) => n.dept_no || "")), [nodes]);
 
-  const departments = useMemo(() => {
-    const seen = new Map<string, string>();
-    for (const n of nodes) if (n.dept_no && !seen.has(n.dept_no)) seen.set(n.dept_no, n.department || n.dept_no);
-    return [...seen.entries()].map(([code, name]) => ({ code, name })).sort((a, b) => a.name.localeCompare(b.name));
-  }, [nodes]);
-
-  // Department and search filters: matches + their manager chains render
-  // normally and are force-expanded; everything else is dimmed, not removed.
+  // Search: matches + their manager chains render normally and are
+  // force-expanded; everything else is dimmed, not removed.
   const visibleSet = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!selectedDept && !q) return null;
-    return matchVisibleSet(nodes, (n) =>
-      (!selectedDept || n.dept_no === selectedDept) &&
-      (!q || n.name?.toLowerCase().includes(q) || n.empcode?.toLowerCase().includes(q))
+    if (!q) return null;
+    return matchVisibleSet(shownNodes, (n) =>
+      Boolean(n.name?.toLowerCase().includes(q) || n.empcode?.toLowerCase().includes(q))
     );
-  }, [selectedDept, search, nodes]);
+  }, [search, shownNodes]);
   const effectiveExpanded = useMemo(
     () => (visibleSet ? new Set([...expanded, ...visibleSet]) : expanded),
     [expanded, visibleSet]
@@ -144,7 +151,7 @@ export default function OrgChartPage() {
   const expandAll = () => { setExpanded(() => allNodeIds(roots)); setCollapsedGroups(new Set()); };
   const collapseAll = () => {
     setExpanded(() => computeInitialExpanded(roots, 1));
-    setCollapsedGroups(new Set(nodes.map((n) => deptGroupKey(n.dept_no || null))));
+    setCollapsedGroups(new Set(shownNodes.map((n) => deptGroupKey(n.dept_no || null))));
   };
 
   const fitScale = natural && canvasW ? Math.max(0.2, Math.min(1, (canvasW - 8) / natural.w)) : 1;
@@ -159,9 +166,9 @@ export default function OrgChartPage() {
     (b) => !activeCompany || !b.compc || String(b.compc) === String(activeCompany)
   );
   const companyName = (isHrAdmin ? user?.selected_company?.name : null) || nodes[0]?.company_name || "Organization";
-  const branchName = isHrAdmin ? (activeBranch ? user?.selected_branch?.name : "All Branches") : nodes[0]?.branch_name || undefined;
+  const branchName = isHrAdmin ? (activeBranch ? user?.selected_branch?.name : "All Branches") : nodes[0]?.department || undefined;
   const compc = isHrAdmin ? activeCompany || user?.selected_company?.code : nodes[0]?.unit_id;
-  const deptName = departments.find((d) => d.code === selectedDept)?.name;
+  const deptName = departments.find((d) => d.code === activeDept)?.name;
 
   const noLine = roots.filter((r) => r.children.length === 0).length;
   const treeProps = {
@@ -172,7 +179,7 @@ export default function OrgChartPage() {
     <div className="animate-fade-in">
       <PageHeader
         title="Organogram"
-        subtitle={isHrAdmin ? "Reporting structure across your company and branches" : "Reporting structure of your branch"}
+        subtitle={isHrAdmin ? "Reporting structure across your company and branches" : "Reporting structure of your department"}
       />
 
       <Card className="hover:shadow-sm">
@@ -192,18 +199,18 @@ export default function OrgChartPage() {
               switchBranch(b ?? { code: "", name: "All Branches" });
             }}
             departments={departments}
-            selectedDept={selectedDept}
+            selectedDept={activeDept}
             onDeptChange={setSelectedDept}
             search={search}
             onSearchChange={setSearch}
             onPrint={() => setPrinting(true)}
-            printDisabled={loading || nodes.length === 0}
+            printDisabled={loading || shownNodes.length === 0}
           />
 
-          {!loading && !error && nodes.length > 0 && (
+          {!loading && !error && shownNodes.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <Stat label="employees" value={nodes.length} />
-              <Stat label="departments" value={departments.length} />
+              <Stat label="employees" value={shownNodes.length} />
+              {!activeDept && <Stat label="departments" value={departments.length} />}
               <Stat label="levels" value={depthOf(roots)} />
               {noLine > 0 && <Stat label="without reporting officer" value={noLine} />}
               <div className="ml-auto flex items-center gap-1.5">
@@ -237,7 +244,7 @@ export default function OrgChartPage() {
             <div className="py-24 flex justify-center"><Spinner /></div>
           ) : error ? (
             <div className="py-24 text-center text-red-500">{error}</div>
-          ) : nodes.length === 0 ? (
+          ) : shownNodes.length === 0 ? (
             <div className="py-24 text-center text-gray-400">
               <Users className="h-8 w-8 mx-auto mb-2" />
               No employees found for this selection.
@@ -255,7 +262,7 @@ export default function OrgChartPage() {
                     companyName={companyName}
                     compc={compc}
                     subtitle={branchName}
-                    total={nodes.length}
+                    total={shownNodes.length}
                     {...treeProps}
                     expanded={effectiveExpanded}
                     onToggleExpand={toggleExpand}
@@ -275,7 +282,7 @@ export default function OrgChartPage() {
           companyName={companyName}
           compc={compc}
           subtitle={branchName}
-          total={nodes.length}
+          total={shownNodes.length}
           filterCaption={[deptName, search.trim() ? `"${search.trim()}"` : ""].filter(Boolean).join(" · ") || undefined}
           {...treeProps}
           expanded={effectiveExpanded}

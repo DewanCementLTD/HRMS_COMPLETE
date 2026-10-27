@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import routes from './routes/index.js';
 
-import { logger } from './utils/logger.js';
+import { logger, redactUrl } from './utils/logger.js';
 import { presentableMessage, readableMessage, GENERIC_MESSAGE } from './utils/apiErrors.js';
 const app = express();
 
@@ -63,7 +63,7 @@ app.use('/', routes);
 app.use((req, res) => {
   res.status(404).json({
     message: 'That request could not be found on the server.',
-    detail: `Not Found: ${req.method} ${req.originalUrl}`,
+    detail: `Not Found: ${req.method} ${redactUrl(req.originalUrl)}`,
   });
 });
 
@@ -82,7 +82,7 @@ app.use((err, req, res, next) => {
   // reached a mounted router, so fall back to the global logger there.
   res.err = err;
   if (!req.log) {
-    logger.error({ err }, `Unhandled error on ${req.method} ${req.originalUrl}`);
+    logger.error({ err }, `Unhandled error on ${req.method} ${redactUrl(req.originalUrl)}`);
   }
 
   // An unhandled throw is almost always a driver or programming error, and its

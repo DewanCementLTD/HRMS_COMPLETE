@@ -6,7 +6,7 @@ import { Printer, X } from "lucide-react";
 import type { Payslip as PayslipData, PayslipLine } from "@/services/payrollService";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
-const money = (v?: number) => (v == null ? "" : Math.round(v).toLocaleString());
+const money = (v?: number) => (v == null ? "" : Math.round(v).toLocaleString("en-US"));
 
 function sumBy(lines: PayslipLine[], key: "this" | "fiscal" | "cal", pred: (l: PayslipLine) => boolean) {
   return lines.filter(pred).reduce((a, l) => a + (l[key] || 0), 0);

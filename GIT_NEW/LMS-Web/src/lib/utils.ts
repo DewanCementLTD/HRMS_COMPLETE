@@ -4,6 +4,29 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+// Fixed locale so amounts always read 50,000 (never the browser's own
+// grouping such as 50.000 or 5,00,000).
+const NUMBER_LOCALE = "en-US";
+
+/** Number with thousands separators, e.g. 50000 -> "50,000". */
+export function formatNumber(
+  v: number | string | null | undefined,
+  { maxDecimals = 2, minDecimals = 0, fallback = "—" }: { maxDecimals?: number; minDecimals?: number; fallback?: string } = {}
+): string {
+  if (v === null || v === undefined || v === "") return fallback;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/,/g, ""));
+  if (!Number.isFinite(n)) return String(v);
+  return n.toLocaleString(NUMBER_LOCALE, { minimumFractionDigits: minDecimals, maximumFractionDigits: Math.max(minDecimals, maxDecimals) });
+}
+
+/** Adds separators to a raw typed number string ("-1234.5" -> "-1,234.5"), keeping the decimals as typed. */
+export function groupDigits(raw: string): string {
+  const m = /^(-?)(\d*)(\.\d*)?$/.exec(raw.replace(/,/g, ""));
+  if (!m) return raw;
+  const [, sign, int, dec = ""] = m;
+  return sign + int.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + dec;
+}
+
 export function formatDate(dateStr: string): string {
   if (!dateStr) return "-";
   try {

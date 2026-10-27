@@ -99,9 +99,10 @@ export interface HodApprovalsResponse {
 }
 
 // HOD list of values for the employee form — the value stored on the employee
-// is the mobile number.
+// is the mobile number. null only on a tenant whose pickers list every employee
+// (YDC): that person has no usable mobile and cannot be chosen as HOD.
 export interface HodOption {
-  mobile: string;
+  mobile: string | null;
   name: string;
   empcode: string;
   unit_id: number | string;

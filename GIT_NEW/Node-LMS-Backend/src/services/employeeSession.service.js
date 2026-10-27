@@ -91,15 +91,20 @@ export const verifyEmployeeToken = (token) => {
 /**
  * Whether a session may act for a card.
  *
- * Cards are compared on their numeric prefix as well as in full, because the
- * same person reaches this API as both "100002.1" and "100002" depending on
- * which screen produced the value — the existing queries all match both.
+ * Cards are compared in full, or on their numeric prefix when one side has
+ * no company suffix, because the same person reaches this API as both
+ * "100002.1" and "100002" depending on which screen produced the value. Two
+ * suffixed cards must match exactly: "100002.1" and "100002.3" are different
+ * people in different companies.
  */
 export const sessionOwnsCard = (session, cardNo) => {
   if (!session) return false;
   const a = norm(session.card_no);
   const b = norm(cardNo);
-  return a === b || cardInt(a) === cardInt(b);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes('.') && b.includes('.')) return false;
+  return cardInt(a) === cardInt(b);
 };
 
 export const employeeSessionDays = () => SESSION_DAYS;

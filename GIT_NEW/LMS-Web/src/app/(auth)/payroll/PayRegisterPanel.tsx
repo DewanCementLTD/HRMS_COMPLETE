@@ -10,8 +10,8 @@ import {
 } from "@/services/payrollService";
 
 // Employee cells: blank when empty/zero (matches the ERP form). Totals: always numeric.
-const cell = (v?: number) => (v == null || v === 0 ? "" : Math.round(v).toLocaleString());
-const tot = (v?: number) => Math.round(v || 0).toLocaleString();
+const cell = (v?: number) => (v == null || v === 0 ? "" : Math.round(v).toLocaleString("en-US"));
+const tot = (v?: number) => Math.round(v || 0).toLocaleString("en-US");
 
 interface Totals {
   actual_gross: number; earned_basic: number; earned_gross: number;

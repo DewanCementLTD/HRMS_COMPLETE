@@ -105,3 +105,6 @@ export function installProcessHandlers() {
     logger.error({ err }, 'Unhandled promise rejection — server still running, but this is a bug');
   });
 }
+
+/** A request URL safe to log: the login token some links carry is masked. */
+export const redactUrl = (url) => String(url ?? '').replace(/([?&]session_token=)[^&]*/gi, '$1***');

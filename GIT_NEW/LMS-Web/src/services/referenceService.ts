@@ -39,7 +39,7 @@ export interface BloodGroup  { pk: number; blood_group: string }
 export interface Cadre       { pk: number; cadre: string }
 export interface Unit            { unit_id: number; unit_name: string }
 export interface Religion        { code: string; label: string }
-export interface ReportingOfficer { empcode: string; name: string }
+export interface ReportingOfficer { empcode: string; name: string; unit_id?: number | string | null }
 export interface Location    { lcode: string; descr: string; sname: string; regioncode: string; city: string }
 export interface EmpStatus   { emp_status: string; descr: string }
 export interface Bank        { bnkcode: string; bnkname: string }

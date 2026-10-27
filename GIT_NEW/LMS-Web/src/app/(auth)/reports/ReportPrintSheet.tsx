@@ -32,8 +32,8 @@ const LANDSCAPE: ReportType[] = [
 // ── formatting ────────────────────────────────────────────────────
 
 /** Money cells are blank when zero, matching the printed reports. */
-const n = (v?: number | null) => (v == null || v === 0 ? "" : Math.round(v).toLocaleString());
-const n0 = (v?: number | null) => Math.round(v || 0).toLocaleString();
+const n = (v?: number | null) => (v == null || v === 0 ? "" : Math.round(v).toLocaleString("en-US"));
+const n0 = (v?: number | null) => Math.round(v || 0).toLocaleString("en-US");
 /** Day counts keep their halves (1.5 absent days). */
 const d = (v?: number | null) => (v == null ? "" : String(v));
 

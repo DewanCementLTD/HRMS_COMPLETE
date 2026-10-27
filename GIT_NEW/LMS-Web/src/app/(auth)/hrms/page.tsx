@@ -19,7 +19,7 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/ui/Badge";
-import { formatDate, toLocalYmd } from "@/lib/utils";
+import { formatDate, formatNumber, toLocalYmd } from "@/lib/utils";
 import {
   Users,
   Search,
@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { updateLocationTracking, getEmployeeCard, resetEmployeePassword, type EmployeeCard } from "@/services/hrmsService";
 import { fetchHodOptions } from "@/services/leaveService";
+import { fetchUiConfig, DEFAULT_UI_CONFIG, type UiConfig } from "@/services/uiConfigService";
 import type { HodOption } from "@/models/leave";
 import { LocationPanel } from "./LocationPanel";
 import { SetupPanel } from "./SetupPanel";
@@ -437,6 +438,10 @@ export default function HRMSPage() {
   // HOD 1 / HOD 2 pick an employee of the selected company; the stored value
   // is that person's mobile number (what EMPLOYEE.HOD1/HOD2 hold).
   const [refHods, setRefHods] = useState<HodOption[]>([]);
+  // Tenant switches (YDC: HOD 1 optional, pickers list the whole schema).
+  const [uiConfig, setUiConfig] = useState<UiConfig>(DEFAULT_UI_CONFIG);
+  useEffect(() => { fetchUiConfig().then(setUiConfig); }, []);
+  const allCompanyPickers = uiConfig.approver_picker_scope === "all";
   // Which employee the edit form currently holds, so it is filled exactly once
   // per employee instead of whenever a field happens to be empty.
   const [populatedFor, setPopulatedFor] = useState<string | null>(null);
@@ -475,11 +480,13 @@ export default function HRMSPage() {
   // HOD 1/2 and Reporting Officer must be from the employee's own company, but
   // may be in any of its branches. So these lists are keyed on the company of
   // the record being edited (not the sidebar branch), and are left empty when
-  // no company is known rather than showing everyone.
+  // no company is known rather than showing everyone. A tenant configured with
+  // approver_picker_scope "all" (YDC) gets every employee instead; the backend
+  // ignores the company then, so the lists load even without one.
   const pickerCompany =
     form.unit_id != null && String(form.unit_id) !== "" ? String(form.unit_id) : (activeCompany || "");
   useEffect(() => {
-    if (!pickerCompany) {
+    if (!pickerCompany && !allCompanyPickers) {
       setRefHods([]);
       setRefRptOfficers([]);
       return;
@@ -496,7 +503,7 @@ export default function HRMSPage() {
       setRefHods(hods.items);
     });
     return () => { cancelled = true; };
-  }, [pickerCompany, user?.card_no]);
+  }, [pickerCompany, allCompanyPickers, user?.card_no]);
 
   // ---- Populate the edit form once per employee ----
   //
@@ -795,8 +802,8 @@ export default function HRMSPage() {
       view === "edit" && !!originalLocation && String(form.location ?? "") !== originalLocation;
     if (movingBranch && !form.transfer_date) return "Transfer Date (the branch has changed)";
     // Without HOD 1 the employee's leave has no first approver and would sit
-    // unapproved forever.
-    if (!form.hod1) return "HOD 1";
+    // unapproved forever. Optional only where the tenant config says so (YDC).
+    if (uiConfig.hod1_required && !form.hod1) return "HOD 1";
     if (user?.can_edit_salary && (form.gross == null || Number.isNaN(form.gross)))
       return "Gross Salary";
     return null;
@@ -1480,10 +1487,19 @@ export default function HRMSPage() {
   const isTransfer =
     isEdit && !!originalLocation && String(form.location ?? "") !== originalLocation;
 
-  const hodOptions = refHods.map((h) => ({
-    value: h.mobile,
-    label: h.department ? `${h.name} — ${h.department} (${h.mobile})` : `${h.name} (${h.mobile})`,
-  }));
+  // Units are listed so same-named people in different companies can be told
+  // apart when the pickers cover every company (YDC).
+  const unitName = (id: number | string) =>
+    refUnits.find((u) => String(u.unit_id) === String(id))?.unit_name ?? "";
+  const hodOptions = refHods.map((h) => {
+    const where = [h.department, allCompanyPickers ? unitName(h.unit_id) : ""].filter(Boolean).join(", ");
+    const name = where ? `${h.name} — ${where}` : h.name;
+    // No usable mobile: shown so HR can see the person exists, but not
+    // pickable — leave approval finds a HOD by mobile number.
+    return h.mobile
+      ? { value: h.mobile, label: `${name} (${h.mobile})` }
+      : { value: `no-mobile:${h.empcode}`, label: `${name} — no mobile number, add one first`, disabled: true };
+  });
 
   return (
     <div className="animate-fade-in">
@@ -1738,7 +1754,10 @@ export default function HRMSPage() {
                 value={form.rpt_officer || ""}
                 onChange={(v) => updateField("rpt_officer", v)}
                 placeholder="Type a name or code…"
-                options={refRptOfficers.map((o) => ({ value: o.empcode, label: `${o.name} (${o.empcode})` }))}
+                options={refRptOfficers.map((o) => {
+                  const unit = allCompanyPickers && o.unit_id != null ? unitName(o.unit_id) : "";
+                  return { value: o.empcode, label: unit ? `${o.name} — ${unit} (${o.empcode})` : `${o.name} (${o.empcode})` };
+                })}
               />
               <Select
                 label="Status"
@@ -1806,15 +1825,14 @@ export default function HRMSPage() {
                   edited — typing a value here would only diverge from payroll. */}
               <Input
                 label="Basic Salary (auto — from gross)"
-                value={form.basic != null ? String(form.basic) : "—"}
+                value={formatNumber(form.basic)}
                 readOnly
                 disabled
               />
               {user?.can_edit_salary ? (
                 <Input
                   label="Gross Salary *"
-                  type="number"
-                  min={0}
+                  amount
                   value={form.gross?.toString() ?? ""}
                   onChange={(e) => updateField("gross", e.target.value ? Math.max(0, parseFloat(e.target.value)) : undefined)}
                   required
@@ -1822,7 +1840,7 @@ export default function HRMSPage() {
               ) : (
                 <Input
                   label="Gross Salary (view-only)"
-                  value={ctrl.selectedEmployee?.sal_gross != null ? String(ctrl.selectedEmployee.sal_gross) : "—"}
+                  value={formatNumber(ctrl.selectedEmployee?.sal_gross)}
                   readOnly
                   disabled
                 />
@@ -1892,7 +1910,7 @@ export default function HRMSPage() {
                   the approver's mobile number (HOD1_MNO on the application), and
                   the list is limited to the selected company's employees. */}
               <SearchableSelect
-                label="HOD 1 (approves leave) *"
+                label={uiConfig.hod1_required ? "HOD 1 (approves leave) *" : "HOD 1 (approves leave)"}
                 value={form.hod1?.toString() || ""}
                 onChange={(v) => updateField("hod1", v || null)}
                 placeholder="Search employee…"

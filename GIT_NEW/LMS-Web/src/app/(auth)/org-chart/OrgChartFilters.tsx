@@ -53,12 +53,14 @@ export function OrgChartFilters({
           </select>
         </Field>
       )}
-      <Field icon={Layers}>
-        <select className={SELECT} value={selectedDept} onChange={(e) => onDeptChange(e.target.value)}>
-          <option value="">All Departments</option>
-          {departments.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
-        </select>
-      </Field>
+      {departments.length > 1 && (
+        <Field icon={Layers}>
+          <select className={SELECT} value={selectedDept} onChange={(e) => onDeptChange(e.target.value)}>
+            <option value="">All Departments</option>
+            {departments.map((d) => <option key={d.code} value={d.code}>{d.name}</option>)}
+          </select>
+        </Field>
+      )}
       <Field icon={Search}>
         <input
           className="text-sm bg-transparent outline-none w-48 placeholder:text-gray-400"

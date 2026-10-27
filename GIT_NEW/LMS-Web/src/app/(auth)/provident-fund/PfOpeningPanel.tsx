@@ -182,13 +182,13 @@ export function PfOpeningPanel({ adminCardNo }: { adminCardNo: string }) {
                   onChange={(e) => setForm((f) => ({ ...f, as_of_fy: e.target.value }))} />
                 <Input label="Remarks" value={form.remarks} onChange={set("remarks")} />
                 <div />
-                <Input label="Employee — Contribution B/F" type="number" step="any" value={form.emp_contrib} onChange={set("emp_contrib")} />
-                <Input label="Employee — Profit B/F" type="number" step="any" value={form.emp_profit} onChange={set("emp_profit")} />
-                <Input label="Employee — Deductions" type="number" step="any" value={form.emp_deductions} onChange={set("emp_deductions")} />
+                <Input label="Employee — Contribution B/F" amount value={form.emp_contrib} onChange={set("emp_contrib")} />
+                <Input label="Employee — Profit B/F" amount value={form.emp_profit} onChange={set("emp_profit")} />
+                <Input label="Employee — Deductions" amount value={form.emp_deductions} onChange={set("emp_deductions")} />
                 <div />
-                <Input label="Company — Contribution B/F" type="number" step="any" value={form.co_contrib} onChange={set("co_contrib")} />
-                <Input label="Company — Profit B/F" type="number" step="any" value={form.co_profit} onChange={set("co_profit")} />
-                <Input label="Company — Deductions" type="number" step="any" value={form.co_deductions} onChange={set("co_deductions")} />
+                <Input label="Company — Contribution B/F" amount value={form.co_contrib} onChange={set("co_contrib")} />
+                <Input label="Company — Profit B/F" amount value={form.co_profit} onChange={set("co_profit")} />
+                <Input label="Company — Deductions" amount value={form.co_deductions} onChange={set("co_deductions")} />
               </div>
               <p className="mt-2 text-xs text-gray-400">Deductions = permanent withdrawals already taken (plus their profit) and PF loan interest already charged in Excel.</p>
               <div className="mt-3"><Button size="sm" onClick={save} disabled={busy === "save"}>{busy === "save" ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null} Save</Button></div>

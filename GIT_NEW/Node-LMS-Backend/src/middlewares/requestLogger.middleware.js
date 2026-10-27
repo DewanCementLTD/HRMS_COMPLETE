@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { redactUrl } from '../utils/logger.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOGS_DIR = path.resolve(__dirname, '../../logs');
@@ -62,7 +63,7 @@ export const requestLogger = (req, res, next) => {
     const timestamp = new Date().toISOString();
 
     // Per-route log line
-    const requestLine = `[${timestamp}] ${req.method} ${req.originalUrl} → ${res.statusCode} (${duration}ms)\n`;
+    const requestLine = `[${timestamp}] ${req.method} ${redactUrl(req.originalUrl)} → ${res.statusCode} (${duration}ms)\n`;
     getStream(prefix).write(requestLine);
 
     // Overwrite stats.log with the latest snapshot

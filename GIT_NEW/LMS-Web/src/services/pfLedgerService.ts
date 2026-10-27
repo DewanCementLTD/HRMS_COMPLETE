@@ -111,6 +111,6 @@ export const fetchPfSettlement = (adminCardNo: string, compc: string | undefined
 
 /** Exact amount for display: thousands separators, up to 4 decimals (as in the Excel statements), no rounding to whole rupees. */
 export const pfMoney = (v?: number | null) =>
-  v == null ? "—" : Number(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+  v == null ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 export const pfPct = (v?: number | null) =>
-  v == null ? "—" : `${(Number(v) * 100).toLocaleString(undefined, { maximumFractionDigits: 6 })}%`;
+  v == null ? "—" : `${(Number(v) * 100).toLocaleString("en-US", { maximumFractionDigits: 6 })}%`;
