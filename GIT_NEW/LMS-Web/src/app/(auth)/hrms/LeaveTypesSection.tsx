@@ -13,10 +13,9 @@ import {
  * Leave types master (LEAVE_TYPES), per company and branch.
  *
  * Two kinds of row appear together. The standard set — CL, ML, EL, OD and the
- * rest — is shared by every company and shown locked: those are what all the
- * balances in the system are built on, so renaming CL here would change it for
- * every company at once. Below them sit whatever this company added, which it
- * alone can edit or remove.
+ * rest — is shared by every company: those are what all the balances in the
+ * system are built on, so editing CL here changes it for every company at once.
+ * Below them sit whatever this company added. Both can be edited or removed.
  */
 export function LeaveTypesSection({
   items,
@@ -325,8 +324,8 @@ export function LeaveTypesSection({
       </div>
 
       <p className="text-xs text-gray-500 leading-relaxed">
-        The standard types are shared by every company and cannot be changed here — every leave
-        balance in the system is built on them. A type added for this company is recorded and
+        The standard types are shared by every company — editing or removing one here changes it
+        for all companies, as every leave balance is built on them. A type added for this company is recorded and
         reported against, but only Casual, Medical, Earned and Out-Door Duty carry a tracked
         balance that employees can apply against; extending that is a database change to
         ALL_LEAVE_BAL_V, not a setting on this screen.

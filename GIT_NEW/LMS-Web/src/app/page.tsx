@@ -178,6 +178,12 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </form>
+
+            <p className="mt-6 text-center text-xs text-gray-400">
+              <a href="/privacy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </a>
+            </p>
           </div>
         </div>
       </div>

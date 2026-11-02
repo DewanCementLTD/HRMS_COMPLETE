@@ -1,6 +1,7 @@
 import { getDirectConnection } from '../config/database.js';
 
 import { logger } from '../utils/logger.js';
+import { BRANCH_NAME_QUERY } from '../utils/branchName.js';
 export const getDashboardData = async (card_no) => {
   let connection;
   try {
@@ -83,10 +84,21 @@ export const getDashboardData = async (card_no) => {
       "SELECT MAX(DESCR) AS V FROM COMPANY_INFO WHERE COMPC = :v",
       row.compc, "compcnm"
     );
-    row.brnchnm = await safeLookup(
-      "SELECT MAX(DESCR) AS V FROM COM_LOCATION WHERE LCODE = :v",
-      row.branch, "brnchnm"
-    );
+    // Branch codes repeat per company in some schemas (YDC), so the name is
+    // looked up on the employee's company as well as the code.
+    row.brnchnm = null;
+    if (row.branch !== null && row.branch !== undefined) {
+      try {
+        const r = await connection.execute(
+          BRANCH_NAME_QUERY,
+          { lcode: String(row.branch), compc: row.compc === null || row.compc === undefined ? null : String(row.compc) },
+          { outFormat: 4002 }
+        );
+        row.brnchnm = r.rows?.[0]?.DESCR ?? null;
+      } catch (e) {
+        logger.info(`[DASHBOARD] brnchnm lookup failed for value=${row.branch}: ${e.message ?? e}`);
+      }
+    }
     row.hod_nm = await safeLookup(
       "SELECT MAX(NAME) AS V FROM HR_EMP_MASTER WHERE EMPCODE = TO_CHAR(:v)",
       row.hod, "hod_nm"

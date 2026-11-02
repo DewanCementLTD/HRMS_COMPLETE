@@ -26,6 +26,7 @@
 
 import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import { branchNameSql } from '../utils/branchName.js';
 
 const OUT_OBJECT = 4002;
 
@@ -110,7 +111,7 @@ export const listRosterDefaults = async (compc = null, brnch = null) => {
               d.REST_DAYS AS "rest_days",
               d.UPDATED_BY AS "updated_by",
               TO_CHAR(d.UPDATED_AT, 'YYYY-MM-DD HH24:MI') AS "updated_at",
-              (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(TO_CHAR(d.BRNCH))) AS "branch_name",
+              ${branchNameSql('TO_CHAR(d.BRNCH)', 'd.COMPC')} AS "branch_name",
               (SELECT MIN(sh.SHIFT_DESC) FROM SHIFT_HEAD sh
                 WHERE sh.COMPC = d.COMPC AND sh.BRNCH = d.BRNCH
                   AND TRIM(sh.SHIFT) = TRIM(d.DEFAULT_SHIFT))                  AS "shift_desc"

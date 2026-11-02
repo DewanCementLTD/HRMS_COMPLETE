@@ -255,17 +255,20 @@ export const createLocation = async (req, res, next) => {
 export const editLocation = async (req, res, next) => {
   try {
     const { lcode } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
     const { descr, sname, regioncode, city } = res.locals.validated.body;
-    handleResult(res, await refService.updateLocation(lcode, descr, sname || descr, regioncode || "", city || ""));
+    // Only the selected company's branch — the same code can belong to others.
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateLocation(lcode, descr, sname || descr, regioncode || "", city || "", company));
   } catch (err) { next(err); }
 };
 
 export const createEmpStatus = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
     const { descr } = res.locals.validated.body;
-    const company = await setupCompany(admin_card_no, compc);
-    handleResult(res, await refService.addEmpStatus(descr, company));
+    // Employee statuses are global — stamped with no company (UNIT_ID NULL) so
+    // every company's employee form lists them.
+    handleResult(res, await refService.addEmpStatus(descr, null));
   } catch (err) { next(err); }
 };
 
@@ -316,10 +319,9 @@ export const removeBankBranch = async (req, res, next) => {
 
 export const createQualification = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
     const { descr } = res.locals.validated.body;
-    const company = await setupCompany(admin_card_no, compc);
-    handleResult(res, await refService.addQualification(descr, company));
+    // Qualifications are global — stamped with no company (UNIT_ID NULL).
+    handleResult(res, await refService.addQualification(descr, null));
   } catch (err) { next(err); }
 };
 
@@ -418,6 +420,43 @@ export const editDesignationFpo = async (req, res, next) => {
     const { fpo_amount } = res.locals.validated.body;
     const company = await setupCompany(admin_card_no, compc);
     handleResult(res, await refService.updateDesignationFpo(desg_cd, fpo_amount, company));
+  } catch (err) { next(err); }
+};
+
+export const editDepartment = async (req, res, next) => {
+  try {
+    const { dept_no } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const { dept_name } = res.locals.validated.body;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateDepartment(dept_no, dept_name, company));
+  } catch (err) { next(err); }
+};
+
+export const removeDepartment = async (req, res, next) => {
+  try {
+    const { dept_no } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.deleteDepartment(dept_no, company));
+  } catch (err) { next(err); }
+};
+
+export const editDesignation = async (req, res, next) => {
+  try {
+    const { desg_cd } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.updateDesignation(desg_cd, res.locals.validated.body, company));
+  } catch (err) { next(err); }
+};
+
+export const removeDesignation = async (req, res, next) => {
+  try {
+    const { desg_cd } = res.locals.validated.params;
+    const { admin_card_no, compc } = res.locals.validated.query;
+    const company = await setupCompany(admin_card_no, compc);
+    handleResult(res, await refService.deleteDesignation(desg_cd, company));
   } catch (err) { next(err); }
 };
 

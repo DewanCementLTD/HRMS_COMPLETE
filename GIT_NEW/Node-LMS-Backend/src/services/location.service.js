@@ -627,8 +627,10 @@ const buildOptionalFilters = ({ region, category }, binds) => {
       binds[`rg${i}`] = v;
     });
     const placeholders = regions.map((_, i) => `:rg${i}`).join(", ");
+    // Matched on company + branch: branch codes repeat per company in some
+    // schemas (YDC), so the code alone would pull in other companies' branches.
     clauses.push(
-      `TO_CHAR(h.LOCATION) IN (SELECT TO_CHAR(LCODE) FROM COM_LOCATION WHERE REGIONCODE IN (${placeholders}))`,
+      `(TO_CHAR(h.UNIT_ID), TO_CHAR(h.LOCATION)) IN (SELECT TO_CHAR(COMPC), TO_CHAR(LCODE) FROM COM_LOCATION WHERE REGIONCODE IN (${placeholders}))`,
     );
   }
 

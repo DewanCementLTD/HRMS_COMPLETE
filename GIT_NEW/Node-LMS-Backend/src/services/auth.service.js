@@ -4,6 +4,7 @@ import { logger } from '../utils/logger.js';
 import { issueEmployeeToken, employeeSessionDays } from './employeeSession.service.js';
 import { getWorkSchedule } from './workSchedule.service.js';
 import { isActiveStatus, LEFT_EMPLOYEE_MESSAGE } from '../utils/employeeStatus.js';
+import { branchNameSql } from '../utils/branchName.js';
 const OBJ = { outFormat: 4002 };
 
 // ---------------------------------------------------------------------------
@@ -239,12 +240,23 @@ const authenticateStep = async (username, password) => {
            FROM SEC_USERBRCH sb
            LEFT JOIN COM_LOCATION cl ON TO_CHAR(cl.LCODE) = TO_CHAR(sb.BRNCH)
            WHERE sb.USRID = :usrid
-           ORDER BY sb.BRNCH`,
+           ORDER BY cl.COMPC, sb.BRNCH`,
           { usrid: usridNumeric },
           OBJ
         );
-        const rows = r.rows ?? [];
-        branches = rows.map((row) => String(row.brnch));
+        // SEC_USERBRCH holds only a branch code, and codes repeat across
+        // companies (YDC: code 3 is a branch of companies 2, 3 and 4), so the
+        // join above returns one row per company owning the code. A branch
+        // right applies to the user's own companies (SEC_USERCMPN): keep the
+        // rows of those companies, and fall back to every row only when none
+        // of them owns the code, as before.
+        const own = new Set(companies);
+        const all = r.rows ?? [];
+        const rows = all.filter((row) => {
+          const mine = all.filter((x) => String(x.brnch) === String(row.brnch) && own.has(String(x.compc ?? '').trim()));
+          return mine.length === 0 || own.has(String(row.compc ?? '').trim());
+        });
+        branches = [...new Set(rows.map((row) => String(row.brnch)))];
         branchList = rows.map((row) => ({
           code: String(row.brnch),
           name: String(row.name ?? row.brnch),
@@ -491,9 +503,9 @@ export const getProfile = async (card_no) => {
             (SELECT MIN(u.UNIT_NAME) FROM UNIT_MST u WHERE TO_CHAR(u.UNIT_ID) = TO_CHAR(h.UNIT_ID)))
                                                    AS "compcnm",
         TO_CHAR(h.LOCATION)                        AS "brnch",
-        (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))
+        ${branchNameSql('h.LOCATION', 'h.UNIT_ID')}
                                                    AS "brnchnm",
-        (SELECT MIN(l.CITY)  FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))
+        ${branchNameSql('h.LOCATION', 'h.UNIT_ID', 'CITY')}
                                                    AS "location",
         h.PATH                                     AS "photo_path"
       FROM HR_EMP_MASTER h

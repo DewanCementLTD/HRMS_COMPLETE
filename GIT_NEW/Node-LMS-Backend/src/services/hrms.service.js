@@ -17,6 +17,7 @@ import {
   empDirectFilter,
 } from "../utils/hrmsFilters.js";
 import { cleanHHMM, deriveRosterDay } from "../utils/rosterStatus.js";
+import { branchNameSql } from "../utils/branchName.js";
 import { requestDutyRosterBuild } from "./dutyRosterGen.service.js";
 
 import { logger } from '../utils/logger.js';
@@ -544,7 +545,7 @@ export const getEmployeeCard = async (empcode) => {
             (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)) AS DEPARTMENT,
             (SELECT u.UNIT_NAME FROM UNIT_MST u WHERE u.UNIT_ID = m.UNIT_ID) AS COMPANY_NAME,
-            (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE) = TRIM(m.LOCATION)) AS BRANCH_NAME,
+            ${branchNameSql("m.LOCATION", "m.UNIT_ID")} AS BRANCH_NAME,
             TO_CHAR(m.UNIT_ID) AS COMPC
          FROM HR_EMP_MASTER m
          WHERE m.EMPCODE = :e`,
@@ -1536,8 +1537,7 @@ export const getUnpostedPunches = async (fromDate, toDate, allowedCompanies = nu
       SELECT h.NAME                                   AS name,
              ar.EMPCODE                               AS empcode,
              NVL(h."ATDTCARD#", TO_CHAR(ar.CARD_NO))  AS atdtcard,
-             (SELECT MIN(l.DESCR) FROM COM_LOCATION l
-               WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))            AS branch_name,
+             ${branchNameSql("h.LOCATION", "h.UNIT_ID")}            AS branch_name,
              (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
                  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))       AS dept_name,
@@ -1596,10 +1596,9 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
           TO_CHAR(v.CARD_NO)                       AS card_no,
           h.NAME                                   AS name,
           TRIM(h.LOCATION)                         AS branch_code,
-          -- COM_LOCATION.LCODE is globally unique, so no COMPC scoping needed
-          -- here (unlike HR_DEPT below, whose codes repeat per company).
-          (SELECT MIN(l.DESCR) FROM COM_LOCATION l
-             WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))         AS branch_name,
+          -- Branch codes repeat per company in some schemas (YDC), so the
+          -- name is matched on the employee's company too, like HR_DEPT below.
+          ${branchNameSql("h.LOCATION", "h.UNIT_ID")}         AS branch_name,
           (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
              WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
                AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))    AS dept_name,

@@ -166,6 +166,24 @@ export const editDesignationFpoSchema = editSchema(
   { desg_cd: z.string().min(1) }, { fpo_amount: z.coerce.number().min(0, "FPO cannot be negative") });
 export const editEmpStatusSchema = editSchema(
   { emp_status: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
+export const editDepartmentSchema = editSchema(
+  { dept_no: z.string().min(1) }, { dept_name: z.string().trim().min(1, "Department name is required") });
+export const removeDepartmentSchema = z.object({
+  params: z.object({ dept_no: z.string().min(1) }),
+  query: editQuery,
+});
+// Grade, description and FPO together; FPO 0 clears it.
+export const editDesignationSchema = editSchema(
+  { desg_cd: z.string().min(1) },
+  {
+    grade_cd: z.string().trim().min(1, "Grade is required"),
+    desg_desc: z.string().trim().min(1, "Description is required"),
+    fpo_amount: z.coerce.number().min(0, "FPO cannot be negative"),
+  });
+export const removeDesignationSchema = z.object({
+  params: z.object({ desg_cd: z.string().min(1) }),
+  query: editQuery,
+});
 export const editQualificationSchema = editSchema(
   { descr: z.string().min(1) }, { descr: z.string().min(1, "Description is required") });
 export const editBankSchema = editSchema(

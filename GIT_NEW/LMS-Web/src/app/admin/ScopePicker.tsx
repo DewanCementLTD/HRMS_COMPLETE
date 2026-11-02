@@ -49,6 +49,13 @@ export function ScopePicker({
         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
       />
       <span className="text-sm text-gray-700 truncate">{b.name}</span>
+      {/* SEC_USERBRCH stores only the code, so a code shared by several
+          companies is granted for each of the user's companies that has it. */}
+      {branches.filter((x) => x.code === b.code).length > 1 && (
+        <span className="text-[10px] text-amber-600 whitespace-nowrap" title="This branch code exists in more than one company; it applies to each assigned company that has it.">
+          shared code
+        </span>
+      )}
       <span className="ml-auto text-[11px] text-gray-400">#{b.code}</span>
     </label>
   );

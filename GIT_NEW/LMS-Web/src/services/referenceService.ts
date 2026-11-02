@@ -145,8 +145,9 @@ export const addUnit        = (adminCardNo: string, unit_name: string) =>
 export const addLocation    = (adminCardNo: string, descr: string, sname: string, regioncode: string, city: string, compc?: string) =>
   apiRequest<Location>(`/reference/locations${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "POST", body: { descr, sname, regioncode, city } });
 
-export const updateLocation = (adminCardNo: string, lcode: string, descr: string, sname: string, regioncode: string, city: string) =>
-  apiRequest<Location>(`/reference/locations/${encodeURIComponent(lcode)}${q(adminCardNo)}`, { method: "PUT", body: { lcode, descr, sname, regioncode, city } });
+// compc limits the edit to that company's branch: branch codes repeat across companies.
+export const updateLocation = (adminCardNo: string, lcode: string, descr: string, sname: string, regioncode: string, city: string, compc?: string) =>
+  apiRequest<Location>(`/reference/locations/${encodeURIComponent(lcode)}${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "PUT", body: { lcode, descr, sname, regioncode, city } });
 
 // ── Per-company lookup management (Setup section) ──
 const qc = (adminCardNo: string, compc?: string) =>
@@ -191,6 +192,20 @@ const put = (path: string, adminCardNo: string, body: Record<string, string>, co
 // FPO of a designation (HR_DESG.FPO_AMOUNT) — deducted from earned gross in the PF formula.
 export const updateDesignationFpo = (adminCardNo: string, desgCd: string, fpo_amount: string, compc?: string) =>
   put(`designations/${encodeURIComponent(desgCd)}/fpo`, adminCardNo, { fpo_amount }, compc);
+
+export const updateDesignation = (
+  adminCardNo: string, desgCd: string,
+  body: { grade_cd: string; desg_desc: string; fpo_amount: string }, compc?: string,
+) => put(`designations/${encodeURIComponent(desgCd)}`, adminCardNo, body, compc);
+
+export const deleteDesignation = (adminCardNo: string, desgCd: string, compc?: string) =>
+  apiRequest(`/reference/designations/${encodeURIComponent(desgCd)}${qc(adminCardNo, compc)}`, { method: "DELETE" });
+
+export const updateDepartment = (adminCardNo: string, deptNo: string | number, dept_name: string, compc?: string) =>
+  put(`departments/${encodeURIComponent(String(deptNo))}`, adminCardNo, { dept_name }, compc);
+
+export const deleteDepartment = (adminCardNo: string, deptNo: string | number, compc?: string) =>
+  apiRequest(`/reference/departments/${encodeURIComponent(String(deptNo))}${qc(adminCardNo, compc)}`, { method: "DELETE" });
 
 export const updateEmpStatus = (adminCardNo: string, empStatus: string, descr: string, compc?: string) =>
   put(`emp-statuses/${encodeURIComponent(empStatus)}`, adminCardNo, { descr }, compc);

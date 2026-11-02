@@ -64,8 +64,12 @@ export function LocationReportsPanel({ adminCardNo }: { adminCardNo: string }) {
   const branchLocked = !!activeBranch;
   const [branchFilter, setBranchFilter] = useState("");
   const effectiveBranch = branchLocked ? activeBranch : (branchFilter || undefined);
+  // Only the selected company's branches: branch codes repeat across companies.
+  const companyBranches = (user?.branch_list ?? []).filter(
+    (b) => !activeCompany || !b.compc || String(b.compc) === String(activeCompany)
+  );
   const lockedBranchName =
-    user?.branch_list?.find((b) => b.code === activeBranch)?.name || activeBranch;
+    companyBranches.find((b) => b.code === activeBranch)?.name || activeBranch;
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -219,7 +223,7 @@ export function LocationReportsPanel({ adminCardNo }: { adminCardNo: string }) {
           ) : (
             <SearchableSelect value={branchFilter} onChange={(v) => setBranchFilter(v)}
               placeholder="All Branches" className="min-w-[12rem]"
-              options={(user?.branch_list || []).map((b) => ({ value: b.code, label: b.name }))} />
+              options={companyBranches.map((b) => ({ value: b.code, label: b.name }))} />
           )}
         </div>
 

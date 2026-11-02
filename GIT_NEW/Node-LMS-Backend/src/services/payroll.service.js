@@ -13,6 +13,7 @@
 
 import { getDirectConnection } from "../config/database.js";
 import { logger } from "../utils/logger.js";
+import { branchNameSql } from "../utils/branchName.js";
 
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
@@ -981,7 +982,7 @@ export const getPayslip = async (compc, empcode, period, { finalOnly = false } =
               NVL(m.W_DAY,0), NVL(m.ABSENT_DAYS,0), NVL(m.TOTAL_EARNING,0), m.SAL, m.GRADE_CD, m.DEPT_NO,
               m.LOCATION, m.BNKACCT, m.EMP_STATUS, m.OLD_EMPCODE,
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
-              (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(m.LOCATION))
+              ${branchNameSql("m.LOCATION", "m.UNIT_ID")}
        FROM ${masterTable} m
        WHERE m.OLD_EMPCODE IN (:e, :ec) AND m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
        FETCH FIRST 1 ROWS ONLY`,
@@ -1014,7 +1015,7 @@ export const getPayslip = async (compc, empcode, period, { finalOnly = false } =
                    AND TO_CHAR(dg.COMPC)=TO_CHAR(HR_EMP_MASTER.UNIT_ID)),
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                  WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(HR_EMP_MASTER.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(HR_EMP_MASTER.UNIT_ID)),
-              (SELECT MIN(l.DESCR) FROM COM_LOCATION l WHERE TRIM(l.LCODE)=TRIM(HR_EMP_MASTER.LOCATION)),
+              ${branchNameSql("HR_EMP_MASTER.LOCATION", "HR_EMP_MASTER.UNIT_ID")},
               (SELECT MIN(s.EMP_STATUS_DESC) FROM HR_EMP_STATUS s WHERE s.EMP_STATUS = HR_EMP_MASTER.EMP_STATUS),
               BNKACCT, (SELECT MIN(u2.UNIT_NAME) FROM UNIT_MST u2 WHERE u2.UNIT_ID = HR_EMP_MASTER.UNIT_ID),
               EMPCODE

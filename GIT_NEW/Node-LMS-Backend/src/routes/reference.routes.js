@@ -77,6 +77,16 @@ router.post("/designations", validate(schemas.addDesignationSchema), requireHrAd
 //     Body: { "fpo_amount": 300 }   — HR_DESG.FPO_AMOUNT, used by the PF formula
 router.put("/designations/:desg_cd/fpo", validate(schemas.editDesignationFpoSchema), requireHrAdmin, controllers.editDesignationFpo);
 
+// [-] http://localhost:8000/reference/designations/3?admin_card_no=100001.1&compc=1
+//     Body: { "grade_cd": "G1", "desg_desc": "Officer", "fpo_amount": 625 }
+router.put("/designations/:desg_cd", validate(schemas.editDesignationSchema), requireHrAdmin, controllers.editDesignation);
+router.delete("/designations/:desg_cd", validate(schemas.removeDesignationSchema), requireHrAdmin, controllers.removeDesignation);
+
+// [-] http://localhost:8000/reference/departments/5?admin_card_no=100001.1&compc=1
+//     Body: { "dept_name": "Accounts" }
+router.put("/departments/:dept_no", validate(schemas.editDepartmentSchema), requireHrAdmin, controllers.editDepartment);
+router.delete("/departments/:dept_no", validate(schemas.removeDepartmentSchema), requireHrAdmin, controllers.removeDepartment);
+
 // [-] http://localhost:8000/reference/shifts?admin_card_no=100001.1
 //     Body: { "shift": "T", "shift_desc": "Test Shift", "time_from": "09:00", "time_to": "18:00" }
 router.post("/shifts", validate(schemas.shiftSchema), requireHrAdmin, controllers.createShift);

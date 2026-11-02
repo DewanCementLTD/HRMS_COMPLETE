@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, updateDesignationFpo, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
+  fetchDepartments, fetchGrades, fetchDesignations, updateDesignation, deleteDesignation, updateDepartment, deleteDepartment, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
   fetchLeaveTypes, type LeaveTypeMaster,
 } from "@/services/referenceService";
 import { ShiftsSection } from "./ShiftsSection";
@@ -72,12 +72,17 @@ const GROUPS: SetupGroup[] = [
 
 // ─── Inline add row ───────────────────────────────────────
 
+type AddField = { key: string; label: string; placeholder: string; optional?: boolean; col?: number };
+
 function AddRow({
   fields,
   onSave,
+  columnCount,
 }: {
-  fields: { key: string; label: string; placeholder: string; optional?: boolean }[];
+  fields: AddField[];
   onSave: (values: Record<string, string>) => Promise<void>;
+  /** When set, one cell per table column; each field sits under its `col` (default: its index). */
+  columnCount?: number;
 }) {
   const [values, setValues] = useState<Record<string, string>>(() =>
     Object.fromEntries(fields.map((f) => [f.key, ""]))
@@ -102,20 +107,27 @@ function AddRow({
     }
   }
 
+  const inputFor = (f: AddField) => (
+    <input
+      type="text"
+      value={values[f.key]}
+      onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
+      onKeyDown={(e) => e.key === "Enter" && handleSave()}
+      placeholder={f.placeholder}
+      className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+    />
+  );
+
   return (
     <tr className="bg-indigo-50/60">
-      {fields.map((f) => (
-        <td key={f.key} className="px-4 py-2">
-          <input
-            type="text"
-            value={values[f.key]}
-            onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
-            onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            placeholder={f.placeholder}
-            className="w-full border border-indigo-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          />
-        </td>
-      ))}
+      {columnCount === undefined
+        ? fields.map((f) => (
+            <td key={f.key} className="px-4 py-2">{inputFor(f)}</td>
+          ))
+        : Array.from({ length: columnCount }, (_, c) => {
+            const f = fields.find((x, i) => (x.col ?? i) === c);
+            return <td key={c} className="px-4 py-2">{f && inputFor(f)}</td>;
+          })}
       <td className="px-4 py-2">
         <div className="flex items-center gap-2">
           <button
@@ -145,32 +157,43 @@ function MasterTable({
   onDelete,
   onEdit,
   editColumn = 1,
+  editColumns,
+  editOptions,
 }: {
   columns: string[];
   rows: (string | number | null | undefined)[][];
   loading: boolean;
   onRefresh: () => void;
-  addFields: { key: string; label: string; placeholder: string }[];
+  addFields: AddField[];
   onAdd: (values: Record<string, string>) => Promise<void>;
   onDelete?: (rowIndex: number) => Promise<void>;
-  /** Save a new value for the row's editable column. */
-  onEdit?: (rowIndex: number, value: string) => Promise<void>;
+  /**
+   * Save the edited row. `value` is the first edited column; `values` holds
+   * every edited column by index (for tables that edit more than one).
+   */
+  onEdit?: (rowIndex: number, value: string, values: Record<number, string>) => Promise<void>;
   /** Which column the inline editor edits (the name/description). */
   editColumn?: number;
+  /** Several editable columns instead of `editColumn`. */
+  editColumns?: number[];
+  /** Columns edited with a dropdown instead of a text box. */
+  editOptions?: Record<number, { value: string; label: string }[]>;
 }) {
+  const editCols = editColumns ?? [editColumn];
   const [showAdd, setShowAdd] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
   const [editingRow, setEditingRow] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState("");
+  const [editValues, setEditValues] = useState<Record<number, string>>({});
   const [savingEdit, setSavingEdit] = useState(false);
 
   async function saveEdit(i: number) {
     if (!onEdit) return;
-    const v = editValue.trim();
+    const vals = Object.fromEntries(editCols.map((c) => [c, (editValues[c] ?? "").trim()]));
+    const v = vals[editCols[0]];
     if (!v) return;
     setSavingEdit(true);
     try {
-      await onEdit(i, v);
+      await onEdit(i, v, vals);
       setEditingRow(null);
       onRefresh();
     } catch (e) {
@@ -229,6 +252,7 @@ function MasterTable({
             {showAdd && (
               <AddRow
                 fields={addFields}
+                columnCount={addFields.some((f) => f.col !== undefined) ? columns.length : undefined}
                 onSave={async (vals) => {
                   await onAdd(vals);
                   setShowAdd(false);
@@ -260,17 +284,33 @@ function MasterTable({
                 <tr key={i} className={`transition-colors ${editing ? "bg-indigo-50" : "hover:bg-gray-50"}`}>
                   {row.map((cell, j) => (
                     <td key={j} className="px-4 py-2.5 text-sm text-gray-700">
-                      {editing && j === editColumn ? (
-                        <input
-                          autoFocus
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") saveEdit(i);
-                            if (e.key === "Escape") setEditingRow(null);
-                          }}
-                          className="w-full border border-indigo-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                        />
+                      {editing && editCols.includes(j) ? (
+                        editOptions?.[j] ? (
+                          <select
+                            value={editValues[j] ?? ""}
+                            onChange={(e) => setEditValues((v) => ({ ...v, [j]: e.target.value }))}
+                            className="w-full border border-indigo-300 rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                          >
+                            {/* Keep the row's current value selectable even if the list lacks it. */}
+                            {!editOptions[j].some((o) => o.value === String(cell ?? "")) && (
+                              <option value={String(cell ?? "")}>{String(cell ?? "")}</option>
+                            )}
+                            {editOptions[j].map((o) => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            autoFocus={j === editCols[0]}
+                            value={editValues[j] ?? ""}
+                            onChange={(e) => setEditValues((v) => ({ ...v, [j]: e.target.value }))}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveEdit(i);
+                              if (e.key === "Escape") setEditingRow(null);
+                            }}
+                            className="w-full border border-indigo-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                          />
+                        )
                       ) : (
                         cell ?? "—"
                       )}
@@ -301,7 +341,7 @@ function MasterTable({
                           <button
                             onClick={() => {
                               setEditingRow(i);
-                              setEditValue(String(row[editColumn] ?? ""));
+                              setEditValues(Object.fromEntries(editCols.map((c) => [c, String(row[c] ?? "")])));
                             }}
                             className="text-indigo-600 hover:text-indigo-800"
                             title="Edit"
@@ -364,7 +404,7 @@ function LocationsTable({
     setSaving(true);
     setEditError(null);
     try {
-      await updateLocation(adminCardNo, editLcode!, editVals.descr, editVals.sname || editVals.descr, editVals.regioncode, editVals.city);
+      await updateLocation(adminCardNo, editLcode!, editVals.descr, editVals.sname || editVals.descr, editVals.regioncode, editVals.city, compc);
       setEditLcode(null);
       onRefresh();
     } catch (e) {
@@ -597,10 +637,12 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           ]);
           setShifts(r.items); setShiftLov(l.items); break;
         }
-        case "blood_groups": { const r = await fetchBloodGroups(activeCompany, activeBranch);  setBgs(r.items);    break; }
+        // Blood groups, employee statuses and qualifications are global — not
+        // filtered by the selected company/branch.
+        case "blood_groups": { const r = await fetchBloodGroups();  setBgs(r.items);    break; }
         case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
-        case "emp_statuses": { const r = await fetchEmpStatuses(activeCompany); setEmpStatuses(r.items); break; }
-        case "qualifications": { const r = await fetchQualifications(activeCompany); setQuals(r.items); break; }
+        case "emp_statuses": { const r = await fetchEmpStatuses(); setEmpStatuses(r.items); break; }
+        case "qualifications": { const r = await fetchQualifications(); setQuals(r.items); break; }
         case "interview_types": { const r = await fetchInterviewTypes(activeCompany, activeBranch); setIvTypes(r.items); break; }
         case "leave_types":  { const r = await fetchLeaveTypes(activeCompany, activeBranch); setLeaveTypes(r.items); break; }
         case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
@@ -637,11 +679,13 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("departments")}
       addFields={[
-        { key: "dept_name", label: "Department Name", placeholder: "e.g. Human Resources" },
+        { key: "dept_name", label: "Department Name", placeholder: "e.g. Human Resources", col: 1 },
       ]}
       onAdd={async (v) => {
         await addDepartment(adminCardNo, v.dept_name);
       }}
+      onEdit={async (i, v) => { await updateDepartment(adminCardNo, depts[i].dept_no, v, activeCompany); }}
+      onDelete={async (i) => { await deleteDepartment(adminCardNo, depts[i].dept_no, activeCompany); }}
     />
   );
 
@@ -666,7 +710,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           ))}
         </select>
         <span className="text-xs text-gray-400 ml-auto">
-          Click the pencil on a row to set its PF FPO (e.g. 625 below Manager, 300 Manager &amp; above) — PF = (earned gross − FPO) ÷ 1.55 × 8.33%.
+          Click the pencil on a row to edit its grade, description and PF FPO (e.g. 625 below Manager, 300 Manager &amp; above) — PF = (earned gross − FPO) ÷ 1.55 × 8.33%.
         </span>
       </div>
       <MasterTable
@@ -674,15 +718,21 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         rows={filteredDesigs.map((d) => [d.grade_cd, d.desg_cd, d.desg_desc, d.fpo_amount])}
         loading={loading}
         onRefresh={() => load("designations")}
-        editColumn={3}
-        onEdit={async (i, v) => {
-          const n = Number(v);
+        editColumns={[0, 2, 3]}
+        editOptions={{ 0: grades.map((g) => ({ value: g.grade_cd, label: `${g.grade_cd} — ${g.descr}` })) }}
+        onEdit={async (i, _v, vals) => {
+          if (!vals[2]) throw new Error("Description is required");
+          const n = vals[3] === "" ? 0 : Number(vals[3]);
           if (!Number.isFinite(n) || n < 0) throw new Error("Enter the FPO amount in rupees, e.g. 625 or 300 (0 to clear)");
-          await updateDesignationFpo(adminCardNo, filteredDesigs[i].desg_cd, String(n), activeCompany);
+          await updateDesignation(
+            adminCardNo, filteredDesigs[i].desg_cd,
+            { grade_cd: vals[0], desg_desc: vals[2], fpo_amount: String(n) }, activeCompany,
+          );
         }}
+        onDelete={async (i) => { await deleteDesignation(adminCardNo, filteredDesigs[i].desg_cd, activeCompany); }}
         addFields={[
-          { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1" },
-          { key: "desg_desc", label: "Designation",  placeholder: "e.g. Senior Officer" },
+          { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1", col: 0 },
+          { key: "desg_desc", label: "Designation",  placeholder: "e.g. Senior Officer", col: 2 },
         ]}
         onAdd={async (v) => {
           await addDesignation(adminCardNo, v.grade_cd, v.desg_desc);
@@ -704,7 +754,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
-  // ── Blood Groups ─────────────────────────────────────────
+  // ── Blood Groups (global) ────────────────────────────────
   const bgTable = (
     <MasterTable
       columns={["ID", "Blood Group"]}
@@ -733,7 +783,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
-  // ── Employee Status (per company) ────────────────────────
+  // ── Employee Status (global) ─────────────────────────────
   const empStatusTable = (
     <MasterTable
       columns={["Code", "Description"]}
@@ -747,7 +797,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     />
   );
 
-  // ── Qualifications (per company) ─────────────────────────
+  // ── Qualifications (global) ──────────────────────────────
   const qualTable = (
     <MasterTable
       columns={["Qualification"]}
@@ -822,7 +872,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     </div>
   );
 
-  // ── Leave types (per company + branch; the standard set is read-only) ──
+  // ── Leave types (per company + branch; the standard set is shared) ──
   const leaveTypeTable = (
     <LeaveTypesSection
       items={leaveTypes}

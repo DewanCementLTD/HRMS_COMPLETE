@@ -459,17 +459,18 @@ export const getShiftLov = async (compc = null, brnch = null) => {
   }
 };
 
+// Blood groups are the same for every company and branch, so the list is global
+// (the COMPC/BRNCH filter hid AB-, stamped branch 1, from branch 2, and so on).
 export const getBloodGroups = async (compc = null, brnch = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
-    const rows = await tryProgressive(
-      conn,
-      "SELECT BLOOD_GROUP_PK, BLOOD_GROUP FROM BLOOD_GROUP WHERE 1=1 {filter} ORDER BY BLOOD_GROUP_PK",
-      compc,
-      brnch
+    const res = await conn.execute(
+      "SELECT BLOOD_GROUP_PK, BLOOD_GROUP FROM BLOOD_GROUP ORDER BY BLOOD_GROUP_PK",
+      {},
+      { outFormat: OUT_FORMAT_ARRAY }
     );
-    return rows.map((r) => ({ pk: r[0], blood_group: r[1] }));
+    return (res.rows || []).map((r) => ({ pk: r[0], blood_group: r[1] }));
   } finally {
     if (conn) await conn.close();
   }
@@ -719,6 +720,82 @@ export const addDesignation = async (gradeCd, desgDesc, compc = 1, brnch = 1) =>
   }
 };
 
+// ── Department / designation edit + delete ──────────────────────
+// HR_DEPT and HR_DESG are keyed by (code, COMPC), so every change is scoped to
+// the company the row belongs to. Neither table has foreign keys, so a delete
+// is refused while employees still carry the code — it would orphan them.
+
+const empUsing = async (conn, col, code, compc) => {
+  const res = await conn.execute(
+    `SELECT COUNT(*) FROM HR_EMP_MASTER WHERE ${col} = :cd AND TO_CHAR(UNIT_ID) = TO_CHAR(:compc)`,
+    { cd: coerce(code), compc },
+    { outFormat: OUT_FORMAT_ARRAY }
+  );
+  return Number(res.rows[0][0]);
+};
+
+export const updateDepartment = async (deptNo, deptName, compc) =>
+  scopedUpdate(
+    "UPDATE HR_DEPT SET DEPT_NAME = :name, USR_DATE_UPD = SYSDATE WHERE DEPT_NO = :d AND TO_CHAR(COMPC) = TO_CHAR(:compc)",
+    { name: String(deptName).trim(), d: coerce(deptNo), compc },
+    "Department not found in this company."
+  );
+
+export const deleteDepartment = async (deptNo, compc) => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const n = await empUsing(conn, "DEPT_NO", deptNo, compc);
+    if (n > 0) {
+      return { status: "error", message: `This department is assigned to ${n} employee(s) — move them to another department first.` };
+    }
+  } catch (e) {
+    return { status: "error", message: e.message };
+  } finally {
+    if (conn) await conn.close();
+  }
+  return scopedUpdate(
+    "DELETE FROM HR_DEPT WHERE DEPT_NO = :d AND TO_CHAR(COMPC) = TO_CHAR(:compc)",
+    { d: coerce(deptNo), compc },
+    "Department not found in this company."
+  );
+};
+
+export const updateDesignation = async (desgCd, { grade_cd, desg_desc, fpo_amount }, compc) =>
+  scopedUpdate(
+    `UPDATE HR_DESG
+        SET GRADE_CD = :g, DESG_DESC = :desg_text, FPO_AMOUNT = :fpo, USR_DATE_UPD = SYSDATE
+      WHERE DESG_CD = :cd AND TO_CHAR(COMPC) = TO_CHAR(:compc)`,
+    {
+      g: String(grade_cd).trim(),
+      desg_text: String(desg_desc).trim(),
+      fpo: fpo_amount === null || fpo_amount === undefined ? null : Number(fpo_amount),
+      cd: coerce(desgCd),
+      compc,
+    },
+    "Designation not found in this company."
+  );
+
+export const deleteDesignation = async (desgCd, compc) => {
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const n = await empUsing(conn, "DESG_CD", desgCd, compc);
+    if (n > 0) {
+      return { status: "error", message: `This designation is assigned to ${n} employee(s) — change their designation first.` };
+    }
+  } catch (e) {
+    return { status: "error", message: e.message };
+  } finally {
+    if (conn) await conn.close();
+  }
+  return scopedUpdate(
+    "DELETE FROM HR_DESG WHERE DESG_CD = :cd AND TO_CHAR(COMPC) = TO_CHAR(:compc)",
+    { cd: coerce(desgCd), compc },
+    "Designation not found in this company."
+  );
+};
+
 const shiftFieldValue = (col, fields) => {
   const raw = fields[col.toLowerCase()];
   if (raw === undefined || raw === null) return null;
@@ -901,13 +978,18 @@ export const addLocation = async (lcode, descr, sname, regioncode, city, compc =
   }
 };
 
-export const updateLocation = async (lcode, descr, sname, regioncode, city) => {
+// Branch codes repeat per company in some schemas (YDC: code 3 is a branch of
+// companies 2, 3 and 4), so the edit is limited to the given company's row —
+// matching on LCODE alone renamed every company's branch with that code.
+export const updateLocation = async (lcode, descr, sname, regioncode, city, compc = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
     const res = await conn.execute(
-      "UPDATE COM_LOCATION SET DESCR=:descr, SNAME=:sname, REGIONCODE=:region, CITY=:city WHERE LCODE=:lcode",
+      `UPDATE COM_LOCATION SET DESCR=:descr, SNAME=:sname, REGIONCODE=:region, CITY=:city
+        WHERE LCODE=:lcode AND (:compc IS NULL OR TO_CHAR(COMPC) = TO_CHAR(:compc))`,
       {
+        compc: compc === null || compc === undefined ? null : String(compc),
         lcode: String(lcode).trim(),
         descr: String(descr).trim(),
         sname: String(sname || descr).trim(),
@@ -956,11 +1038,11 @@ export const deleteEmpStatus = async (empStatus, compc = null) => {
   try {
     conn = await getDirectConnection();
     const res = await conn.execute(
-      "DELETE FROM HR_EMP_STATUS WHERE EMP_STATUS = :c AND UNIT_ID = :u",
-      { c: String(empStatus), u: coerce(compc) },
+      "DELETE FROM HR_EMP_STATUS WHERE EMP_STATUS = :c",
+      { c: String(empStatus) },
       { autoCommit: true }
     );
-    if (res.rowsAffected === 0) return { status: "error", message: "Only entries added for this company can be removed." };
+    if (res.rowsAffected === 0) return { status: "error", message: "Employee status not found." };
     return { status: "success" };
   } catch (e) {
     if (conn) await conn.rollback();
@@ -999,10 +1081,18 @@ export const deleteBank = async (bnkcode, compc = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
-    await conn.execute("DELETE FROM HR_BRANCH WHERE BNKCODE = :c AND UNIT_ID = :u", { c: String(bnkcode), u: coerce(compc) });
-    const res = await conn.execute("DELETE FROM HR_BANK WHERE BNKCODE = :c AND UNIT_ID = :u", { c: String(bnkcode), u: coerce(compc) });
+    // This company's banks plus the shared ones (UNIT_ID NULL) — the rows the
+    // list shows. Its branches go with it instead of being left orphaned.
+    const res = await conn.execute(
+      "DELETE FROM HR_BANK WHERE BNKCODE = :c AND (UNIT_ID = :u OR UNIT_ID IS NULL)",
+      { c: String(bnkcode), u: coerce(compc) }
+    );
+    if (res.rowsAffected === 0) {
+      await conn.rollback();
+      return { status: "error", message: "Bank not found for this company." };
+    }
+    await conn.execute("DELETE FROM HR_BRANCH WHERE BNKCODE = :c", { c: String(bnkcode) });
     await conn.commit();
-    if (res.rowsAffected === 0) return { status: "error", message: "Only banks added for this company can be removed." };
     return { status: "success" };
   } catch (e) {
     if (conn) await conn.rollback();
@@ -1047,11 +1137,11 @@ export const deleteBankBranch = async (bnkcode, brncode, compc = null) => {
   try {
     conn = await getDirectConnection();
     const res = await conn.execute(
-      "DELETE FROM HR_BRANCH WHERE BNKCODE = :b AND BRNCODE = :c AND UNIT_ID = :u",
-      { b: String(bnkcode), c: String(brncode), u: coerce(compc) },
+      "DELETE FROM HR_BRANCH WHERE BNKCODE = :b AND BRNCODE = :c",
+      { b: String(bnkcode), c: String(brncode) },
       { autoCommit: true }
     );
-    if (res.rowsAffected === 0) return { status: "error", message: "Only branches added for this company can be removed." };
+    if (res.rowsAffected === 0) return { status: "error", message: "Branch not found." };
     return { status: "success" };
   } catch (e) {
     if (conn) await conn.rollback();
@@ -1085,16 +1175,30 @@ export const addQualification = async (descr, compc = null) => {
   }
 };
 
+// HR_EMP_QUALIFICATION holds both the option rows (EMPCODE NULL — the preset
+// list and anything added here) and employees' own qualification records, and
+// the list is the DISTINCT of both. Only option rows are deleted; employees'
+// records are never removed from here.
 export const deleteQualification = async (descr, compc = null) => {
   let conn;
   try {
     conn = await getDirectConnection();
+    const d = String(descr).trim();
+    const used = await conn.execute(
+      "SELECT COUNT(DISTINCT EMPCODE) FROM HR_EMP_QUALIFICATION WHERE TRIM(DESCR) = :d AND EMPCODE IS NOT NULL",
+      { d },
+      { outFormat: OUT_FORMAT_ARRAY }
+    );
+    const n = Number(used.rows[0][0]);
+    if (n > 0) {
+      return { status: "error", message: `This qualification is recorded on ${n} employee(s) — edit it instead, or change it on those employees first.` };
+    }
     const res = await conn.execute(
-      "DELETE FROM HR_EMP_QUALIFICATION WHERE TRIM(DESCR) = :d AND Q_TYPE = 'OPT' AND UNIT_ID = :u",
-      { d: String(descr).trim(), u: coerce(compc) },
+      "DELETE FROM HR_EMP_QUALIFICATION WHERE TRIM(DESCR) = :d AND EMPCODE IS NULL",
+      { d },
       { autoCommit: true }
     );
-    if (res.rowsAffected === 0) return { status: "error", message: "Only options added for this company can be removed." };
+    if (res.rowsAffected === 0) return { status: "error", message: "Qualification not found." };
     return { status: "success" };
   } catch (e) {
     if (conn) await conn.rollback();
@@ -1229,10 +1333,10 @@ export const removeInterviewType = async (type_id, compc = null) => {
     conn = await getDirectConnection();
     const res = await conn.execute(`
         UPDATE INTERVIEW_TYPES SET IS_ACTIVE = 'N'
-        WHERE TYPE_ID = :id AND COMPC = :c
+        WHERE TYPE_ID = :id AND (COMPC IS NULL OR COMPC = :c)
     `, { id: coerce(type_id), c: coerce(compc) }, { autoCommit: true });
     if (res.rowsAffected === 0) {
-      return { status: "error", message: "Only types added for this company can be removed." };
+      return { status: "error", message: "Interview type not found for this company." };
     }
     return { status: "success" };
   } catch (e) {
@@ -1248,9 +1352,11 @@ export const removeInterviewType = async (type_id, compc = null) => {
 //
 // These master tables could only be added to and deleted from, so fixing a
 // typo meant deleting the row — which fails once employees reference it — and
-// re-adding it under a new code. Each update is scoped by UNIT_ID exactly like
-// the matching delete, so one company cannot rename another's entries; a row
-// belonging to another company simply matches nothing.
+// re-adding it under a new code. Each update matches exactly the rows its list
+// shows: global masters (employee status, qualification, blood group, bank
+// branch) by key alone; company masters by key plus "this company or shared"
+// (UNIT_ID / COMPC NULL), so the preset entries can be changed too, while
+// another company's own entries still match nothing.
 // ═══════════════════════════════════════════════════════════════════
 
 const scopedUpdate = async (sql, params, notMine) => {
@@ -1269,52 +1375,55 @@ const scopedUpdate = async (sql, params, notMine) => {
 
 export const updateEmpStatus = async (empStatus, descr, compc = null) =>
   scopedUpdate(
-    "UPDATE HR_EMP_STATUS SET EMP_STATUS_DESC = :d WHERE EMP_STATUS = :c AND UNIT_ID = :u",
-    { d: String(descr).trim(), c: String(empStatus), u: coerce(compc) },
-    "Only entries added for this company can be edited."
+    "UPDATE HR_EMP_STATUS SET EMP_STATUS_DESC = :d WHERE EMP_STATUS = :c",
+    { d: String(descr).trim(), c: String(empStatus) },
+    "Employee status not found."
   );
 
+// Renames every row carrying the value — option rows and employees' records —
+// since the list is the DISTINCT of both; renaming only some would leave the
+// old spelling listed next to the new one.
 export const updateQualification = async (oldDescr, descr, compc = null) =>
   scopedUpdate(
-    "UPDATE HR_EMP_QUALIFICATION SET DESCR = :d WHERE TRIM(DESCR) = :o AND Q_TYPE = 'OPT' AND UNIT_ID = :u",
-    { d: String(descr).trim(), o: String(oldDescr).trim(), u: coerce(compc) },
-    "Only options added for this company can be edited."
+    "UPDATE HR_EMP_QUALIFICATION SET DESCR = :d WHERE TRIM(DESCR) = :o",
+    { d: String(descr).trim(), o: String(oldDescr).trim() },
+    "Qualification not found."
   );
 
 export const updateBank = async (bnkcode, bnkname, compc = null) =>
   scopedUpdate(
-    "UPDATE HR_BANK SET BNKNAME = :n WHERE BNKCODE = :c AND UNIT_ID = :u",
+    "UPDATE HR_BANK SET BNKNAME = :n WHERE BNKCODE = :c AND (UNIT_ID = :u OR UNIT_ID IS NULL)",
     { n: String(bnkname).trim(), c: String(bnkcode), u: coerce(compc) },
-    "Only banks added for this company can be edited."
+    "Bank not found for this company."
   );
 
 export const updateBankBranch = async (bnkcode, brncode, brnname, compc = null) =>
   scopedUpdate(
-    "UPDATE HR_BRANCH SET BRNNAME = :n WHERE BNKCODE = :b AND BRNCODE = :c AND UNIT_ID = :u",
-    { n: String(brnname).trim(), b: String(bnkcode), c: String(brncode), u: coerce(compc) },
-    "Only branches added for this company can be edited."
+    "UPDATE HR_BRANCH SET BRNNAME = :n WHERE BNKCODE = :b AND BRNCODE = :c",
+    { n: String(brnname).trim(), b: String(bnkcode), c: String(brncode) },
+    "Branch not found."
   );
 
 export const updateInterviewType = async (typeId, descr, compc = null) =>
   scopedUpdate(
-    "UPDATE INTERVIEW_TYPES SET DESCR = :d WHERE TYPE_ID = :t AND TO_CHAR(COMPC) = TO_CHAR(:u)",
+    "UPDATE INTERVIEW_TYPES SET DESCR = :d WHERE TYPE_ID = :t AND (COMPC IS NULL OR TO_CHAR(COMPC) = TO_CHAR(:u))",
     { d: String(descr).trim().substring(0, 50), t: Number(typeId), u: coerce(compc) },
-    "Only interview types added for this company can be edited."
+    "Interview type not found for this company."
   );
 
 export const updateBloodGroup = async (pk, bloodGroup, compc = null) =>
   scopedUpdate(
-    "UPDATE BLOOD_GROUP SET BLOOD_GROUP = :bg WHERE BLOOD_GROUP_PK = :pk AND TO_CHAR(COMPC) = TO_CHAR(:u)",
-    { bg: String(bloodGroup).trim(), pk: Number(pk), u: coerce(compc) },
-    "Only blood groups added for this company can be edited."
+    "UPDATE BLOOD_GROUP SET BLOOD_GROUP = :bg WHERE BLOOD_GROUP_PK = :pk",
+    { bg: String(bloodGroup).trim(), pk: Number(pk) },
+    "Blood group not found."
   );
 
 /** Blood groups had no delete at all — add wired to nothing to remove it. */
 export const deleteBloodGroup = async (pk, compc = null) =>
   scopedUpdate(
-    "DELETE FROM BLOOD_GROUP WHERE BLOOD_GROUP_PK = :pk AND TO_CHAR(COMPC) = TO_CHAR(:u)",
-    { pk: Number(pk), u: coerce(compc) },
-    "Only blood groups added for this company can be removed."
+    "DELETE FROM BLOOD_GROUP WHERE BLOOD_GROUP_PK = :pk",
+    { pk: Number(pk) },
+    "Blood group not found."
   );
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1323,9 +1432,9 @@ export const deleteBloodGroup = async (pk, compc = null) =>
 // The table carries COMPC and BRNCH, but every row shipped with the system is
 // company 1 / branch 2 and is treated as global: reads return the rows for the
 // selected scope PLUS those unscoped ones, so no company loses the standard
-// CL / ML / EL. Writes always stamp the caller's own company and branch, and
-// edits and deletes only match rows carrying them — one company can neither
-// rename another's types nor the shared originals.
+// CL / ML / EL. Writes always stamp the caller's own company and branch; edits
+// and deletes match this company's rows and the shared ones, never another
+// company's own types.
 //
 // A word of warning about new types: ALL_LEAVE_BAL_V, which every balance in
 // the app comes from, hardcodes `leave_type_pk IN (1,2,3)`. A type added here
@@ -1340,8 +1449,8 @@ export const deleteBloodGroup = async (pk, compc = null) =>
  * They are stamped COMPC 1 / BRNCH 2 in the table but are not company 1's in
  * any meaningful sense: ALL_LEAVE_BAL_V joins them against every employee of
  * every company, so CL, ML, EL and OD behave the same everywhere. They are
- * therefore shown to all companies and edited by none — renaming CL or moving
- * its entitlement here would silently change it for all five companies.
+ * shown to all companies and HR can edit them here — note that renaming CL or
+ * moving its entitlement changes it for every company at once.
  *
  * Identified by PK because the table carries no flag to identify them with;
  * everything this panel adds gets a higher one.
@@ -1397,8 +1506,8 @@ export const getLeaveTypes = async (compc = null, brnch = null) => {
         brnch: coerce(r[7]),
         /** True for the standard set every company shares. */
         shared,
-        /** Only this company's own additions can be changed here. */
-        editable: !shared && c !== null && c !== undefined && String(rowCompc ?? "") === String(c),
+        /** Every row this company sees — its own and the standard set — can be changed here. */
+        editable: c !== null && c !== undefined,
         /** What the apply screen can offer — ALL_LEAVE_BAL_V covers 1, 2 and 3. */
         applyable:
           [1, 2, 3].includes(pk) ||
@@ -1475,16 +1584,15 @@ export const updateLeaveType = async (pk, { leave_desc, entitlement, allowed }, 
             ENTITLEMENT = :ent,
             ALLOWED     = :alw
       WHERE LEAVE_TYPE_PK = :pk
-        AND LEAVE_TYPE_PK > ${SYSTEM_LEAVE_TYPE_MAX_PK}
-        AND TO_CHAR(COMPC) = TO_CHAR(:u)`,
+        AND (LEAVE_TYPE_PK <= ${SYSTEM_LEAVE_TYPE_MAX_PK} OR COMPC IS NULL OR TO_CHAR(COMPC) = TO_CHAR(:u))`,
     {
-      d: String(leave_desc ?? "").trim().substring(0, 50),
+      d:String(leave_desc ?? "").trim().substring(0, 50),
       ent: entitlement === "" || entitlement === null || entitlement === undefined ? null : Number(entitlement),
       alw: allowed === "" || allowed === null || allowed === undefined ? null : Number(allowed),
       pk: Number(pk),
       u: coerce(compc),
     },
-    "Only leave types added for this company can be edited — the standard ones are shared by every company.",
+    "Leave type not found for this company.",
   );
 
 /**
@@ -1522,9 +1630,8 @@ export const deleteLeaveType = async (pk, compc = null) => {
   return scopedUpdate(
     `DELETE FROM LEAVE_TYPES
       WHERE LEAVE_TYPE_PK = :pk
-        AND LEAVE_TYPE_PK > ${SYSTEM_LEAVE_TYPE_MAX_PK}
-        AND TO_CHAR(COMPC) = TO_CHAR(:u)`,
+        AND (LEAVE_TYPE_PK <= ${SYSTEM_LEAVE_TYPE_MAX_PK} OR COMPC IS NULL OR TO_CHAR(COMPC) = TO_CHAR(:u))`,
     { pk: id, u: coerce(compc) },
-    "Only leave types added for this company can be removed — the standard ones are shared by every company.",
+    "Leave type not found for this company.",
   );
 };

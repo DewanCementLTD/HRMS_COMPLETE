@@ -29,6 +29,7 @@
 
 import { getDirectConnection } from "../config/database.js";
 import { deriveRosterDay } from '../utils/rosterStatus.js';
+import { branchNameSql } from '../utils/branchName.js';
 
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
@@ -1389,8 +1390,7 @@ export const getMonthlyAttendanceReport = async ({
 
     const res = await connection.execute(
       `SELECT TRIM(h.LOCATION)                                   AS BRANCH_CODE,
-              (SELECT MIN(l.DESCR) FROM COM_LOCATION l
-                WHERE TRIM(l.LCODE) = TRIM(h.LOCATION))          AS BRANCH_NAME,
+              ${branchNameSql('h.LOCATION', 'h.UNIT_ID')}          AS BRANCH_NAME,
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                 WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
                   AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))     AS DEPT_NAME,
