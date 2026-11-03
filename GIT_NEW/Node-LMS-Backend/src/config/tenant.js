@@ -21,7 +21,15 @@ export const HOD1_REQUIRED = flag('EMP_FORM_HOD1_REQUIRED', true);
 export const APPROVER_PICKER_SCOPE =
   String(process.env.APPROVER_PICKER_SCOPE ?? '').trim().toLowerCase() === 'all' ? 'all' : 'company';
 
+// Codes the employee form writes for religion and marital status: 'text'
+// (ISLM / S, M, W, D — default) or 'numeric', the YDC ERP's own codes
+// (religion 1 Islam, 2 Hindu, 3 Christian; marital 1 Single, 2 Married).
+// Writing text codes into a numeric schema breaks the ERP's forms and reports.
+export const EMP_CODE_STYLE =
+  String(process.env.EMP_CODE_STYLE ?? '').trim().toLowerCase() === 'numeric' ? 'numeric' : 'text';
+
 export const uiConfig = () => ({
   hod1_required: HOD1_REQUIRED,
   approver_picker_scope: APPROVER_PICKER_SCOPE,
+  emp_code_style: EMP_CODE_STYLE,
 });

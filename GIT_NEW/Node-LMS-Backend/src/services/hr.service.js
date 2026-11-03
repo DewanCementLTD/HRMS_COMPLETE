@@ -39,8 +39,7 @@ export const searchEmployees = async (query) => {
           e.MOBILE_NO,
           e.EMPCODE
       FROM EMPLOYEE e
-      LEFT JOIN HR_EMP_MASTER h ON e.EMPCODE = h.EMPCODE
-      WHERE UPPER(e.EMP_NAME) LIKE :q
+     WHERE UPPER(e.EMP_NAME) LIKE :q
           OR e.MOBILE_NO LIKE :q
           OR TO_CHAR(e.CARD_NO) LIKE :q
           OR UPPER(e.EMPCODE) LIKE :q

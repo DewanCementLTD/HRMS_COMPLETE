@@ -48,10 +48,9 @@ const getEmployeeFlags = async (card_no) => {
     // Attempt 1: EMPLOYEE + HR_EMP_MASTER via EMP_NO join
     try {
       const r = await connection.execute(
-        `SELECT e.EMP_NAME AS "emp_name", NVL(h.HR_ADMIN, 'N') AS "hr_admin", h.EMPCODE AS "empcode"
-         FROM EMPLOYEE e
-         LEFT JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
-         WHERE TO_CHAR(e.CARD_NO) = :card`,
+        `SELECT e.name AS "emp_name", NVL(e.HR_ADMIN, 'N') AS "hr_admin", e.old_empcode AS "empcode"
+         FROM hr_emp_master e
+         WHERE e.old_empcode = :card`,
         { card: card_no },
         OBJ
       );
@@ -73,7 +72,8 @@ const getEmployeeFlags = async (card_no) => {
     // Attempt 3: HR_EMP_MASTER only (via ATDTCARD# or EMPCODE)
     try {
       const r = await connection.execute(
-        `SELECT NAME AS "name", EMPCODE AS "empcode" FROM HR_EMP_MASTER WHERE "ATDTCARD#" = :card OR EMPCODE = :card`,
+        `SELECT NAME AS "name", EMPCODE AS "empcode" FROM HR_EMP_MASTER 
+        WHERE "ATDTCARD#" = :card OR old_EMPCODE = :card`,
         { card: card_no },
         OBJ
       );
@@ -178,10 +178,9 @@ const authenticateStep = async (username, password) => {
 
       if (empcode) {
         const r = await connection.execute(
-          `SELECT TO_CHAR(e.CARD_NO) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode"
+          `SELECT TO_CHAR(h.old_empcode) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode"
            FROM HR_EMP_MASTER h
-           LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-           WHERE h.EMPCODE = :ec`,
+           WHERE h.old_EMPCODE = :ec`,
           { ec: empcode },
           OBJ
         );
@@ -197,9 +196,8 @@ const authenticateStep = async (username, password) => {
         const mvW = mv.startsWith('0') ? mv : `0${mv}`;
         const mvNo0 = mv.startsWith('0') ? mv.substring(1) : mv;
         const r = await connection.execute(
-          `SELECT TO_CHAR(e.CARD_NO) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode"
+          `SELECT TO_CHAR(h.old_empcode) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode"
            FROM HR_EMP_MASTER h
-           LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
            WHERE h."MOBILE#" IN (:mv1, :mv2, :mv3)`,
           { mv1: mv, mv2: mvW, mv3: mvNo0 },
           OBJ
@@ -290,10 +288,9 @@ const authenticateStep = async (username, password) => {
 
     try {
       const r = await connection.execute(
-        `SELECT TO_CHAR(e.CARD_NO) AS "card_no", e.USER_PASWD AS "user_paswd", h.NAME AS "name",
+        `SELECT TO_CHAR(h.old_empcode) AS "card_no", h.user_paswd AS "user_paswd", h.NAME AS "name",
                 h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard", h.STATUS AS "status"
          FROM HR_EMP_MASTER h
-         LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
          WHERE h."MOBILE#" IN (:l1, :l2, :l3)
             OR h."ATDTCARD#" = :l4 OR h.EMPCODE = :l5`,
         { l1: l, l2: lW0, l3: lNo0, l4: l, l5: l },
@@ -477,44 +474,31 @@ export const getProfile = async (card_no) => {
   try {
     connection = await getDirectConnection();
     const sql = `
-      SELECT
-        TO_CHAR(e.CARD_NO)                         AS "card_no",
-        h.EMPCODE                                  AS "empcode",
-        -- The employee code HRMS itself shows. HR_EMP_MASTER.EMPNO exists but is
-        -- null for every row in this database, so EMPCODE is the number, and it
-        -- is only preferred over EMPNO where somebody has started filling that in.
-        NVL(TO_CHAR(h.EMPNO), h.EMPCODE)           AS "emp_no",
-        TO_CHAR(h.DTOFCONFIRM, 'YYYY-MM-DD')       AS "confirmation_date",
-        h.NAME                                     AS "emp_name",
-        -- h.USER_PASWD                               AS "password",
-        d.DEPT_NAME                                AS "department",
-        dg.DESG_DESC                               AS "designation",
-        h.EMAIL                                    AS "email_address",
-        h."MOBILE#"                                AS "mobile_no",
-        TO_CHAR(h.DTOFBRTH, 'YYYY-MM-DD')          AS "date_of_birth",
-        TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD')          AS "date_of_join",
-        h.FHNAME                                   AS "father_name",
-        h.NICNO                                    AS "nic_no",
-        -- Organization block. Company and branch are scalar sub-selects, not
-        -- joins: COMPANY_INFO / COM_LOCATION can hold more than one row per
-        -- code, and a join on them would multiply the profile row.
-        TO_CHAR(h.UNIT_ID)                         AS "compc",
-        NVL((SELECT MIN(ci.DESCR) FROM COMPANY_INFO ci WHERE TO_CHAR(ci.COMPC) = TO_CHAR(h.UNIT_ID)),
-            (SELECT MIN(u.UNIT_NAME) FROM UNIT_MST u WHERE TO_CHAR(u.UNIT_ID) = TO_CHAR(h.UNIT_ID)))
-                                                   AS "compcnm",
-        TO_CHAR(h.LOCATION)                        AS "brnch",
-        ${branchNameSql('h.LOCATION', 'h.UNIT_ID')}
-                                                   AS "brnchnm",
-        ${branchNameSql('h.LOCATION', 'h.UNIT_ID', 'CITY')}
-                                                   AS "location",
-        h.PATH                                     AS "photo_path"
-      FROM HR_EMP_MASTER h
-      LEFT JOIN EMPLOYEE    e  ON e.EMPCODE   = h.EMPCODE
-      LEFT JOIN HR_DEPT     d  ON LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID)
-      LEFT JOIN HR_DESG     dg ON LTRIM(dg.DESG_CD,'0') = LTRIM(h.DESG_CD,'0')  AND TO_CHAR(dg.COMPC) = TO_CHAR(h.UNIT_ID)
-      WHERE TO_CHAR(e.CARD_NO) = :card_no
-         OR h."ATDTCARD#"      = :card_no
-         OR h.EMPCODE          = :card_no
+      SELECT TO_CHAR(h.OLD_EMPCODE) AS "card_no",
+       h.OLD_EMPCODE AS "empcode",
+       NVL(TO_CHAR(h.EMPNO), h.OLD_EMPCODE) AS "emp_no",
+       TO_CHAR(h.DTOFCONFIRM, 'YYYY-MM-DD') AS "confirmation_date",
+       h.NAME AS "emp_name",
+       -- h.USER_PASWD                               AS "password",
+       h.DEPT_NAME AS "department",
+       substr(h.sex,1,1) AS "gender",
+       h.DESG_DESC AS "designation",
+       h.EMAIL AS "email_address",
+       h."MOBILE#" AS "mobile_no",
+       TO_CHAR(h.DTOFBRTH, 'YYYY-MM-DD') AS "date_of_birth",
+       TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD') AS "date_of_join",
+       h.FHNAME AS "father_name",
+       h.NICNO AS "nic_no",
+       h.UNIT_ID AS "compc",
+       h.UNIT_NAME AS "compcnm",
+       h.LOCATION AS "brnch",
+       h.LOC_NAME AS "brnchnm",
+       h.LOC_NAME AS "location",
+       h.PATH AS "photo_path"
+  FROM HR_EMP_MASTER_view h
+ WHERE TO_CHAR(h.OLD_EMPCODE) = :card_no
+    OR h."ATDTCARD#" = :card_no
+    OR h.old_EMPCODE = :card_no
       FETCH FIRST 1 ROWS ONLY
     `;
     const result = await connection.execute(sql, { card_no }, { outFormat: 4002 });
@@ -577,9 +561,8 @@ export const lookupByPhone = async (phone) => {
 
     try {
       const r = await connection.execute(
-        `SELECT TO_CHAR(e.CARD_NO) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard"
+        `SELECT TO_CHAR(h.old_empcode) AS "card_no", h.NAME AS "name", h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard"
          FROM HR_EMP_MASTER h
-         LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
          WHERE h."MOBILE#" = :login
             OR h."MOBILE#" = '0' || :login
             OR h."ATDTCARD#" = :login
@@ -633,10 +616,9 @@ const getUserByLogin = async (login) => {
 
     try {
       const r = await connection.execute(
-        `SELECT TO_CHAR(e.CARD_NO) AS "card_no", e.USER_PASWD AS "user_paswd", h.NAME AS "name",
+        `SELECT TO_CHAR(h.old_empcode) AS "card_no", h.USER_PASWD AS "user_paswd", h.NAME AS "name",
                 NVL(h.HR_ADMIN, 'N') AS "hr_admin", h.EMPCODE AS "empcode", h."ATDTCARD#" AS "atdtcard"
          FROM HR_EMP_MASTER h
-         LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
          WHERE h."MOBILE#" = :login
             OR h."MOBILE#" = '0' || :login
             OR h."ATDTCARD#" = :login

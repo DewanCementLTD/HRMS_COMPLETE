@@ -14,23 +14,21 @@ export const getDashboardData = async (card_no) => {
     let row = null;
     try {
       const result = await connection.execute(
-        `SELECT
-          h.EMPCODE                              AS "emp_pk",
-          TO_CHAR(e.CARD_NO)                     AS "card_no",
-          h."ATDTCARD#"                          AS "emp_no",
-          h.NAME                                 AS "emp_name",
-          TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD')      AS "date_of_join",
-          h.NICNO                                AS "nic_no",
-          TO_CHAR(h.DESG_CD)                     AS "designation",
-          TO_CHAR(h.DEPT_NO)                     AS "department",
-          h.UNIT_ID                              AS "compc",
-          h.LOCATION                             AS "branch",
-          h.HOD1                                 AS "hod"
-        FROM HR_EMP_MASTER h
-        LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE
-        WHERE TO_CHAR(e.CARD_NO) = :card_no
-           OR h."ATDTCARD#"      = :card_no
-           OR h.EMPCODE          = :card_no
+        `SELECT h.EMPCODE AS "emp_pk",
+       TO_CHAR(h.old_empcode) AS "card_no",
+       h."ATDTCARD#" AS "emp_no",
+       h.NAME AS "emp_name",
+       TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD') AS "date_of_join",
+       h.NICNO AS "nic_no",
+       TO_CHAR(h.DESG_CD) AS "designation",
+       TO_CHAR(h.DEPT_NO) AS "department",
+       h.UNIT_ID AS "compc",
+       h.LOCATION AS "branch",
+       h.HOD1 AS "hod"
+  FROM HR_EMP_MASTER h
+ WHERE TO_CHAR(h.old_empcode) = :card_no
+    OR h."ATDTCARD#" = :card_no
+    OR h.empcode = :card_no
         FETCH FIRST 1 ROWS ONLY`,
         { card_no },
         { outFormat: 4002 }
@@ -81,7 +79,7 @@ export const getDashboardData = async (card_no) => {
     };
 
     row.compcnm = await safeLookup(
-      "SELECT MAX(DESCR) AS V FROM COMPANY_INFO WHERE COMPC = :v",
+      "SELECT DESCR AS V FROM COMPANY_INFO WHERE COMPC = :v",
       row.compc, "compcnm"
     );
     // Branch codes repeat per company in some schemas (YDC), so the name is
@@ -100,7 +98,7 @@ export const getDashboardData = async (card_no) => {
       }
     }
     row.hod_nm = await safeLookup(
-      "SELECT MAX(NAME) AS V FROM HR_EMP_MASTER WHERE EMPCODE = TO_CHAR(:v)",
+      "SELECT NAME AS V FROM HR_EMP_MASTER WHERE EMPCODE = TO_CHAR(:v)",
       row.hod, "hod_nm"
     );
 
@@ -111,14 +109,14 @@ export const getDashboardData = async (card_no) => {
     // scoped by the employee's UNIT_ID.
     row.department_name = row.department === null || row.department === undefined ? null
       : await safeLookup(
-          `SELECT MIN(DEPT_NAME) AS V FROM HR_DEPT
+          `SELECT DEPT_NAME AS V FROM HR_DEPT
             WHERE LTRIM(TO_CHAR(DEPT_NO), '0') = LTRIM(TO_CHAR(:v), '0')
               AND TO_CHAR(COMPC) = TO_CHAR(${Number(row.compc) || 0})`,
           row.department, "department_name"
         );
     row.designation_name = row.designation === null || row.designation === undefined ? null
       : await safeLookup(
-          `SELECT MIN(DESG_DESC) AS V FROM HR_DESG
+          `SELECT DESG_DESC AS V FROM HR_DESG
             WHERE LTRIM(TO_CHAR(DESG_CD), '0') = LTRIM(TO_CHAR(:v), '0')
               AND TO_CHAR(COMPC) = TO_CHAR(${Number(row.compc) || 0})`,
           row.designation, "designation_name"

@@ -36,6 +36,20 @@ const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
 
 const strOrNone = (v) => (v === null || v === undefined || String(v).trim() === "" ? null : v);
 
+// Text pasted into the employee form brought in non-breaking spaces, tabs and
+// line breaks (names like " ZAHEER  AHMED", phones split by a
+// tab), which look normal but break searching and matching. Every text field
+// is folded to single plain spaces before saving — passwords excepted, where
+// every character counts.
+const cleanEmployeeInput = (data) => {
+  const out = { ...data };
+  for (const [k, v] of Object.entries(out)) {
+    if (typeof v !== "string" || /paswd|password/i.test(k)) continue;
+    out[k] = v.replace(/[  -​  　﻿\t\r\n]/g, " ").replace(/ {2,}/g, " ").trim();
+  }
+  return out;
+};
+
 const numOrNone = (v) => {
   if (v === null || v === undefined || String(v).trim() === "") return null;
   const s = String(v).trim();
@@ -226,7 +240,8 @@ const findDuplicateIdentity = async (connection, data) => {
   return null;
 };
 
-export const createEmployee = async (data) => {
+export const createEmployee = async (input) => {
+  const data = cleanEmployeeInput(input);
   let connection;
   try {
     // Validated before anything is written, so an unrecognised code is an
@@ -537,18 +552,23 @@ export const getEmployeeCard = async (empcode) => {
     connection = await getDirectConnection();
     try {
       const result = await connection.execute(
-        `SELECT
-            m.EMPCODE, m.NAME, m.FHNAME, m."ATDTCARD#", m.NICNO, m."MOBILE#",
-            m.EMAIL, m.SEX, m.BLDGRP, m.STATUS,
-            TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
-            (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg WHERE LTRIM(dg.DESG_CD,'0')=LTRIM(m.DESG_CD,'0') AND TO_CHAR(dg.COMPC)=TO_CHAR(m.UNIT_ID)) AS DESIGNATION,
-            (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
-               WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)) AS DEPARTMENT,
-            (SELECT u.UNIT_NAME FROM UNIT_MST u WHERE u.UNIT_ID = m.UNIT_ID) AS COMPANY_NAME,
-            ${branchNameSql("m.LOCATION", "m.UNIT_ID")} AS BRANCH_NAME,
-            TO_CHAR(m.UNIT_ID) AS COMPC
-         FROM HR_EMP_MASTER m
-         WHERE m.EMPCODE = :e`,
+        `SELECT m.old_empcode "EMPCODE",
+       m.NAME,
+       m.FHNAME,
+       m."ATDTCARD#",
+       m.NICNO,
+       m."MOBILE#",
+       m.EMAIL,
+       m.SEX,
+       null BLDGRP,
+       m.STATUS,
+       TO_CHAR(m.DTOFAPPT, 'YYYY-MM-DD') AS DTOFAPPT,
+       m.DESG_DESC AS DESIGNATION,
+       m.DEPT_NAME AS DEPARTMENT,
+       m.UNIT_NAME AS COMPANY_NAME,
+       m.LOC_NAME AS BRANCH_NAME, TO_CHAR(m.UNIT_ID) AS COMPC
+  FROM HR_EMP_MASTER_view m
+ WHERE m.OLD_EMPCODE = :e`,
         { e: empcode },
         { outFormat: OUT_OBJECT }
       );
@@ -651,7 +671,8 @@ const syncEmployeeHods = async (connection, empcode, data) => {
   }
 };
 
-export const updateEmployee = async (empcode, data) => {
+export const updateEmployee = async (empcode, input) => {
+  let data = cleanEmployeeInput(input);
   const setParts = [];
   const params = { empcode };
 
@@ -861,11 +882,10 @@ const EMP_LIST_SELECT = `
       h.EMPCODE, h.NAME, h.FHNAME, h."ATDTCARD#",
       h.DEPT_NO, h.DESG_CD, h."MOBILE#", h.EMAIL,
       h.STATUS, h.HR_ADMIN, h.UNIT_ID,
-      TO_CHAR(e.CARD_NO) AS CARD_NO,
+      TO_CHAR(h.old_empcode) AS CARD_NO,
       h.SEX, h.LOCATION,
       h.TRACK_LOCATION, h.TRACK_LOCATION_HR
-  FROM HR_EMP_MASTER h
-  LEFT JOIN EMPLOYEE e ON e.EMPCODE = h.EMPCODE`;
+  FROM HR_EMP_MASTER h`;
 
 export const searchEmployeesHrms = async (query, allowedCompanies = null, allowedBranches = null) => {
   let connection;

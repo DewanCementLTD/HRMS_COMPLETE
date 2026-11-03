@@ -6,10 +6,12 @@ import { apiRequest } from "./api";
 export interface UiConfig {
   hod1_required: boolean;
   approver_picker_scope: "company" | "all";
+  /** Religion / marital-status codes: "text" (ISLM, S/M/W/D) or the YDC ERP's "numeric" ones. */
+  emp_code_style: "text" | "numeric";
 }
 
 // Original behaviour; used until the config arrives and if it cannot be read.
-export const DEFAULT_UI_CONFIG: UiConfig = { hod1_required: true, approver_picker_scope: "company" };
+export const DEFAULT_UI_CONFIG: UiConfig = { hod1_required: true, approver_picker_scope: "company", emp_code_style: "text" };
 
 let cached: Promise<UiConfig> | null = null;
 

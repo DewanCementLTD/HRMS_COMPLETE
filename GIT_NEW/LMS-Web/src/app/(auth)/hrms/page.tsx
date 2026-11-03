@@ -191,6 +191,22 @@ const marstatOptions = [
   { value: "D", label: "Divorced" },
 ];
 
+// The YDC ERP stores religion and marital status as numbers. Its schema has no
+// lookup table; the meanings below are what its data shows (Hindu names under
+// 2, Christian under 3; marital 2 is the older, married-with-spouse group).
+// Offering the text codes there wrote "ISLM" / "M" over the ERP's values.
+const numericMarstatOptions = [
+  { value: "", label: "Select" },
+  { value: "1", label: "Single" },
+  { value: "2", label: "Married" },
+];
+const numericReligionOptions = [
+  { value: "", label: "Select religion" },
+  { value: "1", label: "Islam" },
+  { value: "2", label: "Hindu" },
+  { value: "3", label: "Christian" },
+];
+
 // ──────────────────────────────────────────────
 // Date range presets
 // ──────────────────────────────────────────────
@@ -1592,7 +1608,7 @@ export default function HRMSPage() {
               />
               <Select
                 label="Marital Status"
-                options={marstatOptions}
+                options={uiConfig.emp_code_style === "numeric" ? numericMarstatOptions : marstatOptions}
                 value={form.marstat || ""}
                 onChange={(e) => updateField("marstat", e.target.value)}
               />
@@ -1600,7 +1616,7 @@ export default function HRMSPage() {
                 label="Religion"
                 value={form.religion || ""}
                 onChange={(e) => updateField("religion", e.target.value)}
-                options={[
+                options={uiConfig.emp_code_style === "numeric" ? numericReligionOptions : [
                   { value: "", label: "Select religion" },
                   // Drop junk reference rows whose label is just a number (e.g. "1", "11").
                   ...refReligions
