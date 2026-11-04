@@ -825,8 +825,8 @@ const fiscalCalStarts = (periodFrm) => {
  * "not open" and covers both finished and not-yet-started months. Past vs future
  * is therefore decided by PERIOD_FRM against the open period, not by STATUS.
  *
- * `emp_count` counts the working table first and falls back to the posted
- * (_FINAL) history, so a period reports whichever source actually holds it.
+ * `emp_count` counts the posted (_FINAL) history first and falls back to the
+ * working table, matching the order the sheet and payslip read in.
  */
 export const listSalaryPeriods = async (compc = null, brnch = null) => {
   let connection;
@@ -864,9 +864,9 @@ export const listSalaryPeriods = async (compc = null, brnch = null) => {
         label: label(r[1]) || `Period ${Number(r[0])}`,
         status: trimOrEmpty(r[3]) || "O",
         is_open: trimOrEmpty(r[3]) === "O",
-        emp_count: working || posted,
+        emp_count: posted || working,
         // Which table the sheet for this period will come from.
-        source: working ? "working" : posted ? "posted" : "none",
+        source: posted ? "posted" : working ? "working" : "none",
       };
     });
   } finally {
@@ -877,11 +877,11 @@ export const listSalaryPeriods = async (compc = null, brnch = null) => {
 /**
  * The salary sheet for one period.
  *
- * Reads the working tables (HR_SALARY_PROCESS_MASTER / HR_SALARY_PROCESS), and
- * falls back to the posted history (…_MASTER_FINAL / …_FINAL) for periods the
- * working tables no longer hold. HR_SALARY_PROCES_PRO wipes the working tables
- * per UNIT_ID on every run, so only the most recently processed month survives
- * there; older months can only come from the posted tables.
+ * Reads the posted history (…_MASTER_FINAL / …_FINAL) first, and falls back to
+ * the working tables (HR_SALARY_PROCESS_MASTER / HR_SALARY_PROCESS) for a period
+ * that has been processed but not finalised yet. HR_SALARY_PROCES_PRO wipes the
+ * working tables per UNIT_ID on every run, so only the most recently processed
+ * month survives there.
  */
 export const listProcessedSalaries = async (compc, period, q = null, brnch = null) => {
   let connection;
@@ -908,13 +908,13 @@ export const listProcessedSalaries = async (compc, period, q = null, brnch = nul
        ORDER BY 2`;
 
     let result = await connection.execute(
-      sheetSql("HR_SALARY_PROCESS_MASTER", "HR_SALARY_PROCESS"),
+      sheetSql("HR_SALARY_PROCESS_MASTER_FINAL", "HR_SALARY_PROCESS_FINAL"),
       binds,
       { outFormat: OUT_ARRAY }
     );
     if (!result.rows?.length) {
       result = await connection.execute(
-        sheetSql("HR_SALARY_PROCESS_MASTER_FINAL", "HR_SALARY_PROCESS_FINAL"),
+        sheetSql("HR_SALARY_PROCESS_MASTER", "HR_SALARY_PROCESS"),
         binds,
         { outFormat: OUT_ARRAY }
       );
@@ -956,10 +956,11 @@ const SALARY_TABLES = {
  *
  * `finalOnly` reads the posted (_FINAL) tables — master row, line items and the
  * fiscal/calendar year-to-date sums alike — so an employee never sees figures
- * from a run HR has not finalised. The HR screen keeps the working tables.
+ * from a run HR has not finalised. The HR screen, like listProcessedSalaries,
+ * reads the posted tables first and falls back to the working tables for a
+ * period that is processed but not finalised yet.
  */
 export const getPayslip = async (compc, empcode, period, { finalOnly = false } = {}) => {
-  const { master: masterTable, lines: linesTable } = SALARY_TABLES[finalOnly ? "final" : "working"];
   let connection;
   try {
     connection = await getDirectConnection();
@@ -977,19 +978,26 @@ export const getPayslip = async (compc, empcode, period, { finalOnly = false } =
       if (kr && kr[0]) key = String(kr[0]).trim();
     } catch { /* ignore, mirrors Python's bare except */ }
 
-    const mRes = await connection.execute(
-      `SELECT NVL(m.ACTUAL_GROSS,0), NVL(m.ACTUAL_BASIC,0), NVL(m.EARNED_GROSS,0), NVL(m.EARNED_BASIC,0),
-              NVL(m.W_DAY,0), NVL(m.ABSENT_DAYS,0), NVL(m.TOTAL_EARNING,0), m.SAL, m.GRADE_CD, m.DEPT_NO,
-              m.LOCATION, m.BNKACCT, m.EMP_STATUS, m.OLD_EMPCODE,
-              (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
-              ${branchNameSql("m.LOCATION", "m.UNIT_ID")}
-       FROM ${masterTable} m
-       WHERE m.OLD_EMPCODE IN (:e, :ec) AND m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
-       FETCH FIRST 1 ROWS ONLY`,
-      { e: key, ec: String(empcode), p: per, u },
-      { outFormat: OUT_ARRAY }
-    );
-    const m = mRes.rows?.[0];
+    // The master row and the line items must come from the same pair of tables.
+    let m = null;
+    let linesTable = null;
+    for (const source of finalOnly ? ["final"] : ["final", "working"]) {
+      const tables = SALARY_TABLES[source];
+      const mRes = await connection.execute(
+        `SELECT NVL(m.ACTUAL_GROSS,0), NVL(m.ACTUAL_BASIC,0), NVL(m.EARNED_GROSS,0), NVL(m.EARNED_BASIC,0),
+                NVL(m.W_DAY,0), NVL(m.ABSENT_DAYS,0), NVL(m.TOTAL_EARNING,0), m.SAL, m.GRADE_CD, m.DEPT_NO,
+                m.LOCATION, m.BNKACCT, m.EMP_STATUS, m.OLD_EMPCODE,
+                (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(d.DEPT_NO,'0')=LTRIM(m.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(m.UNIT_ID)),
+                ${branchNameSql("m.LOCATION", "m.UNIT_ID")}
+         FROM ${tables.master} m
+         WHERE m.OLD_EMPCODE IN (:e, :ec) AND m."PERIOD#" = :p AND (:u IS NULL OR m.UNIT_ID = :u)
+         FETCH FIRST 1 ROWS ONLY`,
+        { e: key, ec: String(empcode), p: per, u },
+        { outFormat: OUT_ARRAY }
+      );
+      m = mRes.rows?.[0];
+      if (m) { linesTable = tables.lines; break; }
+    }
     if (!m) return null;
     key = m[13] || key;
     const mDept = m[14] ? String(m[14]).trim() : null;
