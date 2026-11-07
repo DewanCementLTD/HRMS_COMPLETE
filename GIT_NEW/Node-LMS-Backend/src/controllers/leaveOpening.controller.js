@@ -12,8 +12,21 @@ import {
   listLeaveOpeningsData,
   listLeaveOpeningYearsData,
   listAllocatableEmployeesData,
+  listLeaveBalancesData,
   saveLeaveOpeningData,
 } from '../services/leaveOpening.service.js';
+
+// GET /hrms/leave-openings/balances
+export const getLeaveBalancesAll = async (req, res, next) => {
+  try {
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
+    const company = await resolveCompany(admin_card_no, compc);
+    const branch = await resolveBranch(admin_card_no, compc, brnch);
+    res.json({ items: await listLeaveBalancesData(company, branch), compc: company });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // GET /hrms/leave-openings
 export const getLeaveOpenings = async (req, res, next) => {

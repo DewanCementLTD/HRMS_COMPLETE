@@ -27,6 +27,7 @@
 import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
 import { branchNameSql } from '../utils/branchName.js';
+import { applyAllHolidays } from './holiday.service.js';
 
 const OUT_OBJECT = 4002;
 
@@ -452,6 +453,8 @@ export const startRosterDefaultsSchedule = () => {
   const pass = async () => {
     const { from, to } = futureRosterWindow();
     await applyAllRosterDefaults(from, to);
+    // The ERP job generates days on its own too; keep branch holidays on them.
+    await applyAllHolidays();
   };
   setTimeout(() => { pass().catch(() => {}); }, 60 * 1000).unref();
   defaultsTimer = setInterval(() => { pass().catch(() => {}); }, DEFAULTS_PASS_EVERY_MS);

@@ -5,9 +5,15 @@ import {
   hodOptionsSchema, leaveOpeningListSchema, leaveOpeningScopeSchema, leaveOpeningSaveSchema,
 } from '../models/leave.schema.js';
 import {
-  getLeaveOpenings, getLeaveOpeningYears, getAllocatableEmployees, postLeaveOpening,
+  getLeaveOpenings, getLeaveOpeningYears, getAllocatableEmployees, getLeaveBalancesAll, postLeaveOpening,
 } from '../controllers/leaveOpening.controller.js';
 import { getHodOptions } from '../controllers/leave.controller.js';
+import {
+  holidayScopeSchema, holidaySaveSchema, holidayUpdateSchema, holidayDeleteSchema,
+} from '../models/holiday.schema.js';
+import {
+  getHolidays, getHolidayBranches, postHoliday, putHoliday, delHoliday,
+} from '../controllers/holiday.controller.js';
 import { requireHrAdmin } from '../middlewares/hrAdmin.middleware.js';
 // Schemas
 import {
@@ -73,11 +79,19 @@ router.get('/roster-defaults',  validate(rosterDefaultsListSchema), requireHrAdm
 router.put('/roster-defaults',  validate(rosterDefaultsSaveSchema), requireHrAdmin, saveRosterDefaults); // [x] Body: {"compc":3,"brnch":16,"default_shift":"N","rest_days":"7"}
 router.post('/duty-roster/apply-defaults', validate(rosterApplyDefaultsSchema), requireHrAdmin, applyRosterDefaultsToRange); // [x] Body: {"compc":3,"brnch":16,"from_date":"2026-10-01","to_date":"2026-10-31","shift":"N"}
 
+// Setup → Holidays: public holidays for chosen branches of one company.
+router.get(   '/holidays/branches', validate(holidayScopeSchema),  requireHrAdmin, getHolidayBranches); // [x] http://localhost:8003/hrms/holidays/branches?admin_card_no=100001.1&compc=1
+router.get(   '/holidays',          validate(holidayScopeSchema),  requireHrAdmin, getHolidays);        // [x] http://localhost:8003/hrms/holidays?admin_card_no=100001.1&compc=1
+router.post(  '/holidays',          validate(holidaySaveSchema),   requireHrAdmin, postHoliday);        // [x] Body: {"holiday_from":"2026-11-09","reason":"Iqbal Day","branches":["1","2"]}
+router.put(   '/holidays/:id',      validate(holidayUpdateSchema), requireHrAdmin, putHoliday);
+router.delete('/holidays/:id',      validate(holidayDeleteSchema), requireHrAdmin, delHoliday);
+
 // ---------------------------------------------------------------------------
 // Leave allocation (LEAVE_OP) — HR grants each employee their yearly leave.
 // Company scope is resolved from the admin's rights, never the raw compc param.
 router.get( '/leave-openings/years',     validate(leaveOpeningScopeSchema), requireHrAdmin, getLeaveOpeningYears); // [x] http://localhost:8003/hrms/leave-openings/years?admin_card_no=100001.1&compc=1
 router.get( '/leave-openings/employees', validate(leaveOpeningScopeSchema), requireHrAdmin, getAllocatableEmployees); // [x] http://localhost:8003/hrms/leave-openings/employees?admin_card_no=100001.1&compc=1
+router.get( '/leave-openings/balances',  validate(leaveOpeningScopeSchema), requireHrAdmin, getLeaveBalancesAll); // [x] http://localhost:8003/hrms/leave-openings/balances?admin_card_no=100001.1&compc=1&brnch=1
 router.get( '/leave-openings',           validate(leaveOpeningListSchema),  requireHrAdmin, getLeaveOpenings); // [x] http://localhost:8003/hrms/leave-openings?admin_card_no=100001.1&compc=1&year=2026
 router.post('/leave-openings',           validate(leaveOpeningSaveSchema),  requireHrAdmin, postLeaveOpening); // [x] http://localhost:8003/hrms/leave-openings?admin_card_no=100001.1&compc=1  Body: {"card_no":"100299.1","year":2026,"entries":[{"leave_type_fk":1,"op_bal":12}]}
 

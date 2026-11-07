@@ -1,6 +1,7 @@
 import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
 import { applyAllRosterDefaults } from './rosterDefaults.service.js';
+import { applyAllHolidays } from './holiday.service.js';
 
 // ---------------------------------------------------------------------------
 // Duty roster generation — CREATE_DUTY_ROSTER_PRO
@@ -103,6 +104,10 @@ const drain = async (reason) => {
     // the defaults pass stumbled.
     logger.error(`[ROSTER_GEN] applying branch shift defaults failed: ${e.message ?? e}`);
   }
+
+  // Branch holidays (Setup → Holidays) on the days the ERP just generated.
+  // Never throws.
+  await applyAllHolidays();
 
   return result;
 };

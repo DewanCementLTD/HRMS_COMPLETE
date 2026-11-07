@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload,
-  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList, CalendarClock,
+  Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList, CalendarClock, CalendarHeart,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { RosterDefaultPanel } from "./RosterDefaultPanel";
+import { HolidaysPanel } from "./HolidaysPanel";
 import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
@@ -22,7 +23,7 @@ import { LeaveTypesSection } from "./LeaveTypesSection";
 
 type Tab = "departments" | "designations" | "shifts" | "roster_defaults" | "blood_groups" | "locations"
   | "emp_statuses" | "banks" | "bank_branches" | "qualifications" | "company_logo"
-  | "interview_types" | "leave_types";
+  | "interview_types" | "leave_types" | "holidays";
 
 const TAB_LABEL: Record<Tab, string> = {
   departments: "Departments", designations: "Designations",
@@ -31,6 +32,7 @@ const TAB_LABEL: Record<Tab, string> = {
   roster_defaults: "Roster Default",
   banks: "Banks", bank_branches: "Bank Branches", company_logo: "Company Logo",
   interview_types: "Interview Types", leave_types: "Leave Types",
+  holidays: "Holidays",
 };
 
 // Master tables grouped into a few areas so Setup reads as clear sections
@@ -57,6 +59,11 @@ const GROUPS: SetupGroup[] = [
     id: "leave", label: "Leave", icon: CalendarClock,
     desc: "Leave types available to this company's employees.",
     tabs: ["leave_types"],
+  },
+  {
+    id: "holidays", label: "Holidays", icon: CalendarHeart,
+    desc: "Public holidays for selected branches — marked as Holiday on their duty roster.",
+    tabs: ["holidays"],
   },
   {
     id: "interviews", label: "Interviews", icon: ClipboardList,
@@ -896,6 +903,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         compc={activeCompany || undefined}
         brnch={activeBranch || undefined}
       />
+    ),
+    // Self-contained like roster_defaults: loads and saves its own data.
+    holidays: (
+      <HolidaysPanel adminCardNo={adminCardNo} compc={activeCompany || undefined} />
     ),
     blood_groups: bgTable,
     locations:    locationTable,

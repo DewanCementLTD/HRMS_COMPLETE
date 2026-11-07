@@ -2,7 +2,7 @@ import { apiRequest } from "./api";
 import {
   LeaveApplyRequest, LeaveStatusResponse, LeaveTypesResponse,
   HodApprovalsResponse, HodOption,
-  LeaveOpening, AllocatableEmployee, LeaveOpeningEntry, LeaveYear,
+  LeaveOpening, AllocatableEmployee, LeaveOpeningEntry, LeaveYear, EmployeeLeaveBalance,
 } from "@/models/leave";
 
 export async function fetchLeaveTypes(cardNo: string): Promise<LeaveTypesResponse> {
@@ -70,6 +70,13 @@ export async function fetchAllocatableEmployees(
   adminCardNo: string, compc?: string, brnch?: string
 ): Promise<{ items: AllocatableEmployee[] }> {
   return apiRequest(`/hrms/leave-openings/employees?${scope(adminCardNo, compc, brnch).toString()}`);
+}
+
+/** Current CL / ML / EL balance of every active employee in the company/branch. */
+export async function fetchAllLeaveBalances(
+  adminCardNo: string, compc?: string, brnch?: string
+): Promise<{ items: EmployeeLeaveBalance[] }> {
+  return apiRequest(`/hrms/leave-openings/balances?${scope(adminCardNo, compc, brnch).toString()}`);
 }
 
 export async function fetchLeaveOpenings(

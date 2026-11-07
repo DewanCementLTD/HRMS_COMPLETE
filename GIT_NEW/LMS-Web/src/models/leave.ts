@@ -133,6 +133,28 @@ export interface AllocatableEmployee {
   department: string;
 }
 
+/** One leave type's figures from ALL_LEAVE_BAL_V for an employee. */
+export interface LeaveBalanceFigures {
+  /** Entitlement usable this year (previous + new, capped at the type's limit). */
+  entitled: number;
+  /** Approved leave already taken. */
+  availed: number;
+  /** entitled - availed. */
+  balance: number;
+  /** Days on requests still awaiting approval. */
+  pending: number;
+}
+
+export interface EmployeeLeaveBalance {
+  card_no: string;
+  emp_name: string;
+  department: string;
+  designation: string;
+  year: number | null;
+  /** Keyed by LEAVE_TYPE_PK (1 CL, 2 ML, 3 EL). */
+  balances: Record<number, LeaveBalanceFigures>;
+}
+
 export interface LeaveOpeningEntry {
   leave_type_fk: number;
   op_bal: number | null;

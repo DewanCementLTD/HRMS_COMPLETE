@@ -134,6 +134,76 @@ export const listLeaveOpeningsData = async ({ compc, brnch, year, card_no }) => 
   }
 };
 
+/**
+ * Current leave balance of every active employee of a company (optionally one
+ * branch), one row per employee with CL / ML / EL side by side.
+ *
+ * Straight from ALL_LEAVE_BAL_V, the same figures the employee's own balance
+ * reads: `entitled` is TOTAL_AVAILABLE (previous + new, capped at the type's
+ * ALLOWED), `availed` is approved leave, `balance` = entitled - availed.
+ * `pending` is days on requests still awaiting approval — the employee's apply
+ * screen already holds those back, so HR sees the same "available" figure.
+ * Employees the view has no row for (e.g. no YEAR row) are listed with no
+ * figures rather than dropped.
+ */
+export const listLeaveBalancesData = async (compc, brnch) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const binds = {};
+    const conds = [`h.STATUS = 'A'`];
+    if (norm(compc)) { conds.push('TO_CHAR(e.COMPC) = TO_CHAR(:compc)'); binds.compc = norm(compc); }
+    if (norm(brnch)) { conds.push('TO_CHAR(e.BRNCH) = TO_CHAR(:brnch)'); binds.brnch = norm(brnch); }
+
+    const r = await connection.execute(
+      `SELECT TO_CHAR(e.CARD_NO), e.EMP_NAME,
+              (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                WHERE LTRIM(d.DEPT_NO, '0') = LTRIM(h.DEPT_NO, '0')
+                  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID)) AS DEPT_NAME,
+              (SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
+                WHERE LTRIM(dg.DESG_CD, '0') = LTRIM(h.DESG_CD, '0')
+                  AND TO_CHAR(dg.COMPC) = TO_CHAR(h.UNIT_ID)) AS DESIGNATION,
+              v.LEAVE_TYPE_PK, v.YEAR, v.TOTAL_AVAILABLE, v.AVAILED, v.BALANCE,
+              (SELECT SUM(NVL(p.LEAVE_DAYS, 0)) FROM LEAVE_APPLICATION_APPLY p
+                WHERE TO_CHAR(p.EMP_FK) = TO_CHAR(e.CARD_NO)
+                  AND p.LEAVE_TYPE_FK = v.LEAVE_TYPE_PK
+                  AND UPPER(NVL(p.APPROVAL_STATUS, ' ')) NOT IN ('REJECTED', 'APPROVED')) AS PENDING
+         FROM EMPLOYEE e
+         JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+         LEFT JOIN ALL_LEAVE_BAL_V v ON TO_CHAR(v.CARD_NO) = TO_CHAR(e.CARD_NO)
+        WHERE ${conds.join(' AND ')}
+        ORDER BY e.EMP_NAME, v.LEAVE_TYPE_PK`,
+      binds,
+      { outFormat: OUT_ARRAY },
+    );
+
+    const num = (v) => (v === null || v === undefined ? null : Number(v));
+    const byEmp = new Map();
+    for (const [card, name, dept, desg, typePk, year, entitled, availed, balance, pending] of r.rows ?? []) {
+      const key = norm(card);
+      let rec = byEmp.get(key);
+      if (!rec) {
+        rec = {
+          card_no: key, emp_name: norm(name), department: norm(dept), designation: norm(desg),
+          year: null, balances: {},
+        };
+        byEmp.set(key, rec);
+      }
+      if (typePk === null || typePk === undefined) continue;
+      if (rec.year === null && year !== null && year !== undefined) rec.year = Number(year);
+      rec.balances[typePk] = {
+        entitled: num(entitled) ?? 0,
+        availed: num(availed) ?? 0,
+        balance: num(balance) ?? 0,
+        pending: num(pending) ?? 0,
+      };
+    }
+    return [...byEmp.values()];
+  } finally {
+    await connection?.close();
+  }
+};
+
 /** Only these can be allocated — the balance view itself only reports 1, 2, 3. */
 export const ALLOCATABLE_LEAVE_TYPES = [1, 2, 3];
 

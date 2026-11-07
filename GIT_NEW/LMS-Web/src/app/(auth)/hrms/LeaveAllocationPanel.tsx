@@ -9,15 +9,18 @@ import { Select } from "@/components/ui/Select";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { Alert } from "@/components/ui/Alert";
 import { Spinner } from "@/components/ui/Spinner";
-import { Search, Save, CalendarDays, RotateCcw } from "lucide-react";
+import { Search, Save, CalendarDays, RotateCcw, Scale } from "lucide-react";
 import { fetchLeaveTypes } from "@/services/leaveService";
 import {
   fetchLeaveOpeningYears,
   fetchAllocatableEmployees,
   fetchLeaveOpenings,
+  fetchAllLeaveBalances,
   saveLeaveOpening,
 } from "@/services/leaveService";
-import type { AllocatableEmployee, LeaveOpening, LeaveType, LeaveYear } from "@/models/leave";
+import type {
+  AllocatableEmployee, EmployeeLeaveBalance, LeaveOpening, LeaveType, LeaveYear,
+} from "@/models/leave";
 
 /** CL, ML, EL — the only types ALL_LEAVE_BAL_V reports a balance for. */
 const ALLOCATABLE_LEAVE_TYPES = [1, 2, 3];
@@ -38,6 +41,9 @@ export function LeaveAllocationPanel({ adminCardNo }: { adminCardNo: string }) {
   const [employees, setEmployees] = useState<AllocatableEmployee[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
   const [rows, setRows] = useState<LeaveOpening[]>([]);
+  const [balances, setBalances] = useState<EmployeeLeaveBalance[]>([]);
+  const [loadingBal, setLoadingBal] = useState(false);
+  const [balQuery, setBalQuery] = useState("");
 
   const [cardNo, setCardNo] = useState("");
   const [draft, setDraft] = useState<Record<number, string>>({});
@@ -93,6 +99,30 @@ export function LeaveAllocationPanel({ adminCardNo }: { adminCardNo: string }) {
   }, [adminCardNo, activeCompany, activeBranch, year]);
 
   useEffect(() => { loadAllocations(); }, [loadAllocations]);
+
+  // Every active employee's current balance, for the company/branch picked in
+  // the main settings — the same ALL_LEAVE_BAL_V figures employees see.
+  const loadBalances = useCallback(async () => {
+    setLoadingBal(true);
+    try {
+      const res = await fetchAllLeaveBalances(adminCardNo, activeCompany || undefined, activeBranch || undefined);
+      setBalances(res.items);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load leave balances");
+    } finally {
+      setLoadingBal(false);
+    }
+  }, [adminCardNo, activeCompany, activeBranch]);
+
+  useEffect(() => { loadBalances(); }, [loadBalances]);
+
+  const filteredBalances = useMemo(() => {
+    const q = balQuery.trim().toLowerCase();
+    if (!q) return balances;
+    return balances.filter((b) =>
+      b.emp_name.toLowerCase().includes(q) || b.card_no.toLowerCase().includes(q) ||
+      b.department.toLowerCase().includes(q) || b.designation.toLowerCase().includes(q));
+  }, [balances, balQuery]);
 
   // Selecting an employee fills the grid with what they already have.
   useEffect(() => {
@@ -150,7 +180,7 @@ export function LeaveAllocationPanel({ adminCardNo }: { adminCardNo: string }) {
         entries,
       });
       setSuccess(res.message);
-      await loadAllocations();
+      await Promise.all([loadAllocations(), loadBalances()]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save the allocation");
     } finally {
@@ -339,6 +369,86 @@ export function LeaveAllocationPanel({ adminCardNo }: { adminCardNo: string }) {
                           Edit
                         </button>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Current balances ────────────────────────────────────── */}
+      <Card>
+        <CardHeader>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Scale className="h-5 w-5 text-indigo-600" />
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Leave Balances</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {balances.length} active employee{balances.length === 1 ? "" : "s"} in the selected
+                  company{activeBranch ? " and branch" : ""}. Balance = entitled − availed; pending
+                  requests are shown separately.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 w-56">
+              <Search className="h-4 w-4 text-gray-400" />
+              <input
+                className="bg-transparent text-sm outline-none w-full"
+                placeholder="Filter name / card / dept…"
+                value={balQuery}
+                onChange={(e) => setBalQuery(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingBal ? (
+            <Spinner />
+          ) : filteredBalances.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-10">No employees found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="px-3 py-2 text-left font-semibold text-gray-600">Employee</th>
+                    <th className="px-3 py-2 text-left font-semibold text-gray-600">Card No</th>
+                    <th className="px-3 py-2 text-left font-semibold text-gray-600">Department</th>
+                    <th className="px-3 py-2 text-left font-semibold text-gray-600">Designation</th>
+                    {leaveTypes.map((lt) => (
+                      <th key={lt.leave_type_pk} className="px-3 py-2 text-right font-semibold text-gray-600 whitespace-nowrap">
+                        {lt.leave_type}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBalances.map((b) => (
+                    <tr key={b.card_no} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="px-3 py-2 text-gray-900">{b.emp_name}</td>
+                      <td className="px-3 py-2 font-mono text-gray-500">{b.card_no}</td>
+                      <td className="px-3 py-2 text-gray-600">{b.department || "—"}</td>
+                      <td className="px-3 py-2 text-gray-600">{b.designation || "—"}</td>
+                      {leaveTypes.map((lt) => {
+                        const f = b.balances[lt.leave_type_pk];
+                        if (!f) {
+                          return <td key={lt.leave_type_pk} className="px-3 py-2 text-right text-gray-300">—</td>;
+                        }
+                        return (
+                          <td key={lt.leave_type_pk} className="px-3 py-2 text-right tabular-nums whitespace-nowrap">
+                            <span className={`font-semibold ${f.balance < 0 ? "text-red-600" : f.balance === 0 ? "text-gray-400" : "text-emerald-700"}`}>
+                              {f.balance}
+                            </span>
+                            <span className="block text-[11px] text-gray-400">
+                              used {f.availed} of {f.entitled}
+                              {f.pending > 0 && <span className="text-amber-600"> · {f.pending} pending</span>}
+                            </span>
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>

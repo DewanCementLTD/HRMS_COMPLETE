@@ -1443,7 +1443,78 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
 // (TMS_DUTY_ROSTER_V) per employee. LEFT JOIN keeps every active employee even
 // with no roster rows. Present = any punch on the day; Absent = flagged absent
 // with no punch; Late / Half-Day are counted straight from the ERP flags.
+// Leave = days on approved leave (see fetchLeaveDaysByEmployee).
 // ==================================================================
+
+// Designation name for h (HR_EMP_MASTER), matched on the employee's company
+// like HR_DEPT — designation codes repeat per company.
+const DESG_NAME_SQL = `(SELECT MIN(dg.DESG_DESC) FROM HR_DESG dg
+                         WHERE LTRIM(dg.DESG_CD,'0') = LTRIM(h.DESG_CD,'0')
+                           AND TO_CHAR(dg.COMPC) = TO_CHAR(h.UNIT_ID))`;
+
+// An approved LEAVE_APPLICATION covering roster day v. The ERP only stamps
+// TMS_DUTY_ROSTER_V.LEAVE_TYPE_FK for some of them (none at all on YDC), so
+// without this approved leave showed up as Absent.
+const APPROVED_LEAVE_ON_DAY = `TO_CHAR(a.EMP_FK) = TO_CHAR(v.CARD_NO)
+            AND TRUNC(v.ROSTER_DATE) BETWEEN TRUNC(a.LEAVE_DATE_FROM) AND TRUNC(a.LEAVE_DATE_TO)
+            AND UPPER(TRIM(NVL(a.APPROVAL_STATUS, 'Y'))) IN ('Y', 'APPROVED')`;
+
+/**
+ * Leave days per employee in the range: roster days stamped with a leave type,
+ * plus working days (not rest 'R', not a holiday — leave is not charged on
+ * those) covered by an approved application. A half-day application counts
+ * its LEAVE_DAYS. `absent_overlap` is how many of those days the ERP also
+ * flagged ABSENT, so the summary does not count one day twice.
+ */
+const fetchLeaveDaysByEmployee = async (connection, filterSql, params) => {
+  const byEmp = new Map();
+  try {
+    const r = await connection.execute(`
+      WITH d AS (
+        SELECT h.EMPCODE                    AS empcode,
+               MAX(v.LEAVE_TYPE_FK)         AS vfk,
+               MIN(a.LEAVE_TYPE_FK)         AS afk,
+               MIN(a.LEAVE_DAYS)            AS adays,
+               MAX(CASE WHEN NVL(v.ABSENT, 0) = 1
+                         AND (v.IN_TIME  IS NULL OR TRIM(v.IN_TIME)  = ':')
+                         AND (v.OUT_TIME IS NULL OR TRIM(v.OUT_TIME) = ':')
+                        THEN 1 ELSE 0 END)  AS abs_flag
+          FROM TMS_DUTY_ROSTER_V v
+          JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
+          JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+          LEFT JOIN LEAVE_APPLICATION a ON ${APPROVED_LEAVE_ON_DAY}
+         WHERE h.STATUS = 'A'
+           AND TRUNC(v.ROSTER_DATE) BETWEEN
+               TO_DATE(:from_d, 'YYYY-MM-DD') AND TO_DATE(:to_d, 'YYYY-MM-DD')
+           ${filterSql}
+           AND (v.LEAVE_TYPE_FK IS NOT NULL
+                OR (a.LEAVE_APPLICATION_PK IS NOT NULL
+                    AND UPPER(NVL(TRIM(v.ROSTER_SHIFT), ' ')) <> 'R'
+                    AND v.HOLIDAY_FK IS NULL))
+         GROUP BY h.EMPCODE, TRUNC(v.ROSTER_DATE)
+      )
+      SELECT d.empcode,
+             NVL(MIN(t.LEAVE_TYPE), 'Leave'),
+             SUM(CASE WHEN d.vfk IS NULL AND d.adays > 0 AND d.adays < 1 THEN d.adays ELSE 1 END),
+             SUM(CASE WHEN d.vfk IS NULL THEN d.abs_flag ELSE 0 END)
+        FROM d
+        LEFT JOIN LEAVE_TYPES t ON t.LEAVE_TYPE_PK = NVL(d.vfk, d.afk)
+       GROUP BY d.empcode, NVL(d.vfk, d.afk)`,
+      params, { outFormat: OUT_ARRAY });
+    for (const [empcode, code, days, absOverlap] of r.rows ?? []) {
+      let rec = byEmp.get(empcode);
+      if (!rec) { rec = { days: 0, absent_overlap: 0, by_type: {} }; byEmp.set(empcode, rec); }
+      const n = Number(days) || 0;
+      const type = String(code ?? '').trim() || 'Leave';
+      rec.days += n;
+      rec.absent_overlap += Number(absOverlap) || 0;
+      rec.by_type[type] = (rec.by_type[type] ?? 0) + n;
+    }
+  } catch (e) {
+    logger.info(`[BULK_ATT] leave-days lookup failed: ${String(e.message).split('\n')[0]}`);
+  }
+  return byEmp;
+};
 
 export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanies = null, allowedBranches = null) => {
   let connection;
@@ -1460,6 +1531,7 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
             h."ATDTCARD#"                                     AS atdtcard,
             TO_CHAR(e.CARD_NO)                                AS card_no,
             NVL(dep.DEPT_NAME, TO_CHAR(h.DEPT_NO))           AS dept_name,
+            ${DESG_NAME_SQL}                                  AS designation,
             h.UNIT_ID,
             h.LOCATION,
             h.STATUS                                          AS emp_status,
@@ -1489,12 +1561,18 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
         WHERE h.STATUS = 'A'${filterSql}
         GROUP BY
             h.EMPCODE, h.NAME, h."ATDTCARD#", TO_CHAR(e.CARD_NO),
-            dep.DEPT_NAME, h.DEPT_NO, h.UNIT_ID, h.LOCATION, h.STATUS
+            dep.DEPT_NAME, h.DEPT_NO, h.DESG_CD, h.UNIT_ID, h.LOCATION, h.STATUS
         ORDER BY h.NAME
         FETCH FIRST 2000 ROWS ONLY`, params, { outFormat: OUT_OBJECT });
       const result = (r.rows ?? []).map(lowerKeys);
+      const leaves = await fetchLeaveDaysByEmployee(connection, filterSql, params);
       for (const rec of result) {
         if (rec.card_no === null || rec.card_no === undefined) rec.card_no = rec.atdtcard;
+        const lv = leaves.get(rec.empcode);
+        rec.leave_days = lv?.days ?? 0;
+        rec.leave_by_type = lv?.by_type ?? {};
+        // An approved leave day the ERP also flagged absent is leave, not both.
+        if (lv?.absent_overlap) rec.absent_days = Math.max(0, Number(rec.absent_days) - lv.absent_overlap);
       }
       return result;
     } catch (err) {
@@ -1511,6 +1589,7 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
           h."ATDTCARD#"                                 AS atdtcard,
           h."ATDTCARD#"                                 AS card_no,
           NVL(dep.DEPT_NAME, TO_CHAR(h.DEPT_NO))       AS dept_name,
+          ${DESG_NAME_SQL}                              AS designation,
           h.UNIT_ID,
           h.LOCATION,
           h.STATUS                                      AS emp_status,
@@ -1519,6 +1598,7 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
           0 AS absent_days,
           0 AS late_days,
           0 AS half_days,
+          0 AS leave_days,
           0 AS working_minutes
       FROM HR_EMP_MASTER h
       LEFT JOIN HR_DEPT dep
@@ -1622,6 +1702,7 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
           (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
              WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
                AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))    AS dept_name,
+          ${DESG_NAME_SQL}                         AS designation,
           v.ROSTER_DATE                            AS roster_date,
           v.DAY_NAME                               AS day_name,
           v.SHIFT_START_TIME                       AS duty_in,
@@ -1640,7 +1721,11 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
           (SELECT MIN(t.LEAVE_TYPE) FROM LEAVE_TYPES t
              WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)        AS leave_type,
           (SELECT MIN(t.LEAVE_DESC) FROM LEAVE_TYPES t
-             WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)        AS leave_desc
+             WHERE t.LEAVE_TYPE_PK = v.LEAVE_TYPE_FK)        AS leave_desc,
+          (SELECT MIN(a.LEAVE_TYPE_FK) FROM LEAVE_APPLICATION a
+             WHERE ${APPROVED_LEAVE_ON_DAY})                AS app_leave_type_fk,
+          (SELECT MIN(a.REASON) FROM LEAVE_APPLICATION a
+             WHERE ${APPROVED_LEAVE_ON_DAY})                AS app_leave_reason
       FROM TMS_DUTY_ROSTER_V v
       JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
       JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
@@ -1652,8 +1737,28 @@ export const getBulkAttendanceDetails = async (fromDate, toDate, allowedCompanie
       FETCH FIRST 30000 ROWS ONLY`,
       params, { outFormat: OUT_OBJECT });
 
+    // Leave-type names for days the roster never stamped (see APPROVED_LEAVE_ON_DAY).
+    const leaveTypeNames = new Map();
+    if ((r.rows ?? []).some((x) => x.LEAVE_TYPE_FK == null && x.APP_LEAVE_TYPE_FK != null)) {
+      const t = await connection.execute(
+        `SELECT LEAVE_TYPE_PK, LEAVE_TYPE, LEAVE_DESC FROM LEAVE_TYPES`, {}, { outFormat: OUT_ARRAY });
+      for (const [pk, code, desc] of t.rows ?? []) leaveTypeNames.set(String(pk), { code, desc });
+    }
+
     return (r.rows ?? []).map((raw) => {
       const rec = lowerKeys(raw);
+      // Approved leave the roster does not carry: treat the day as leave, unless
+      // it is a rest day or holiday — leave is not charged on those.
+      const isRestDay = String(rec.roster_shift ?? '').trim().toUpperCase() === 'R';
+      if (rec.leave_type_fk == null && rec.app_leave_type_fk != null && !isRestDay && rec.holiday_fk == null) {
+        const names = leaveTypeNames.get(String(rec.app_leave_type_fk));
+        rec.leave_type_fk = rec.app_leave_type_fk;
+        rec.leave_type = names?.code ?? null;
+        rec.leave_desc = names?.desc ?? null;
+        if (!rec.leave_remarks) rec.leave_remarks = rec.app_leave_reason;
+      }
+      delete rec.app_leave_type_fk;
+      delete rec.app_leave_reason;
       // One shared derivation for every attendance surface — see
       // utils/rosterStatus.js for the precedence and why rest/holiday/leave
       // sit above the "no IN_TIME means absent" rule.

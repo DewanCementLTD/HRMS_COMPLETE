@@ -53,6 +53,13 @@ function presetRange(p: string): { from: string; to: string } {
   return { from: iso(new Date(t.getFullYear(), t.getMonth(), 1)), to: iso(t) };
 }
 
+/** "CL 2 · ML 1" — the leave days of a summary row by type. */
+function leaveBreakdown(r: BulkAttendanceRow): string {
+  return Object.entries(r.leave_by_type ?? {})
+    .map(([type, days]) => `${type} ${days}`)
+    .join(" · ");
+}
+
 function csvEscape(v: unknown) {
   const s = v == null ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -115,7 +122,8 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
     const q = query.toLowerCase();
     return summary.filter((r) =>
       r.name?.toLowerCase().includes(q) || r.empcode?.toLowerCase().includes(q) ||
-      r.atdtcard?.toLowerCase().includes(q) || r.dept_name?.toLowerCase().includes(q));
+      r.atdtcard?.toLowerCase().includes(q) || r.dept_name?.toLowerCase().includes(q) ||
+      r.designation?.toLowerCase().includes(q));
   }, [summary, query]);
 
   const filteredDetails = useMemo(() => {
@@ -126,7 +134,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
       return (
         r.name?.toLowerCase().includes(q) || r.atdtcard?.toLowerCase().includes(q) ||
         r.card_no?.toLowerCase().includes(q) || r.branch_name?.toLowerCase().includes(q) ||
-        r.dept_name?.toLowerCase().includes(q)
+        r.dept_name?.toLowerCase().includes(q) || r.designation?.toLowerCase().includes(q)
       );
     });
   }, [details, query, statusTab]);
@@ -155,19 +163,20 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
   function exportCsv() {
     if (mode === "summary") {
       downloadCsv(
-        ["Empcode", "Name", "ATDT", "Department", "Present", "Absent", "Late", "Half Day", "Total Days"],
+        ["Empcode", "Name", "ATDT", "Department", "Designation", "Present", "Absent", "Late", "Half Day", "Leave", "Leave Detail", "Total Days"],
         filteredSummary.map((r) => [
-          r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "",
+          r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "", r.designation ?? "",
           String(r.present_days), String(r.absent_days),
-          String(r.late_days), String(r.half_days), String(r.total_days),
+          String(r.late_days), String(r.half_days), String(r.leave_days ?? 0),
+          leaveBreakdown(r), String(r.total_days),
         ]),
         `attendance-summary-${from}_to_${to}.csv`,
       );
     } else {
       downloadCsv(
-        ["Branch", "Department", "Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status", "Remarks"],
+        ["Branch", "Department", "Designation", "Name", "Card", "ATDT", "Date", "Day", "Duty In", "Duty Out", "In Time", "Out Time", "Status", "Remarks"],
         filteredDetails.map((r) => [
-          r.branch_name ?? "", r.dept_name ?? "",
+          r.branch_name ?? "", r.dept_name ?? "", r.designation ?? "",
           r.name ?? "", r.card_no ?? "", r.atdtcard ?? "", r.roster_date, r.day_name ?? "",
           r.duty_in ?? "", r.duty_out ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
         r.remarks ?? "",
@@ -183,14 +192,15 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
     if (mode === "summary") {
       printTablePdf({
         companyName: company, title: "Attendance Summary", meta, landscape: true,
-        columns: ["Empcode", "Name", "ATDT", "Department",
+        columns: ["Empcode", "Name", "ATDT", "Department", "Designation",
           { header: "Present", align: "right" }, { header: "Absent", align: "right" },
           { header: "Late", align: "right" }, { header: "Half Day", align: "right" },
-          { header: "Total Days", align: "right" }],
+          { header: "Leave", align: "right" }, { header: "Total Days", align: "right" }],
         rows: filteredSummary.map((r) => [
-          r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "",
+          r.empcode, r.name ?? "", r.atdtcard ?? "", r.dept_name ?? "", r.designation ?? "",
           String(r.present_days), String(r.absent_days),
-          String(r.late_days), String(r.half_days), String(r.total_days),
+          String(r.late_days), String(r.half_days),
+          r.leave_days ? `${r.leave_days} (${leaveBreakdown(r)})` : "0", String(r.total_days),
         ]),
       });
     } else {
@@ -199,9 +209,9 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
         companyName: company,
         title: `Attendance — ${tabLabel}${statusTab === "all" ? " (Daily Details)" : ""}`,
         meta, landscape: true,
-        columns: ["Branch", "Department", "Name", "ATDT", "Date", "Duty In", "In Time", "Out Time", "Status", "Remarks"],
+        columns: ["Branch", "Department", "Designation", "Name", "ATDT", "Date", "Duty In", "In Time", "Out Time", "Status", "Remarks"],
         rows: filteredDetails.map((r) => [
-          r.branch_name ?? "", r.dept_name ?? "", r.name ?? "", r.atdtcard || r.card_no || "",
+          r.branch_name ?? "", r.dept_name ?? "", r.designation ?? "", r.name ?? "", r.atdtcard || r.card_no || "",
           r.roster_date, r.duty_in ?? "", r.in_time ?? "", r.out_time ?? "", r.status ?? "",
           // Leave type + reason, "Absent", or the roster remark.
           r.remarks ?? r.leave_remarks ?? r.roster_remarks ?? "",
@@ -315,10 +325,12 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <th className="px-3 py-2 text-left">Name</th>
                 <th className="px-3 py-2 text-left">Empcode</th>
                 <th className="px-3 py-2 text-left">Department</th>
+                <th className="px-3 py-2 text-left">Designation</th>
                 <th className="px-3 py-2 text-right">Present</th>
                 <th className="px-3 py-2 text-right">Absent</th>
                 <th className="px-3 py-2 text-right">Late</th>
                 <th className="px-3 py-2 text-right">Half Day</th>
+                <th className="px-3 py-2 text-right">Leave</th>
                 <th className="px-3 py-2 text-right">Days</th>
               </tr>
             </thead>
@@ -328,10 +340,17 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                   <td className="px-3 py-2 font-medium text-gray-900">{r.name || "—"}</td>
                   <td className="px-3 py-2 font-mono text-gray-500">{r.empcode}</td>
                   <td className="px-3 py-2 text-gray-600">{r.dept_name || "—"}</td>
+                  <td className="px-3 py-2 text-gray-600">{r.designation || "—"}</td>
                   <td className="px-3 py-2 text-right font-semibold text-emerald-600">{r.present_days}</td>
                   <td className="px-3 py-2 text-right font-semibold text-red-500">{r.absent_days}</td>
                   <td className="px-3 py-2 text-right font-semibold text-yellow-600">{r.late_days}</td>
                   <td className="px-3 py-2 text-right font-semibold text-orange-600">{r.half_days}</td>
+                  <td className="px-3 py-2 text-right" title={leaveBreakdown(r) || undefined}>
+                    <span className="font-semibold text-indigo-700">{r.leave_days ?? 0}</span>
+                    {!!r.leave_days && (
+                      <span className="block text-[11px] text-indigo-500 whitespace-nowrap">{leaveBreakdown(r)}</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-right text-gray-700">{r.total_days}</td>
                 </tr>
               ))}
@@ -346,6 +365,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 {!groupByBranch && <th className="px-3 py-2 text-left">Branch</th>}
                 <th className="px-3 py-2 text-left">Name</th>
                 <th className="px-3 py-2 text-left">Department</th>
+                <th className="px-3 py-2 text-left">Designation</th>
                 <th className="px-3 py-2 text-left">Card / ATDT</th>
                 <th className="px-3 py-2 text-left">Date</th>
                 <th className="px-3 py-2 text-left">Duty In</th>
@@ -360,7 +380,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                 <Fragment key={branch || "__all__"}>
                   {groupByBranch && (
                     <tr className="bg-indigo-50/70">
-                      <td colSpan={9} className="px-3 py-1.5 text-xs font-semibold text-indigo-800 uppercase tracking-wide">
+                      <td colSpan={10} className="px-3 py-1.5 text-xs font-semibold text-indigo-800 uppercase tracking-wide">
                         {branch}
                         <span className="ml-2 font-normal normal-case text-indigo-500">
                           {rows.length} employee{rows.length > 1 ? "s" : ""}
@@ -379,6 +399,7 @@ export function AttendancePanel({ adminCardNo }: { adminCardNo: string }) {
                         )}
                         <td className="px-3 py-2 font-medium text-gray-900">{r.name || "—"}</td>
                         <td className="px-3 py-2 text-gray-600">{r.dept_name || "—"}</td>
+                        <td className="px-3 py-2 text-gray-600">{r.designation || "—"}</td>
                         <td className="px-3 py-2 text-gray-500">{r.atdtcard || r.card_no || "—"}</td>
                         <td className="px-3 py-2 text-gray-600">{r.roster_date}</td>
                         <td className="px-3 py-2 text-gray-400">{r.duty_in || "—"}</td>

@@ -37,6 +37,7 @@ export interface BulkAttendanceRow {
   atdtcard?: string;
   card_no?: string;
   dept_name?: string;
+  designation?: string | null;
   unit_id?: number;
   location?: string;
   emp_status?: string;
@@ -45,6 +46,10 @@ export interface BulkAttendanceRow {
   absent_days: number;
   late_days: number;
   half_days: number;
+  /** Days on approved leave in the range (half-day leave counts 0.5). */
+  leave_days?: number;
+  /** Leave days by leave-type code, e.g. { CL: 2, ML: 1 }. */
+  leave_by_type?: Record<string, number>;
   working_minutes: number;
 }
 
@@ -55,6 +60,7 @@ export interface AttendanceDetailRow {
   branch_code?: string | null;
   branch_name?: string | null;
   dept_name?: string | null;
+  designation?: string | null;
   roster_date: string;
   day_name?: string | null;
   duty_in?: string | null;
