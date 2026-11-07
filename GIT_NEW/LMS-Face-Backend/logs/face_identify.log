@@ -16752,3 +16752,5 @@ Help: https://docs.oracle.com/error-help/db/ora-00942/
 2026-11-07 13:57:14,051 INFO [IDENTIFY] matched=100009.3 similarity=0.5614
 2026-11-07 13:57:29,272 INFO [IDENTIFY] matched=100009.3 similarity=0.5614
 2026-11-07 14:10:25,124 INFO [IDENTIFY] matched=100165.3 similarity=0.6863
+2026-11-07 14:15:57,297 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
+2026-11-07 14:15:58,059 INFO [FAISS] Loaded 221 embeddings

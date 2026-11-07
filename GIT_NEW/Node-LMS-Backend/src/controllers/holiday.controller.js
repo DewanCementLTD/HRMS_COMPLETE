@@ -3,10 +3,11 @@
  *
  * The company comes from resolveCompany(), never straight from the query, and
  * the branches are checked against the admin's own branch rights, so HR can
- * only give a holiday to branches they manage.
+ * only give a holiday to branches they manage. With an active branch selected
+ * (`brnch`), the whole tab is limited to that one branch.
  */
 
-import { resolveCompany } from '../utils/payrollShared.js';
+import { resolveCompany, resolveBranch } from '../utils/payrollShared.js';
 import { getAdminRights } from '../services/adminRights.service.js';
 import {
   listHolidaysData,
@@ -21,9 +22,10 @@ const send = (res, result) =>
 // GET /hrms/holidays
 export const getHolidays = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
     const company = await resolveCompany(admin_card_no, compc);
-    res.json({ items: await listHolidaysData(company), compc: company });
+    const branch = await resolveBranch(admin_card_no, compc, brnch);
+    res.json({ items: await listHolidaysData(company, branch), compc: company, brnch: branch });
   } catch (err) {
     next(err);
   }
@@ -32,10 +34,11 @@ export const getHolidays = async (req, res, next) => {
 // GET /hrms/holidays/branches
 export const getHolidayBranches = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
     const company = await resolveCompany(admin_card_no, compc);
+    const branch = await resolveBranch(admin_card_no, compc, brnch);
     const { allowedBranches } = await getAdminRights(admin_card_no);
-    res.json({ items: await listHolidayBranchesData(company, allowedBranches), compc: company });
+    res.json({ items: await listHolidayBranchesData(company, allowedBranches, branch), compc: company, brnch: branch });
   } catch (err) {
     next(err);
   }
@@ -43,9 +46,10 @@ export const getHolidayBranches = async (req, res, next) => {
 
 const save = (withId) => async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
     const { holiday_from, holiday_to, reason, branches } = res.locals.validated.body;
     const company = await resolveCompany(admin_card_no, compc);
+    const branch = await resolveBranch(admin_card_no, compc, brnch);
     const { allowedBranches } = await getAdminRights(admin_card_no);
     send(res, await saveHolidayData({
       holiday_id: withId ? res.locals.validated.params.id : null,
@@ -56,6 +60,7 @@ const save = (withId) => async (req, res, next) => {
       branches,
       by: admin_card_no,
       allowedBranches,
+      scopeBranch: branch,
     }));
   } catch (err) {
     next(err);
@@ -71,9 +76,10 @@ export const putHoliday = save(true);
 // DELETE /hrms/holidays/:id
 export const delHoliday = async (req, res, next) => {
   try {
-    const { admin_card_no, compc } = res.locals.validated.query;
+    const { admin_card_no, compc, brnch } = res.locals.validated.query;
     const company = await resolveCompany(admin_card_no, compc);
-    send(res, await deleteHolidayData(res.locals.validated.params.id, company));
+    const branch = await resolveBranch(admin_card_no, compc, brnch);
+    send(res, await deleteHolidayData(res.locals.validated.params.id, company, branch));
   } catch (err) {
     next(err);
   }

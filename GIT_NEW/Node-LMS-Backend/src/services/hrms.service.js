@@ -1342,7 +1342,9 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
                 CASE
                     WHEN IN_TIME IS NOT NULL AND NVL(LATE_HRS,0)=0 AND NVL(LATE_MNT,0)=0 THEN 1
                     WHEN IN_TIME IS NOT NULL AND (NVL(LATE_HRS,0)>0 OR NVL(LATE_MNT,0)>0) THEN 2
-                    WHEN IN_TIME IS NULL AND UPPER(NVL(STATUS,'')) NOT LIKE '%LEAVE%' THEN 3
+                    -- No punch on a public holiday or rest day is not an absence.
+                    WHEN IN_TIME IS NULL AND UPPER(NVL(STATUS,'')) NOT LIKE '%LEAVE%'
+                         AND HOLIDAY_FK IS NULL AND UPPER(NVL(TRIM(ROSTER_SHIFT),' ')) <> 'R' THEN 3
                     ELSE NULL
                 END AS status_flag
             FROM DUTY_ROSTER
@@ -1385,7 +1387,9 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
                 CASE WHEN NVL(OT_HRS,0)>0 OR NVL(OT_MNT,0)>0 THEN 1 ELSE 0 END AS overtime_cnt,
                 CASE WHEN UPPER(NVL(STATUS,'')) LIKE '%LEAVE%' THEN 1 ELSE 0 END AS on_leave_cnt,
                 CASE WHEN IN_TIME IS NOT NULL AND (NVL(LATE_HRS,0)>0 OR NVL(LATE_MNT,0)>0) THEN 1 ELSE 0 END AS late_cnt,
-                CASE WHEN IN_TIME IS NULL AND UPPER(NVL(STATUS,'')) NOT LIKE '%LEAVE%' THEN 1 ELSE 0 END AS absent_cnt,
+                CASE WHEN IN_TIME IS NULL AND UPPER(NVL(STATUS,'')) NOT LIKE '%LEAVE%'
+                          AND HOLIDAY_FK IS NULL AND UPPER(NVL(TRIM(ROSTER_SHIFT),' ')) <> 'R'
+                     THEN 1 ELSE 0 END AS absent_cnt,
                 1 AS total_cnt
             FROM DUTY_ROSTER
             WHERE TRUNC(ROSTER_DATE) BETWEEN ADD_MONTHS(TRUNC(${td}, 'MM'), -5) AND ${td}${cf}

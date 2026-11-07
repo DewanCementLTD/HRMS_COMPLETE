@@ -35,23 +35,28 @@ export interface HolidaySaveResult {
   roster_days: number;
 }
 
-function scope(adminCardNo: string, compc?: string) {
+/** Company + the admin's active branch. With a branch, the server limits
+ *  everything (branch list, holidays, saves, removals) to that one branch. */
+export interface HolidayScope { compc?: string; brnch?: string }
+
+function scope(adminCardNo: string, s: HolidayScope) {
   const q = new URLSearchParams({ admin_card_no: adminCardNo });
-  if (compc) q.set("compc", compc);
+  if (s.compc) q.set("compc", s.compc);
+  if (s.brnch) q.set("brnch", s.brnch);
   return q.toString();
 }
 
-export const fetchHolidays = (adminCardNo: string, compc?: string) =>
-  apiRequest<{ items: Holiday[] }>(`/hrms/holidays?${scope(adminCardNo, compc)}`);
+export const fetchHolidays = (adminCardNo: string, s: HolidayScope) =>
+  apiRequest<{ items: Holiday[] }>(`/hrms/holidays?${scope(adminCardNo, s)}`);
 
-export const fetchHolidayBranches = (adminCardNo: string, compc?: string) =>
-  apiRequest<{ items: HolidayBranchOption[] }>(`/hrms/holidays/branches?${scope(adminCardNo, compc)}`);
+export const fetchHolidayBranches = (adminCardNo: string, s: HolidayScope) =>
+  apiRequest<{ items: HolidayBranchOption[] }>(`/hrms/holidays/branches?${scope(adminCardNo, s)}`);
 
-export const saveHoliday = (adminCardNo: string, compc: string | undefined, input: HolidayInput, id?: number) =>
+export const saveHoliday = (adminCardNo: string, s: HolidayScope, input: HolidayInput, id?: number) =>
   apiRequest<HolidaySaveResult>(
-    id ? `/hrms/holidays/${id}?${scope(adminCardNo, compc)}` : `/hrms/holidays?${scope(adminCardNo, compc)}`,
+    id ? `/hrms/holidays/${id}?${scope(adminCardNo, s)}` : `/hrms/holidays?${scope(adminCardNo, s)}`,
     { method: id ? "PUT" : "POST", body: input },
   );
 
-export const deleteHoliday = (adminCardNo: string, compc: string | undefined, id: number) =>
-  apiRequest<HolidaySaveResult>(`/hrms/holidays/${id}?${scope(adminCardNo, compc)}`, { method: "DELETE" });
+export const deleteHoliday = (adminCardNo: string, s: HolidayScope, id: number) =>
+  apiRequest<HolidaySaveResult>(`/hrms/holidays/${id}?${scope(adminCardNo, s)}`, { method: "DELETE" });

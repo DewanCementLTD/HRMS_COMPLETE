@@ -21,6 +21,10 @@ import {
  * reason in attendance. Deleting gives the days back as normal days. Approved
  * leave is never touched. Days the roster has not generated yet are marked
  * automatically once it does.
+ *
+ * With an active branch selected in the main settings, the tab works on that
+ * branch only: it is the only branch offered, only its holidays are listed,
+ * and removing a holiday other branches share takes just this branch off it.
  */
 
 const EMPTY = { from: "", to: "", reason: "", branches: [] as string[] };
@@ -43,7 +47,15 @@ const todayYmd = () => {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 };
 
-export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; compc?: string }) {
+export function HolidaysPanel({
+  adminCardNo,
+  compc,
+  brnch,
+}: {
+  adminCardNo: string;
+  compc?: string;
+  brnch?: string;
+}) {
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [branches, setBranches] = useState<HolidayBranchOption[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,17 +70,21 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
     setLoading(true);
     try {
       const [h, b] = await Promise.all([
-        fetchHolidays(adminCardNo, compc),
-        fetchHolidayBranches(adminCardNo, compc),
+        fetchHolidays(adminCardNo, { compc, brnch }),
+        fetchHolidayBranches(adminCardNo, { compc, brnch }),
       ]);
       setHolidays(h.items || []);
       setBranches(b.items || []);
+      // One branch in scope: it is the only choice, so tick it up front.
+      if (brnch && (b.items || []).length === 1) {
+        setForm((f) => (f.branches.length ? f : { ...f, branches: [b.items[0].brnch] }));
+      }
     } catch (e) {
       setMsg({ kind: "err", text: e instanceof Error ? e.message : "Could not load holidays" });
     } finally {
       setLoading(false);
     }
-  }, [adminCardNo, compc]);
+  }, [adminCardNo, compc, brnch]);
 
   useEffect(() => {
     setForm(EMPTY);
@@ -97,15 +113,20 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
       from: h.holiday_from,
       to: h.holiday_to === h.holiday_from ? "" : h.holiday_to,
       reason: h.reason,
-      branches: h.branches.map((b) => b.brnch),
+      // Only branches this admin can see; the server keeps the others.
+      branches: h.branches.map((b) => b.brnch).filter((b) => branches.some((x) => x.brnch === b)),
     });
     setMsg(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // A fresh form: in branch scope the one branch stays ticked.
+  const emptyForm = () =>
+    brnch && branches.length === 1 ? { ...EMPTY, branches: [branches[0].brnch] } : EMPTY;
+
   function cancelEdit() {
     setEditingId(null);
-    setForm(EMPTY);
+    setForm(emptyForm());
   }
 
   async function onSave() {
@@ -118,7 +139,7 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
     try {
       const res = await saveHoliday(
         adminCardNo,
-        compc,
+        { compc, brnch },
         {
           holiday_from: form.from,
           holiday_to: form.to || form.from,
@@ -129,7 +150,7 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
       );
       setMsg({ kind: "ok", text: res.message });
       setEditingId(null);
-      setForm(EMPTY);
+      setForm(emptyForm());
       await load();
     } catch (e) {
       setMsg({ kind: "err", text: e instanceof Error ? e.message : "Could not save the holiday" });
@@ -139,11 +160,15 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
   }
 
   async function onDelete(h: Holiday) {
-    if (!confirm(`Remove "${h.reason}" (${rangeLabel(h)})? Those days become normal working days again.`)) return;
+    const shared = !!brnch && h.branches.some((b) => b.brnch !== brnch);
+    const question = shared
+      ? `Remove your branch from "${h.reason}" (${rangeLabel(h)})? Its days become normal working days again; the other branches keep the holiday.`
+      : `Remove "${h.reason}" (${rangeLabel(h)})? Those days become normal working days again.`;
+    if (!confirm(question)) return;
     setDeletingId(h.holiday_id);
     setMsg(null);
     try {
-      const res = await deleteHoliday(adminCardNo, compc, h.holiday_id);
+      const res = await deleteHoliday(adminCardNo, { compc, brnch }, h.holiday_id);
       setMsg({ kind: "ok", text: res.message });
       if (editingId === h.holiday_id) cancelEdit();
       await load();
@@ -263,8 +288,10 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">Branches *</label>
-            {branches.length > 0 && (
+            <label className="block text-sm font-medium text-gray-700">
+              {brnch ? "Branch" : "Branches *"}
+            </label>
+            {!brnch && branches.length > 1 && (
               <button
                 type="button"
                 onClick={() => setForm((f) => ({ ...f, branches: allPicked ? [] : branches.map((b) => b.brnch) }))}
@@ -274,8 +301,16 @@ export function HolidaysPanel({ adminCardNo, compc }: { adminCardNo: string; com
               </button>
             )}
           </div>
+          {brnch && (
+            <p className="text-xs text-gray-500">
+              Your active branch is selected in the main settings, so holidays here apply to this branch
+              only. Clear the active branch to give a holiday to several branches at once.
+            </p>
+          )}
           {branches.length === 0 ? (
-            <p className="text-xs text-amber-600">No branches found for this company.</p>
+            <p className="text-xs text-amber-600">
+              {brnch ? "The active branch is not one you can manage here." : "No branches found for this company."}
+            </p>
           ) : (
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {branches.map((b) => {

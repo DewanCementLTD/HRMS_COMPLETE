@@ -131,8 +131,11 @@ const toDate = (s) => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
-/** Branches of one company HR may give a holiday to, with active headcount. */
-export const listHolidayBranchesData = async (compc, allowedBranches = []) => {
+/**
+ * Branches of one company HR may give a holiday to, with active headcount.
+ * `scopeBranch` (the admin's active branch) narrows it to that one branch.
+ */
+export const listHolidayBranchesData = async (compc, allowedBranches = [], scopeBranch = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
@@ -151,14 +154,19 @@ export const listHolidayBranchesData = async (compc, allowedBranches = []) => {
     const allowed = new Set((allowedBranches || []).map(norm));
     return (r.rows ?? [])
       .map(([code, name, employees]) => ({ brnch: norm(code), name: norm(name), employees: Number(employees) || 0 }))
-      .filter((b) => !allowed.size || allowed.has(b.brnch));
+      .filter((b) => !allowed.size || allowed.has(b.brnch))
+      .filter((b) => !norm(scopeBranch) || b.brnch === norm(scopeBranch));
   } finally {
     await connection?.close();
   }
 };
 
-/** The company's holidays, newest first, with their branches and stamped days. */
-export const listHolidaysData = async (compc) => {
+/**
+ * The company's holidays, newest first, with their branches and stamped days.
+ * `scopeBranch` keeps only holidays that include that branch (all their
+ * branches are still listed, so HR can see what else shares the day).
+ */
+export const listHolidaysData = async (compc, scopeBranch = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
@@ -169,8 +177,10 @@ export const listHolidaysData = async (compc) => {
               (SELECT COUNT(*) FROM DUTY_ROSTER d WHERE d.HOLIDAY_FK = h.HOLIDAY_ID) AS STAMPED
          FROM LMS_HOLIDAY h
         WHERE TO_CHAR(h.COMPC) = TO_CHAR(:compc)
+          AND (:scope IS NULL OR EXISTS (SELECT 1 FROM LMS_HOLIDAY_BRANCH sb
+                                          WHERE sb.HOLIDAY_ID = h.HOLIDAY_ID AND sb.BRNCH = :scope))
         ORDER BY h.HOLIDAY_FROM DESC, h.HOLIDAY_ID DESC`,
-      { compc },
+      { compc, scope: norm(scopeBranch) || null },
       { outFormat: OUT_ARRAY },
     );
     const b = await connection.execute(
@@ -207,7 +217,9 @@ export const listHolidaysData = async (compc) => {
  * Create (no holiday_id) or change a holiday, and put it on the roster.
  * `allowedBranches` is the admin's branch rights; an empty list means all.
  */
-export const saveHolidayData = async ({ holiday_id, compc, from, to, reason, branches, by, allowedBranches = [] }) => {
+export const saveHolidayData = async ({
+  holiday_id, compc, from, to, reason, branches, by, allowedBranches = [], scopeBranch = null,
+}) => {
   const dFrom = toDate(from);
   const dTo = toDate(to || from);
   const why = norm(reason);
@@ -220,6 +232,12 @@ export const saveHolidayData = async ({ holiday_id, compc, from, to, reason, bra
   if (!why) return { status: 'error', message: 'Reason is required (e.g. "Iqbal Day")' };
   if (why.length > REASON_MAX) return { status: 'error', message: `Reason must be at most ${REASON_MAX} characters` };
   if (!picked.length) return { status: 'error', message: 'Select at least one branch' };
+
+  // With an active branch, HR works on that branch only.
+  const scope = norm(scopeBranch);
+  if (scope && picked.some((b) => b !== scope)) {
+    return { status: 'error', message: `Your active branch is ${scope}; you can only give it a holiday here` };
+  }
 
   const allowed = new Set((allowedBranches || []).map(norm));
   const forbidden = picked.filter((b) => allowed.size && !allowed.has(b));
@@ -253,8 +271,13 @@ export const saveHolidayData = async ({ holiday_id, compc, from, to, reason, bra
       );
       if (!upd.rowsAffected) return { status: 'error', message: 'Holiday not found' };
       // Dates or branches may have changed: clear the old days, then restamp.
+      // A branch-scoped edit only owns its own branch; the holiday's other
+      // branches (not visible to this admin) are kept as they were.
       await unstampHoliday(connection, id);
-      await connection.execute(`DELETE FROM LMS_HOLIDAY_BRANCH WHERE HOLIDAY_ID = :id`, { id });
+      await connection.execute(
+        `DELETE FROM LMS_HOLIDAY_BRANCH WHERE HOLIDAY_ID = :id AND (:scope IS NULL OR BRNCH = :scope)`,
+        { id, scope: scope || null },
+      );
     } else {
       const s = await connection.execute(`SELECT LMS_HOLIDAY_SEQ.NEXTVAL FROM DUAL`, {}, { outFormat: OUT_ARRAY });
       id = Number(s.rows[0][0]);
@@ -266,7 +289,9 @@ export const saveHolidayData = async ({ holiday_id, compc, from, to, reason, bra
     }
     for (const brnch of picked) {
       await connection.execute(
-        `INSERT INTO LMS_HOLIDAY_BRANCH (HOLIDAY_ID, BRNCH) VALUES (:id, :brnch)`,
+        `INSERT INTO LMS_HOLIDAY_BRANCH (HOLIDAY_ID, BRNCH)
+         SELECT :id, :brnch FROM DUAL
+          WHERE NOT EXISTS (SELECT 1 FROM LMS_HOLIDAY_BRANCH WHERE HOLIDAY_ID = :id AND BRNCH = :brnch)`,
         { id, brnch },
       );
     }
@@ -290,8 +315,12 @@ export const saveHolidayData = async ({ holiday_id, compc, from, to, reason, bra
   }
 };
 
-/** Remove a holiday and give its days back as normal roster days. */
-export const deleteHolidayData = async (holidayId, compc) => {
+/**
+ * Remove a holiday and give its days back as normal roster days. With an
+ * active branch (`scopeBranch`), only that branch is taken off a holiday that
+ * other branches share; the holiday itself goes once no branch is left.
+ */
+export const deleteHolidayData = async (holidayId, compc, scopeBranch = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
@@ -302,6 +331,36 @@ export const deleteHolidayData = async (holidayId, compc) => {
       { id, compc }, { outFormat: OUT_ARRAY },
     );
     if (!Number(own.rows?.[0]?.[0])) return { status: 'error', message: 'Holiday not found' };
+
+    const scope = norm(scopeBranch);
+    if (scope) {
+      const others = await connection.execute(
+        `SELECT COUNT(*) FROM LMS_HOLIDAY_BRANCH WHERE HOLIDAY_ID = :id AND BRNCH <> :scope`,
+        { id, scope }, { outFormat: OUT_ARRAY },
+      );
+      if (Number(others.rows?.[0]?.[0])) {
+        // Shared with other branches: drop this branch only, then restamp the rest.
+        const before = await unstampHoliday(connection, id);
+        await connection.execute(
+          `DELETE FROM LMS_HOLIDAY_BRANCH WHERE HOLIDAY_ID = :id AND BRNCH = :scope`, { id, scope },
+        );
+        const h = await connection.execute(
+          `SELECT TO_CHAR(HOLIDAY_FROM, 'YYYY-MM-DD'), TO_CHAR(HOLIDAY_TO, 'YYYY-MM-DD'), REASON
+             FROM LMS_HOLIDAY WHERE HOLIDAY_ID = :id`,
+          { id }, { outFormat: OUT_ARRAY },
+        );
+        const [hFrom, hTo, why] = h.rows[0];
+        const still = await stampHoliday(connection, { id, compc, from: hFrom, to: hTo, reason: why });
+        await connection.commit();
+        const cleared = Math.max(0, before - still);
+        return {
+          status: 'success',
+          roster_days: cleared,
+          message: `Branch ${scope} removed from this holiday; ${cleared} roster day(s) are normal days again. Other branches keep the holiday.`,
+        };
+      }
+    }
+
     const cleared = await unstampHoliday(connection, id);
     await connection.execute(`DELETE FROM LMS_HOLIDAY WHERE HOLIDAY_ID = :id`, { id });
     await connection.commit();

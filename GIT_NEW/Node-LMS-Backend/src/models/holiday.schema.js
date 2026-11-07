@@ -6,6 +6,8 @@ import { z } from "zod";
 const scopeQuery = z.object({
   admin_card_no: z.string().min(1, "admin_card_no is required"),
   compc: z.string().optional(),
+  // The admin's active branch: when set, only that branch is offered / listed.
+  brnch: z.string().optional(),
 });
 
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");

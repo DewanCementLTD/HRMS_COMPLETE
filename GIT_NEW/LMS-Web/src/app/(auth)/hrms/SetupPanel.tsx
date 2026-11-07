@@ -906,7 +906,11 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     ),
     // Self-contained like roster_defaults: loads and saves its own data.
     holidays: (
-      <HolidaysPanel adminCardNo={adminCardNo} compc={activeCompany || undefined} />
+      <HolidaysPanel
+        adminCardNo={adminCardNo}
+        compc={activeCompany || undefined}
+        brnch={activeBranch || undefined}
+      />
     ),
     blood_groups: bgTable,
     locations:    locationTable,
