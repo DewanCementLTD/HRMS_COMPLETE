@@ -12,20 +12,23 @@ import {
 import { DCL_COMPETENCIES } from "./appraisalRules.js";
 
 // ---------------------------------------------------------------------------
-// Promotion competencies (sheet 2 of the promotion form): name, definition, weight
+// Competencies (yearly self-assessment and sheet 2 of the promotion form):
+// name, definition, key behaviours, weight
 // ---------------------------------------------------------------------------
 
 export const listCompetencies = (compc) => read(async (c) => {
   const r = await c.execute(
     `SELECT x.COMPETENCY_ID, x.NAME, x.DESCRIPTION, x.WEIGHT_PCT, x.SEQ, x.IS_ACTIVE,
             (SELECT COUNT(*) FROM HR_PROMO_COMPETENCY p WHERE p.COMPETENCY_ID = x.COMPETENCY_ID)
+              + (SELECT COUNT(*) FROM HR_APPR_COMPETENCY q WHERE q.COMPETENCY_ID = x.COMPETENCY_ID),
+            x.BEHAVIOURS
        FROM HR_COMPETENCY_MASTER x WHERE x.COMPC = :compc
       ORDER BY x.IS_ACTIVE DESC, x.SEQ, UPPER(x.NAME)`,
     { compc }, { outFormat: OUT_ARRAY },
   );
   const items = (r.rows ?? []).map((x) => ({
     id: num(x[0]), name: s(x[1]), description: s(x[2]), weight_pct: num(x[3]), seq: num(x[4]),
-    is_active: s(x[5]) === "Y", used_count: num(x[6]),
+    is_active: s(x[5]) === "Y", used_count: num(x[6]), behaviours: s(x[7]),
   }));
   const activeWeight = r2(items.filter((i) => i.is_active).reduce((t, i) => t + i.weight_pct, 0));
   return { items, active_weight: activeWeight };
@@ -33,13 +36,13 @@ export const listCompetencies = (compc) => read(async (c) => {
 
 export const saveCompetency = (compc, actor, id, body) => withTx(async (c) => {
   const b = {
-    name: s(body.name), descr: s(body.description) || null, w: num(body.weight_pct ?? 10), seq: num(body.seq ?? 0),
+    name: s(body.name), descr: s(body.description) || null, beh: s(body.behaviours) || null, w: num(body.weight_pct ?? 10), seq: num(body.seq ?? 0),
     act: yn(body.is_active ?? true), actor,
   };
   if (!(b.w > 0 && b.w <= 100)) throw new AppraisalError("Weight must be between 1% and 100%");
   if (id) {
     const r = await c.execute(
-      `UPDATE HR_COMPETENCY_MASTER SET NAME = :name, DESCRIPTION = :descr, WEIGHT_PCT = :w, SEQ = :seq, IS_ACTIVE = :act,
+      `UPDATE HR_COMPETENCY_MASTER SET NAME = :name, DESCRIPTION = :descr, BEHAVIOURS = :beh, WEIGHT_PCT = :w, SEQ = :seq, IS_ACTIVE = :act,
               UPDATED_BY = :actor, UPDATED_AT = SYSDATE
         WHERE COMPETENCY_ID = :id AND COMPC = :compc`,
       { ...b, id, compc },
@@ -49,39 +52,44 @@ export const saveCompetency = (compc, actor, id, body) => withTx(async (c) => {
   }
   const newId = await nextId(c, "HR_COMPETENCY_MASTER_SEQ");
   await c.execute(
-    `INSERT INTO HR_COMPETENCY_MASTER (COMPETENCY_ID, COMPC, NAME, DESCRIPTION, WEIGHT_PCT, SEQ, IS_ACTIVE, CREATED_BY)
-     VALUES (:id, :compc, :name, :descr, :w, :seq, :act, :actor)`,
+    `INSERT INTO HR_COMPETENCY_MASTER (COMPETENCY_ID, COMPC, NAME, DESCRIPTION, BEHAVIOURS, WEIGHT_PCT, SEQ, IS_ACTIVE, CREATED_BY)
+     VALUES (:id, :compc, :name, :descr, :beh, :w, :seq, :act, :actor)`,
     { ...b, id: newId, compc },
   );
   return { id: newId };
 }, { HR_COMPETENCY_MASTER_UK: "A competency with this name already exists" });
 
 export const deleteCompetency = (compc, id) => withTx(async (c) => {
-  const used = await c.execute(`SELECT COUNT(*) FROM HR_PROMO_COMPETENCY WHERE COMPETENCY_ID = :id`, { id }, { outFormat: OUT_ARRAY });
-  if (num(used.rows[0][0]) > 0) throw new AppraisalError("This competency is used in promotion evaluations — deactivate it instead", 409);
+  const used = await c.execute(
+    `SELECT (SELECT COUNT(*) FROM HR_PROMO_COMPETENCY WHERE COMPETENCY_ID = :id)
+          + (SELECT COUNT(*) FROM HR_APPR_COMPETENCY WHERE COMPETENCY_ID = :id) FROM DUAL`,
+    { id }, { outFormat: OUT_ARRAY },
+  );
+  if (num(used.rows[0][0]) > 0) throw new AppraisalError("This competency is used in self-assessments or promotion evaluations — deactivate it instead", 409);
   const r = await c.execute(`DELETE FROM HR_COMPETENCY_MASTER WHERE COMPETENCY_ID = :id AND COMPC = :compc`, { id, compc });
   if (!r.rowsAffected) throw new AppraisalError("Competency not found", 404);
   return { deleted: true };
 });
 
 /**
- * Load the ten competencies of the DCL promotion form (10% each, with their
- * definitions) and deactivate every other competency, so the active weights total 100%.
+ * Load the ten DCL competencies (10% each, with their definitions and key
+ * behaviours) and deactivate every other competency, so the active weights total 100%.
  */
 export const loadDclCompetencies = (compc, actor) => withTx(async (c) => {
   let added = 0;
   let seq = 1;
-  for (const [name, def] of DCL_COMPETENCIES) {
+  for (const [name, def, beh] of DCL_COMPETENCIES) {
     const u = await c.execute(
-      `UPDATE HR_COMPETENCY_MASTER SET DESCRIPTION = :def, WEIGHT_PCT = 10, SEQ = :seq, IS_ACTIVE = 'Y', UPDATED_BY = :actor, UPDATED_AT = SYSDATE
+      `UPDATE HR_COMPETENCY_MASTER SET DESCRIPTION = :def, BEHAVIOURS = :beh, WEIGHT_PCT = 10, SEQ = :seq, IS_ACTIVE = 'Y',
+              UPDATED_BY = :actor, UPDATED_AT = SYSDATE
         WHERE COMPC = :compc AND UPPER(NAME) = UPPER(:name)`,
-      { def, seq, actor, compc, name },
+      { def, beh, seq, actor, compc, name },
     );
     if (!u.rowsAffected) {
       await c.execute(
-        `INSERT INTO HR_COMPETENCY_MASTER (COMPETENCY_ID, COMPC, NAME, DESCRIPTION, WEIGHT_PCT, SEQ, CREATED_BY)
-         VALUES (HR_COMPETENCY_MASTER_SEQ.NEXTVAL, :compc, :name, :def, 10, :seq, :actor)`,
-        { compc, name, def, seq, actor },
+        `INSERT INTO HR_COMPETENCY_MASTER (COMPETENCY_ID, COMPC, NAME, DESCRIPTION, BEHAVIOURS, WEIGHT_PCT, SEQ, CREATED_BY)
+         VALUES (HR_COMPETENCY_MASTER_SEQ.NEXTVAL, :compc, :name, :def, :beh, 10, :seq, :actor)`,
+        { compc, name, def, beh, seq, actor },
       );
       added++;
     }

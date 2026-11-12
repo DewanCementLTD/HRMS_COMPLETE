@@ -5,9 +5,11 @@ import { Save, Send, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ErrorBox, Pill } from "@/components/training/TrainingUi";
-import { GradePicker, GradeBadge, ScaleLegend } from "./AppraisalUi";
+import { GradePicker, GradeBadge, ScaleLegend, CompPicker, CompGuide, Behaviours, CompetencyView } from "./AppraisalUi";
 import { money, type Course } from "@/services/trainingService";
-import { GRADE_POINTS, type Appraisal, type Designation, type RecsBody, type Grade } from "@/services/appraisalService";
+import {
+  GRADE_POINTS, type Appraisal, type Designation, type RecsBody, type Grade, type CompRating, type YearEndBody,
+} from "@/services/appraisalService";
 
 
 // ---------------------------------------------------------------------------
@@ -84,12 +86,138 @@ export function MidYearForm({ a, onSave, onSubmit }: {
 }
 
 // ---------------------------------------------------------------------------
+// Year end (employee): year-end progress per accountability + the competency
+// self-assessment (rating HD / D / ND, evidence, comments, trainings, declaration)
+// ---------------------------------------------------------------------------
+
+const area = "w-full px-3 py-2 rounded-lg border border-gray-200 text-sm";
+
+export function YearEndForm({ a, onSave, onSubmit }: {
+  a: Appraisal; onSave: (body: YearEndBody) => Promise<unknown>; onSubmit: (declared: boolean) => Promise<unknown>;
+}) {
+  const c = a.competency;
+  const [progress, setProgress] = useState<Record<number, string>>(() => Object.fromEntries(a.rows.map((r) => [r.emp_goal_id, r.yearend_progress ?? ""])));
+  const [comps, setComps] = useState<Record<number, { rating: CompRating | null; evidence: string }>>(
+    () => Object.fromEntries(c.items.map((x) => [x.competency_id, { rating: x.rating, evidence: x.evidence ?? "" }])));
+  const [notes, setNotes] = useState({ comments: c.comments ?? "", tech_trainings: c.tech_trainings ?? "", soft_trainings: c.soft_trainings ?? "" });
+  const [declared, setDeclared] = useState(false);
+  const [busy, setBusy] = useState<"save" | "submit" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const noProgress = a.rows.filter((r) => !(progress[r.emp_goal_id] ?? "").trim()).length;
+  const unrated = c.items.filter((x) => !comps[x.competency_id]?.rating).length;
+  const hasComps = c.items.length > 0;
+  const ready = noProgress === 0 && unrated === 0 && (!hasComps || declared);
+  const body = (): YearEndBody => ({
+    rows: a.rows.map((r) => ({ emp_goal_id: r.emp_goal_id, yearend_progress: progress[r.emp_goal_id] ?? "" })),
+    competencies: c.items.map((x) => ({ competency_id: x.competency_id, rating: comps[x.competency_id]?.rating ?? null, evidence: comps[x.competency_id]?.evidence ?? "" })),
+    ...notes,
+  });
+
+  async function run(kind: "save" | "submit") {
+    setBusy(kind);
+    setError(null);
+    setSaved(false);
+    try {
+      await onSave(body());
+      if (kind === "submit") {
+        if (!confirm("Submit your year-end review and competency self-assessment to your HOD? It cannot be changed afterwards unless they return it.")) { setSaved(true); return; }
+        await onSubmit(declared);
+      } else setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <p className="font-semibold text-ink">1. Year-end progress per accountability</p>
+        <div className="rounded-xl border border-gray-100 divide-y divide-gray-50">
+          {a.rows.map((r, i) => (
+            <div key={r.emp_goal_id} className="p-3 grid gap-2 lg:grid-cols-[minmax(14rem,1fr)_1.4fr] lg:items-start">
+              <div className="min-w-0 space-y-0.5">
+                <p className="text-sm text-gray-900"><span className="text-gray-400 mr-1">{i + 1}.</span>{r.task}</p>
+                <p className="text-[11px] text-gray-400">{r.accountability || "—"} · target {r.success_criteria || "—"} · {r.weightage}%</p>
+                <p className="text-xs text-gray-600"><span className="text-gray-400">Mid-year progress: </span>{r.midyear_progress || "—"}</p>
+                <p className="text-xs text-gray-600 inline-flex items-center gap-1"><span className="text-gray-400">Self rating:</span><GradeBadge g={r.self_rating} /></p>
+                {r.mid_remarks && <p className="text-xs text-gray-600"><span className="text-gray-400">HOD remarks: </span>{r.mid_remarks}</p>}
+              </div>
+              <textarea rows={3} className={area} maxLength={2000} placeholder="Year-end progress — facts & numbers"
+                value={progress[r.emp_goal_id] ?? ""} onChange={(e) => setProgress({ ...progress, [r.emp_goal_id]: e.target.value })} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {hasComps && (
+        <div className="space-y-2">
+          <p className="font-semibold text-ink">2. Competency self-assessment</p>
+          <p className="text-xs text-gray-500">For each competency give a real example from this year and rate yourself.</p>
+          <CompGuide />
+          <div className="rounded-xl border border-gray-100 divide-y divide-gray-50">
+            {c.items.map((x, i) => (
+              <div key={x.competency_id} className="p-3 grid gap-2 lg:grid-cols-[minmax(13rem,1fr)_minmax(12rem,1fr)_1.3fr_auto] lg:items-start">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 uppercase"><span className="text-gray-400 mr-1 font-normal">{i + 1}.</span>{x.name}</p>
+                  <p className="text-xs text-gray-600">{x.definition}</p>
+                </div>
+                <Behaviours text={x.behaviours} />
+                <textarea rows={3} className={area} maxLength={1000} placeholder="Your evidence / example (this year)"
+                  value={comps[x.competency_id]?.evidence ?? ""}
+                  onChange={(e) => setComps({ ...comps, [x.competency_id]: { ...comps[x.competency_id], evidence: e.target.value } })} />
+                <div className="space-y-1">
+                  <p className="text-[11px] text-gray-500">Rating</p>
+                  <CompPicker value={comps[x.competency_id]?.rating ?? null}
+                    onChange={(r) => setComps({ ...comps, [x.competency_id]: { ...comps[x.competency_id], rating: r } })} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="space-y-1"><label className="block text-sm font-medium text-gray-700">Employee comments / self-reflection</label>
+              <textarea rows={4} className={area} maxLength={2000} value={notes.comments} onChange={(e) => setNotes({ ...notes, comments: e.target.value })} /></div>
+            <div className="space-y-1"><label className="block text-sm font-medium text-gray-700">Technical trainings I am requesting</label>
+              <textarea rows={4} className={area} maxLength={1000} value={notes.tech_trainings} onChange={(e) => setNotes({ ...notes, tech_trainings: e.target.value })} /></div>
+            <div className="space-y-1"><label className="block text-sm font-medium text-gray-700">Soft skills / leadership trainings I am requesting</label>
+              <textarea rows={4} className={area} maxLength={1000} value={notes.soft_trainings} onChange={(e) => setNotes({ ...notes, soft_trainings: e.target.value })} /></div>
+          </div>
+          <label className="flex items-start gap-2 text-sm text-gray-800 rounded-lg bg-indigo-50 p-3">
+            <input type="checkbox" className="mt-0.5" checked={declared} onChange={(e) => setDeclared(e.target.checked)} />
+            <span><b>Employee declaration.</b> I confirm that the ratings and examples above are my own honest self-assessment for this review period.</span>
+          </label>
+        </div>
+      )}
+
+      <ErrorBox error={error} />
+      <div className="flex flex-wrap items-center gap-2">
+        {noProgress > 0 && <Pill tone="amber">{noProgress} year-end progress still to write</Pill>}
+        {unrated > 0 && <Pill tone="amber">{unrated} competency rating(s) still to give</Pill>}
+        {hasComps && noProgress === 0 && unrated === 0 && !declared && <Pill tone="amber">Tick the declaration to submit</Pill>}
+        {saved && <span className="text-xs text-emerald-600">Draft saved</span>}
+        <div className="ml-auto flex gap-2">
+          <Button variant="secondary" onClick={() => run("save")} loading={busy === "save"} disabled={!!busy}><Save className="h-4 w-4 mr-1" />Save draft</Button>
+          <Button onClick={() => run("submit")} loading={busy === "submit"} disabled={!!busy || !ready}><Send className="h-4 w-4 mr-1" />Submit year-end review</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Year end (HOD / reporting officer / HOD 2): agreed rating per accountability
+// and the HOD comments on the competency self-assessment
 // ---------------------------------------------------------------------------
 
 export function AgreedRatingsForm({ a, onSave }: {
-  a: Appraisal; onSave: (rows: { emp_goal_id: number; agreed_rating: Grade | null; reviewer_remarks?: string }[]) => Promise<unknown>;
+  a: Appraisal;
+  onSave: (rows: { emp_goal_id: number; agreed_rating: Grade | null; reviewer_remarks?: string }[], compHodComments?: string) => Promise<unknown>;
 }) {
+  const hasComps = a.competency.items.length > 0;
+  const [hodComments, setHodComments] = useState(a.competency.hod_comments ?? "");
   // HOD 2 starts from HOD 1's agreed ratings.
   const [rows, setRows] = useState(() => Object.fromEntries(a.rows.map((r) => [r.emp_goal_id, {
     agreed_rating: r.agreed_rating, reviewer_remarks: r.reviewer_remarks,
@@ -105,7 +233,7 @@ export function AgreedRatingsForm({ a, onSave }: {
     setError(null);
     setSaved(false);
     try {
-      await onSave(Object.entries(rows).map(([id, v]) => ({ emp_goal_id: Number(id), ...v })));
+      await onSave(Object.entries(rows).map(([id, v]) => ({ emp_goal_id: Number(id), ...v })), hasComps ? hodComments : undefined);
       setSaved(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
@@ -124,9 +252,11 @@ export function AgreedRatingsForm({ a, onSave }: {
               <p className="text-sm text-gray-900"><span className="text-gray-400 mr-1">{i + 1}.</span>{r.task}</p>
               <p className="text-[11px] text-gray-400">{r.accountability || "—"} · KPI {r.kpi || "—"} · target {r.success_criteria || "—"} · {r.weightage}%</p>
               <p className="text-xs text-gray-600 mt-1"><span className="text-gray-400">Mid-year progress: </span>{r.midyear_progress || "—"}</p>
+              {r.mid_remarks && <p className="text-xs text-gray-600"><span className="text-gray-400">HOD remarks (mid-year): </span>{r.mid_remarks}</p>}
+              <p className="text-xs text-gray-600 whitespace-pre-wrap"><span className="text-gray-400">Year-end progress: </span>{r.yearend_progress || "—"}</p>
               <p className="text-xs text-gray-600 inline-flex items-center gap-1"><span className="text-gray-400">Self rating:</span><GradeBadge g={r.self_rating} /></p>
             </div>
-            <input className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Your remarks (optional)"
+            <input className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" placeholder="HOD remarks (optional)"
               value={rows[r.emp_goal_id]?.reviewer_remarks ?? ""}
               onChange={(e) => setRows({ ...rows, [r.emp_goal_id]: { ...rows[r.emp_goal_id], reviewer_remarks: e.target.value } })} />
             <div className="space-y-1">
@@ -137,6 +267,16 @@ export function AgreedRatingsForm({ a, onSave }: {
           </div>
         ))}
       </div>
+      {hasComps && (
+        <div className="space-y-3 pt-2">
+          <p className="font-semibold text-ink">Competency self-assessment</p>
+          <CompetencyView c={{ ...a.competency, hod_comments: "", hod_at: null }} />
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Head of department (HOD) review — your comments</label>
+            <textarea rows={3} className={area} maxLength={2000} value={hodComments} onChange={(e) => setHodComments(e.target.value)} />
+          </div>
+        </div>
+      )}
       <ErrorBox error={error} />
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm">Total &quot;A&quot;: <b className="tabular-nums">{total == null ? "—" : total.toFixed(2)}</b></span>

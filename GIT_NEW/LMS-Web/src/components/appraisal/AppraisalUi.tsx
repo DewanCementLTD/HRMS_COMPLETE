@@ -9,13 +9,14 @@ import { Modal } from "@/components/ui/Modal";
 import { Pill, TextArea, Empty } from "@/components/training/TrainingUi";
 import { printTablePdf } from "@/lib/printTable";
 import {
-  STAGE_LABEL, ROLE_LABEL, GRADES, GRADE_MEANING, GRADE_POINTS, SHEET_RULES, scoreText, downloadFile,
+  STAGE_LABEL, ROLE_LABEL, GRADES, GRADE_MEANING, GRADE_POINTS, SHEET_RULES, COMP_RATINGS, COMP_RATING_LABEL, scoreText, downloadFile,
   type Appraisal, type Stage, type Grade, type RowBody, type SheetRow, type ApprovalStep, type Attachment, type BellCurve,
+  type CompRating, type CompetencyAssessment, type RowRemark,
 } from "@/services/appraisalService";
 
 // ── Stage ──
 const STAGE_TONE: Record<Stage, "gray" | "blue" | "amber" | "green" | "red" | "indigo"> = {
-  OBJ_SETTING: "gray", OBJ_REVIEW: "amber", MIDYEAR: "blue", MID_REVIEW: "amber", RPT: "amber", HOD1: "amber", HOD2: "amber",
+  OBJ_SETTING: "gray", OBJ_REVIEW: "amber", MIDYEAR: "blue", MID_REVIEW: "amber", YEAREND: "blue", RPT: "amber", HOD1: "amber", HOD2: "amber",
   HR: "indigo", COMPLETED: "green", CANCELLED: "red",
 };
 export const StagePill = ({ stage }: { stage: Stage }) => <Pill tone={STAGE_TONE[stage]}>{STAGE_LABEL[stage] ?? stage}</Pill>;
@@ -28,6 +29,7 @@ export function StageTracker({ a }: { a: Appraisal }) {
     { key: "OBJ_REVIEW", label: "Objectives approved", who: a.line_manager_name, lock: "Objectives locked" },
     { key: "MIDYEAR", label: "Mid-year self review", who: a.emp_name },
     { key: "MID_REVIEW", label: "Mid-year sign-off", who: a.line_manager_name, lock: "Half-year locked" },
+    { key: "YEAREND", label: "Year-end self review & competencies", who: a.emp_name },
     ...a.chain.map((r) => ({
       key: r as Stage, label: r === "HR" ? "HR review" : `Year-end rating (${ROLE_LABEL[r] ?? r})`, who: raterName(r),
       lock: r === "HR" ? "Rating locked" : undefined,
@@ -47,7 +49,7 @@ export function StageTracker({ a }: { a: Appraisal }) {
               className={cn("inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-medium",
                 done ? "text-emerald-700 bg-emerald-50" : now ? "text-amber-700 bg-amber-50 ring-1 ring-amber-200" : "text-gray-400 bg-gray-50")}>
               {done && st.lock ? <Lock className="h-3 w-3" /> : done ? <Check className="h-3 w-3" /> : now ? <Clock className="h-3 w-3" /> : null}
-              {st.label}{st.who && !["OBJ_SETTING", "MIDYEAR"].includes(st.key) ? `: ${st.who}` : ""}
+              {st.label}{st.who && !["OBJ_SETTING", "MIDYEAR", "YEAREND"].includes(st.key) ? `: ${st.who}` : ""}
             </span>
           </li>
         );
@@ -81,6 +83,113 @@ export function GradePicker({ value, onChange, disabled }: { value: Grade | null
     </div>
   );
 }
+
+// ── Competency self-assessment (HD / D / ND) ──
+const COMP_TONE: Record<CompRating, string> = {
+  HD: "bg-emerald-100 text-emerald-800", D: "bg-blue-100 text-blue-800", ND: "bg-amber-100 text-amber-800",
+};
+export const CompBadge = ({ r }: { r: CompRating | null | undefined }) =>
+  r ? <span title={COMP_RATING_LABEL[r]} className={cn("inline-flex min-w-8 justify-center rounded-md px-1.5 py-0.5 text-xs font-bold", COMP_TONE[r])}>{r}</span>
+    : <span className="text-gray-300">—</span>;
+
+/** HD / D / ND buttons (clicking the chosen rating again clears it). */
+export function CompPicker({ value, onChange, disabled }: { value: CompRating | null; onChange: (r: CompRating | null) => void; disabled?: boolean }) {
+  return (
+    <div className="flex items-center gap-1">
+      {COMP_RATINGS.map((r) => (
+        <button key={r} type="button" disabled={disabled} title={COMP_RATING_LABEL[r]}
+          onClick={() => onChange(value === r ? null : r)}
+          className={cn("h-7 min-w-9 px-1.5 rounded-lg text-xs font-bold border transition",
+            value === r ? "bg-indigo-600 text-white border-indigo-600" : "bg-white text-gray-600 border-gray-200 hover:border-indigo-300",
+            disabled && "opacity-50 cursor-not-allowed")}>
+          {r}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Rating guide of the competency form. */
+export const CompGuide = () => (
+  <div className="flex flex-wrap gap-3 text-[11px] text-gray-600">
+    {COMP_RATINGS.map((r) => <span key={r} className="inline-flex items-center gap-1"><CompBadge r={r} />{COMP_RATING_LABEL[r]}</span>)}
+  </div>
+);
+
+/** Key behaviours ("what it looks like"), one bullet per line. */
+export const Behaviours = ({ text }: { text: string }) => {
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (!lines.length) return null;
+  return <ul className="list-disc pl-4 text-[11px] text-gray-500 space-y-0.5">{lines.map((l) => <li key={l}>{l}</li>)}</ul>;
+};
+
+/** The competency self-assessment, read-only (the HOD comments show once they exist). */
+export function CompetencyView({ c }: { c: CompetencyAssessment }) {
+  if (!c.items.length) return <Empty>No competencies are set up for this company.</Empty>;
+  const text = (k: string, v: string) => (
+    <div><p className="text-[11px] text-gray-500">{k}</p><p className="text-sm text-gray-800 whitespace-pre-wrap">{v || "—"}</p></div>
+  );
+  return (
+    <div className="space-y-3">
+      <CompGuide />
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 text-gray-500 text-[11px] uppercase">
+            <tr><th className="px-2 py-2 text-left">S.No</th><th className="px-2 py-2 text-left">Competency</th><th className="px-2 py-2 text-left">Definition</th>
+              <th className="px-2 py-2 text-left">Key behaviours</th><th className="px-2 py-2 text-left">Evidence / example (this year)</th>
+              <th className="px-2 py-2 text-center">Rating</th></tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50 align-top">
+            {c.items.map((x, i) => (
+              <tr key={x.competency_id}>
+                <td className="px-2 py-2 text-gray-400">{i + 1}</td>
+                <td className="px-2 py-2 font-medium text-gray-900 uppercase text-xs">{x.name}</td>
+                <td className="px-2 py-2 text-xs text-gray-600">{x.definition}</td>
+                <td className="px-2 py-2"><Behaviours text={x.behaviours} /></td>
+                <td className="px-2 py-2 text-gray-700 whitespace-pre-wrap">{x.evidence || "—"}</td>
+                <td className="px-2 py-2 text-center"><CompBadge r={x.rating} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {text("Employee comments / self-reflection", c.comments)}
+        {text("Technical trainings requested", c.tech_trainings)}
+        {text("Soft skills / leadership trainings requested", c.soft_trainings)}
+      </div>
+      <p className="text-xs text-gray-500">{c.declared_at ? `Declared by the employee on ${c.declared_at}.` : "Not declared by the employee yet."}</p>
+      {(c.hod_comments || c.hod_at) && (
+        <div className="rounded-lg bg-gray-50 p-3">
+          <p className="text-[11px] text-gray-500">Head of department (HOD) review{c.hod_name ? ` — ${c.hod_name}` : ""}{c.hod_at ? `, ${c.hod_at}` : ""}</p>
+          <p className="text-sm text-gray-800 whitespace-pre-wrap">{c.hod_comments || "—"}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Mid-year review: the line manager's remark per accountability ("HOD remarks"). */
+export function MidRemarksEditor({ a, value, onChange }: { a: Appraisal; value: Record<number, string>; onChange: (v: Record<number, string>) => void }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-medium text-gray-800">Your remarks per accountability <span className="text-xs font-normal text-gray-500">— suggestions / comments, saved when you sign or return</span></p>
+      <div className="rounded-xl border border-gray-100 divide-y divide-gray-50">
+        {a.rows.map((r, i) => (
+          <div key={r.emp_goal_id} className="p-2.5 grid gap-2 md:grid-cols-[minmax(12rem,1fr)_1.4fr] md:items-center">
+            <p className="text-sm text-gray-900"><span className="text-gray-400 mr-1">{i + 1}.</span>{r.task}</p>
+            <input className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" placeholder="HOD remarks (optional)" maxLength={1000}
+              value={value[r.emp_goal_id] ?? r.mid_remarks ?? ""}
+              onChange={(e) => onChange({ ...value, [r.emp_goal_id]: e.target.value })} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+/** The remarks to send with the mid-year decision (edited ones, else what was saved). */
+export const midRemarksBody = (a: Appraisal, value: Record<number, string>): RowRemark[] =>
+  a.rows.map((r) => ({ emp_goal_id: r.emp_goal_id, remarks: value[r.emp_goal_id] ?? r.mid_remarks ?? "" }));
 
 /** 1–5 buttons (promotion competencies). */
 export function RatingPicker({ value, onChange, disabled }: { value: number | null; onChange: (v: number | null) => void; disabled?: boolean }) {
@@ -234,7 +343,7 @@ export function ObjectivesEditor({ a, editable, onSave, onDelete }: {
 
 /** The task sheet as a table (read-only cells; `actions` adds a column of buttons). */
 export function SheetTable({ rows, show, actions }: {
-  rows: SheetRow[]; show: { progress: boolean; self: boolean; agreed: boolean };
+  rows: SheetRow[]; show: { progress: boolean; self: boolean; agreed: boolean; yearend?: boolean };
   actions?: (r: SheetRow) => React.ReactNode;
 }) {
   if (!rows.length) return <Empty>No accountabilities yet.</Empty>;
@@ -248,7 +357,9 @@ export function SheetTable({ rows, show, actions }: {
             <th className="px-2 py-2 text-left">No</th><th className="px-2 py-2 text-left">Accountability</th><th className="px-2 py-2 text-left">Task for the year</th>
             <th className="px-2 py-2 text-left">KPI</th><th className="px-2 py-2 text-left">Success criteria</th><th className="px-2 py-2 text-left">Interdependencies</th>
             {show.progress && <th className="px-2 py-2 text-left">Mid-year progress</th>}
+            {show.yearend && <th className="px-2 py-2 text-left">Year-end progress</th>}
             <th className="px-2 py-2 text-right">Weightage</th>
+            {show.progress && <th className="px-2 py-2 text-left">HOD remarks</th>}
             {show.self && <th className="px-2 py-2 text-center">Self rating</th>}
             {show.agreed && <><th className="px-2 py-2 text-center">Agreed with HOD</th><th className="px-2 py-2 text-right">Score</th></>}
             {actions && <th className="px-2 py-2" />}
@@ -265,11 +376,13 @@ export function SheetTable({ rows, show, actions }: {
               <td className="px-2 py-2 text-gray-600">{r.success_criteria || "—"}{r.due_date ? <span className="block text-[11px] text-gray-400">by {r.due_date}</span> : null}</td>
               <td className="px-2 py-2 text-gray-600">{r.interdependencies || "—"}</td>
               {show.progress && <td className="px-2 py-2 text-gray-700 whitespace-pre-wrap">{r.midyear_progress || "—"}</td>}
+              {show.yearend && <td className="px-2 py-2 text-gray-700 whitespace-pre-wrap">{r.yearend_progress || "—"}</td>}
               <td className="px-2 py-2 text-right tabular-nums">{r.weightage}%</td>
+              {show.progress && <td className="px-2 py-2 text-gray-600 whitespace-pre-wrap">{r.mid_remarks || "—"}</td>}
               {show.self && <td className="px-2 py-2 text-center"><GradeBadge g={r.self_rating} /></td>}
               {show.agreed && <>
                 <td className="px-2 py-2 text-center"><GradeBadge g={r.agreed_rating} />
-                  {r.reviewer_remarks && <span className="block text-[11px] text-gray-500 mt-0.5">{r.reviewer_remarks}</span>}</td>
+                  {r.reviewer_remarks && <span className="block text-[11px] text-gray-500 mt-0.5" title="HOD remarks at year end">{r.reviewer_remarks}</span>}</td>
                 <td className="px-2 py-2 text-right tabular-nums">{r.score == null ? "—" : r.score.toFixed(2)}</td>
               </>}
               {actions && <td className="px-2 py-2 text-right whitespace-nowrap">{actions(r)}</td>}
@@ -278,8 +391,9 @@ export function SheetTable({ rows, show, actions }: {
         </tbody>
         <tfoot className="bg-gray-50 text-sm font-semibold">
           <tr>
-            <td className="px-2 py-2" colSpan={show.progress ? 7 : 6}>TOTAL &quot;A&quot;</td>
+            <td className="px-2 py-2" colSpan={6 + (show.progress ? 1 : 0) + (show.yearend ? 1 : 0)}>TOTAL &quot;A&quot;</td>
             <td className={cn("px-2 py-2 text-right tabular-nums", Math.abs(total - 100) > 0.01 && "text-red-600")}>{total}%</td>
+            {show.progress && <td />}
             {show.self && <td className="px-2 py-2 text-center tabular-nums">{scoreText(sumOf("self_score"))}</td>}
             {show.agreed && <><td /><td className="px-2 py-2 text-right tabular-nums">{scoreText(sumOf("score"))}</td></>}
             {actions && <td />}
@@ -485,13 +599,37 @@ export function printTaskSheet(a: Appraisal, companyName?: string, internal = fa
     meta: `${a.emp_name} (${a.empno || a.empcode}) · ${a.desg_desc} · ${a.dept_name} · joined ${a.join_date ?? "—"} · appraiser ${a.line_manager_name ?? "HR"} · `
       + `period ${a.cycle.period_from} to ${a.cycle.period_to}${done && a.final_rating ? ` · final grade ${a.final_rating}` : ""}`,
     landscape: true,
-    columns: ["No", "Accountability", "Task for the year", "KPI", "Success criteria", "Interdependencies", "Mid-year progress",
-      { header: "Weightage", align: "right" }, { header: "Self rating", align: "center" }, { header: "Agreed with HOD", align: "center" },
-      { header: "Score", align: "right" }],
+    columns: ["No", "Accountability", "Task for the year", "KPI", "Success criteria", "Interdependencies", "Mid-year progress", "Year-end progress",
+      { header: "Weightage", align: "right" }, { header: "Self rating", align: "center" }, "HOD remarks",
+      { header: "Agreed with HOD", align: "center" }, { header: "Score", align: "right" }],
     rows: [
-      ...a.rows.map((r, i) => [i + 1, r.accountability, r.task, r.kpi, r.success_criteria, r.interdependencies, r.midyear_progress,
-        `${r.weightage}%`, r.self_rating ?? "", done ? r.agreed_rating ?? "" : "", done && r.score != null ? r.score.toFixed(2) : ""]),
-      ["", "", "", "", "", "", 'TOTAL "A"', `${a.weight_total}%`, scoreText(a.self_score), "", done ? scoreText(internal ? a.calc_score : a.final_score) : ""],
+      ...a.rows.map((r, i) => [i + 1, r.accountability, r.task, r.kpi, r.success_criteria, r.interdependencies, r.midyear_progress, r.yearend_progress,
+        `${r.weightage}%`, r.self_rating ?? "", [r.mid_remarks, done ? r.reviewer_remarks : ""].filter(Boolean).join(" / "),
+        done ? r.agreed_rating ?? "" : "", done && r.score != null ? r.score.toFixed(2) : ""]),
+      ["", "", "", "", "", "", "", 'TOTAL "A"', `${a.weight_total}%`, scoreText(a.self_score), "", "", done ? scoreText(internal ? a.calc_score : a.final_score) : ""],
+    ],
+  });
+}
+
+/** Print the competency self-assessment in the layout of the DCL form. */
+export function printCompetencyForm(a: Appraisal, companyName?: string) {
+  const c = a.competency;
+  const note = (k: string, v: string) => ["", k, v || "—", "", "", ""];
+  printTablePdf({
+    companyName,
+    title: `Competency Self-Assessment — ${a.cycle.name}`,
+    meta: `${a.emp_name} (${a.empno || a.empcode}) · ${a.desg_desc} · ${a.dept_name} · HOD ${a.line_manager_name ?? "HR"} · `
+      + `review period ${a.cycle.period_from} to ${a.cycle.period_to} · date of assessment ${c.declared_at ?? "—"} · `
+      + COMP_RATINGS.map((r) => `${r} = ${COMP_RATING_LABEL[r]}`).join(", "),
+    landscape: true,
+    columns: ["S.No", "Competency", "Definition", "Key behaviours (what it looks like)", "Your evidence / example (this year)", { header: "Rating", align: "center" }],
+    rows: [
+      ...c.items.map((x, i) => [i + 1, x.name.toUpperCase(), x.definition, x.behaviours.split("\n").filter(Boolean).join(" · "), x.evidence, x.rating ?? ""]),
+      note("Employee comments / self-reflection", c.comments),
+      note("Technical trainings requested", c.tech_trainings),
+      note("Soft skills / leadership trainings requested", c.soft_trainings),
+      note("Employee declaration", c.declared_at ? `Declared by ${a.emp_name} on ${c.declared_at}` : "Not declared yet"),
+      note("HOD comments", [c.hod_comments, c.hod_name, c.hod_at].filter(Boolean).join(" — ")),
     ],
   });
 }

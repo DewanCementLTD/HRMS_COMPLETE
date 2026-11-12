@@ -10,7 +10,9 @@ export type { Hr };
 export { downloadPdf as downloadFile };
 
 // ── Types ──
-export type Stage = "OBJ_SETTING" | "OBJ_REVIEW" | "MIDYEAR" | "MID_REVIEW" | "RPT" | "HOD1" | "HOD2" | "HR" | "COMPLETED" | "CANCELLED";
+export type Stage = "OBJ_SETTING" | "OBJ_REVIEW" | "MIDYEAR" | "MID_REVIEW" | "YEAREND" | "RPT" | "HOD1" | "HOD2" | "HR" | "COMPLETED" | "CANCELLED";
+/** Rating of the competency self-assessment form. */
+export type CompRating = "HD" | "D" | "ND";
 export type ReviewRole = "RPT" | "HOD1" | "HOD2" | "HR";
 export type Grade = "A+" | "A" | "B" | "C" | "D";
 export type CycleType = "ANNUAL" | "HALF_YEARLY" | "QUARTERLY" | "PROBATION" | "CONFIRMATION";
@@ -26,9 +28,12 @@ export const GRADE_POINTS: Record<Grade, number> = { "A+": 5, A: 4, B: 3, C: 2, 
 export const GRADE_MEANING: Record<Grade, string> = {
   "A+": "Outstanding", A: "Excellent Performance", B: "Good Performance", C: "Inconsistent", D: "Non-performer",
 };
+export const COMP_RATINGS: CompRating[] = ["HD", "D", "ND"];
+export const COMP_RATING_LABEL: Record<CompRating, string> = { HD: "Highly Demonstrated", D: "Demonstrated", ND: "Not Demonstrated" };
 export const STAGE_LABEL: Record<Stage, string> = {
   OBJ_SETTING: "Objective setting", OBJ_REVIEW: "Objectives — line manager approval", MIDYEAR: "Mid-year self review",
-  MID_REVIEW: "Mid-year — line manager review", RPT: "Year-end rating (reporting officer)", HOD1: "Year-end rating (HOD)",
+  MID_REVIEW: "Mid-year — line manager review", YEAREND: "Year-end self review & competency self-assessment",
+  RPT: "Year-end rating (reporting officer)", HOD1: "Year-end rating (HOD)",
   HOD2: "Year-end review (HOD 2)", HR: "HR review", COMPLETED: "Completed", CANCELLED: "Cancelled",
 };
 export const PHASE_LABEL: Record<Phase, string> = { OBJECTIVES: "Objective setting", MIDYEAR: "Mid-year review", YEAREND: "Year-end review" };
@@ -62,7 +67,9 @@ export interface CycleGoal {
   goal_id: number; level_type: "CORPORATE" | "DEPARTMENT"; dept_no: string | null; dept_name: string;
   objective: string; kpi_text: string; target: string; weightage: number;
 }
-export interface Competency { id: number; name: string; description: string; weight_pct: number; seq: number; is_active: boolean; used_count: number }
+export interface Competency {
+  id: number; name: string; description: string; behaviours: string; weight_pct: number; seq: number; is_active: boolean; used_count: number;
+}
 export interface ScaleBand { scale_id?: number | null; label: string; description: string; min_score: number; max_score: number; target_pct: number | null; is_development: boolean }
 export interface PromoBand { band_id?: number | null; min_score: number; label: string; outcome: "PROMOTE" | "PROMOTE_DEV" | "DEFER" | "NOT_RECOMMEND" }
 export interface PromoSettings { comp_weight_pct: number; perf_weight_pct: number; min_tenure_yrs: number }
@@ -78,10 +85,25 @@ export interface Lookups {
 export interface SheetRow {
   emp_goal_id: number; source: "CORPORATE" | "DEPARTMENT" | "INDIVIDUAL"; goal_id: number | null;
   accountability: string; task: string; kpi: string; success_criteria: string; interdependencies: string;
-  weightage: number; due_date: string | null; midyear_progress: string; yearend_comment: string;
+  weightage: number; due_date: string | null; midyear_progress: string; yearend_progress: string;
   self_rating: Grade | null; agreed_rating: Grade | null; self_score: number | null; score: number | null;
-  reviewer_remarks: string; seq: number;
+  /** HOD remarks: at the mid-year review (mid_remarks) and with the year-end agreed rating (reviewer_remarks). */
+  mid_remarks: string; reviewer_remarks: string; seq: number;
 }
+/** One competency of the yearly self-assessment (behaviours: one per line). */
+export interface CompetencyItem {
+  competency_id: number; name: string; definition: string; behaviours: string; rating: CompRating | null; evidence: string;
+}
+export interface CompetencyAssessment {
+  items: CompetencyItem[]; comments: string; tech_trainings: string; soft_trainings: string; declared_at: string | null;
+  hod_comments: string; hod_name: string | null; hod_at: string | null;
+}
+export interface YearEndBody {
+  rows?: { emp_goal_id: number; yearend_progress: string }[];
+  competencies?: { competency_id: number; rating: CompRating | null; evidence: string }[];
+  comments?: string; tech_trainings?: string; soft_trainings?: string;
+}
+export type RowRemark = { emp_goal_id: number; remarks: string };
 export interface RowBody {
   accountability?: string; task: string; kpi?: string; success_criteria?: string; interdependencies?: string; weightage: number; due_date?: string | null;
 }
@@ -113,6 +135,7 @@ export interface Appraisal {
   chain: ReviewRole[]; line_manager_role: ReviewRole; line_manager_name: string | null;
   stage: Stage; stage_label: string;
   obj_locked_at: string | null; mid_locked_at: string | null; mid_comments: string; self_submitted_at: string | null;
+  ye_submitted_at: string | null; competency: CompetencyAssessment;
   self_score: number | null; calc_score?: number | null; hod_grade?: string | null; hr_adj_grade?: string | null; hr_adj_reason?: string | null;
   final_score: number | null; final_rating: string | null; completed_at: string | null; promo_recommended: boolean;
   emp_ack_at: string | null; emp_ack_comment: string;
@@ -122,6 +145,7 @@ export interface Appraisal {
   approvals: ApprovalStep[]; attachments: Attachment[]; promotion_case: CaseSummary | null;
   // permissions (depend on who is looking)
   can_edit_rows?: boolean; can_midyear?: boolean; midyear_waiting_phase?: boolean; can_acknowledge?: boolean;
+  can_yearend?: boolean; yearend_waiting_phase?: boolean;
   my_roles?: string[]; act_role?: ReviewRole | null; waiting_phase?: boolean;
   can_approve_objectives?: boolean; can_sign_midyear?: boolean; can_rate?: boolean; can_return?: boolean;
   can_hr_objectives?: boolean; can_hr_midyear?: boolean; can_hr_act?: boolean;
@@ -311,8 +335,8 @@ export const apprHrApi = {
   deleteRow: (h: Hr, aid: number, id: number) => send(h, "DELETE", `/appraisals/${aid}/rows/${id}`),
   adjust: (h: Hr, aid: number, grade: string | null, reason?: string) => send(h, "PUT", `/appraisals/${aid}/adjust`, { grade, reason }),
   recommendations: (h: Hr, aid: number, body: RecsBody) => send(h, "PUT", `/appraisals/${aid}/recommendations`, body),
-  decide: (h: Hr, aid: number, decision: "approve" | "return", remarks?: string) =>
-    send<{ stage: Stage }>(h, "POST", `/appraisals/${aid}/decision`, { decision, remarks }),
+  decide: (h: Hr, aid: number, decision: "approve" | "return", remarks?: string, rowRemarks?: RowRemark[]) =>
+    send<{ stage: Stage }>(h, "POST", `/appraisals/${aid}/decision`, { decision, remarks, row_remarks: rowRemarks }),
   reassign: (h: Hr, aid: number, body: { rpt_empcode?: string | null; hod1_empcode?: string | null; hod2_empcode?: string | null }) =>
     send<{ stage: Stage }>(h, "PUT", `/appraisals/${aid}/approvers`, body),
   cancel: (h: Hr, aid: number, remarks: string) => send(h, "POST", `/appraisals/${aid}/cancel`, { remarks }),
@@ -374,6 +398,10 @@ export const apprMeApi = {
     apiRequest(`${M(card)}/appraisals/${aid}/midyear`, { method: "PUT", body: { rows }, headers: auth(token) }),
   submitMidYear: (card: string, token: string, aid: number, remarks?: string) =>
     apiRequest<{ stage: Stage }>(`${M(card)}/appraisals/${aid}/midyear/submit`, { method: "POST", body: { remarks }, headers: auth(token) }),
+  saveYearEnd: (card: string, token: string, aid: number, body: YearEndBody) =>
+    apiRequest(`${M(card)}/appraisals/${aid}/yearend`, { method: "PUT", body, headers: auth(token) }),
+  submitYearEnd: (card: string, token: string, aid: number, declared: boolean) =>
+    apiRequest<{ stage: Stage }>(`${M(card)}/appraisals/${aid}/yearend/submit`, { method: "POST", body: { declared }, headers: auth(token) }),
   acknowledge: (card: string, token: string, aid: number, comment?: string) =>
     apiRequest(`${M(card)}/appraisals/${aid}/acknowledge`, { method: "POST", body: { comment }, headers: auth(token) }),
   uploadEvidence: async (card: string, token: string, aid: number, file: File, goalId?: number | null) => {
@@ -416,12 +444,17 @@ export const apprReviewApi = {
     }),
   deleteRow: (card: string, token: string, aid: number, id: number) =>
     apiRequest(`${R(card)}/appraisals/${aid}/rows/${id}`, { method: "DELETE", body: {}, headers: auth(token) }),
-  ratings: (card: string, token: string, aid: number, rows: { emp_goal_id: number; agreed_rating: Grade | null; reviewer_remarks?: string }[]) =>
-    apiRequest<{ calc_score: number | null; final_rating: string | null }>(`${R(card)}/appraisals/${aid}/ratings`, { method: "PUT", body: { rows }, headers: auth(token) }),
+  ratings: (card: string, token: string, aid: number, rows: { emp_goal_id: number; agreed_rating: Grade | null; reviewer_remarks?: string }[],
+    compHodComments?: string) =>
+    apiRequest<{ calc_score: number | null; final_rating: string | null }>(`${R(card)}/appraisals/${aid}/ratings`, {
+      method: "PUT", body: { rows, comp_hod_comments: compHodComments }, headers: auth(token),
+    }),
   recommendations: (card: string, token: string, aid: number, body: RecsBody) =>
     apiRequest(`${R(card)}/appraisals/${aid}/recommendations`, { method: "PUT", body, headers: auth(token) }),
-  decide: (card: string, token: string, aid: number, decision: "approve" | "return", remarks?: string) =>
-    apiRequest<{ stage: Stage }>(`${R(card)}/appraisals/${aid}/decision`, { method: "POST", body: { decision, remarks }, headers: auth(token) }),
+  decide: (card: string, token: string, aid: number, decision: "approve" | "return", remarks?: string, rowRemarks?: RowRemark[]) =>
+    apiRequest<{ stage: Stage }>(`${R(card)}/appraisals/${aid}/decision`, {
+      method: "POST", body: { decision, remarks, row_remarks: rowRemarks }, headers: auth(token),
+    }),
   evidencePath: (card: string, aid: number, attId: number) => `/api${R(card)}/appraisals/${aid}/evidence/${attId}`,
   case: (card: string, token: string, id: number) => apiRequest<PromotionCase>(`${R(card)}/promotion-cases/${id}`, { headers: auth(token) }),
   caseLookups: (card: string, token: string, id: number) =>

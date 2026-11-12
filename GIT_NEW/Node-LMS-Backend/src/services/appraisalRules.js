@@ -8,6 +8,10 @@
  *   row score = weightage% × points; Total "A" = Σ row scores (1.00–5.00)
  *   grade from the total: ≥4.5 A+, ≥3.5 A, ≥2.5 B, ≥1.5 C, else D (company scale)
  *
+ * Year end: the employee writes the year-end progress of every accountability and
+ * fills the competency self-assessment (HD / D / ND per competency) before the
+ * HODs give the agreed rating.
+ *
  * Promotion evaluation (sheets 1–5): eligibility gate, competency score,
  * 3-year performance score, weighted overall score and decision band.
  */
@@ -78,8 +82,18 @@ export const bandFor = (scale, score) => {
 };
 
 // ---------------------------------------------------------------------------
-// Review chain (year end): first rater (HOD1, or the reporting officer when
-// there is no HOD1) → HOD2 (if set) → HR
+// Competency self-assessment ("Competency Self-Assessment FY" form)
+// ---------------------------------------------------------------------------
+
+export const COMP_RATINGS = ["HD", "D", "ND"];
+export const COMP_RATING_LABEL = { HD: "Highly Demonstrated", D: "Demonstrated", ND: "Not Demonstrated" };
+// The form gives no points for HD / D / ND. A promotion evaluation needs a 1–5
+// self rating, so the self-assessment is carried over with these points.
+export const COMP_RATING_POINTS = { HD: 5, D: 3, ND: 1 };
+
+// ---------------------------------------------------------------------------
+// Review chain (year end): employee year-end step (YEAREND) → first rater (HOD1,
+// or the reporting officer when there is no HOD1) → HOD2 (if set) → HR
 // ---------------------------------------------------------------------------
 
 /** Year-end stages of an appraisal given which approvers it has. */
@@ -89,16 +103,18 @@ export const yearEndChain = ({ hasRpt, hasHod1, hasHod2 }) => [
   "HR",
 ];
 
-/** Stage after `stage` on the year-end chain (MID_REVIEW → first rater, last → COMPLETED). */
+/** Stage after `stage`: MID_REVIEW → employee year-end step → first rater … last → COMPLETED. */
 export const nextStageOf = (chain, stage) => {
-  if (stage === "MID_REVIEW") return chain[0];
+  if (stage === "MID_REVIEW") return "YEAREND";
+  if (stage === "YEAREND") return chain[0];
   const i = chain.indexOf(stage);
   return i >= 0 && i < chain.length - 1 ? chain[i + 1] : "COMPLETED";
 };
-/** Stage a year-end reviewer returns to; null when there is nobody before them (mid-year is locked). */
+/** Stage a year-end reviewer returns to: the reviewer before them, the first one to the employee's year-end step. */
 export const prevStageOf = (chain, stage) => {
   const i = chain.indexOf(stage);
-  return i > 0 ? chain[i - 1] : null;
+  if (i < 0) return null;
+  return i > 0 ? chain[i - 1] : "YEAREND";
 };
 
 // ---------------------------------------------------------------------------
@@ -125,18 +141,28 @@ export const eligibilityResult = (answers) => {
   return "ELIGIBLE";
 };
 
-// Sheet 2 — the ten competencies of the DCL promotion form (10% each).
+// The ten DCL competencies (10% each): name, definition, key behaviours (one per line).
 export const DCL_COMPETENCIES = [
-  ["Analytical Thinking", "Logically breaking problems into essential elements; diagnosing issues and developing solutions."],
-  ["Flexibility", "Altering behaviours and opinions in light of new information or changing situations."],
-  ["Positive Self Image", "Positive belief in personal capability; confidence in difficult situations and with people."],
-  ["Tenacity", "Repeated and enduring efforts to overcome obstacles and complete tasks."],
-  ["Initiative", "Engaging in proactive behaviour; seizing opportunities without being asked."],
-  ["Efficiency Orientation", "Seeking the best use of resources; improving methods, systems, processes and structures."],
-  ["Development Orientation", "Identifying and providing opportunities to improve the capabilities of others."],
-  ["Concern for Standards", "Pursuing the highest standards in procedures, systems and outcomes."],
-  ["Results Orientation", "Focusing attention on key objectives; wanting effective, measurable outcomes."],
-  ["Communication", "Presenting ideas verbally and in writing, clearly and effectively, to different audiences."],
+  ["Analytical Thinking", "Logically breaking problems into essential elements; diagnosing issues and developing solutions.",
+    "Breaks complex problems into smaller parts\nUses facts and data to find root causes\nProposes practical, well-reasoned solutions"],
+  ["Flexibility", "Altering behaviours and opinions in light of new information or changing situations.",
+    "Adapts quickly to new priorities\nOpen to feedback and other viewpoints\nStays effective when plans change"],
+  ["Positive Self Image", "Positive belief in personal capability; confidence in difficult situations and with people.",
+    "Speaks up and shares ideas with confidence\nStays calm and composed under pressure\nOwns strengths and learns from mistakes"],
+  ["Tenacity", "Repeated and enduring efforts to overcome obstacles and complete tasks.",
+    "Keeps going despite setbacks\nFollows every task through to completion\nFinds alternative routes around obstacles"],
+  ["Initiative", "Engaging in proactive behaviour; seizing opportunities without being asked.",
+    "Acts without waiting to be told\nSpots problems and opportunities early\nVolunteers for and owns extra responsibilities"],
+  ["Efficiency Orientation", "Seeking the best use of resources; improving methods, systems, processes and structures.",
+    "Saves time or cost through better methods\nStreamlines or automates repeated work\nUses resources wisely, avoids waste"],
+  ["Development Orientation", "Identifying and providing opportunities to improve the capabilities of others.",
+    "Coaches and mentors colleagues\nShares knowledge and gives constructive feedback\nCreates learning opportunities for others"],
+  ["Concern for Standards", "Pursuing the highest standards in procedures, systems and outcomes.",
+    "Checks work for accuracy and quality\nFollows procedures and policies carefully\nCorrects errors quickly and aims for excellence"],
+  ["Results Orientation", "Focusing attention on key objectives; wanting effective, measurable outcomes.",
+    "Sets clear, measurable targets\nPrioritises the most important objectives\nDelivers on time with measurable results"],
+  ["Communication", "Presenting ideas verbally and in writing, clearly and effectively, to different audiences.",
+    "Clear and concise in speaking and writing\nAdjusts the message to the audience\nListens actively and confirms understanding"],
 ];
 
 /** Competency score %: Σ(weight% × rating/5); null until every competency is rated. */

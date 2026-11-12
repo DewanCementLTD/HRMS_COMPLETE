@@ -5,7 +5,7 @@ import {
   GRADE_POINTS, gradeOfPoints, rowScore, sheetTotal, weightProblems, bandFor, DEFAULT_SCALE,
   yearEndChain, nextStageOf, prevStageOf,
   eligibilityResult, ELIGIBILITY_CRITERIA, competencyScore, performanceScore, overallScore, decisionBand, DEFAULT_PROMO_BANDS,
-  categoryOf, DCL_COMPETENCIES,
+  categoryOf, DCL_COMPETENCIES, COMP_RATINGS, COMP_RATING_POINTS,
 } from '../src/services/appraisalRules.js';
 
 // These pin down the numbers of the DCL forms that HR will be asked to defend:
@@ -74,18 +74,31 @@ test('year-end chain uses HOD1, HOD2 if set, then HR', () => {
   assert.deepEqual(yearEndChain({ hasRpt: false, hasHod1: false, hasHod2: false }), ['HR']);
 });
 
-test('after the mid-year sign-off the first rater is next; HR finalises', () => {
+test('after the mid-year sign-off the employee year-end step, then the first rater; HR finalises', () => {
   const chain = ['HOD1', 'HOD2', 'HR'];
-  assert.equal(nextStageOf(chain, 'MID_REVIEW'), 'HOD1');
+  assert.equal(nextStageOf(chain, 'MID_REVIEW'), 'YEAREND');
+  assert.equal(nextStageOf(chain, 'YEAREND'), 'HOD1');
+  assert.equal(nextStageOf(['HR'], 'YEAREND'), 'HR');
   assert.equal(nextStageOf(chain, 'HOD1'), 'HOD2');
   assert.equal(nextStageOf(chain, 'HR'), 'COMPLETED');
 });
 
-test('returns stay inside the year-end chain (the half-year review is locked)', () => {
+test('returns go one step back; the first rater returns to the employee year-end step', () => {
   const chain = ['HOD1', 'HOD2', 'HR'];
   assert.equal(prevStageOf(chain, 'HR'), 'HOD2');
   assert.equal(prevStageOf(chain, 'HOD2'), 'HOD1');
-  assert.equal(prevStageOf(chain, 'HOD1'), null);
+  assert.equal(prevStageOf(chain, 'HOD1'), 'YEAREND');
+  assert.equal(prevStageOf(['HR'], 'HR'), 'YEAREND');
+  // The half-year review stays locked: nothing returns past the year-end step.
+  assert.equal(prevStageOf(chain, 'MID_REVIEW'), null);
+});
+
+test('competency self-assessment: HD / D / ND carry over to a promotion case as 5 / 3 / 1', () => {
+  assert.deepEqual(COMP_RATINGS, ['HD', 'D', 'ND']);
+  assert.deepEqual(COMP_RATINGS.map((r) => COMP_RATING_POINTS[r]), [5, 3, 1]);
+  assert.equal(DCL_COMPETENCIES.length, 10);
+  // Every DCL competency has a definition and three key behaviours.
+  assert.ok(DCL_COMPETENCIES.every(([name, def, beh]) => name && def && beh.split('\n').length === 3));
 });
 
 // ── Promotion sheet 1: eligibility gate ─────────────────────────────

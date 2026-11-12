@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ErrorBox, Empty, Pill, TextArea } from "@/components/training/TrainingUi";
 import {
   StagePill, StageTracker, ScoreStrip, ObjectivesEditor, SheetTable, SheetHeader, Trail, EvidenceList, DecisionModal, BellCurveChart,
-  GradeBadge, GradePicker, printTaskSheet,
+  GradeBadge, GradePicker, printTaskSheet, CompetencyView, MidRemarksEditor, midRemarksBody, printCompetencyForm,
 } from "@/components/appraisal/AppraisalUi";
 import { RecommendationsForm, RecommendationsView } from "@/components/appraisal/AppraisalForms";
 import type { EmployeeLite } from "@/services/trainingService";
@@ -143,6 +143,7 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
   const [adjust, setAdjust] = useState(false);
   const [reassign, setReassign] = useState(false);
   const [cancel, setCancel] = useState(false);
+  const [midRemarks, setMidRemarks] = useState<Record<number, string>>({});
 
   const load = useCallback(() => {
     apprHrApi.appraisal(h, id).then(setA).catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
@@ -156,6 +157,9 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
   const objectives = ["OBJ_SETTING", "OBJ_REVIEW"].includes(a.stage);
   const open = !["COMPLETED", "CANCELLED"].includes(a.stage);
   const hrAsLm = a.can_hr_objectives || a.can_hr_midyear;
+  const preMid = ["MIDYEAR", "MID_REVIEW"].includes(a.stage);
+  const preRating = preMid || a.stage === "YEAREND";
+  const showCompetency = !objectives && !preMid && a.competency.items.length > 0 && (!!a.competency.declared_at || a.stage !== "YEAREND");
   const approveText = objectives ? "Approve & lock objectives" : a.stage === "MID_REVIEW" ? "Sign mid-year review" : "Finalise & lock rating";
 
   return (
@@ -167,6 +171,7 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
         {a.emp_ack_at && <Pill tone="green">Employee signed off</Pill>}
         <div className="ml-auto flex gap-2">
           <Button size="sm" variant="secondary" onClick={() => printTaskSheet(a, user?.selected_company?.name, true)}><Printer className="h-4 w-4 mr-1" />Print</Button>
+          {showCompetency && <Button size="sm" variant="secondary" onClick={() => printCompetencyForm(a, user?.selected_company?.name)}><Printer className="h-4 w-4 mr-1" />Competency form</Button>}
           {open && <Button size="sm" variant="secondary" onClick={() => setReassign(true)}><UserCog className="h-4 w-4 mr-1" />Approvers</Button>}
           {open && <Button size="sm" variant="danger" onClick={() => setCancel(true)}><Ban className="h-4 w-4 mr-1" />Cancel</Button>}
         </div>
@@ -187,13 +192,22 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
         ) : (
           <>
             <p className="font-semibold text-ink inline-flex items-center gap-1.5">Task sheet <Lock className="h-3.5 w-3.5 text-gray-400" /></p>
-            <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: !["MIDYEAR", "MID_REVIEW"].includes(a.stage) }} />
+            <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: !preRating, yearend: !preMid }} />
             {a.mid_comments && <p className="text-sm"><span className="text-gray-500">Mid-year comments: </span>{a.mid_comments}</p>}
+            {a.can_hr_midyear && <MidRemarksEditor a={a} value={midRemarks} onChange={setMidRemarks} />}
+            {a.stage === "YEAREND" && <p className="text-sm text-gray-500">Waiting for the employee&apos;s year-end progress and competency self-assessment.</p>}
           </>
         )}
       </CardContent></Card>
 
-      {!objectives && !["MIDYEAR", "MID_REVIEW"].includes(a.stage) && (
+      {showCompetency && (
+        <Card><CardContent className="py-4 space-y-3">
+          <p className="font-semibold text-ink">Competency self-assessment</p>
+          <CompetencyView c={a.competency} />
+        </CardContent></Card>
+      )}
+
+      {!objectives && !preRating && (
         <Card><CardContent className="py-4 space-y-3">
           <p className="font-semibold text-ink">Recommendations &amp; development</p>
           {atHr && lk ? (
@@ -223,7 +237,7 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
       )}
 
       {decide && <DecisionModal decision={decide} onClose={() => setDecide(null)} approveText={approveText}
-        onConfirm={(remarks) => apprHrApi.decide(h, id, decide, remarks || undefined).then(load)} />}
+        onConfirm={(remarks) => apprHrApi.decide(h, id, decide, remarks || undefined, a.can_hr_midyear ? midRemarksBody(a, midRemarks) : undefined).then(load)} />}
       {adjust && <AdjustModal a={a} onClose={() => setAdjust(false)} onSave={(grade, reason) => apprHrApi.adjust(h, id, grade, reason).then(load)} />}
       {reassign && <ReassignModal h={h} a={a} onClose={() => setReassign(false)} onSaved={() => { setReassign(false); load(); }} />}
       {cancel && (

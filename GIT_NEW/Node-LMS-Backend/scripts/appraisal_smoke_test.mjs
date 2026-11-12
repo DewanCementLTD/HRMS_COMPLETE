@@ -179,16 +179,41 @@ async function main() {
   my = await flow.myAppraisal(emp, aid);
   // self: 20%×4 + 40%×3 + 40%×5 = 0.8 + 1.2 + 2.0 = 4.0
   check('self Total "A" computed', my.self_score === 4, String(my.self_score));
-  const sign = await flow.reviewDecide(rpt, aid, { decision: 'approve', remarks: 'on track' });
-  check('line manager signed the mid-year → HOD', sign.stage === 'HOD1', sign.stage);
+  const sign = await flow.reviewDecide(rpt, aid, {
+    decision: 'approve', remarks: 'on track', row_remarks: my.rows.map((x) => ({ emp_goal_id: x.emp_goal_id, remarks: 'SMOKE mid remark' })),
+  });
+  check('line manager signed the mid-year → employee year-end step', sign.stage === 'YEAREND', sign.stage);
   check('the half-year review is locked', await rejects(() => flow.saveMyMidYear(emp, aid, midBody)));
+  my = await flow.myAppraisal(emp, aid);
+  check('employee sees the line manager remark per row', my.rows.every((x) => x.mid_remarks === 'SMOKE mid remark'));
+
+  // ── Year end: employee ──
+  const yeBody = {
+    rows: my.rows.map((x, i) => ({ emp_goal_id: x.emp_goal_id, yearend_progress: `year-end ${i}` })),
+    competencies: my.competency.items.map((x) => ({ competency_id: x.competency_id, rating: 'HD', evidence: 'example' })),
+    comments: 'ready', tech_trainings: 'Kiln operation', soft_trainings: 'Leadership',
+  };
+  check('the competency self-assessment lists the 10 competencies with key behaviours',
+    my.competency.items.length === 10 && my.competency.items.every((x) => x.behaviours));
+  check('year-end is closed until HR opens the phase', await rejects(() => flow.saveMyYearEnd(emp, aid, yeBody)));
 
   // ── Year end ──
   let rv = await flow.reviewGet(hod, aid);
   const agreed = { rows: rv.rows.map((x, i) => ({ emp_goal_id: x.emp_goal_id, agreed_rating: ['A', 'B', 'A'][i], reviewer_remarks: 'ok' })) };
-  check('HOD cannot rate before the year-end phase', await rejects(() => flow.reviewSaveRatings(hod, aid, agreed)));
   await cycles.setCyclePhase(compc, ACTOR, cyc.cycle_id, 'YEAREND');
-  check('the HOD cannot return (mid-year is locked)', await rejects(() => flow.reviewDecide(hod, aid, { decision: 'return', remarks: 'x' })));
+  check('HOD cannot rate before the employee submits the year-end step', await rejects(() => flow.reviewSaveRatings(hod, aid, agreed)));
+  check('submitting without year-end progress is refused', await rejects(() => flow.submitMyYearEnd(emp, aid, { declared: true })));
+  await flow.saveMyYearEnd(emp, aid, yeBody);
+  check('submitting without the declaration is refused', await rejects(() => flow.submitMyYearEnd(emp, aid, {})));
+  const ye = await flow.submitMyYearEnd(emp, aid, { declared: true });
+  check('year-end step submitted → HOD', ye.stage === 'HOD1', ye.stage);
+  const back = await flow.reviewDecide(hod, aid, { decision: 'return', remarks: 'add numbers' });
+  check('the HOD can return it to the employee', back.stage === 'YEAREND', back.stage);
+  await flow.submitMyYearEnd(emp, aid, { declared: true });
+  rv = await flow.reviewGet(hod, aid);
+  check('HOD sees the year-end progress and the self-assessment',
+    rv.rows.every((x) => x.yearend_progress) && rv.competency.items.every((x) => x.rating === 'HD') && !!rv.competency.declared_at);
+  agreed.comp_hod_comments = 'SMOKE HOD comments';
   check('approving without ratings is refused', await rejects(() => flow.reviewDecide(hod, aid, { decision: 'approve' })));
   const scored = await flow.reviewSaveRatings(hod, aid, agreed);
   // agreed: 20%×4 + 40%×3 + 40%×4 = 0.8 + 1.2 + 1.6 = 3.6 → A
@@ -233,16 +258,11 @@ async function main() {
     `history ${cs.history[0].rating_pct}`);
   check('submitting an incomplete gate is refused', await rejects(() => promo.hrSubmitEligibility(compc, ACTOR, caseId)));
   await promo.hrSaveEligibility(compc, ACTOR, caseId, { answers: cs.eligibility.map((e) => ({ criterion: e.code, status: 'Y', remarks: 'ok' })) });
-  check('eligibility submitted → employee self-assessment', (await promo.hrSubmitEligibility(compc, ACTOR, caseId)).status === 'COMPETENCY');
+  check('self-assessment carried over from the appraisal (HD = 5)', cs.competencies.every((x) => x.self_rating === 5) && !!cs.emp_declared_at);
+  check('eligibility submitted → straight to the manager rating', (await promo.hrSubmitEligibility(compc, ACTOR, caseId)).status === 'MGR_RATING');
 
   const myCase = await promo.myCase(emp, caseId);
-  check('employee sees their self-assessment but not the scorecard', myCase.can_self_assess && myCase.overall_score === undefined);
-  check('submitting unrated is refused', await rejects(() => promo.submitMySelfAssessment(emp, caseId)));
-  await promo.saveMySelfAssessment(emp, caseId, {
-    competencies: myCase.competencies.map((x) => ({ competency_id: x.competency_id, self_rating: 5, evidence: 'example' })),
-    emp_comments: 'ready', tech_trainings: 'Kiln operation', soft_trainings: 'Leadership',
-  });
-  check('self-assessment submitted → manager rating', (await promo.submitMySelfAssessment(emp, caseId)).status === 'MGR_RATING');
+  check('employee sees their self-assessment but not the scorecard', !myCase.can_self_assess && myCase.overall_score === undefined);
 
   const rmView = await promo.reviewGetCase(rpt, caseId);
   check('reporting manager is the competency rater', rmView.can_rate);
@@ -331,7 +351,7 @@ async function cleanup() {
       await del(`DELETE FROM HR_TRAINING_LOG WHERE ENTITY = 'REQUEST' AND ENTITY_ID IN (SELECT REQUEST_ID FROM HR_TRAINING_REQUEST WHERE APPRAISAL_ID IN ${sub})`, { c: cid });
       await del(`UPDATE HR_DEVELOPMENT_PLAN SET TRAINING_REQUEST_ID = NULL WHERE APPRAISAL_ID IN ${sub}`, { c: cid });
       await del(`DELETE FROM HR_TRAINING_REQUEST WHERE APPRAISAL_ID IN ${sub}`, { c: cid });
-      for (const t of ['HR_APPRAISAL_APPROVAL', 'HR_APPRAISAL_COMMENT', 'HR_APPRAISAL_ATTACHMENT', 'HR_APPRAISAL_DETAIL', 'HR_EMPLOYEE_GOAL',
+      for (const t of ['HR_APPRAISAL_APPROVAL', 'HR_APPRAISAL_COMMENT', 'HR_APPRAISAL_ATTACHMENT', 'HR_APPRAISAL_DETAIL', 'HR_APPR_COMPETENCY', 'HR_EMPLOYEE_GOAL',
         'HR_DEVELOPMENT_PLAN', 'HR_PROMOTION_RECOMMENDATION', 'HR_INCREMENT_RECOMMENDATION', 'HR_PERFORMANCE_HISTORY']) {
         await del(`DELETE FROM ${t} WHERE APPRAISAL_ID IN ${sub}`, { c: cid });
       }

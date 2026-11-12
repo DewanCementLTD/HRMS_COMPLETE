@@ -2,13 +2,15 @@
 // Idempotent: objects/columns/constraints that already exist (ORA-00955, 01408,
 // 01430, 01442, 01451, 02260, 02261, 02264, 02275) are skipped, so it is safe to re-run.
 // Also widens HR_TRAINING_REQUEST.SOURCE to accept 'APPRAISAL', and (v2) migrates
-// the appraisal stage / action checks and the rating scale to the DCL process.
+// the appraisal stage / action checks and the rating scale to the DCL process, and
+// (v3) adds the YEAREND stage and the key behaviours of the DCL competencies.
 //   cd Node-LMS-Backend && node scripts/run_appraisal_ddl.mjs
 import 'dotenv/config';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import oracledb from 'oracledb';
+import { DCL_COMPETENCIES } from '../src/services/appraisalRules.js';
 
 try { oracledb.initOracleClient({ libDir: process.env.ORACLE_CLIENT_LIB_DIR }); } catch { /* thin mode */ }
 
@@ -72,8 +74,8 @@ try {
       console.log(`OK    ${table}.${column} check migrated`);
     };
 
-    await replaceCheck('HR_APPRAISAL_MASTER', 'STAGE', "'OBJ_SETTING'", 'HR_APPRAISAL_MASTER_STAGE_CK',
-      `STAGE IN ('OBJ_SETTING','OBJ_REVIEW','MIDYEAR','MID_REVIEW','RPT','HOD1','HOD2','HR','COMPLETED','CANCELLED')`,
+    await replaceCheck('HR_APPRAISAL_MASTER', 'STAGE', "'YEAREND'", 'HR_APPRAISAL_MASTER_STAGE_CK',
+      `STAGE IN ('OBJ_SETTING','OBJ_REVIEW','MIDYEAR','MID_REVIEW','YEAREND','RPT','HOD1','HOD2','HR','COMPLETED','CANCELLED')`,
       async () => {
         // Appraisals launched under the first (BRD) design move to the matching DCL stage.
         for (const [from, to] of [['GOALS', 'OBJ_SETTING'], ['GOALS_REVIEW', 'OBJ_REVIEW'], ['SELF', 'MIDYEAR'], ['MGMT', 'HR']]) {
@@ -83,6 +85,16 @@ try {
       });
     await replaceCheck('HR_APPRAISAL_APPROVAL', 'ACTION', "'FINALISE'", 'HR_APPRAISAL_APPROVAL_ACT_CK',
       `ACTION IN ('SUBMIT','APPROVE','RETURN','CANCEL','REOPEN','SIGN','FINALISE','ACK')`);
+
+    // v3: key behaviours of the DCL competencies, where HR has not written their own.
+    let behaviours = 0;
+    for (const [name, , beh] of DCL_COMPETENCIES) {
+      const u = await conn.execute(
+        `UPDATE HR_COMPETENCY_MASTER SET BEHAVIOURS = :beh WHERE UPPER(NAME) = UPPER(:name) AND BEHAVIOURS IS NULL`, { beh, name },
+      );
+      behaviours += u.rowsAffected ?? 0;
+    }
+    if (behaviours) { created++; console.log(`OK    key behaviours added to ${behaviours} competency row(s)`); }
 
     // v2: rating scale moves from 0-100 bands to DCL grades on the 1-5 points total.
     const GRADES = [

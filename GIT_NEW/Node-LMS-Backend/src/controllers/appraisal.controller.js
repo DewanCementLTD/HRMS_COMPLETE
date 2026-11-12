@@ -149,6 +149,8 @@ export const myDeleteRow = me(({ empcode, params }) => flow.deleteMyRow(empcode,
 export const mySubmitObjectives = me(({ empcode, params, body }) => flow.submitMyObjectives(empcode, params.appraisal_id, body?.remarks));
 export const mySaveMidYear = me(({ empcode, params, body }) => flow.saveMyMidYear(empcode, params.appraisal_id, body));
 export const mySubmitMidYear = me(({ empcode, params, body }) => flow.submitMyMidYear(empcode, params.appraisal_id, body?.remarks));
+export const mySaveYearEnd = me(({ empcode, params, body }) => flow.saveMyYearEnd(empcode, params.appraisal_id, body));
+export const mySubmitYearEnd = me(({ empcode, params, body }) => flow.submitMyYearEnd(empcode, params.appraisal_id, body ?? {}));
 export const myAcknowledge = me(({ empcode, params, body }) => flow.acknowledge(empcode, params.appraisal_id, body?.comment));
 export const myUploadEvidence = me(({ empcode, params, body }, res) =>
   flow.addMyEvidence(empcode, params.appraisal_id, res.req.file, body?.emp_goal_id ?? null));

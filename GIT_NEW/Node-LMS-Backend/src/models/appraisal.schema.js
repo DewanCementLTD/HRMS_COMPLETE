@@ -17,6 +17,7 @@ const pct = z.coerce.number().min(0).max(100);
 const grade = z.enum(["A+", "A", "B", "C", "D"]);
 const optGrade = grade.optional().nullable().or(z.literal("").transform(() => null));
 const rating5 = z.coerce.number().int().min(1).max(5).optional().nullable();
+const compRating = z.enum(["HD", "D", "ND"]).optional().nullable().or(z.literal("").transform(() => null));
 const strCode = z.union([z.string(), z.number()]).transform(String);
 
 const hrQuery = {
@@ -46,6 +47,7 @@ export const hrEmployeesSchema = hr({ dept: z.string().optional() });
 const competencyBody = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   description: optText(1000),
+  behaviours: optText(1000),
   weight_pct: z.coerce.number().positive().max(100).optional(),
   seq: z.coerce.number().int().min(0).max(999).optional(),
   is_active: z.boolean().optional(),
@@ -135,7 +137,11 @@ export const hrRowCreateSchema = hrBody(rowBody, { appraisal_id: id });
 export const hrRowUpdateSchema = hrBody(rowBody, { appraisal_id: id, goal_id: id });
 export const hrRowDeleteSchema = hrParams({ appraisal_id: id, goal_id: id });
 
-const decisionBody = z.object({ decision: z.enum(["approve", "return"]), remarks: optText(1000) });
+// row_remarks: the line manager's remark per accountability, given with the mid-year decision.
+const decisionBody = z.object({
+  decision: z.enum(["approve", "return"]), remarks: optText(1000),
+  row_remarks: z.array(z.object({ emp_goal_id: id, remarks: optText(1000) })).max(20).optional(),
+});
 export const hrDecisionSchema = hrBody(decisionBody, { appraisal_id: id });
 export const hrAdjustSchema = hrBody(z.object({ grade: optGrade, reason: optText(1000) }), { appraisal_id: id });
 export const hrBulkApproveSchema = hrBody(z.object({ ids: z.array(id).max(2000).optional() }), { cycle_id: id });
@@ -244,6 +250,14 @@ export const mySubmitSchema = emp({ appraisal_id: id }, remarksBody);
 export const myMidYearSchema = emp({ appraisal_id: id }, z.object({
   rows: z.array(z.object({ emp_goal_id: id, midyear_progress: optText(2000), self_rating: optGrade })).max(20),
 }));
+export const myYearEndSchema = emp({ appraisal_id: id }, z.object({
+  rows: z.array(z.object({ emp_goal_id: id, yearend_progress: optText(2000) })).max(20).optional(),
+  competencies: z.array(z.object({ competency_id: id, rating: compRating, evidence: optText(1000) })).max(30).optional(),
+  comments: optText(2000), tech_trainings: optText(1000), soft_trainings: optText(1000),
+}));
+export const myYearEndSubmitSchema = emp({ appraisal_id: id }, z.object({
+  remarks: optText(1000), declared: z.boolean().optional(),
+}).optional().default({}));
 export const myAckSchema = emp({ appraisal_id: id }, z.object({ comment: optText(1000) }).optional().default({}));
 export const myEvidenceUploadSchema = z.object({
   params: z.object({ ...card, appraisal_id: id }),
@@ -264,8 +278,10 @@ export const reviewRowUpdateSchema = emp({ appraisal_id: id, goal_id: id }, rowB
 export const reviewRowDeleteSchema = emp({ appraisal_id: id, goal_id: id });
 export const reviewRatingsSchema = emp({ appraisal_id: id }, z.object({
   rows: z.array(z.object({
-    emp_goal_id: id, agreed_rating: optGrade, reviewer_remarks: optText(1000), yearend_comment: optText(1000),
+    emp_goal_id: id, agreed_rating: optGrade, reviewer_remarks: optText(1000),
   })).max(20),
+  // "HOD Comments" of the competency self-assessment; left out = unchanged.
+  comp_hod_comments: optText(2000),
 }));
 export const reviewRecsSchema = emp({ appraisal_id: id }, recsBody);
 export const reviewDecisionSchema = emp({ appraisal_id: id }, decisionBody);

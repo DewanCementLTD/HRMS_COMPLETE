@@ -7,7 +7,8 @@
  * DCL process per appraisal (approvers snapshotted at launch):
  *   objectives + mid-year review: line manager = reporting officer (RPT_OFFICER),
  *     else HOD1, else HR
- *   year end: HOD1 (or the reporting officer when there is no HOD1) → HOD2 (if set) → HR
+ *   year end: employee (year-end progress + competency self-assessment) →
+ *     HOD1 (or the reporting officer when there is no HOD1) → HOD2 (if set) → HR
  *   promotion final decision: HOD, then CEO (HR_APPR_MGMT_APPROVER)
  */
 
@@ -28,10 +29,10 @@ export { bandFor, DEFAULT_SCALE, DEFAULT_PROMO_BANDS, GRADES, GRADE_POINTS } fro
 /** Business-rule failure; the global handler answers it as {detail} with err.status. */
 export { TrainingError as AppraisalError };
 
-export const STAGES = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "MID_REVIEW", "RPT", "HOD1", "HOD2", "HR", "COMPLETED", "CANCELLED"];
+export const STAGES = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "MID_REVIEW", "YEAREND", "RPT", "HOD1", "HOD2", "HR", "COMPLETED", "CANCELLED"];
 export const STAGE_LABEL = {
   OBJ_SETTING: "Objective setting", OBJ_REVIEW: "Objectives — line manager approval", MIDYEAR: "Mid-year self review",
-  MID_REVIEW: "Mid-year — line manager review", RPT: "Year-end rating (reporting officer)", HOD1: "Year-end rating (HOD)",
+  MID_REVIEW: "Mid-year — line manager review", YEAREND: "Year-end self review & competency self-assessment", RPT: "Year-end rating (reporting officer)", HOD1: "Year-end rating (HOD)",
   HOD2: "Year-end review (HOD 2)", HR: "HR review", COMPLETED: "Completed", CANCELLED: "Cancelled",
 };
 // Cycle phases opened by HR: mid-year actions need MIDYEAR or later, year-end actions need YEAREND.
@@ -41,9 +42,10 @@ export const phaseAtLeast = (phase, wanted) => PHASES.indexOf(phase) >= PHASES.i
 export const yn = (v) => (v === true || v === "Y" ? "Y" : "N");
 
 const notInstalled = (err) => {
-  if (err?.errorNum === 942) {
+  // 942 = table missing, 904 = column missing (a newer version of the tables is needed).
+  if (err?.errorNum === 942 || err?.errorNum === 904) {
     // 4xx on purpose: the global handler masks 5xx messages, and HR needs to see this one.
-    throw new TrainingError("Appraisal tables are not installed yet. Run: node scripts/run_appraisal_ddl.mjs", 400);
+    throw new TrainingError("Appraisal tables are not installed or not up to date. Run: node scripts/run_appraisal_ddl.mjs", 400);
   }
 };
 

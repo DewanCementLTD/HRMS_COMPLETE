@@ -85,7 +85,7 @@ export const dashboard = (compc, cycleId) => read(async (c) => {
     { compc, cid: cycle.cycle_id }, { outFormat: OUT_ARRAY },
   );
   const byStage = Object.fromEntries((st.rows ?? []).map((x) => [s(x[0]), num(x[1])]));
-  const stages = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "MID_REVIEW", "RPT", "HOD1", "HOD2", "HR", "COMPLETED"]
+  const stages = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "MID_REVIEW", "YEAREND", "RPT", "HOD1", "HOD2", "HR", "COMPLETED"]
     .map((k) => ({ stage: k, label: STAGE_LABEL[k], count: byStage[k] ?? 0 }));
   const total = stages.reduce((t, x) => t + x.count, 0);
 

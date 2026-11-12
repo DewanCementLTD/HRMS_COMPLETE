@@ -260,12 +260,12 @@ export const saveHolidayData = async ({
     let id = holiday_id ? Number(holiday_id) : null;
     const fromStr = norm(from);
     const toStr = norm(to) || fromStr;
-    const binds = { compc, hfrom: fromStr, hto: toStr, reason: why, by: norm(by).slice(0, 50) };
+    const binds = { compc, hfrom: fromStr, hto: toStr, reason: why, actor: norm(by).slice(0, 50) };
     if (id) {
       const upd = await connection.execute(
         `UPDATE LMS_HOLIDAY
             SET HOLIDAY_FROM = TO_DATE(:hfrom, 'YYYY-MM-DD'), HOLIDAY_TO = TO_DATE(:hto, 'YYYY-MM-DD'), REASON = :reason,
-                UPDATED_BY = :by, UPDATED_AT = SYSDATE
+                UPDATED_BY = :actor, UPDATED_AT = SYSDATE
           WHERE HOLIDAY_ID = :id AND TO_CHAR(COMPC) = TO_CHAR(:compc)`,
         { ...binds, id },
       );
@@ -283,7 +283,7 @@ export const saveHolidayData = async ({
       id = Number(s.rows[0][0]);
       await connection.execute(
         `INSERT INTO LMS_HOLIDAY (HOLIDAY_ID, COMPC, HOLIDAY_FROM, HOLIDAY_TO, REASON, CREATED_BY)
-         VALUES (:id, :compc, TO_DATE(:hfrom, 'YYYY-MM-DD'), TO_DATE(:hto, 'YYYY-MM-DD'), :reason, :by)`,
+         VALUES (:id, :compc, TO_DATE(:hfrom, 'YYYY-MM-DD'), TO_DATE(:hto, 'YYYY-MM-DD'), :reason, :actor)`,
         { ...binds, id },
       );
     }

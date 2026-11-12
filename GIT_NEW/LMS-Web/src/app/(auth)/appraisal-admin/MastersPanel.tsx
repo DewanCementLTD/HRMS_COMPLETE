@@ -44,7 +44,7 @@ function CompetencyCard({ h }: { h: Hr }) {
     setSaving(true);
     try {
       await apprHrApi.saveCompetency(h, {
-        name: edit.m.name, description: edit.m.description, weight_pct: Number(edit.m.weight_pct ?? 10), seq: Number(edit.m.seq ?? 0),
+        name: edit.m.name, description: edit.m.description, behaviours: edit.m.behaviours, weight_pct: Number(edit.m.weight_pct ?? 10), seq: Number(edit.m.seq ?? 0),
         is_active: edit.m.is_active !== false,
       }, edit.id);
       setEdit(null);
@@ -59,7 +59,7 @@ function CompetencyCard({ h }: { h: Hr }) {
   return (
     <Card><CardContent className="py-4 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="font-semibold text-ink">Promotion competencies (sheet 2)</p>
+        <p className="font-semibold text-ink">Competencies (yearly self-assessment &amp; promotion sheet 2)</p>
         {data && <Pill tone={Math.abs(data.active_weight - 100) < 0.01 ? "green" : "red"}>Active weights {data.active_weight}%</Pill>}
         <div className="ml-auto flex gap-2">
           <Button size="sm" variant="secondary"
@@ -69,18 +69,19 @@ function CompetencyCard({ h }: { h: Hr }) {
           <Button size="sm" onClick={() => setEdit({ m: { is_active: true, weight_pct: 10 } })}><Plus className="h-4 w-4 mr-1" />Add</Button>
         </div>
       </div>
-      <p className="text-xs text-gray-500">Copied into every new promotion evaluation. The active weights must total 100%; a running evaluation keeps the weights it started with.</p>
+      <p className="text-xs text-gray-500">Every employee rates these (HD / D / ND) in the year-end competency self-assessment, and they are copied into every new promotion evaluation. The active weights must total 100% (used by the promotion scorecard); a running evaluation keeps the weights it started with.</p>
       <ErrorBox error={error} />
       {!data ? <Spinner /> : data.items.length === 0 ? <Empty>None yet — load the DCL competencies.</Empty> : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">#</th><th className="text-left">Competency</th><th className="text-left">Definition</th><th className="text-right">Weight</th><th /></tr></thead>
+            <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">#</th><th className="text-left">Competency</th><th className="text-left">Definition</th><th className="text-left">Key behaviours</th><th className="text-right">Weight</th><th /></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {data.items.map((m) => (
                 <tr key={m.id} className={m.is_active ? "" : "opacity-50"}>
                   <td className="py-1.5 text-gray-400">{m.seq || ""}</td>
                   <td className="font-medium text-gray-900">{m.name}{!m.is_active && <Pill className="ml-2">inactive</Pill>}</td>
                   <td className="text-xs text-gray-600">{m.description}</td>
+                  <td className="text-xs text-gray-500 whitespace-pre-line">{m.behaviours || "—"}</td>
                   <td className="text-right tabular-nums">{m.weight_pct}%</td>
                   <td className="text-right whitespace-nowrap">
                     <button className="p-1 text-gray-400 hover:text-indigo-600" onClick={() => setEdit({ id: m.id, m })}><Pencil className="h-4 w-4" /></button>
@@ -100,6 +101,7 @@ function CompetencyCard({ h }: { h: Hr }) {
           <div className="space-y-3">
             <Input label="Name" value={edit.m.name ?? ""} onChange={(e) => setEdit({ ...edit, m: { ...edit.m, name: e.target.value } })} />
             <TextArea label="Definition" value={edit.m.description ?? ""} onChange={(v) => setEdit({ ...edit, m: { ...edit.m, description: v } })} />
+            <TextArea label="Key behaviours (one per line)" value={edit.m.behaviours ?? ""} onChange={(v) => setEdit({ ...edit, m: { ...edit.m, behaviours: v } })} />
             <div className="grid grid-cols-2 gap-3">
               <Input label="Weight %" type="number" min={1} max={100} value={edit.m.weight_pct ?? 10} onChange={(e) => setEdit({ ...edit, m: { ...edit.m, weight_pct: Number(e.target.value) } })} />
               <Input label="Order" type="number" min={0} value={edit.m.seq ?? 0} onChange={(e) => setEdit({ ...edit, m: { ...edit.m, seq: Number(e.target.value) } })} />

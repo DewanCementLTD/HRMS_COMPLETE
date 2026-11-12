@@ -549,3 +549,43 @@ CREATE TABLE HR_PROMO_SIGNOFF (
   ACTED_AT     DATE            DEFAULT SYSDATE NOT NULL
 );
 CREATE UNIQUE INDEX HR_PROMO_SIGNOFF_UK ON HR_PROMO_SIGNOFF (CASE_ID, ROLE);
+
+-- ============================================================================
+-- v3 (2026-11-11) — "Task Mid Year Appraisal 26-27 Revise" and "Competency
+-- Self-Assessment FY 2026-2027" forms.
+--   New stage YEAREND (employee) between MID_REVIEW and the year-end raters:
+--   year-end progress per accountability + the competency self-assessment.
+--   The stage check constraint is migrated by run_appraisal_ddl.mjs.
+-- ============================================================================
+
+-- Task sheet: the line manager's remark per accountability at the mid-year review;
+-- the year-end progress (ACHIEVEMENT) is now written by the employee.
+ALTER TABLE HR_EMPLOYEE_GOAL ADD (MID_REMARKS VARCHAR2(1000));
+ALTER TABLE HR_EMPLOYEE_GOAL MODIFY (ACHIEVEMENT VARCHAR2(2000));
+
+-- "Key behaviours (what it looks like)", one per line.
+ALTER TABLE HR_COMPETENCY_MASTER ADD (BEHAVIOURS VARCHAR2(1000));
+
+ALTER TABLE HR_APPRAISAL_MASTER ADD (
+  YE_SUBMITTED_AT      DATE,
+  COMP_COMMENTS        VARCHAR2(2000),
+  COMP_TECH_TRAININGS  VARCHAR2(1000),
+  COMP_SOFT_TRAININGS  VARCHAR2(1000),
+  COMP_DECLARED_AT     DATE,
+  COMP_HOD_COMMENTS    VARCHAR2(2000),
+  COMP_HOD_BY          VARCHAR2(30),
+  COMP_HOD_AT          DATE
+);
+
+-- Competency self-assessment of one appraisal (snapshot of the company's competencies).
+CREATE TABLE HR_APPR_COMPETENCY (
+  APPRAISAL_ID   NUMBER          NOT NULL REFERENCES HR_APPRAISAL_MASTER (APPRAISAL_ID),
+  COMPETENCY_ID  NUMBER          NOT NULL,
+  NAME           VARCHAR2(100)   NOT NULL,
+  DEFINITION     VARCHAR2(1000),
+  BEHAVIOURS     VARCHAR2(1000),
+  SEQ            NUMBER(4)       DEFAULT 0 NOT NULL,
+  SELF_RATING    VARCHAR2(2)     CHECK (SELF_RATING IN ('HD','D','ND')),
+  EVIDENCE       VARCHAR2(1000),
+  CONSTRAINT HR_APPR_COMPETENCY_PK PRIMARY KEY (APPRAISAL_ID, COMPETENCY_ID)
+);

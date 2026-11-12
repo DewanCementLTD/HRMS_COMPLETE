@@ -6,9 +6,11 @@
  *                the line manager may also edit and approve directly
  *   OBJ_REVIEW   line manager approves → objectives PERMANENTLY LOCKED, or returns them
  *   MIDYEAR      (cycle phase ≥ MIDYEAR) employee: mid-year progress + self rating A+…D per row
- *   MID_REVIEW   line manager comments and signs → HALF-YEAR REVIEW LOCKED, or returns
- *   RPT|HOD1     (cycle phase YEAREND) agreed rating per row, promotion recommendation,
- *                optional increment / trainings
+ *   MID_REVIEW   line manager remarks per row, comments and signs → HALF-YEAR REVIEW LOCKED, or returns
+ *   YEAREND      (cycle phase YEAREND) employee: year-end progress per row + the competency
+ *                self-assessment (HD / D / ND, evidence, comments, trainings, declaration)
+ *   RPT|HOD1     agreed rating per row, HOD comments on the competencies, promotion
+ *                recommendation, optional increment / trainings; may return to the employee
  *   HOD2         (if set) may change the ratings; approve, or return to the first rater
  *   HR           bell curve, optional grade override (with reason); finalise → RATING LOCKED
  *   COMPLETED    performance history, development plan, training requests, and a
@@ -30,7 +32,7 @@ import {
   STAGE_LABEL, phaseAtLeast, GRADE_POINTS,
 } from "./appraisalShared.service.js";
 import { recomputeScores } from "./appraisalScore.service.js";
-import { nextStageOf, prevStageOf, weightProblems, rowScore, gradeOfPoints, SHEET_RULES } from "./appraisalRules.js";
+import { nextStageOf, prevStageOf, weightProblems, rowScore, gradeOfPoints, SHEET_RULES, COMP_RATINGS } from "./appraisalRules.js";
 import { writeLog as writeTrainingLog } from "./trainingShared.service.js";
 import { createPromotionCase, caseSummaryFor } from "./appraisalPromotion.service.js";
 
@@ -48,7 +50,9 @@ const HEAD_SELECT = `
          a.PROMO_RECOMMENDED, a.COMPLETED_AT, a.EMP_ACK_AT, a.EMP_ACK_COMMENT,
          y.NAME, y.CYCLE_TYPE, y.FY_YEAR, y.PERIOD_FROM, y.PERIOD_TO, y.GOAL_DEADLINE, y.SELF_DEADLINE, y.REVIEW_DEADLINE,
          y.STATUS, y.PHASE,
-         a.DEPT_NO, a.DESG_CD, a.GRADE_CD, a.UPDATED_AT
+         a.DEPT_NO, a.DESG_CD, a.GRADE_CD, a.UPDATED_AT,
+         a.YE_SUBMITTED_AT, a.COMP_COMMENTS, a.COMP_TECH_TRAININGS, a.COMP_SOFT_TRAININGS, a.COMP_DECLARED_AT,
+         a.COMP_HOD_COMMENTS, (SELECT MAX(r.NAME) FROM HR_EMP_MASTER r WHERE r.EMPCODE = a.COMP_HOD_BY), a.COMP_HOD_AT
     FROM HR_APPRAISAL_MASTER a
     JOIN HR_APPRAISAL_CYCLE y ON y.CYCLE_ID = a.CYCLE_ID
     LEFT JOIN HR_EMP_MASTER m ON m.EMPCODE = a.EMPCODE`;
@@ -67,6 +71,12 @@ const rowToHead = (x) => ({
     goal_deadline: ymd(x[36]), self_deadline: ymd(x[37]), review_deadline: ymd(x[38]), status: s(x[39]), phase: s(x[40]),
   },
   dept_no: s(x[41]), desg_cd: s(x[42]), grade_cd: s(x[43]), updated_at: ymdhm(x[44]),
+  ye_submitted_at: ymdhm(x[45]),
+  // Competency self-assessment, everything but the competency lines (loadCompetencyItems).
+  comp_meta: {
+    comments: s(x[46]), tech_trainings: s(x[47]), soft_trainings: s(x[48]), declared_at: ymdhm(x[49]),
+    hod_comments: s(x[50]), hod_name: s(x[51]) || null, hod_at: ymdhm(x[52]),
+  },
 });
 
 const loadHead = async (c, id, { lock = false } = {}) => {
@@ -90,7 +100,7 @@ const nameByMobile = async (c, mno) => {
 const loadRows = async (c, id) => {
   const r = await c.execute(
     `SELECT EMP_GOAL_ID, SOURCE, GOAL_ID, ACCOUNTABILITY, OBJECTIVE, KPI_TEXT, TARGET, INTERDEPENDENCIES, WEIGHTAGE, DUE_DATE,
-            MIDYEAR_PROGRESS, ACHIEVEMENT, SELF_RATING, HOD_RATING, REMARKS, SEQ
+            MIDYEAR_PROGRESS, ACHIEVEMENT, SELF_RATING, HOD_RATING, REMARKS, SEQ, MID_REMARKS
        FROM HR_EMPLOYEE_GOAL WHERE APPRAISAL_ID = :id
       ORDER BY CASE SOURCE WHEN 'CORPORATE' THEN 0 WHEN 'DEPARTMENT' THEN 1 ELSE 2 END, SEQ, EMP_GOAL_ID`,
     { id }, { outFormat: OUT_ARRAY },
@@ -101,12 +111,47 @@ const loadRows = async (c, id) => {
     return {
       emp_goal_id: num(x[0]), source: s(x[1]), goal_id: numOrNull(x[2]), accountability: s(x[3]), task: s(x[4]), kpi: s(x[5]),
       success_criteria: s(x[6]), interdependencies: s(x[7]), weightage: num(x[8]), due_date: ymd(x[9]),
-      midyear_progress: s(x[10]), yearend_comment: s(x[11]),
+      midyear_progress: s(x[10]), yearend_progress: s(x[11]), mid_remarks: s(x[16]),
       self_rating: gradeOfPoints(self), agreed_rating: gradeOfPoints(agreed),
       self_score: self === null ? null : r2(rowScore(x[8], self)), score: agreed === null ? null : r2(rowScore(x[8], agreed)),
       reviewer_remarks: s(x[14]), seq: num(x[15]),
     };
   });
+};
+
+/**
+ * Competency lines of the self-assessment. They are copied from the company's
+ * active competencies the first time the employee saves; until then the
+ * company's list is shown unrated.
+ */
+const loadCompetencyItems = async (c, head) => {
+  let r = await c.execute(
+    `SELECT COMPETENCY_ID, NAME, DEFINITION, BEHAVIOURS, SELF_RATING, EVIDENCE
+       FROM HR_APPR_COMPETENCY WHERE APPRAISAL_ID = :id ORDER BY SEQ, COMPETENCY_ID`,
+    { id: head.appraisal_id }, { outFormat: OUT_ARRAY },
+  );
+  if (!r.rows?.length && !["COMPLETED", "CANCELLED"].includes(head.stage)) {
+    r = await c.execute(
+      `SELECT COMPETENCY_ID, NAME, DESCRIPTION, BEHAVIOURS, NULL, NULL
+         FROM HR_COMPETENCY_MASTER WHERE COMPC = :compc AND IS_ACTIVE = 'Y' ORDER BY SEQ, UPPER(NAME)`,
+      { compc: head.compc }, { outFormat: OUT_ARRAY },
+    );
+  }
+  return (r.rows ?? []).map((x) => ({
+    competency_id: num(x[0]), name: s(x[1]), definition: s(x[2]), behaviours: s(x[3]), rating: s(x[4]) || null, evidence: s(x[5]),
+  }));
+};
+
+/** Copy the company's active competencies onto the appraisal (once). */
+const ensureCompetencyRows = async (c, head) => {
+  const have = await c.execute(`SELECT COUNT(*) FROM HR_APPR_COMPETENCY WHERE APPRAISAL_ID = :id`, { id: head.appraisal_id }, { outFormat: OUT_ARRAY });
+  if (num(have.rows[0][0])) return;
+  await c.execute(
+    `INSERT INTO HR_APPR_COMPETENCY (APPRAISAL_ID, COMPETENCY_ID, NAME, DEFINITION, BEHAVIOURS, SEQ)
+     SELECT :id, COMPETENCY_ID, NAME, DESCRIPTION, BEHAVIOURS, ROW_NUMBER() OVER (ORDER BY SEQ, UPPER(NAME))
+       FROM HR_COMPETENCY_MASTER WHERE COMPC = :compc AND IS_ACTIVE = 'Y'`,
+    { id: head.appraisal_id, compc: head.compc },
+  );
 };
 
 const loadRecommendations = async (c, id) => {
@@ -178,9 +223,10 @@ const loadTrail = async (c, id) => {
 
 /** Everything about one appraisal (internal: includes HOD mobiles). */
 const loadFull = async (c, id) => {
-  const head = await loadHead(c, id);
+  const { comp_meta: compMeta, ...head } = await loadHead(c, id);
   // One connection runs one statement at a time, so load sequentially.
   const rows = await loadRows(c, id);
+  const competency = { ...compMeta, items: await loadCompetencyItems(c, head) };
   const recs = await loadRecommendations(c, id);
   const dev_plan = await loadDevPlan(c, id);
   const trail = await loadTrail(c, id);
@@ -194,7 +240,7 @@ const loadFull = async (c, id) => {
     line_manager_name: lm === "RPT" ? head.rpt_name : lm === "HOD1" ? hod1_name : lm === "HOD2" ? hod2_name : "HR",
     stage_label: STAGE_LABEL[head.stage] ?? head.stage,
     rows, weight_total: r2(rows.reduce((t, g) => t + g.weightage, 0)), weight_problems: weightProblems(rows),
-    rules: SHEET_RULES, ...recs, dev_plan, ...trail, promotion_case,
+    rules: SHEET_RULES, competency, ...recs, dev_plan, ...trail, promotion_case,
   };
 };
 
@@ -213,6 +259,7 @@ const employeeView = (full) => {
     final_score: done ? full.final_score : null,
     final_rating: done ? full.final_rating : null,
     rows: full.rows.map((g) => (done ? g : { ...g, agreed_rating: null, score: null, reviewer_remarks: "" })),
+    competency: done ? full.competency : { ...full.competency, hod_comments: "", hod_name: null, hod_at: null },
     dev_plan: done ? full.dev_plan : [],
     approvals: full.approvals.map((a) => ({ ...a, score: null, remarks: a.action === "RETURN" || a.stage === "MID_REVIEW" || done ? a.remarks : "" })),
   };
@@ -393,10 +440,11 @@ const forward = async (c, head, who, remarks) => {
   return { appraisal_id: head.appraisal_id, stage: next };
 };
 
+/** Return on the year-end chain: to the reviewer before, the first rater back to the employee's year-end step. */
 const sendBack = async (c, head, who, remarks) => {
   if (!s(remarks)) throw new AppraisalError("Please say why you are returning it");
   const prev = prevStageOf(chainOf(head), head.stage);
-  if (!prev) throw new AppraisalError("The half-year review is locked — there is no earlier step to return to");
+  if (!prev) throw new AppraisalError("There is no earlier step to return to");
   await record(c, head, { ...who, action: "RETURN", next: prev, remarks });
   await moveTo(c, head, prev, who.actor);
   return { appraisal_id: head.appraisal_id, stage: prev };
@@ -463,9 +511,19 @@ const returnObjectives = async (c, head, who, remarks) => {
   return { appraisal_id: head.appraisal_id, stage: "OBJ_SETTING" };
 };
 
-/** Line manager signs the mid-year review → half-year locked; the year-end chain is next. */
+/** The line manager's remark per accountability ("HOD remarks"), given with the mid-year decision. */
+const saveMidRemarks = async (c, head, rowRemarks) => {
+  for (const g of rowRemarks ?? []) {
+    await c.execute(
+      `UPDATE HR_EMPLOYEE_GOAL SET MID_REMARKS = :rem, UPDATED_AT = SYSDATE WHERE EMP_GOAL_ID = :g AND APPRAISAL_ID = :id`,
+      { rem: s(g.remarks).slice(0, 1000) || null, g: num(g.emp_goal_id), id: head.appraisal_id },
+    );
+  }
+};
+
+/** Line manager signs the mid-year review → half-year locked; the employee's year-end step is next. */
 const signMidYear = async (c, head, who, remarks) => {
-  const next = chainOf(head)[0];
+  const next = nextStageOf(chainOf(head), "MID_REVIEW");
   await c.execute(`UPDATE HR_APPRAISAL_MASTER SET MID_COMMENTS = :mc WHERE APPRAISAL_ID = :id`, { mc: s(remarks) || null, id: head.appraisal_id });
   await record(c, head, { ...who, action: "SIGN", next, remarks });
   await moveTo(c, head, next, who.actor, ", MID_LOCKED_AT = SYSDATE");
@@ -498,6 +556,7 @@ export const myAppraisals = (empcode) => read(async (c) => {
     appraisal_id: h.appraisal_id, cycle: h.cycle, stage: h.stage, stage_label: STAGE_LABEL[h.stage] ?? h.stage,
     my_turn: h.cycle.status === "ACTIVE" && (h.stage === "OBJ_SETTING"
       || (h.stage === "MIDYEAR" && phaseAtLeast(h.cycle.phase, "MIDYEAR"))
+      || (h.stage === "YEAREND" && phaseAtLeast(h.cycle.phase, "YEAREND"))
       || (h.stage === "COMPLETED" && !h.emp_ack_at)),
     final_score: h.stage === "COMPLETED" ? h.final_score : null,
     final_rating: h.stage === "COMPLETED" ? h.final_rating : null,
@@ -513,6 +572,8 @@ export const myAppraisal = (empcode, id) => read(async (c) => {
     can_edit_rows: active && full.stage === "OBJ_SETTING",
     can_midyear: active && full.stage === "MIDYEAR" && phaseAtLeast(full.cycle.phase, "MIDYEAR"),
     midyear_waiting_phase: full.stage === "MIDYEAR" && !phaseAtLeast(full.cycle.phase, "MIDYEAR"),
+    can_yearend: active && full.stage === "YEAREND" && phaseAtLeast(full.cycle.phase, "YEAREND"),
+    yearend_waiting_phase: full.stage === "YEAREND" && !phaseAtLeast(full.cycle.phase, "YEAREND"),
     can_acknowledge: full.stage === "COMPLETED" && !full.emp_ack_at,
   };
 });
@@ -520,7 +581,8 @@ export const myAppraisal = (empcode, id) => read(async (c) => {
 const assertEmpStage = (head, stage) => {
   assertActive(head);
   if (head.stage !== stage) {
-    throw new AppraisalError(stage === "OBJ_SETTING" ? "The objectives can no longer be changed" : "The mid-year review is not open for you");
+    throw new AppraisalError(stage === "OBJ_SETTING" ? "The objectives can no longer be changed"
+      : stage === "YEAREND" ? "The year-end review is not open for you" : "The mid-year review is not open for you");
   }
 };
 
@@ -571,6 +633,70 @@ export const submitMyMidYear = (empcode, id, remarks) => withTx(async (c) => {
   return { appraisal_id: id, stage: "MID_REVIEW" };
 });
 
+/** "HD" / "D" / "ND" (or null); anything else is refused. */
+const COMP_RATING = (v) => {
+  if (v === null || v === undefined || v === "") return null;
+  const r = String(v).toUpperCase();
+  if (!COMP_RATINGS.includes(r)) throw new AppraisalError("Competency ratings are HD, D or ND");
+  return r;
+};
+
+/**
+ * Year end, employee: year-end progress per accountability and the competency
+ * self-assessment (rating + evidence per competency, comments, trainings).
+ * Only the parts that are sent are saved.
+ */
+export const saveMyYearEnd = (empcode, id, body) => withTx(async (c) => {
+  const head = await ownHead(c, empcode, id, { lock: true });
+  assertEmpStage(head, "YEAREND");
+  assertPhase(head, "YEAREND");
+  for (const g of body.rows ?? []) {
+    await c.execute(
+      `UPDATE HR_EMPLOYEE_GOAL SET ACHIEVEMENT = :ye, UPDATED_AT = SYSDATE WHERE EMP_GOAL_ID = :g AND APPRAISAL_ID = :id`,
+      { ye: s(g.yearend_progress).slice(0, 2000) || null, g: num(g.emp_goal_id), id },
+    );
+  }
+  if (body.competencies) {
+    await ensureCompetencyRows(c, head);
+    for (const x of body.competencies) {
+      await c.execute(
+        `UPDATE HR_APPR_COMPETENCY SET SELF_RATING = :r, EVIDENCE = :ev WHERE APPRAISAL_ID = :id AND COMPETENCY_ID = :cid`,
+        { r: COMP_RATING(x.rating), ev: s(x.evidence).slice(0, 1000) || null, id, cid: num(x.competency_id) },
+      );
+    }
+  }
+  const text = (key, col, max) => (body[key] === undefined ? null : [col, s(body[key]).slice(0, max) || null]);
+  const sets = [text("comments", "COMP_COMMENTS", 2000), text("tech_trainings", "COMP_TECH_TRAININGS", 1000), text("soft_trainings", "COMP_SOFT_TRAININGS", 1000)]
+    .filter(Boolean);
+  if (sets.length) {
+    await c.execute(
+      `UPDATE HR_APPRAISAL_MASTER SET ${sets.map(([col], i) => `${col} = :v${i}`).join(", ")} WHERE APPRAISAL_ID = :id`,
+      { ...Object.fromEntries(sets.map(([, val], i) => [`v${i}`, val])), id },
+    );
+  }
+  return { saved: true };
+});
+
+/** Year end, employee: declare and send to the first year-end rater. */
+export const submitMyYearEnd = (empcode, id, { remarks, declared } = {}) => withTx(async (c) => {
+  const head = await ownHead(c, empcode, id, { lock: true });
+  assertEmpStage(head, "YEAREND");
+  assertPhase(head, "YEAREND");
+  const noProgress = (await loadRows(c, id)).filter((g) => !g.yearend_progress).length;
+  if (noProgress) throw new AppraisalError(`Write your year-end progress for every accountability first (${noProgress} missing)`);
+  await ensureCompetencyRows(c, head);
+  const comps = await loadCompetencyItems(c, head);
+  if (comps.length) {
+    const unrated = comps.filter((x) => !x.rating).length;
+    if (unrated) throw new AppraisalError(`Rate every competency first (${unrated} missing)`);
+    if (!declared) throw new AppraisalError("Please confirm the declaration of your competency self-assessment");
+  }
+  const next = nextStageOf(chainOf(head), "YEAREND");
+  await record(c, head, { role: "EMP", actor: empcode, actorName: head.emp_name, action: "SUBMIT", next, remarks });
+  await moveTo(c, head, next, empcode, `, YE_SUBMITTED_AT = SYSDATE${comps.length ? ", COMP_DECLARED_AT = SYSDATE" : ""}`);
+  return { appraisal_id: id, stage: next };
+});
+
 /** Final year-end sign-off by the employee (acknowledges the locked rating). */
 export const acknowledge = (empcode, id, comment) => withTx(async (c) => {
   const head = await ownHead(c, empcode, id, { lock: true });
@@ -613,17 +739,17 @@ export const myHistory = (empcode) => read(async (c) => {
 });
 
 // ---------------------------------------------------------------------------
-// Evidence files (employee before the mid-year submission; everyone with access may download)
+// Evidence files (employee, while a step of theirs is open; everyone with access may download)
 // ---------------------------------------------------------------------------
 
 export const EVIDENCE_DIR = path.join(DOCS_ROOT, "APPRAISAL_EVIDENCE");
 const EVIDENCE_EXTS = new Set([".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".png", ".jpg", ".jpeg"]);
-const EVIDENCE_STAGES = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR"];
+const EVIDENCE_STAGES = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "YEAREND"];
 
 export const addMyEvidence = (empcode, id, file, goalId) => withTx(async (c) => {
   const head = await ownHead(c, empcode, id, { lock: true });
   assertActive(head);
-  if (!EVIDENCE_STAGES.includes(head.stage)) throw new AppraisalError("Evidence can only be added before you submit your mid-year review");
+  if (!EVIDENCE_STAGES.includes(head.stage)) throw new AppraisalError("Evidence can only be added while your objectives, mid-year or year-end review is open");
   if (!file?.buffer?.length) throw new AppraisalError("Choose a file to upload");
   const ext = path.extname(file.originalname || "").toLowerCase();
   if (!EVIDENCE_EXTS.has(ext)) throw new AppraisalError("Allowed files: PDF, Word, PowerPoint, Excel, text or image");
@@ -755,7 +881,7 @@ export const reviewGet = (empcode, id) => read(async (c) => {
     can_approve_objectives: can(["OBJ_SETTING", "OBJ_REVIEW"]),
     can_sign_midyear: can(["MID_REVIEW"]),
     can_rate: can(["RPT", "HOD1", "HOD2"]),
-    can_return: can(["OBJ_REVIEW", "MID_REVIEW"]) || (can(["HOD2"])),
+    can_return: can(["OBJ_REVIEW", "MID_REVIEW", "RPT", "HOD1", "HOD2"]),
   };
 });
 
@@ -782,21 +908,30 @@ export const reviewDeleteRow = (empcode, id, goalId) => withTx(async (c) => {
   return deleteRow(c, head, goalId);
 });
 
-/** Agreed ratings (A+ … D) and remarks of the current year-end rater. */
-const saveAgreed = async (c, head, body) => {
+/**
+ * Agreed ratings (A+ … D) and remarks of the current year-end rater, and their
+ * "HOD comments" on the employee's competency self-assessment.
+ */
+const saveAgreed = async (c, head, body, actor) => {
   for (const g of body.rows ?? []) {
     await c.execute(
-      `UPDATE HR_EMPLOYEE_GOAL SET HOD_RATING = :r, REMARKS = :rem, ACHIEVEMENT = NVL(:ye, ACHIEVEMENT), UPDATED_AT = SYSDATE
+      `UPDATE HR_EMPLOYEE_GOAL SET HOD_RATING = :r, REMARKS = :rem, UPDATED_AT = SYSDATE
         WHERE EMP_GOAL_ID = :g AND APPRAISAL_ID = :id`,
-      { r: POINTS(g.agreed_rating), rem: s(g.reviewer_remarks) || null, ye: s(g.yearend_comment) || null, g: num(g.emp_goal_id), id: head.appraisal_id },
+      { r: POINTS(g.agreed_rating), rem: s(g.reviewer_remarks) || null, g: num(g.emp_goal_id), id: head.appraisal_id },
+    );
+  }
+  if (body.comp_hod_comments !== undefined) {
+    await c.execute(
+      `UPDATE HR_APPRAISAL_MASTER SET COMP_HOD_COMMENTS = :cm, COMP_HOD_BY = :actor, COMP_HOD_AT = SYSDATE WHERE APPRAISAL_ID = :id`,
+      { cm: s(body.comp_hod_comments).slice(0, 2000) || null, actor: s(actor).slice(0, 30), id: head.appraisal_id },
     );
   }
   return recomputeScores(c, head.appraisal_id);
 };
 
 export const reviewSaveRatings = (empcode, id, body) => withTx(async (c) => {
-  const { head } = await actingHead(c, empcode, id, ["RPT", "HOD1", "HOD2"]);
-  return saveAgreed(c, head, body);
+  const { head, me } = await actingHead(c, empcode, id, ["RPT", "HOD1", "HOD2"]);
+  return saveAgreed(c, head, body, me.empcode);
 });
 
 /**
@@ -889,13 +1024,14 @@ export const reviewSaveRecommendations = (empcode, id, body) => withTx(async (c)
   return saveRecs(c, head, empcode, body);
 });
 
-export const reviewDecide = (empcode, id, { decision, remarks }) => withTx(async (c) => {
+export const reviewDecide = (empcode, id, { decision, remarks, row_remarks: rowRemarks }) => withTx(async (c) => {
   const { head, me, act_role: role } = await actingHead(c, empcode, id, ["OBJ_SETTING", "OBJ_REVIEW", "MID_REVIEW", "RPT", "HOD1", "HOD2"]);
   const who = { role, actor: me.empcode, actorName: me.name };
   if (["OBJ_SETTING", "OBJ_REVIEW"].includes(head.stage)) {
     return decision === "return" ? returnObjectives(c, head, who, remarks) : approveObjectives(c, head, who, remarks);
   }
   if (head.stage === "MID_REVIEW") {
+    await saveMidRemarks(c, head, rowRemarks);
     return decision === "return" ? returnMidYear(c, head, who, remarks) : signMidYear(c, head, who, remarks);
   }
   if (decision === "return") return sendBack(c, head, who, remarks);
@@ -1009,7 +1145,7 @@ export const hrSaveRecommendations = (compc, actor, id, body) => withTx(async (c
  * when HR is the line manager (no reporting officer / HOD), the objective
  * approval and mid-year sign-off.
  */
-export const hrDecide = (compc, actor, id, { decision, remarks }) => withTx(async (c) => {
+export const hrDecide = (compc, actor, id, { decision, remarks, row_remarks: rowRemarks }) => withTx(async (c) => {
   const head = await hrHead(c, compc, id, { lock: true });
   assertActive(head);
   const who = { role: "HR", actor, actorName: await nameOf(c, actor) };
@@ -1021,6 +1157,7 @@ export const hrDecide = (compc, actor, id, { decision, remarks }) => withTx(asyn
   if (head.stage === "MID_REVIEW") {
     if (!hrIsLm) throw new AppraisalError("The line manager signs the mid-year review");
     assertPhase(head, "MIDYEAR");
+    await saveMidRemarks(c, head, rowRemarks);
     return decision === "return" ? returnMidYear(c, head, who, remarks) : signMidYear(c, head, who, remarks);
   }
   if (head.stage !== "HR") throw new AppraisalError("This appraisal is not at the HR review stage");

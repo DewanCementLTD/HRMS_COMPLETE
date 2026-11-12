@@ -271,7 +271,7 @@ function CompetencySheet({ cs, canRate, review }: { cs: PromotionCase; canRate: 
   const totalW = cs.competencies.reduce((t, c) => t + c.weight_pct, 0);
   return (
     <Section n="2" title="Competency assessment" right={<span className="text-xs">Self {pctText(cs.self_comp_score)} · Manager {pctText(cs.comp_score)}</span>}>
-      <p className="text-xs text-gray-500">The employee rates themself 1–5 with a real example; the line manager / HOD then rates each competency — the manager&apos;s rating counts. Weights are set by HR.</p>
+      <p className="text-xs text-gray-500">The employee&apos;s rating comes from the yearly competency self-assessment (HD = 5, D = 3, ND = 1), or they rate themself 1–5 here; the line manager / HOD then rates each competency — the manager&apos;s rating counts. Weights are set by HR.</p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-[11px] text-gray-500 uppercase"><tr>

@@ -102,6 +102,8 @@ router.delete("/me/:card_no/appraisals/:appraisal_id/rows/:goal_id", validate(S.
 router.post("/me/:card_no/appraisals/:appraisal_id/objectives/submit", validate(S.mySubmitSchema), E, C.mySubmitObjectives);
 router.put("/me/:card_no/appraisals/:appraisal_id/midyear", validate(S.myMidYearSchema), E, C.mySaveMidYear);
 router.post("/me/:card_no/appraisals/:appraisal_id/midyear/submit", validate(S.mySubmitSchema), E, C.mySubmitMidYear);
+router.put("/me/:card_no/appraisals/:appraisal_id/yearend", validate(S.myYearEndSchema), E, C.mySaveYearEnd);          // year-end progress + competency self-assessment
+router.post("/me/:card_no/appraisals/:appraisal_id/yearend/submit", validate(S.myYearEndSubmitSchema), E, C.mySubmitYearEnd); // {declared: true}
 router.post("/me/:card_no/appraisals/:appraisal_id/acknowledge", validate(S.myAckSchema), E, C.myAcknowledge);
 router.post("/me/:card_no/appraisals/:appraisal_id/evidence", uploadEvidence, validate(S.myEvidenceUploadSchema), E, C.myUploadEvidence); // multipart "file" (+ emp_goal_id)
 router.get("/me/:card_no/appraisals/:appraisal_id/evidence/:att_id", validate(S.myEvidenceSchema), E, C.myEvidence);

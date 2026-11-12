@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, SignInAgain, ErrorBox, Empty, Pill } from "@/components/training/TrainingUi";
 import {
   StagePill, StageTracker, ScoreStrip, ObjectivesEditor, SheetTable, SheetHeader, Trail, EvidenceList, DecisionModal, GradeBadge, printTaskSheet,
+  CompetencyView, MidRemarksEditor, midRemarksBody, printCompetencyForm,
 } from "@/components/appraisal/AppraisalUi";
 import { AgreedRatingsForm, RecommendationsForm, RecommendationsView } from "@/components/appraisal/AppraisalForms";
 import { PromotionCaseView, CaseStatusPill } from "@/components/appraisal/PromotionCase";
@@ -127,6 +128,7 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
   const [lk, setLk] = useState<{ designations: Designation[]; courses: Course[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [decide, setDecide] = useState<"approve" | "return" | null>(null);
+  const [midRemarks, setMidRemarks] = useState<Record<number, string>>({});
 
   const load = useCallback(() => {
     apprReviewApi.get(card, token, id).then(setA).catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
@@ -141,6 +143,9 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
   const objectives = ["OBJ_SETTING", "OBJ_REVIEW"].includes(a.stage);
   const mid = a.stage === "MID_REVIEW";
   const yearEnd = !!a.can_rate;
+  // Before the year-end rating there is nothing agreed to show.
+  const preRating = ["MIDYEAR", "MID_REVIEW", "YEAREND"].includes(a.stage);
+  const showCompetency = !yearEnd && !objectives && !["MIDYEAR", "MID_REVIEW"].includes(a.stage) && !!a.competency.declared_at;
   const approveText = objectives ? "Approve & lock objectives" : mid ? "Sign mid-year review" : "Approve & forward";
 
   return (
@@ -151,13 +156,17 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
         <StagePill stage={a.stage} />
         {a.act_role && <Pill tone="red">Waiting for you as {ROLE_LABEL[a.act_role]}</Pill>}
         {a.waiting_phase && <Pill>Waiting for HR to open the {a.stage === "MID_REVIEW" ? "mid-year" : "year-end"} phase</Pill>}
-        <Button className="ml-auto" variant="secondary" size="sm" onClick={() => printTaskSheet(a, companyName, true)}><Printer className="h-4 w-4 mr-1" />Print</Button>
+        {a.stage === "YEAREND" && <Pill>Waiting for the employee&apos;s year-end review</Pill>}
+        <div className="ml-auto flex gap-1">
+          <Button variant="secondary" size="sm" onClick={() => printTaskSheet(a, companyName, true)}><Printer className="h-4 w-4 mr-1" />Print</Button>
+          {!!a.competency.declared_at && <Button variant="secondary" size="sm" onClick={() => printCompetencyForm(a, companyName)}><Printer className="h-4 w-4 mr-1" />Competency form</Button>}
+        </div>
       </div>
 
       <Card><CardContent className="py-4 space-y-3">
         <SheetHeader a={a} />
         <StageTracker a={a} />
-        {!objectives && !["MIDYEAR", "MID_REVIEW"].includes(a.stage) && <ScoreStrip a={a} internal />}
+        {!objectives && !preRating && <ScoreStrip a={a} internal />}
       </CardContent></Card>
 
       {objectives ? (
@@ -173,14 +182,22 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
         <Card><CardContent className="py-4 space-y-3">
           <p className="font-semibold text-ink">Year-end — agreed rating per accountability</p>
           {a.mid_comments && <p className="text-sm"><span className="text-gray-500">Mid-year comments: </span>{a.mid_comments}</p>}
-          <AgreedRatingsForm key={a.stage} a={a} onSave={(rows) => apprReviewApi.ratings(card, token, id, rows).then(load)} />
+          <AgreedRatingsForm key={a.stage} a={a} onSave={(rows, hodComments) => apprReviewApi.ratings(card, token, id, rows, hodComments).then(load)} />
         </CardContent></Card>
       ) : (
         <Card><CardContent className="py-4 space-y-3">
           <p className="font-semibold text-ink inline-flex items-center gap-1.5">Task sheet {a.obj_locked_at && <Lock className="h-3.5 w-3.5 text-gray-400" />}</p>
-          <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: !["MIDYEAR", "MID_REVIEW"].includes(a.stage) }} />
+          <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: !preRating, yearend: !["MIDYEAR", "MID_REVIEW"].includes(a.stage) }} />
           {a.mid_comments && <p className="text-sm"><span className="text-gray-500">Mid-year comments: </span>{a.mid_comments}</p>}
-          {mid && a.can_sign_midyear && <p className="text-xs text-gray-500">Review the employee&apos;s progress and self ratings, then sign. Signing locks the half-year review.</p>}
+          {mid && a.can_sign_midyear && <MidRemarksEditor a={a} value={midRemarks} onChange={setMidRemarks} />}
+          {mid && a.can_sign_midyear && <p className="text-xs text-gray-500">Review the employee&apos;s progress and self ratings, add your remarks, then sign. Signing locks the half-year review.</p>}
+        </CardContent></Card>
+      )}
+
+      {showCompetency && (
+        <Card><CardContent className="py-4 space-y-3">
+          <p className="font-semibold text-ink">Competency self-assessment</p>
+          <CompetencyView c={a.competency} />
         </CardContent></Card>
       )}
 
@@ -191,7 +208,7 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
             onSave={(body) => apprReviewApi.recommendations(card, token, id, body).then(load)} />
         </CardContent></Card>
       )}
-      {!yearEnd && !objectives && !["MIDYEAR", "MID_REVIEW"].includes(a.stage) && (
+      {!yearEnd && !objectives && !preRating && (
         <Card><CardContent className="py-4 space-y-2"><p className="font-semibold text-ink">Recommendations</p><RecommendationsView a={a} showPay /></CardContent></Card>
       )}
 
@@ -205,8 +222,8 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
       {a.act_role && (a.can_approve_objectives || a.can_sign_midyear || a.can_rate) && (
         <div className="sticky bottom-3 flex flex-wrap justify-end gap-2 rounded-xl bg-white/90 backdrop-blur border border-gray-100 shadow-sm p-3">
           <span className="text-xs text-gray-500 mr-auto self-center">
-            {objectives ? "Approving locks the objectives permanently." : mid ? "Signing locks the half-year review; the year-end rating comes next." :
-              "Save your ratings first. Approving sends it to the next level."}
+            {objectives ? "Approving locks the objectives permanently." : mid ? "Signing locks the half-year review; the employee's year-end review comes next." :
+              "Save your ratings first. Approving sends it to the next level; Return sends it one step back."}
           </span>
           {a.can_return && <Button variant="secondary" onClick={() => setDecide("return")}><CornerUpLeft className="h-4 w-4 mr-1" />Return</Button>}
           <Button onClick={() => setDecide("approve")}>{mid ? <PenLine className="h-4 w-4 mr-1" /> : <Check className="h-4 w-4 mr-1" />}{approveText}</Button>
@@ -215,7 +232,7 @@ function ReviewDetail({ card, token, id, companyName, onBack }: { card: string; 
       {decide && (
         <DecisionModal decision={decide} onClose={() => setDecide(null)} approveText={approveText}
           note={mid && decide === "approve" ? <p className="text-sm text-gray-600">Your comments are recorded as the mid-year sign-off.</p> : undefined}
-          onConfirm={(remarks) => apprReviewApi.decide(card, token, id, decide, remarks || undefined).then(onBack)} />
+          onConfirm={(remarks) => apprReviewApi.decide(card, token, id, decide, remarks || undefined, mid ? midRemarksBody(a, midRemarks) : undefined).then(onBack)} />
       )}
     </div>
   );

@@ -4,7 +4,9 @@
  *
  *   ELIGIBILITY  sheet 1, HR answers 7 gates Yes/No → NOT_ELIGIBLE (closed) or COMPETENCY
  *   COMPETENCY   sheet 2, employee self-rates the 10 competencies (+ evidence, development
- *                needs, comments, training requests, declaration)
+ *                needs, comments, training requests, declaration). Skipped when the
+ *                employee already declared the yearly competency self-assessment in the
+ *                appraisal: it is carried over (HD / D / ND = 5 / 3 / 1)
  *   MGR_RATING   sheet 2, the reporting manager (else the HOD) rates them — this rating counts
  *   HR_REVIEW    sheet 3 (last 3 years, prefilled) + sheet 4 (auto scorecard, HR recommendation)
  *   SIGNOFF      sheet 5, independent recommendations: reporting manager, HOD, HR head
@@ -20,6 +22,7 @@ import {
 } from "./appraisalShared.service.js";
 import {
   ELIGIBILITY_CRITERIA, eligibilityResult, competencyScore, performanceScore, overallScore, decisionBand, yearsBetween, GRADE_POINTS,
+  COMP_RATING_POINTS,
 } from "./appraisalRules.js";
 
 export const CASE_STATUS_LABEL = {
@@ -69,6 +72,25 @@ export const createPromotionCase = async (c, head, actor) => {
       { id, cid: num(x[0]), n: s(x[1]), d: s(x[2]) || null, w: num(x[3]), seq: seq++ },
     );
   }
+  // Sheet 2 starts from the competency self-assessment the employee declared in this appraisal.
+  const points = Object.entries(COMP_RATING_POINTS).map(([k, p]) => `'${k}', ${p}`).join(", ");
+  await c.execute(
+    `UPDATE HR_PROMO_COMPETENCY p
+        SET (p.SELF_RATING, p.EVIDENCE) = (SELECT DECODE(a.SELF_RATING, ${points}), a.EVIDENCE FROM HR_APPR_COMPETENCY a
+                                            WHERE a.APPRAISAL_ID = :aid AND a.COMPETENCY_ID = p.COMPETENCY_ID)
+      WHERE p.CASE_ID = :id
+        AND EXISTS (SELECT 1 FROM HR_APPR_COMPETENCY a
+                     WHERE a.APPRAISAL_ID = :aid AND a.COMPETENCY_ID = p.COMPETENCY_ID AND a.SELF_RATING IS NOT NULL)`,
+    { id, aid: head.appraisal_id },
+  );
+  await c.execute(
+    `UPDATE HR_PROMOTION_CASE p
+        SET (p.EMP_COMMENTS, p.TECH_TRAININGS, p.SOFT_TRAININGS, p.EMP_DECLARED_AT) =
+            (SELECT a.COMP_COMMENTS, a.COMP_TECH_TRAININGS, a.COMP_SOFT_TRAININGS, a.COMP_DECLARED_AT
+               FROM HR_APPRAISAL_MASTER a WHERE a.APPRAISAL_ID = :aid)
+      WHERE p.CASE_ID = :id`,
+    { id, aid: head.appraisal_id },
+  );
   // Sheet 3 starts from the employee's last three completed appraisals (score out of 5 → %).
   const hist = await c.execute(
     `SELECT y.NAME, y.FY_YEAR, h.FINAL_SCORE, h.FINAL_RATING
@@ -349,7 +371,11 @@ export const hrSaveEligibility = (compc, actor, caseId, body) => withTx(async (c
   return recomputeCase(c, caseId);
 });
 
-/** Submit sheet 1: not eligible closes the case; eligible opens the employee's self-assessment. */
+/**
+ * Submit sheet 1: not eligible closes the case; eligible opens the employee's
+ * self-assessment, or goes straight to the manager rating when the employee
+ * already declared it in the appraisal.
+ */
 export const hrSubmitEligibility = (compc, actor, caseId) => withTx(async (c) => {
   const cs = await hrCase(c, compc, caseId, { lock: true });
   assertStatus(cs, ["ELIGIBILITY"]);
@@ -360,8 +386,11 @@ export const hrSubmitEligibility = (compc, actor, caseId) => withTx(async (c) =>
     await rejectRecommendation(c, cs);
     return { case_id: caseId, status: "NOT_ELIGIBLE" };
   }
-  await setStatus(c, cs, "COMPETENCY", actor);
-  return { case_id: caseId, status: "COMPETENCY" };
+  const comps = await loadCompetencies(c, caseId);
+  const selfDone = !!cs.emp_declared_at && comps.length > 0 && comps.every((x) => x.self_rating !== null);
+  const next = selfDone ? "MGR_RATING" : "COMPETENCY";
+  await setStatus(c, cs, next, actor);
+  return { case_id: caseId, status: next };
 });
 
 /** Sheet 3 (performance history) — HR edits during HR review (or earlier). */

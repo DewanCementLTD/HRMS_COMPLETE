@@ -10,9 +10,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, SignInAgain, ErrorBox, Empty, Pill } from "@/components/training/TrainingUi";
 import {
   StagePill, StageTracker, ScoreStrip, ObjectivesEditor, SheetTable, SheetHeader, Trail, EvidenceList, TrendChart, DecisionModal,
-  GradeBadge, printTaskSheet,
+  GradeBadge, printTaskSheet, CompetencyView, printCompetencyForm,
 } from "@/components/appraisal/AppraisalUi";
-import { MidYearForm, RecommendationsView } from "@/components/appraisal/AppraisalForms";
+import { MidYearForm, YearEndForm, RecommendationsView } from "@/components/appraisal/AppraisalForms";
 import { MyCaseForm, CaseStatusPill } from "@/components/appraisal/PromotionCase";
 import {
   apprMeApi, CYCLE_TYPE_LABEL, PHASE_LABEL, scoreText, type Appraisal, type MyAppraisalRow, type History, type MyCase,
@@ -103,8 +103,12 @@ function AppraisalDetail({ card, token, id, companyName, onBack }: { card: strin
   if (!a) return <Spinner />;
   const done = a.stage === "COMPLETED";
   const lastReturn = [...a.approvals].reverse().find((s) => s.action === "RETURN");
-  const returnedToMe = lastReturn && lastReturn.next_stage === a.stage && ["OBJ_SETTING", "MIDYEAR"].includes(a.stage) ? lastReturn : null;
+  const returnedToMe = lastReturn && lastReturn.next_stage === a.stage && ["OBJ_SETTING", "MIDYEAR", "YEAREND"].includes(a.stage) ? lastReturn : null;
   const pastObjectives = !["OBJ_SETTING", "OBJ_REVIEW"].includes(a.stage);
+  const pastMidYear = pastObjectives && !["MIDYEAR", "MID_REVIEW"].includes(a.stage);
+  const myStep = ["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR", "YEAREND"].includes(a.stage) && a.cycle.status === "ACTIVE";
+  // The self-assessment shows read-only once it is submitted (while it is open, the form below holds it).
+  const showCompetency = pastMidYear && !a.can_yearend && a.competency.items.length > 0 && (!!a.competency.declared_at || a.stage !== "YEAREND");
 
   return (
     <div className="space-y-4">
@@ -115,6 +119,7 @@ function AppraisalDetail({ card, token, id, companyName, onBack }: { card: strin
         <Pill>Phase: {PHASE_LABEL[a.cycle.phase]}</Pill>
         <div className="ml-auto flex gap-1">
           <Button variant="secondary" size="sm" onClick={() => printTaskSheet(a, companyName)}><Printer className="h-4 w-4 mr-1" />Print</Button>
+          {showCompetency && <Button variant="secondary" size="sm" onClick={() => printCompetencyForm(a, companyName)}><Printer className="h-4 w-4 mr-1" />Competency form</Button>}
           <Button variant="ghost" size="sm" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
         </div>
       </div>
@@ -128,6 +133,7 @@ function AppraisalDetail({ card, token, id, companyName, onBack }: { card: strin
           </div>
         )}
         {a.midyear_waiting_phase && <p className="text-sm text-blue-700">Your objectives are approved and locked. HR will open the mid-year review.</p>}
+        {a.yearend_waiting_phase && <p className="text-sm text-blue-700">Your mid-year review is signed and locked. HR will open the year-end review, where you write your year-end progress and fill the competency self-assessment.</p>}
         {done && <ScoreStrip a={a} internal={false} />}
       </CardContent></Card>
 
@@ -155,10 +161,20 @@ function AppraisalDetail({ card, token, id, companyName, onBack }: { card: strin
         </CardContent></Card>
       )}
 
-      {pastObjectives && !a.can_midyear && (
+      {a.can_yearend && (
+        <Card><CardContent className="py-4 space-y-3">
+          <p className="font-semibold text-ink">Year-end review — your progress and competency self-assessment</p>
+          {a.mid_comments && <p className="text-sm"><span className="text-gray-500">Line manager&apos;s mid-year comments: </span>{a.mid_comments}</p>}
+          <YearEndForm key={a.ye_submitted_at ?? "new"} a={a}
+            onSave={(body) => apprMeApi.saveYearEnd(card, token, id, body)}
+            onSubmit={(declared) => apprMeApi.submitYearEnd(card, token, id, declared).then(load)} />
+        </CardContent></Card>
+      )}
+
+      {pastObjectives && !a.can_midyear && !a.can_yearend && (
         <Card><CardContent className="py-4 space-y-3">
           <p className="font-semibold text-ink">{done ? "Final task sheet" : "Your task sheet"}</p>
-          <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: done }} />
+          <SheetTable rows={a.rows} show={{ progress: true, self: true, agreed: done, yearend: pastMidYear }} />
           {a.mid_comments && <p className="text-sm"><span className="text-gray-500">Line manager&apos;s mid-year comments: </span>{a.mid_comments}</p>}
           {done && <RecommendationsView a={a} showPay={false} />}
           {a.can_acknowledge && (
@@ -171,11 +187,18 @@ function AppraisalDetail({ card, token, id, companyName, onBack }: { card: strin
         </CardContent></Card>
       )}
 
+      {showCompetency && (
+        <Card><CardContent className="py-4 space-y-3">
+          <p className="font-semibold text-ink">Competency self-assessment</p>
+          <CompetencyView c={a.competency} />
+        </CardContent></Card>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         <Card><CardContent className="py-4">
           <EvidenceList files={a.attachments} token={token} pathOf={(att) => apprMeApi.evidencePath(card, id, att)}
-            onUpload={["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR"].includes(a.stage) && a.cycle.status === "ACTIVE" ? (f) => apprMeApi.uploadEvidence(card, token, id, f).then(load) : undefined}
-            onDelete={["OBJ_SETTING", "OBJ_REVIEW", "MIDYEAR"].includes(a.stage) && a.cycle.status === "ACTIVE" ? (att) => apprMeApi.deleteEvidence(card, token, id, att).then(load) : undefined} />
+            onUpload={myStep ? (f) => apprMeApi.uploadEvidence(card, token, id, f).then(load) : undefined}
+            onDelete={myStep ? (att) => apprMeApi.deleteEvidence(card, token, id, att).then(load) : undefined} />
         </CardContent></Card>
         <Card><CardContent className="py-4 space-y-2">
           <p className="font-semibold text-ink text-sm">History</p>

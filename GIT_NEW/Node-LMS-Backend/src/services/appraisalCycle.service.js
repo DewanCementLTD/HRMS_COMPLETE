@@ -111,7 +111,8 @@ export const setCycleStatus = (compc, actor, id, status) => withTx(async (c) => 
 
 /**
  * Phase of the cycle, opened by HR in order: OBJECTIVES → MIDYEAR → YEAREND.
- * Employees fill the mid-year review only from MIDYEAR, HODs rate only from YEAREND.
+ * Employees fill the mid-year review only from MIDYEAR; the employee's year-end
+ * step and the HOD ratings open from YEAREND.
  */
 export const setCyclePhase = (compc, actor, id, phase) => withTx(async (c) => {
   const cur = await loadCycle(c, compc, id);
