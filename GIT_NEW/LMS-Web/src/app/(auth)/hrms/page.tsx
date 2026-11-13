@@ -1073,7 +1073,7 @@ export default function HRMSPage() {
                           {emp.empcode}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
-                          {emp.card_no || emp.atdtcard || "-"}
+                          {emp.atdtcard || emp.card_no || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {refDepts.find((d) => d.dept_no === Number(emp.dept_no))?.dept_name || emp.dept_no || "-"}
@@ -1167,7 +1167,7 @@ export default function HRMSPage() {
       <div className="animate-fade-in">
         <PageHeader
           title={`Attendance — ${emp?.name || ""}`}
-          subtitle={`${emp?.empcode} | Card: ${emp?.card_no || emp?.atdtcard || "N/A"}`}
+          subtitle={`${emp?.empcode} | Card: ${emp?.atdtcard || emp?.card_no || "N/A"}`}
           actions={
             <Button variant="secondary" onClick={goList}>
               <ArrowLeft className="h-4 w-4 mr-1.5" />

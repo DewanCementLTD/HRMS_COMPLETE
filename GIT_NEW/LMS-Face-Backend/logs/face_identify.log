@@ -1,0 +1,57 @@
+2026-11-13 11:14:05,897 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
+2026-11-13 11:14:06,835 INFO [FAISS] Loaded 225 embeddings
+2026-11-13 11:26:30,001 INFO [IDENTIFY] matched=100183.3 similarity=0.7588
+2026-11-13 11:27:12,438 INFO [IDENTIFY] matched=100183.3 similarity=0.7588
+2026-11-13 11:27:57,253 INFO [IDENTIFY] matched=100110.3 similarity=0.6515
+2026-11-13 11:31:13,103 ERROR [IDENTIFY] rejected: best_match=100083.2 similarity=0.2384 (< 0.50 threshold)
+2026-11-13 11:31:38,884 INFO [IDENTIFY] matched=100166.3 similarity=0.5745
+2026-11-13 11:31:41,033 INFO [IDENTIFY] matched=100166.3 similarity=0.5745
+2026-11-13 11:32:18,436 ERROR [IDENTIFY] rejected: best_match=100160.3 similarity=0.2402 (< 0.50 threshold)
+2026-11-13 11:32:37,373 INFO [IDENTIFY] matched=100110.3 similarity=0.6383
+2026-11-13 11:32:41,352 INFO [IDENTIFY] matched=100110.3 similarity=0.6383
+2026-11-13 11:34:00,498 INFO [IDENTIFY] matched=100117.3 similarity=0.6320
+2026-11-13 11:34:04,352 INFO [IDENTIFY] matched=100117.3 similarity=0.6320
+2026-11-13 11:49:38,687 INFO [IDENTIFY] matched=100149.3 similarity=0.5422
+2026-11-13 11:49:42,280 INFO [IDENTIFY] matched=100149.3 similarity=0.5422
+2026-11-13 11:49:53,929 INFO [IDENTIFY] matched=100017.3 similarity=0.7610
+2026-11-13 11:49:57,201 INFO [IDENTIFY] matched=100017.3 similarity=0.7610
+2026-11-13 12:03:16,109 ERROR [IDENTIFY] rejected: best_match=100058.3 similarity=0.4061 (< 0.50 threshold)
+2026-11-13 12:03:51,173 ERROR [IDENTIFY] rejected: best_match=100058.3 similarity=0.4018 (< 0.50 threshold)
+2026-11-13 12:04:31,279 ERROR [IDENTIFY] rejected: best_match=100009.2 similarity=0.3828 (< 0.50 threshold)
+2026-11-13 12:04:53,283 ERROR [IDENTIFY] rejected: best_match=100048.2 similarity=0.3538 (< 0.50 threshold)
+2026-11-13 12:05:20,656 ERROR [IDENTIFY] rejected: best_match=100011.2 similarity=0.2725 (< 0.50 threshold)
+2026-11-13 12:05:23,116 INFO [IDENTIFY] matched=100009.3 similarity=0.6651
+2026-11-13 12:05:30,277 INFO [IDENTIFY] matched=100009.3 similarity=0.6651
+2026-11-13 12:05:54,343 ERROR [IDENTIFY] rejected: best_match=100039.2 similarity=0.2504 (< 0.50 threshold)
+2026-11-13 12:06:21,151 INFO [IDENTIFY] matched=100058.3 similarity=0.6581
+2026-11-13 12:06:24,940 INFO [IDENTIFY] matched=100058.3 similarity=0.6581
+2026-11-13 12:12:14,958 INFO [IDENTIFY] matched=100135.3 similarity=0.5020
+2026-11-13 12:12:19,128 INFO [IDENTIFY] matched=100135.3 similarity=0.5020
+2026-11-13 13:53:20,561 ERROR [IDENTIFY] rejected: no face detected in any of 10 frame(s)
+2026-11-13 13:54:26,851 INFO [IDENTIFY] matched=100009.3 similarity=0.7090
+2026-11-13 13:55:42,103 INFO [IDENTIFY] matched=100009.3 similarity=0.6621
+2026-11-13 13:57:07,790 INFO [IDENTIFY] matched=100009.3 similarity=0.6269
+2026-11-13 15:07:09,827 ERROR [IDENTIFY] rejected: best_match=100048.3 similarity=0.4650 (< 0.50 threshold)
+2026-11-13 15:07:28,798 INFO [IDENTIFY] matched=100048.3 similarity=0.5641
+2026-11-13 15:07:30,892 INFO [IDENTIFY] matched=100048.3 similarity=0.5641
+2026-11-13 16:23:36,245 INFO [IDENTIFY] matched=100001.3 similarity=0.6242
+2026-11-13 16:33:15,786 INFO [IDENTIFY] matched=100125.3 similarity=0.7452
+2026-11-13 16:33:18,023 INFO [IDENTIFY] matched=100125.3 similarity=0.7452
+2026-11-13 17:07:36,078 INFO [IDENTIFY] matched=100012.3 similarity=0.6085
+2026-11-13 17:10:21,146 INFO [IDENTIFY] matched=100017.3 similarity=0.6720
+2026-11-13 17:10:23,856 INFO [IDENTIFY] matched=100017.3 similarity=0.6720
+2026-11-13 17:21:43,403 INFO [IDENTIFY] matched=100002.3 similarity=0.6982
+2026-11-13 17:26:08,480 ERROR [IDENTIFY] rejected: no face detected in any of 10 frame(s)
+2026-11-13 17:26:23,027 ERROR [IDENTIFY] rejected: best_match=100064.3 similarity=0.3902 (< 0.50 threshold)
+2026-11-13 17:26:38,500 INFO [IDENTIFY] matched=100064.3 similarity=0.5525
+2026-11-13 17:26:41,454 INFO [IDENTIFY] matched=100064.3 similarity=0.5525
+2026-11-13 17:45:50,872 INFO [IDENTIFY] matched=100073.3 similarity=0.6670
+2026-11-13 17:45:53,613 INFO [IDENTIFY] matched=100073.3 similarity=0.6670
+2026-11-13 17:46:19,258 INFO [IDENTIFY] matched=100073.3 similarity=0.7118
+2026-11-13 17:46:22,153 INFO [IDENTIFY] matched=100073.3 similarity=0.7118
+2026-11-13 17:47:14,229 ERROR [IDENTIFY] rejected: best_match=100073.3 similarity=0.4697 (< 0.50 threshold)
+2026-11-13 17:47:22,606 INFO [IDENTIFY] matched=100073.3 similarity=0.6955
+2026-11-13 17:47:27,888 INFO [IDENTIFY] matched=100073.3 similarity=0.6955
+2026-11-13 17:48:01,894 ERROR [IDENTIFY] rejected: no face detected in any of 10 frame(s)
+2026-11-13 17:48:17,418 INFO [IDENTIFY] matched=100061.3 similarity=0.6180
+2026-11-13 17:48:22,638 INFO [IDENTIFY] matched=100061.3 similarity=0.6180
