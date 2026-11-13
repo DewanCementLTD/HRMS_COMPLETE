@@ -58,5 +58,5 @@ LMS-Backend/AI/_watcher_*.txt
 LMS-Backend/AI/pipeline.log
 
 # ── Backend runtime logs ──
-LMS-Backend/logs/
-LMS-Face-Backend/logs/face_identify.log
+# LMS-Backend/logs/
+# LMS-Face-Backend/logs/face_identify.log
