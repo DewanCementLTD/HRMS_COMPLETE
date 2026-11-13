@@ -59,4 +59,4 @@ LMS-Backend/AI/pipeline.log
 
 # ── Backend runtime logs ──
 LMS-Backend/logs/
-LMS-Face-Backend/logs/
+LMS-Face-Backend/logs/face_identify.log
