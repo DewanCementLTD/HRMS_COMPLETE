@@ -108,7 +108,7 @@ export default function LoginPage() {
           </div>
 
           <div className="animate-fade-in bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-white">Welcome back</h2>
+            <h2 className="text-2xl font-bold text-white">WELCOME BACK</h2>
             <p className="text-gray-300 mt-2 mb-8">Sign in to your account to continue</p>
 
             {error && (

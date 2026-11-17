@@ -304,6 +304,8 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
   const [employees, setEmployees] = useState<TrackRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  // Counter buttons: "Y" = only tracking enabled, "N" = only disabled, null = all.
+  const [trackFilter, setTrackFilter] = useState<"Y" | "N" | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
   const [localSettings, setLocalSettings] = useState<
@@ -371,29 +373,64 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
     }));
   }
 
-  const filtered = employees.filter(
-    (e) =>
-      !query ||
-      e.name.toLowerCase().includes(query.toLowerCase()) ||
-      e.empcode.includes(query)
-  );
+  const filtered = employees.filter((e) => {
+    if (query && !e.name.toLowerCase().includes(query.toLowerCase()) && !e.empcode.includes(query)) return false;
+    if (trackFilter) {
+      const s = localSettings[e.empcode];
+      // A row with unsaved changes stays visible, so toggling it doesn't make
+      // it vanish before its Save button can be clicked.
+      const dirty = s && (s.track !== e.track_location || s.hr !== e.track_location_hr);
+      if (!dirty && (s?.track ?? e.track_location) !== trackFilter) return false;
+    }
+    return true;
+  });
 
   // Count from localSettings so it updates immediately as the user toggles
   const enabledCount = Object.values(localSettings).filter((s) => s.track === "Y").length;
   const disabledCount = Object.values(localSettings).filter((s) => s.track === "N").length;
+  const toggleTrackFilter = (v: "Y" | "N") => setTrackFilter((cur) => (cur === v ? null : v));
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
+      {/* Summary — each counter filters the list; click again to show everyone */}
       <div className="flex flex-wrap gap-3">
-        <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-100 text-sm">
-          <span className="font-semibold text-emerald-700">{enabledCount}</span>
-          <span className="text-gray-500 ml-1">tracking enabled</span>
-        </div>
-        <div className="px-4 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm">
-          <span className="font-semibold text-gray-600">{disabledCount}</span>
-          <span className="text-gray-500 ml-1">tracking disabled</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => toggleTrackFilter("Y")}
+          aria-pressed={trackFilter === "Y"}
+          title={trackFilter === "Y" ? "Show all employees" : "Show only employees with tracking enabled"}
+          className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
+            trackFilter === "Y"
+              ? "bg-emerald-600 border-emerald-600 text-white"
+              : "bg-emerald-50 border-emerald-100 hover:bg-emerald-100"
+          }`}
+        >
+          <span className={`font-semibold ${trackFilter === "Y" ? "text-white" : "text-emerald-700"}`}>{enabledCount}</span>
+          <span className={`ml-1 ${trackFilter === "Y" ? "text-emerald-50" : "text-gray-500"}`}>tracking enabled</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleTrackFilter("N")}
+          aria-pressed={trackFilter === "N"}
+          title={trackFilter === "N" ? "Show all employees" : "Show only employees with tracking disabled"}
+          className={`px-4 py-2 rounded-xl border text-sm transition-colors ${
+            trackFilter === "N"
+              ? "bg-gray-700 border-gray-700 text-white"
+              : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+          }`}
+        >
+          <span className={`font-semibold ${trackFilter === "N" ? "text-white" : "text-gray-600"}`}>{disabledCount}</span>
+          <span className={`ml-1 ${trackFilter === "N" ? "text-gray-100" : "text-gray-500"}`}>tracking disabled</span>
+        </button>
+        {trackFilter && (
+          <button
+            type="button"
+            onClick={() => setTrackFilter(null)}
+            className="px-3 py-2 rounded-xl border border-gray-200 text-xs text-gray-500 hover:text-red-500"
+          >
+            Show all
+          </button>
+        )}
         <div className="px-3 py-2 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-600 flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5 shrink-0" />
           Interval = how often the app captures the employee's GPS location

@@ -342,7 +342,7 @@ function HistorySheet({ cs, editable, hr }: { cs: PromotionCase; editable: boole
             {rows.map((r, i) => (
               <tr key={r.seq}>
                 <td className="py-1.5">{editable ? <input className="w-28 px-2 py-1 rounded border border-gray-200" value={r.appraisal_year} onChange={(e) => upd(i, { appraisal_year: e.target.value })} /> : r.appraisal_year || "—"}</td>
-                <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.rating_pct ?? ""} onChange={(e) => upd(i, { rating_pct: num(e.target.value) })} /> : pctText(r.rating_pct)}</td>
+                <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.rating_pct ?? ""} onChange={(e) => upd(i, SHOW_KPI ? { rating_pct: num(e.target.value) } : { rating_pct: num(e.target.value), kpi_pct: num(e.target.value) })} /> : pctText(r.rating_pct)}</td>
                 {SHOW_KPI && <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.kpi_pct ?? ""} onChange={(e) => upd(i, { kpi_pct: num(e.target.value) })} /> : pctText(r.kpi_pct)}</td>}
                 <td className="pl-3">{editable ? <input className="w-full px-2 py-1 rounded border border-gray-200" value={r.achievements} onChange={(e) => upd(i, { achievements: e.target.value })} /> : <span className="text-xs text-gray-600">{r.achievements}</span>}</td>
               </tr>

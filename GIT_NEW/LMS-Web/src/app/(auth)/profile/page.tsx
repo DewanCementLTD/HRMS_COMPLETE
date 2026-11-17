@@ -23,7 +23,6 @@ import {
   CreditCard,
   Lock,
   Shield,
-  Activity,
   Camera,
   Loader2,
 } from "lucide-react";
@@ -115,21 +114,17 @@ export default function ProfilePage() {
 
   if (loading) return <Spinner />;
 
-  const statusLabel = profile?.emp_status === "A" ? "Active" : profile?.emp_status === "D" ? "Deactive" : profile?.emp_status || "-";
-
   const infoFields = [
     { icon: User, label: "Full Name", value: profile?.emp_name },
     { icon: CreditCard, label: "Card No / EMP Code", value: profile?.card_no || profile?.emp_code },
     { icon: Building2, label: "Department", value: profile?.department },
     { icon: Briefcase, label: "Designation", value: profile?.designation },
-    { icon: Activity, label: "Status", value: statusLabel },
     { icon: Mail, label: "Email", value: profile?.email_address },
     { icon: Phone, label: "Mobile", value: profile?.mobile_no },
     { icon: CalendarDays, label: "Date of Birth", value: formatDate(profile?.date_of_birth || "") },
     { icon: CalendarDays, label: "Date of Joining", value: formatDate(profile?.date_of_join || "") },
     { icon: User, label: "Father / Husband Name", value: profile?.father_name },
     { icon: Shield, label: "NIC No", value: profile?.nic_no },
-    { icon: Briefcase, label: "Employee Type", value: profile?.type },
   ];
 
   return (

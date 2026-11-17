@@ -260,7 +260,7 @@ export function SheetHeader({ a }: { a: Appraisal }) {
   );
 }
 
-/** Objectives & KPIs editor (before the objectives are locked). */
+/** Objectives editor (before the objectives are locked). */
 export function ObjectivesEditor({ a, editable, onSave, onDelete }: {
   a: Appraisal; editable: boolean;
   onSave: (body: RowBody, id?: number) => Promise<unknown>; onDelete: (id: number) => Promise<unknown>;
@@ -288,7 +288,7 @@ export function ObjectivesEditor({ a, editable, onSave, onDelete }: {
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <p className="font-semibold text-ink">Objectives &amp; KPIs</p>
+        <p className="font-semibold text-ink">{SHOW_KPI ? "Objectives & KPIs" : "Objectives"}</p>
         <span className="text-xs text-gray-400">Max {SHEET_RULES.maxRows} accountabilities · weightage {SHEET_RULES.minWeight}%–{SHEET_RULES.maxWeight}% each</span>
         <Pill tone={Math.abs(total - 100) < 0.01 ? "green" : "red"}>Total weightage {total}%</Pill>
         {editable && a.rows.length < SHEET_RULES.maxRows && <Button size="sm" variant="secondary" className="ml-auto"
