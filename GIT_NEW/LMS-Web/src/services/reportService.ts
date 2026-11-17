@@ -346,5 +346,44 @@ export const fetchPfDetailReport = (adminCardNo: string, params?: ReportFilterPa
 export const fetchStaffStrengthReport = (adminCardNo: string, params?: ReportFilterParams) =>
   get<StaffStrengthReport>("staff-strength", adminCardNo, params);
 
+export interface LateReportDay {
+  date: string;
+  shift_start: string;
+  in_time: string;
+  out_time: string;
+  morning_late: boolean;
+  early_out: boolean;
+  /** "HH:MM" past the shift start; blank when it cannot be worked out. */
+  late_by: string;
+}
+
+export interface LateReportRow {
+  sr_no: number;
+  code: string;
+  card_no: string;
+  employee_name: string;
+  designation: string;
+  department: string;
+  branch: string;
+  late_days: number;
+  early_out_days: number;
+  late_minutes: number;
+  /** Total time late as "HH:MM". */
+  late_time: string;
+  /** "05-Oct 10:19 (+01:19), 12-Oct out 16:10" */
+  late_dates: string;
+  dates: LateReportDay[];
+  unit_id?: number;
+  company?: string;
+}
+
+export interface LateReport {
+  rows: LateReportRow[];
+  meta: ReportMetaData;
+}
+
+export const fetchLateReport = (adminCardNo: string, params?: ReportFilterParams) =>
+  get<LateReport>("late", adminCardNo, params);
+
 export const fetchMonthlyAttendanceReport = (adminCardNo: string, params?: ReportFilterParams) =>
   get<MonthlyAttendanceReport>("monthly-attendance", adminCardNo, params);

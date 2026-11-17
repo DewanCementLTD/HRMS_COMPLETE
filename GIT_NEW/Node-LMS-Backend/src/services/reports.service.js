@@ -1647,6 +1647,128 @@ export const getMonthlyAttendanceReport = async ({
 };
 
 // ══════════════════════════════════════════════════════════════════
+// Employee Late Report — the days each employee came in late (MORNING_LATE)
+//   or left early (EARLY_OUT_LATE), over a date range.
+// ══════════════════════════════════════════════════════════════════
+
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const hhmm = (v) => {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(v ?? '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+};
+const fmtMin = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+/**
+ * A date range rather than a payroll period: periods differ per company (and
+ * D-Tech defines them for one unit only), while late arrivals are needed for
+ * any span. Only flagged roster days are read, so the query stays small however
+ * long the range is. The flags are the ERP's own MORNING_LATE / EARLY_OUT_LATE,
+ * the same ones every other attendance screen reads.
+ */
+export const getLateReport = async ({
+  unitId, location = null, fromDate, toDate, deptNo = null,
+} = {}) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const binds = { munit: toInt(unitId), mfrom: String(fromDate), mto: String(toDate) };
+    let deptCond = '';
+    if (opt(deptNo) !== null) { deptCond = "AND LTRIM(TO_CHAR(h.DEPT_NO),'0') = LTRIM(TO_CHAR(:mdept),'0')"; binds.mdept = opt(deptNo); }
+    let locCond = '';
+    if (opt(location) !== null) { locCond = 'AND TRIM(h.LOCATION) = TRIM(:mloc)'; binds.mloc = opt(location); }
+
+    const res = await connection.execute(
+      `SELECT ${branchNameSql('h.LOCATION', 'h.UNIT_ID')}          AS BRANCH_NAME,
+              (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
+                WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
+                  AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))     AS DEPT_NAME,
+              (SELECT MIN(g.DESG_DESC) FROM HR_DESG g
+                WHERE LTRIM(g.DESG_CD,'0') = LTRIM(h.DESG_CD,'0')) AS DESG_DESC,
+              h.EMPCODE                                          AS EMP_CODE,
+              h."ATDTCARD#"                                      AS CARD_NO,
+              h.NAME                                             AS EMP_NAME,
+              TO_CHAR(v.ROSTER_DATE, 'YYYY-MM-DD')               AS ROSTER_DATE,
+              v.SHIFT_START_TIME                                 AS SHIFT_START,
+              v.IN_TIME                                          AS IN_TIME,
+              v.OUT_TIME                                         AS OUT_TIME,
+              v.MORNING_LATE                                     AS MORNING_LATE,
+              v.EARLY_OUT_LATE                                   AS EARLY_OUT_LATE
+         FROM TMS_DUTY_ROSTER_V v
+         JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
+         JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
+        WHERE TO_CHAR(h.UNIT_ID) = TO_CHAR(:munit)
+          AND (h.STATUS = 'A' OR h.STATUS IS NULL)
+          AND v.ROSTER_DATE >= TO_DATE(:mfrom, 'YYYY-MM-DD')
+          AND v.ROSTER_DATE <  TO_DATE(:mto, 'YYYY-MM-DD') + 1
+          AND (v.MORNING_LATE = 'Y' OR v.EARLY_OUT_LATE = 'Y')
+          ${locCond}
+          ${deptCond}
+        ORDER BY BRANCH_NAME NULLS LAST, DEPT_NAME NULLS LAST, h.NAME, v.ROSTER_DATE`,
+      binds,
+      { outFormat: OUT_OBJECT, fetchArraySize: 1000, prefetchRows: 1000 },
+    );
+
+    const byEmp = new Map();
+    for (const raw of res.rows ?? []) {
+      const r = lowerKeys(raw);
+      const code = s(r.emp_code);
+      if (!byEmp.has(code)) {
+        byEmp.set(code, {
+          code,
+          card_no: s(r.card_no),
+          employee_name: s(r.emp_name),
+          designation: s(r.desg_desc),
+          department: s(r.dept_name) || '—',
+          branch: s(r.branch_name) || '—',
+          late_days: 0,
+          early_out_days: 0,
+          late_minutes: 0,
+          dates: [],
+        });
+      }
+      const row = byEmp.get(code);
+      const morning = String(r.morning_late ?? '').trim().toUpperCase() === 'Y';
+      const early = String(r.early_out_late ?? '').trim().toUpperCase() === 'Y';
+      const inMin = hhmm(r.in_time);
+      const startMin = hhmm(r.shift_start);
+      const lateBy = morning && inMin !== null && startMin !== null && inMin > startMin ? inMin - startMin : 0;
+      if (morning) { row.late_days += 1; row.late_minutes += lateBy; }
+      if (early) row.early_out_days += 1;
+      row.dates.push({
+        date: s(r.roster_date),
+        shift_start: startMin === null ? '' : s(r.shift_start).slice(0, 5),
+        in_time: inMin === null ? '' : s(r.in_time).slice(0, 5),
+        out_time: hhmm(r.out_time) === null ? '' : s(r.out_time).slice(0, 5),
+        morning_late: morning,
+        early_out: early,
+        late_by: lateBy ? fmtMin(lateBy) : '',
+      });
+    }
+
+    const dayLabel = (d) =>
+      `${d.date.slice(8, 10)}-${MONTH_ABBR[Number(d.date.slice(5, 7)) - 1] ?? ''}`
+      + (d.morning_late ? ` ${d.in_time || '—'}${d.late_by ? ` (+${d.late_by})` : ''}` : '')
+      + (d.early_out ? ` out ${d.out_time || '—'}` : '');
+
+    const rows = [...byEmp.values()].map((r, i) => ({
+      sr_no: i + 1,
+      ...r,
+      late_time: fmtMin(r.late_minutes),
+      // "12-Oct 09:44 (+00:44), 14-Oct out 16:10" — for the screen and the CSV.
+      late_dates: r.dates.map(dayLabel).join(', '),
+    }));
+
+    const meta = await buildMeta(connection, {
+      unitId, location, periods: [],
+      filters: { from_date: fromDate, to_date: toDate, dept_no: deptNo },
+    });
+    return { rows, meta };
+  } finally {
+    await connection?.close();
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
 // Contractual & Permanent Staff — "ALL LOCATION TOTAL STRENGTH"
 //   (legacy TM_RPT_SAL form). Department rows × location columns, each
 //   location split Permanent / Contract / Total / Salary.
@@ -1770,6 +1892,8 @@ export const getStaffStrengthReport = async ({
         department: opt(deptNo), staff_type: binds.mtype,
       },
     });
+    // Names of every company covered, for a multi-company header.
+    if (!single) meta.unit_names = await Promise.all(units.map((u) => unitName(connection, u)));
     return { locations, rows, location_totals, totals, meta };
   } finally {
     await connection?.close();

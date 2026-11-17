@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { superAdminService } from "@/services/superAdminService";
 import type { BranchOption, ScopeOption } from "@/services/superAdminService";
 
-import { ScopePicker } from "./ScopePicker";
+import { ScopePicker, effectiveBranches } from "./ScopePicker";
 
 export function NewUserModal({
   companies,
@@ -53,7 +53,7 @@ export function NewUserModal({
         mobile: mobile.trim() || undefined,
         ecode: ecode.trim() || undefined,
         companies: selCompanies,
-        branches: selBranches,
+        branches: effectiveBranches(companies, branches, selCompanies, selBranches),
       });
       onCreated();
     } catch (err) {

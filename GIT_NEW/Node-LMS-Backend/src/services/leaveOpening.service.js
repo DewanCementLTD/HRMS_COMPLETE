@@ -1,5 +1,6 @@
 import { getDirectConnection } from '../config/database.js';
 import { logger } from '../utils/logger.js';
+import { visibleDeptSql, notHiddenEmpSql } from '../utils/hrmsFilters.js';
 
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
 
@@ -63,6 +64,8 @@ export const listAllocatableEmployeesData = async (compc, brnch) => {
     const conds = [];
     if (norm(compc)) { conds.push('TO_CHAR(e.COMPC) = TO_CHAR(:compc)'); binds.compc = norm(compc); }
     if (norm(brnch)) { conds.push('TO_CHAR(e.BRNCH) = TO_CHAR(:brnch)'); binds.brnch = norm(brnch); }
+    // HRMS never lists a hidden department (MD Secretariat); payroll still does.
+    if (notHiddenEmpSql('e.EMPCODE')) conds.push(notHiddenEmpSql('e.EMPCODE'));
     const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
 
     const r = await connection.execute(
@@ -152,6 +155,7 @@ export const listLeaveBalancesData = async (compc, brnch) => {
     connection = await getDirectConnection();
     const binds = {};
     const conds = [`h.STATUS = 'A'`];
+    if (visibleDeptSql('h')) conds.push(visibleDeptSql('h'));
     if (norm(compc)) { conds.push('TO_CHAR(e.COMPC) = TO_CHAR(:compc)'); binds.compc = norm(compc); }
     if (norm(brnch)) { conds.push('TO_CHAR(e.BRNCH) = TO_CHAR(:brnch)'); binds.brnch = norm(brnch); }
 

@@ -874,3 +874,8 @@
 2026-11-17 12:55:15,854 ERROR [IDENTIFY] rejected: best_match=100046.3 similarity=0.4722 (< 0.50 threshold)
 2026-11-17 12:55:34,309 INFO [IDENTIFY] matched=100046.3 similarity=0.6520
 2026-11-17 12:55:39,738 INFO [IDENTIFY] matched=100046.3 similarity=0.6520
+2026-11-17 14:17:33,404 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
+2026-11-17 14:17:33,622 INFO [FAISS] Loaded 225 embeddings
+2026-11-17 15:20:39,825 INFO [IDENTIFY] matched=100009.3 similarity=0.6068
+2026-11-17 15:26:21,153 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
+2026-11-17 15:26:21,347 INFO [FAISS] Loaded 225 embeddings

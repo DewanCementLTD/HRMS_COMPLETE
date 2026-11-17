@@ -1,4 +1,5 @@
 import { getDirectConnection } from "../config/database.js";
+import { visibleDeptSql, andVisibleDept } from "../utils/hrmsFilters.js";
 import { safeInt } from "../utils/conversionHelpers.js";
 import { logger } from '../utils/logger.js';
 import {
@@ -378,6 +379,8 @@ export const getLocationSummary = async (
                             OR e.CARD_NO = TO_NUMBER(REGEXP_SUBSTR(lt.CARD_NO, '^[0-9]+'))
       INNER JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
       WHERE lt.ATTENDANCE_DATE = TO_DATE(:dt, 'YYYY-MM-DD')${extraFilter}
+        AND (h.STATUS = 'A' OR h.STATUS IS NULL)  -- HRMS Locations: active staff only
+        ${andVisibleDept('h')}
       GROUP BY lt.CARD_NO, h.NAME, h.EMPCODE
     `;
 
@@ -471,6 +474,9 @@ export const getLocationReportSummary = async ({
       buildNumericInClause("h.LOCATION", allowedBranches, "bf", binds),
       buildNumericInClause("h.DEPT_NO", dept_no, "df", binds),
       buildNumericInClause("h.DESG_CD", desg_cd, "gf", binds),
+      // HRMS Locations: active staff only, and never a hidden department.
+      "(h.STATUS = 'A' OR h.STATUS IS NULL)",
+      visibleDeptSql('h'),
     ]
       .filter(Boolean)
       .map((c) => ` AND ${c}`)
@@ -609,6 +615,9 @@ const buildCoreFilters = (
     buildNumericInClause("h.DEPT_NO", deptNo, "df", binds),
     buildNumericInClause("h.DESG_CD", desgCd, "gf", binds),
     buildStringInClause("h.EMPCODE", empcodes, "ef", binds),
+    // HRMS Locations: active staff only, and never a hidden department.
+    "(h.STATUS = 'A' OR h.STATUS IS NULL)",
+    visibleDeptSql('h'),
   ].filter(Boolean);
 
   return clauses.length ? ` AND ${clauses.join(" AND ")}` : "";

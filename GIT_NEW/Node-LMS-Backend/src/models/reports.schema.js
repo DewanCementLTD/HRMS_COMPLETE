@@ -75,6 +75,9 @@ export const monthlyAttendanceSchema = q({
   dept_no: optStr,
 });
 
+// Late report: the same date range + department as the monthly grid.
+export const lateReportSchema = monthlyAttendanceSchema;
+
 export const activeEmployeesSchema = q({
   // 'A' = all active, 'C' = confirmed only, 'U' = un-confirmed only.
   rtype: z.enum(["A", "U", "C"]).optional().default("A"),

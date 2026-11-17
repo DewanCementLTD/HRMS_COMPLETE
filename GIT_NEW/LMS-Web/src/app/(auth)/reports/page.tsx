@@ -8,9 +8,9 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import * as reportService from "@/services/reportService";
-import { ReportPrintSheet, ReportType, downloadStaffStrengthCsv } from "./ReportPrintSheet";
-import type { StaffStrengthReport } from "@/services/reportService";
-import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable, ALL_COMPANIES } from "./ReportFilterBar";
+import { ReportPrintSheet, ReportType, downloadStaffStrengthCsv, downloadLateCsv } from "./ReportPrintSheet";
+import type { StaffStrengthReport, LateReport } from "@/services/reportService";
+import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable, ALL_COMPANIES, isMultiCompany } from "./ReportFilterBar";
 
 interface ReportMeta {
   id: ReportType;
@@ -33,6 +33,7 @@ const REPORT_CATALOG: ReportMeta[] = [
   { id: "absent-supp", title: "Employee Absent and Supplimentary Days Report", category: "general", description: "Absent days and supplementary days per employee for a period" },
   { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Active employee roster with grade, designation, department and joining dates" },
   { id: "monthly-attendance", title: "Employee Monthly Attendance Report", category: "general", description: "Day-by-day attendance grid for a date range, split by branch and department" },
+  { id: "late", title: "Employee Late Report", category: "general", description: "Late arrivals and early outs per employee for any date range, with the dates and time late" },
   { id: "staff-strength", title: "Contractual And Permanent Staff", category: "general", description: "All-location total strength: permanent, contract and salary per department and location" },
 ];
 
@@ -74,7 +75,8 @@ export default function ReportsPage() {
   // to ALL) but can be changed here per report run.
   const topCompany = activeCompany || ((user?.company_list?.length ?? 0) > 1 ? ALL_COMPANIES : String(user?.company_list?.[0]?.code ?? ""));
   const [reportCompany, setReportCompany] = useState<string>(topCompany);
-  const allCompanies = reportCompany === ALL_COMPANIES;
+  // Several companies ("ALL" or a ticked list) merge into one report.
+  const allCompanies = isMultiCompany(reportCompany);
   const changeReportCompany = (c: string) => {
     setReportCompany(c);
     // Period numbers are per company (months when ALL), so re-pick them.
@@ -127,6 +129,7 @@ export default function ReportsPage() {
         "pf-detail": () => reportService.fetchPfDetailReport(cardNo, params),
         "monthly-attendance": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
         "staff-strength": () => reportService.fetchStaffStrengthReport(cardNo, params),
+        "late": () => reportService.fetchLateReport(cardNo, params),
       };
 
       const res = await fetchers[selectedReportId]();
@@ -240,8 +243,10 @@ export default function ReportsPage() {
     return reportData;
   }, [reportData, selectedKeys]);
 
-  const reportCompanyName = allCompanies
+  const reportCompanyName = reportCompany === ALL_COMPANIES
     ? "All Companies"
+    : allCompanies
+    ? (user?.company_list ?? []).filter((c) => reportCompany.split(",").includes(String(c.code))).map((c) => c.name).join(", ")
     : user?.company_list?.find((c) => String(c.code) === reportCompany)?.name || user?.selected_company?.name || "";
   const isStrength = selectedReportId === "staff-strength";
   const strengthData = isStrength ? (reportData as StaffStrengthReport | null) : null;
@@ -334,6 +339,13 @@ export default function ReportsPage() {
             {/* Action buttons */}
             <div className="flex items-center gap-2 flex-wrap">
               <ExportDropdown />
+              {selectedReportId === "late" && (
+                <Button size="sm" variant="secondary" className="gap-1.5"
+                  disabled={loading || !(reportData as LateReport | null)?.rows?.length}
+                  onClick={() => reportData && downloadLateCsv(printableData as LateReport, reportCompanyName)}>
+                  <Download className="h-3.5 w-3.5" /> Download CSV
+                </Button>
+              )}
               {isStrength && (
                 <Button size="sm" variant="secondary" className="gap-1.5"
                   disabled={loading || !strengthData?.rows?.length}
@@ -557,6 +569,22 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
           <th className={`${TH} text-center`}>Leave</th>
         </>
       );
+    case "late":
+      return (
+        <>
+          <th className={`${TH} w-14`}>Sr.#</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
+          <th className={TH}>Employee Name</th>
+          <th className={TH}>Designation</th>
+          <th className={TH}>Department</th>
+          <th className={TH}>Branch</th>
+          <th className={`${TH} text-center`}>Late Days</th>
+          <th className={`${TH} text-center`}>Late Time</th>
+          <th className={`${TH} text-center`}>Early Out</th>
+          <th className={TH}>Dates (in time, late by)</th>
+        </>
+      );
     case "absent-supp":
       return (
         <>
@@ -695,6 +723,22 @@ function ReportRow({
         </>
       );
     }
+    case "late":
+      return (
+        <>
+          <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
+          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
+          <td className={`${TD} text-gray-600`}>{str("designation")}</td>
+          <td className={`${TD} text-gray-600`}>{str("department")}</td>
+          <td className={`${TD} text-gray-600`}>{str("branch")}</td>
+          <td className={`${TD} text-center font-mono font-bold text-amber-700`}>{String(r.late_days ?? 0)}</td>
+          <td className={`${TD} text-center font-mono`}>{val("late_minutes") ? str("late_time") : "—"}</td>
+          <td className={`${TD} text-center font-mono`}>{String(r.early_out_days || "—")}</td>
+          <td className={`${TD} text-gray-600 whitespace-normal min-w-[320px]`}>{str("late_dates")}</td>
+        </>
+      );
     case "absent-supp":
       return (
         <>

@@ -10,6 +10,59 @@
  * two backends return the same rows for the same admin rights.
  */
 
+// ---------------------------------------------------------------------------
+// Departments hidden from the HRMS screens.
+//
+// The MD Secretariat staff are kept out of every HRMS list, count and report
+// surface, but stay in payroll — so this lives in the HRMS filter helpers only,
+// which payroll never calls. Matched by department NAME within the employee's
+// own company (HR_DEPT.COMPC = UNIT_ID), because the DEPT_NO differs per tenant.
+// Override with HRMS_HIDDEN_DEPTS="MD SECRETARIAT,OTHER NAME" (empty = none).
+// ---------------------------------------------------------------------------
+// Read on each call, not at import: .env may load after this module does.
+export const hiddenDeptNames = () => String(process.env.HRMS_HIDDEN_DEPTS ?? 'MD SECRETARIAT')
+  .split(',')
+  .map((x) => x.trim().toUpperCase())
+  .filter(Boolean);
+
+/**
+ * SQL condition (no leading AND) that is true when the employee row `alias` is
+ * NOT in a hidden department, or '' when nothing is hidden. Literals are inlined
+ * (quotes doubled) so it never collides with a caller's bind names.
+ */
+export const visibleDeptSql = (alias = 'h') => {
+  const names = hiddenDeptNames();
+  // An unqualified UNIT_ID/DEPT_NO would bind to HR_DEPT's own columns.
+  if (!names.length || !alias) return '';
+  const list = names.map((n) => `'${n.replace(/'/g, "''")}'`).join(', ');
+  return `NOT EXISTS (SELECT 1 FROM HR_DEPT hdx
+             WHERE TO_CHAR(hdx.COMPC) = TO_CHAR(${alias}.UNIT_ID)
+               AND LTRIM(TO_CHAR(hdx.DEPT_NO), '0') = LTRIM(TO_CHAR(${alias}.DEPT_NO), '0')
+               AND UPPER(TRIM(hdx.DEPT_NAME)) IN (${list}))`;
+};
+
+/** ' AND <visibleDeptSql>' or ''. */
+export const andVisibleDept = (alias = 'h') => {
+  const c = visibleDeptSql(alias);
+  return c ? ` AND ${c}` : '';
+};
+
+/**
+ * The same check for a query that has no HR_EMP_MASTER alias of its own (e.g.
+ * one reading EMPLOYEE): true when the employee code `empcodeExpr` is not in a
+ * hidden department. '' when nothing is hidden.
+ */
+export const notHiddenEmpSql = (empcodeExpr) => {
+  const vis = visibleDeptSql('hmx');
+  return vis
+    ? `NOT EXISTS (SELECT 1 FROM HR_EMP_MASTER hmx WHERE hmx.EMPCODE = ${empcodeExpr} AND NOT (${vis}))`
+    : '';
+};
+
+/** True when a department name is hidden from HRMS (for JS-side lists). */
+export const isHiddenDeptName = (name) =>
+  hiddenDeptNames().includes(String(name ?? '').trim().toUpperCase());
+
 // Parse any numeric-ish value to int, handling Oracle decimals like "2.0".
 export const toInt = (v) => {
   if (v === null || v === undefined) return null;
@@ -48,21 +101,22 @@ export const empFilterAttempts = (compc = null, brnch = null, alias = "h") => {
     return { frag: `TO_NUMBER(${alias}.LOCATION) IN (${ph})`, params };
   };
 
+  const hide = andVisibleDept(alias);
   const attempts = [];
   if (compNums.length && brnNums.length) {
     const c = compFrag();
     const b = brnFrag();
-    attempts.push({ frag: ` AND ${c.frag} AND ${b.frag}`, params: { ...c.params, ...b.params } });
+    attempts.push({ frag: ` AND ${c.frag} AND ${b.frag}${hide}`, params: { ...c.params, ...b.params } });
   }
   if (compNums.length) {
     const c = compFrag();
-    attempts.push({ frag: ` AND ${c.frag}`, params: c.params });
+    attempts.push({ frag: ` AND ${c.frag}${hide}`, params: c.params });
   }
   if (brnNums.length) {
     const b = brnFrag();
-    attempts.push({ frag: ` AND ${b.frag}`, params: b.params });
+    attempts.push({ frag: ` AND ${b.frag}${hide}`, params: b.params });
   }
-  attempts.push({ frag: "", params: {} });
+  attempts.push({ frag: hide, params: {} });
   return attempts;
 };
 
@@ -107,6 +161,8 @@ export const rosterCardFilter = (compc, brnch, paramsOut, prefix = "rc") => {
   const brnList = normNums(brnch);
 
   const conds = [];
+  const hide = visibleDeptSql('h');
+  if (hide) conds.push(hide);
   if (compList.length) {
     const ph = compList.map((_, i) => `:${prefix}c${i}`).join(", ");
     conds.push(`TO_NUMBER(h.UNIT_ID) IN (${ph})`);
@@ -147,6 +203,8 @@ export const leaveCardFilter = (compc, brnch, paramsOut, empFkExpr, prefix = "lc
   const brnList = normNums(brnch);
 
   const conds = [];
+  const hide = visibleDeptSql('h');
+  if (hide) conds.push(hide);
   if (compList.length) {
     const ph = compList.map((_, i) => `:${prefix}c${i}`).join(", ");
     conds.push(`TO_NUMBER(h.UNIT_ID) IN (${ph})`);
@@ -185,5 +243,7 @@ export const empDirectFilter = (allowedCompanies, allowedBranches, paramsOut) =>
     parts.push(`TO_NUMBER(h.LOCATION) IN (${ph})`);
     brn.forEach((n, i) => { paramsOut[`brnf${i}`] = n; });
   }
+  const hide = visibleDeptSql('h');
+  if (hide) parts.push(hide);
   return { parts, sql: parts.length ? ` AND ${parts.join(" AND ")}` : "" };
 };

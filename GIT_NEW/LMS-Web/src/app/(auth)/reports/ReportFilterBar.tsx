@@ -1,8 +1,8 @@
 "use client";
 
 import { toLocalYmd } from "@/lib/utils";
-import { useEffect, useMemo, useState } from "react";
-import { Filter, Building2, MapPin, RotateCcw, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Filter, Building2, MapPin, RotateCcw, Search, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { useAuth } from "@/context/AuthContext";
@@ -35,6 +35,8 @@ const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "pf-detail": ["employee"],
   "absent-supp": ["period", "department"],
   "monthly-attendance": ["dateRange", "department"],
+  // A date range, not a payroll period: quick to pick and the same for every company.
+  "late": ["dateRange", "department"],
   "staff-strength": ["dateRange", "department", "staffType"],
   "active-employees": [
     "employeeStatusType", "designation", "desgGroup", "department",
@@ -80,9 +82,22 @@ export const emptyFilters = (reportId?: ReportType | null): ReportFilters => ({
   // Default to the running 21st-to-20th cycle, the window HR prints.
   ...(reportId && AS_ON_TODAY.includes(reportId)
     ? { fromDate: toLocalYmd(new Date()), toDate: toLocalYmd(new Date()) }
+    : reportId === "late"
+    ? { fromDate: toLocalYmd(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), toDate: toLocalYmd(new Date()) }
     : defaultCycle()),
   staffType: "",
 });
+
+/** Ready-made date ranges for the date-range reports, so no period list is needed. */
+function quickRange(kind: string): { from: string; to: string } | null {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  if (kind === "today") return { from: toLocalYmd(now), to: toLocalYmd(now) };
+  if (kind === "month") return { from: toLocalYmd(new Date(y, m, 1)), to: toLocalYmd(now) };
+  if (kind === "last") return { from: toLocalYmd(new Date(y, m - 1, 1)), to: toLocalYmd(new Date(y, m, 0)) };
+  if (kind === "cycle") { const c = defaultCycle(); return { from: c.fromDate, to: c.toDate }; }
+  return null;
+}
 
 /** The pay cycle containing today: 21st of last month to the 20th of this one. */
 function defaultCycle(): { fromDate: string; toDate: string } {
@@ -153,6 +168,86 @@ const selectCls =
 /** Value of the report Company picker that runs the report across every company. */
 export const ALL_COMPANIES = "ALL";
 
+/**
+ * True when the report runs over several companies: "ALL" or a comma list of
+ * picked codes ("1,3"). Those runs merge per-company results and match
+ * periods by month, exactly as "All Companies" always has.
+ */
+export const isMultiCompany = (c: string) => c === ALL_COMPANIES || c.includes(",");
+
+/**
+ * Company picker for the report scope: tick one, several or all companies.
+ * The value is a code, a comma list, or ALL_COMPANIES when every one is ticked.
+ */
+function CompanyPicker({
+  companies,
+  value,
+  onChange,
+}: {
+  companies: { code: string | number; name: string }[];
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const codes = companies.map((c) => String(c.code));
+  const picked = value === ALL_COMPANIES ? codes : value.split(",").filter((c) => codes.includes(c));
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  const emit = (next: string[]) => {
+    if (!next.length) return; // a report always needs at least one company
+    const ordered = codes.filter((c) => next.includes(c));
+    onChange(ordered.length === codes.length && codes.length > 1 ? ALL_COMPANIES : ordered.join(","));
+  };
+  const toggle = (code: string) =>
+    emit(picked.includes(code) ? picked.filter((c) => c !== code) : [...picked, code]);
+
+  const label =
+    value === ALL_COMPANIES ? "All Companies"
+    : picked.length === 1 ? companies.find((c) => String(c.code) === picked[0])?.name ?? picked[0]
+    : `${picked.length} companies`;
+
+  if (companies.length <= 1) {
+    return <span className="py-0.5 pr-1">{companies[0]?.name ?? ""}</span>;
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button type="button" aria-haspopup="listbox" aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-1 font-semibold text-indigo-800 focus:outline-none py-0.5 pr-1">
+        <span className="max-w-[220px] truncate">{label}</span>
+        <ChevronDown className="h-3.5 w-3.5" />
+      </button>
+      {open && (
+        <div role="listbox" aria-multiselectable="true"
+          className="absolute left-0 top-full mt-1.5 z-30 w-64 rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg">
+          <label className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer border-b border-gray-100 mb-1">
+            <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600"
+              checked={picked.length === codes.length}
+              onChange={() => emit(picked.length === codes.length ? [codes[0]] : codes)} />
+            <span className="text-sm font-semibold text-gray-800">All Companies</span>
+          </label>
+          {companies.map((c) => (
+            <label key={c.code} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer">
+              <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600"
+                checked={picked.includes(String(c.code))}
+                onChange={() => toggle(String(c.code))} />
+              <span className="text-sm text-gray-700 truncate">{c.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ReportFilterBar({
   reportId,
   adminCardNo,
@@ -169,13 +264,13 @@ export function ReportFilterBar({
   onChange: (next: ReportFilters) => void;
   onApply: () => void;
   loading: boolean;
-  /** Company the report runs for: a company code, or ALL_COMPANIES. */
+  /** Company the report runs for: a code, a comma list of codes, or ALL_COMPANIES. */
   company: string;
   onCompanyChange: (compc: string) => void;
 }) {
   const { user, activeCompany, activeBranch } = useAuth();
-  if (!reportId) return null;
-  const keys = REPORT_FILTERS[reportId];
+  // Every hook runs before the "no report" return below (rules of hooks).
+  const keys: FilterKey[] = reportId ? REPORT_FILTERS[reportId] : [];
   const has = (k: FilterKey) => keys.includes(k);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
@@ -193,7 +288,7 @@ export function ReportFilterBar({
   const [deductions, setDeductions] = useState<{ deduction_id: string; deduction_desc: string }[]>([]);
 
   const companies = user?.company_list ?? [];
-  const allCompanies = company === ALL_COMPANIES;
+  const allCompanies = isMultiCompany(company);
   // Lookups: the report's own company (ALL → month list across companies).
   // Branch only applies while the report runs for the top-bar company.
   const compc = company || undefined;
@@ -256,14 +351,21 @@ export function ReportFilterBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periods, reportId, filters.period, filters.periodFrom, filters.periodTo]);
 
-  const set = <K extends keyof ReportFilters>(k: K, v: ReportFilters[K]) =>
-    onChange({ ...filters, [k]: v });
+  // Built on the latest edit rather than this render's `filters`, so two set()
+  // calls in one handler (a quick date range sets From and To) both stick.
+  const latestFilters = useRef(filters);
+  useEffect(() => { latestFilters.current = filters; }, [filters]);
+  const set = <K extends keyof ReportFilters>(k: K, v: ReportFilters[K]) => {
+    latestFilters.current = { ...latestFilters.current, [k]: v };
+    onChange(latestFilters.current);
+  };
 
   const periodOptions = useMemo(
     () => periods.map((p) => ({ value: p.period, label: p.label })),
     [periods]
   );
 
+  if (!reportId) return null;
   const branchName = brnch ? user?.selected_branch?.name || "All Branches" : "All Branches";
   const runnable = isRunnable(reportId, filters);
 
@@ -277,17 +379,13 @@ export function ReportFilterBar({
         </span>
         <label className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-100 pl-2.5 pr-1 py-0.5 text-xs font-semibold text-indigo-800">
           <Building2 className="h-3.5 w-3.5" />
-          <select aria-label="Company" className="bg-transparent font-semibold text-indigo-800 focus:outline-none py-0.5 pr-1"
-            value={company} onChange={(e) => onCompanyChange(e.target.value)}>
-            {companies.length > 1 && <option value={ALL_COMPANIES}>All Companies</option>}
-            {companies.map((c) => <option key={c.code} value={String(c.code)}>{c.name}</option>)}
-          </select>
+          <CompanyPicker companies={companies} value={company} onChange={onCompanyChange} />
         </label>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
           <MapPin className="h-3.5 w-3.5" /> {branchName}
         </span>
         <span className="text-[11px] text-gray-400">
-          {allCompanies ? "every company in your rights · periods are matched by month" : "branch follows the top-bar selection"}
+          {allCompanies ? (company === ALL_COMPANIES ? "every company in your rights" : "the ticked companies") + " · periods are matched by month" : "branch follows the top-bar selection"}
         </span>
       </div>
 
@@ -392,6 +490,19 @@ function FilterRenderer({
 
       {keys.includes("dateRange") && (
         <>
+          <Field label="Quick range">
+            <select className={selectCls} value=""
+              onChange={(e) => {
+                const r = quickRange(e.target.value);
+                if (r) { set("fromDate", r.from); set("toDate", r.to); }
+              }}>
+              <option value="">Pick…</option>
+              <option value="today">Today</option>
+              <option value="month">This month</option>
+              <option value="last">Last month</option>
+              <option value="cycle">Pay cycle (21–20)</option>
+            </select>
+          </Field>
           <Field label="From Date *">
             <input type="date" className={selectCls} value={filters.fromDate}
               onChange={(e) => set("fromDate", e.target.value)} />

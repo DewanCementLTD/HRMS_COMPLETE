@@ -315,7 +315,8 @@ function TrackSettingsTab({ adminCardNo }: { adminCardNo: string }) {
 
   useEffect(() => {
     setLoading(true);
-    const p = new URLSearchParams({ admin_card_no: adminCardNo });
+    // Only active employees: a Left employee cannot be tracked anyway.
+    const p = new URLSearchParams({ admin_card_no: adminCardNo, status: "A" });
     if (activeCompany) p.set("compc", activeCompany);
     if (activeBranch) p.set("brnch", activeBranch);
     apiRequest<{ items: HRMSSearchResult[] }>(

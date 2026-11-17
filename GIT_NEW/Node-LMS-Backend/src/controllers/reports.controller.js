@@ -17,6 +17,9 @@
  * the results (see runAllCompanies). PERIOD# is numbered per company, so in that
  * mode the period filters carry a YYYYMM month (from /lookups?compc=ALL) and
  * each company's own PERIOD# for that month is used.
+ *
+ * compc may also be a comma list ("1,3"): the same multi-company run, limited
+ * to those companies (and still clamped to the admin's rights).
  */
 
 import { resolveCompany, resolveBranch } from "../utils/payrollShared.js";
@@ -24,7 +27,9 @@ import { getAdminRights } from "../services/adminRights.service.js";
 import * as reportsService from "../services/reports.service.js";
 
 const ALL = "ALL";
-const isAll = (query) => String(query.compc ?? "").trim().toUpperCase() === ALL;
+const isAllKeyword = (query) => String(query.compc ?? "").trim().toUpperCase() === ALL;
+/** Several companies picked: "ALL" or a comma list of two or more codes. */
+const isAll = (query) => isAllKeyword(query) || String(query.compc ?? "").includes(",");
 
 // Resolve the { unitId, location } scope shared by every report.
 const scope = async (query) => {
@@ -40,6 +45,21 @@ const allowedUnits = async (adminCardNo) => {
   const units = (allowedCompanies ?? []).map((v) => Number(v)).filter(Number.isFinite);
   return units.length ? [...new Set(units)] : reportsService.listAllUnits();
 };
+
+/**
+ * The companies a multi-company run covers: every allowed company for "ALL",
+ * otherwise the listed ones that the admin actually holds (others are dropped).
+ */
+const requestedUnits = async (query) => {
+  const allowed = await allowedUnits(query.admin_card_no);
+  if (isAllKeyword(query)) return allowed;
+  const asked = String(query.compc ?? "").split(",").map((v) => Number(v.trim())).filter(Number.isFinite);
+  return allowed.filter((u) => asked.includes(u));
+};
+
+/** Header name for a multi-company run: "All Companies" or the picked names. */
+const multiName = (query, names) =>
+  isAllKeyword(query) ? "All Companies" : (names.filter(Boolean).join(", ") || "Selected Companies");
 
 // Period fields per report and how a month maps onto each company's PERIOD#.
 const PERIOD_FIELDS = [["period_from", "from"], ["period_to", "to"], ["period", "exact"]];
@@ -63,13 +83,13 @@ const sum = (list, k) => list.reduce((t, x) => t + (Number(x?.[k]) || 0), 0);
  * Merge one report's per-company results into the single-company shape the
  * client already renders. Rows/groups gain `company` (and `unit_id`).
  */
-const mergeParts = (parts) => {
+const mergeParts = (parts, query = {}) => {
   const tag = (rows, p) => (rows ?? []).map((r) => ({ ...r, unit_id: r.unit_id ?? p.unitId, company: p.company }));
   const first = parts[0]?.data ?? {};
   const meta = {
     ...(first.meta ?? {}),
     unit_id: null,
-    unit_name: "All Companies",
+    unit_name: multiName(query, parts.map((p) => p.company)),
     location: null,
     location_name: "ALL Locations",
     all_companies: true,
@@ -130,7 +150,7 @@ const mergeParts = (parts) => {
 
 /** Run one report for every allowed company and merge (companies with no data for the month are skipped). */
 const runAllCompanies = async (serviceFn, build, query) => {
-  const units = await allowedUnits(query.admin_card_no);
+  const units = await requestedUnits(query);
   const parts = [];
   for (const unitId of units) {
     const q = await queryForUnit(query, unitId);
@@ -139,7 +159,7 @@ const runAllCompanies = async (serviceFn, build, query) => {
     const company = data?.meta?.unit_name || `Company ${unitId}`;
     parts.push({ unitId, company, data });
   }
-  return mergeParts(parts);
+  return mergeParts(parts, query);
 };
 
 // Every report handler is the same shape: resolve scope, call the service,
@@ -166,7 +186,7 @@ export const getLookups = async (req, res, next) => {
     const all = isAll(query);
     const unitId = all ? null : (await scope(query)).unitId;
     const [periods, desg_groups, deductions] = await Promise.all([
-      all ? reportsService.listReportMonths(await allowedUnits(query.admin_card_no)) : reportsService.listReportPeriods(unitId),
+      all ? reportsService.listReportMonths(await requestedUnits(query)) : reportsService.listReportPeriods(unitId),
       reportsService.listDesgGroups(),
       reportsService.listDeductionTypes(),
     ]);
@@ -219,6 +239,11 @@ export const getMonthlyAttendanceReport = handler(
   (q) => ({ fromDate: q.from_date, toDate: q.to_date, deptNo: q.dept_no })
 );
 
+export const getLateReport = handler(
+  reportsService.getLateReport,
+  (q) => ({ fromDate: q.from_date, toDate: q.to_date, deptNo: q.dept_no })
+);
+
 export const getActiveEmployeesReport = handler(
   reportsService.getActiveEmployeesReport,
   (q) => ({
@@ -235,7 +260,7 @@ export const getPfDetailReport = async (req, res, next) => {
     const query = res.locals.validated.query;
     if (isAll(query)) {
       let data = null;
-      for (const unitId of await allowedUnits(query.admin_card_no)) {
+      for (const unitId of await requestedUnits(query)) {
         const d = await reportsService.getPfDetailReport({ unitId, empcode: query.empcode });
         if (!data) data = d;
         if (d.ledger.length || d.employee_header.name) { data = d; break; }
@@ -258,7 +283,7 @@ export const getStaffStrengthReport = async (req, res, next) => {
     const all = isAll(query);
     let unitIds, location = null;
     if (all) {
-      unitIds = await allowedUnits(query.admin_card_no);
+      unitIds = await requestedUnits(query);
     } else {
       const sc = await scope(query);
       unitIds = [sc.unitId];
@@ -270,7 +295,10 @@ export const getStaffStrengthReport = async (req, res, next) => {
       deptNo: query.dept_no, staffType: query.staff_type,
     });
     if (all) {
-      data.meta = { ...data.meta, unit_id: null, unit_name: "All Companies", all_companies: true };
+      data.meta = {
+        ...data.meta, unit_id: null, all_companies: true,
+        unit_name: multiName(query, data.meta?.unit_names ?? []),
+      };
     }
     res.json({ status: "success", data });
   } catch (err) {

@@ -1276,7 +1276,9 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
     const cf = rosterCardFilter(compc, brnch, cardParams, "ac");
 
     // Direct HR_EMP_MASTER filter for the active-employee count (separate binds).
-    const first = empFilterAttempts(compc, brnch, "")[0];
+    // Aliased "h" (the query below names it) so the hidden-department check,
+    // which compares against HR_DEPT's own DEPT_NO, stays unambiguous.
+    const first = empFilterAttempts(compc, brnch, "h")[0];
     // alias="" yields "TO_NUMBER(.UNIT_ID)"; strip every stray leading dot.
     // replaceAll, not replace: Python's str.replace is global, so the FastAPI
     // original fixed both fragments. JS's replace(string) only fixes the first,
@@ -1325,7 +1327,7 @@ export const getHrAnalytics = async (qdate = null, compc = null, brnch = null) =
 
     try {
       const rt = await connection.execute(
-        `SELECT COUNT(*) FROM HR_EMP_MASTER WHERE (STATUS = 'A' OR STATUS IS NULL)${empFilter}`,
+        `SELECT COUNT(*) FROM HR_EMP_MASTER h WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)${empFilter}`,
         empParams, { outFormat: OUT_ARRAY }
       );
       const totalActive = parseInt(rt.rows?.[0]?.[0] || 0, 10);

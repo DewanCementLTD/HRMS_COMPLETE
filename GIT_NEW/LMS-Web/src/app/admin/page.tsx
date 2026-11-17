@@ -13,7 +13,7 @@ import type { AdminUser, BranchOption, ScopeOption } from "@/services/superAdmin
 
 import { AdminLogin } from "./AdminLogin";
 import { NewUserModal } from "./NewUserModal";
-import { ScopePicker } from "./ScopePicker";
+import { ScopePicker, effectiveBranches } from "./ScopePicker";
 
 /**
  * Administrator panel — reached at /admin, outside the (auth) group so it has
@@ -88,8 +88,12 @@ export default function AdminPage() {
     () => new Map(companies.map((c) => [c.code, c.name])),
     [companies],
   );
-  const branchName = useMemo(
-    () => new Map(branches.map((b) => [b.code, b.name])),
+  // Branch codes repeat across companies, so a user's branch is named from the
+  // companies that user holds; only a code none of them has falls back.
+  const branchName = useCallback(
+    (code: string, userCompanies: string[]) =>
+      (branches.find((b) => b.code === code && userCompanies.includes(b.compc))
+        ?? branches.find((b) => b.code === code))?.name,
     [branches],
   );
 
@@ -119,7 +123,7 @@ export default function AdminPage() {
       // replaces its whole set, so a half-failure leaves the other intact
       // rather than a merged mess.
       await superAdminService.setCompanies(editing.usrid, editCompanies);
-      await superAdminService.setBranches(editing.usrid, editBranches);
+      await superAdminService.setBranches(editing.usrid, effectiveBranches(companies, branches, editCompanies, editBranches));
       setNotice(`Access updated for ${editing.usrid}`);
       setEditing(null);
       await load();
@@ -286,7 +290,7 @@ export default function AdminPage() {
                             <span className="text-gray-400">none</span>
                           ) : (
                             u.branches.map((b) =>
-                              chip(branchName.get(b) ?? `#${b}`, `${u.usrid}-b-${b}`),
+                              chip(branchName(b, u.companies) ?? `#${b}`, `${u.usrid}-b-${b}`),
                             )
                           )}
                         </div>

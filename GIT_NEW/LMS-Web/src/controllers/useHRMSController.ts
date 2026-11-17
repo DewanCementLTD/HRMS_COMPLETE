@@ -61,8 +61,12 @@ export function useHRMSController() {
   // and only the newest request's answer is applied.
   const loadSeq = useRef(0);
   const inflightKey = useRef<string | null>(null);
+  // The status the page last asked for, reused when the company/branch changes
+  // (undefined = the page has not loaded yet, so that effect leaves it alone).
+  const lastStatus = useRef<string | undefined>(undefined);
   const loadEmployees = useCallback(async (status?: string) => {
     if (!user) return;
+    lastStatus.current = status || "";
     const key = `${status || ""}|${activeCompany || ""}|${activeBranch || ""}`;
     if (inflightKey.current === key) return;
     inflightKey.current = key;
@@ -92,8 +96,8 @@ export function useHRMSController() {
 
   // ---- Reload from server when the active company/branch changes ----
   useEffect(() => {
-    if (!user) return;
-    loadEmployees(statusFilter || undefined);
+    if (!user || lastStatus.current === undefined) return;
+    loadEmployees(lastStatus.current || statusFilter || undefined);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCompany, activeBranch]);
 

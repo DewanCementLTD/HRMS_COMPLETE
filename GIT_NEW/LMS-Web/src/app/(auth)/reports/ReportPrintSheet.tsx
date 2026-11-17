@@ -8,6 +8,7 @@ import type {
   MonthlyAttendanceReport,
   ReportMetaData, PivotReport, ReconReport, BankAdviceReport,
   AbsentSuppReport, ActiveEmployeesReport, PfDetailReport, StaffStrengthReport,
+  LateReport,
 } from "@/services/reportService";
 import { downloadTableCsv } from "@/lib/printTable";
 
@@ -22,7 +23,8 @@ export type ReportType =
   | "active-employees"
   | "pf-detail"
   | "monthly-attendance"
-  | "staff-strength";
+  | "staff-strength"
+  | "late";
 
 /** Reports whose column count needs a landscape page. */
 const LANDSCAPE: ReportType[] = [
@@ -31,6 +33,8 @@ const LANDSCAPE: ReportType[] = [
   "monthly-attendance",
   // 4 columns per location.
   "staff-strength",
+  // The per-day list is long.
+  "late",
 ];
 
 // ── formatting ────────────────────────────────────────────────────
@@ -224,6 +228,9 @@ export function ReportPrintSheet({
             )}
             {reportType === "pf-detail" && (
               <PfDetailSheet data={data as PfDetailReport} {...{ companyName, compc }} />
+            )}
+            {reportType === "late" && (
+              <LateSheet data={data as LateReport} {...{ companyName, compc, meta, badges }} />
             )}
             {reportType === "staff-strength" && (
               <StaffStrengthSheet data={data as StaffStrengthReport} {...{ companyName, compc }} />
@@ -956,6 +963,109 @@ const shortDate = (ymd?: string | number | null) => {
 };
 
 /** Title line: one date when the range is a single day, else "FROM to TO". */
+// ══════════════════════════════════════════════════════════════════
+// Employee Late Report
+// ══════════════════════════════════════════════════════════════════
+
+/** "LATE REPORT 01-OCT-26 TO 31-OCT-26" */
+export function lateTitle(meta?: ReportMetaData) {
+  const f = shortDate(meta?.filters?.from_date);
+  const to = shortDate(meta?.filters?.to_date);
+  return `EMPLOYEE LATE REPORT ${f && to && f !== to ? `${f} TO ${to}` : to}`.trim();
+}
+
+export function downloadLateCsv(data: LateReport, companyName: string) {
+  const multi = data.rows.some((r) => r.company);
+  downloadTableCsv({
+    title: lateTitle(data.meta),
+    companyName,
+    columns: [
+      "Sr.#", ...(multi ? ["Company"] : []), "Code", "Card No", "Employee Name", "Designation",
+      "Department", "Branch", "Late Days", "Late Time", "Early Out", "Dates",
+    ],
+    rows: data.rows.map((r, i) => [
+      String(i + 1), ...(multi ? [r.company ?? ""] : []), r.code, r.card_no, r.employee_name, r.designation,
+      r.department, r.branch, String(r.late_days), r.late_time, String(r.early_out_days), r.late_dates,
+    ]),
+  });
+}
+
+function LateSheet({ data, companyName, compc, meta, badges }: {
+  data: LateReport; companyName: string; compc?: string;
+  meta?: ReportMetaData; badges: string[];
+}) {
+  const rows = data?.rows ?? [];
+  const multi = rows.some((r) => r.company);
+  // Grouped under a red branch caption, as the other attendance sheets are.
+  const groups = new Map<string, typeof rows>();
+  for (const r of rows) {
+    const k = multi ? `${r.company} — ${r.branch}` : r.branch || "—";
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k)!.push(r);
+  }
+  const cols = 9;
+  const tot = rows.reduce(
+    (t, r) => ({ late: t.late + r.late_days, mins: t.mins + r.late_minutes, early: t.early + r.early_out_days }),
+    { late: 0, mins: 0, early: 0 },
+  );
+  const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+
+  return (
+    <>
+      <StandardHeader title={lateTitle(meta)} {...{ companyName, compc, meta, badges }} />
+      <table className="w-full border-collapse border border-black text-[10px]">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className={`${TH} w-10`}>Sr.#</th>
+            <th className={`${TH} w-20`}>Code</th>
+            <th className={`${TH} w-16`}>Card No</th>
+            <th className={TH}>Employee Name</th>
+            <th className={TH}>Department</th>
+            <th className={`${TH} w-12`}>Late Days</th>
+            <th className={`${TH} w-14`}>Late Time</th>
+            <th className={`${TH} w-12`}>Early Out</th>
+            <th className={TH}>Dates (in time, late by)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...groups.entries()].map(([branch, list]) => (
+            <Fragment key={branch}>
+              <tr>
+                <td className={`${TD} font-bold text-red-700`} colSpan={cols}>{branch}</td>
+              </tr>
+              {list.map((r, i) => (
+                <tr key={`${branch}-${r.code}-${i}`} className="align-top">
+                  <td className={`${TD} text-center`}>{i + 1}</td>
+                  <td className={`${TD} font-mono`}>{r.code}</td>
+                  <td className={`${TD} font-mono`}>{r.card_no}</td>
+                  <td className={TD}>{r.employee_name}<div className="text-[9px] text-gray-600">{r.designation}</div></td>
+                  <td className={TD}>{r.department}</td>
+                  <td className={`${TD} text-center bg-amber-50`}>{r.late_days || ""}</td>
+                  <td className={`${TD} text-center bg-amber-50 font-mono`}>{r.late_minutes ? r.late_time : ""}</td>
+                  <td className={`${TD} text-center`}>{r.early_out_days || ""}</td>
+                  <td className={`${TD} text-[9px] leading-snug`}>{r.late_dates}</td>
+                </tr>
+              ))}
+            </Fragment>
+          ))}
+          {rows.length > 0 && (
+            <tr className="bg-gray-100 font-bold">
+              <td className={`${TD} text-right`} colSpan={5}>Total : {rows.length} employee(s)</td>
+              <td className={`${TD} text-center`}>{tot.late}</td>
+              <td className={`${TD} text-center font-mono`}>{hhmm(tot.mins)}</td>
+              <td className={`${TD} text-center`}>{tot.early}</td>
+              <td className={TD}></td>
+            </tr>
+          )}
+          {!rows.length && (
+            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={cols}>No late arrivals in this range.</td></tr>
+          )}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
 export function staffStrengthTitle(meta?: ReportMetaData) {
   const f = shortDate(meta?.filters?.from_date);
   const to = shortDate(meta?.filters?.to_date);

@@ -73,6 +73,9 @@ import {
 
 type View = "list" | "register" | "edit" | "report" | "roster";
 
+/** Departments not shown anywhere in HRMS — mirrors HRMS_HIDDEN_DEPTS on the backend. */
+const HRMS_HIDDEN_DEPTS = ["MD SECRETARIAT"];
+
 type StatusTab = "" | "A" | "L";
 
 // Two statuses only. A Left employee keeps their record and history but cannot
@@ -456,7 +459,8 @@ export default function HRMSPage() {
 
   const [locationFocusCard, setLocationFocusCard] = useState<string | undefined>();
   const [view, setView] = useState<View>("list");
-  const [activeTab, setActiveTab] = useState<StatusTab>("");
+  // Opens on Active employees; All and Left are one click away.
+  const [activeTab, setActiveTab] = useState<StatusTab>("A");
   const [localQuery, setLocalQuery] = useState("");
   const [form, setForm] = useState<HRMSEmployeeCreate>({ ...EMPTY_FORM });
   const [reportRange, setReportRange] = useState<AttendanceDateRange>(getPreset("month"));
@@ -509,7 +513,9 @@ export default function HRMSPage() {
       fetchEmpStatuses(c), fetchBanks(c), fetchQualifications(c),
       fetchLocations(c),
     ]).then(([d, des, bg, ca, u, rel, est, bk, ql, loc]) => {
-      setRefDepts(d.items);
+      // MD Secretariat is kept out of HRMS (payroll still shows it); the
+      // backend already drops its employees, this drops it from the pickers.
+      setRefDepts(d.items.filter((x) => !HRMS_HIDDEN_DEPTS.includes(String(x.dept_name ?? "").trim().toUpperCase())));
       setRefDesigs(des.items);
       setRefBG(bg.items);
       setRefCadre(ca.items);
