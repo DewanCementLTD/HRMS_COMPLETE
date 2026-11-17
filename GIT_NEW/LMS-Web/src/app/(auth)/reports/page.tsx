@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { Fragment, useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { FileText, Printer, DollarSign, Users, CheckSquare, Square, Search, ChevronLeft, Download } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -8,7 +8,8 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import * as reportService from "@/services/reportService";
-import { ReportPrintSheet, ReportType } from "./ReportPrintSheet";
+import { ReportPrintSheet, ReportType, downloadStaffStrengthCsv } from "./ReportPrintSheet";
+import type { StaffStrengthReport } from "@/services/reportService";
 import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable, ALL_COMPANIES } from "./ReportFilterBar";
 
 interface ReportMeta {
@@ -32,6 +33,7 @@ const REPORT_CATALOG: ReportMeta[] = [
   { id: "absent-supp", title: "Employee Absent and Supplimentary Days Report", category: "general", description: "Absent days and supplementary days per employee for a period" },
   { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Active employee roster with grade, designation, department and joining dates" },
   { id: "monthly-attendance", title: "Employee Monthly Attendance Report", category: "general", description: "Day-by-day attendance grid for a date range, split by branch and department" },
+  { id: "staff-strength", title: "Contractual And Permanent Staff", category: "general", description: "All-location total strength: permanent, contract and salary per department and location" },
 ];
 
 const CATEGORIES = [
@@ -67,7 +69,7 @@ export default function ReportsPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [showPrintSheet, setShowPrintSheet] = useState(false);
 
-  const [filters, setFilters] = useState<ReportFilters>(emptyFilters());
+  const [filters, setFilters] = useState<ReportFilters>(emptyFilters(null));
   // Company the reports run for — follows the top bar (its "All Companies" maps
   // to ALL) but can be changed here per report run.
   const topCompany = activeCompany || ((user?.company_list?.length ?? 0) > 1 ? ALL_COMPANIES : String(user?.company_list?.[0]?.code ?? ""));
@@ -124,6 +126,7 @@ export default function ReportsPage() {
         "active-employees": () => reportService.fetchActiveEmployeesReport(cardNo, params),
         "pf-detail": () => reportService.fetchPfDetailReport(cardNo, params),
         "monthly-attendance": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "staff-strength": () => reportService.fetchStaffStrengthReport(cardNo, params),
       };
 
       const res = await fetchers[selectedReportId]();
@@ -142,7 +145,7 @@ export default function ReportsPage() {
   useEffect(() => { loadReport(); }, [loadReport]);
 
   // Reset filters when moving to a report with a different filter set.
-  useEffect(() => { setFilters(emptyFilters()); }, [selectedReportId]);
+  useEffect(() => { setFilters(emptyFilters(selectedReportId)); }, [selectedReportId]);
 
   // ── Row extraction (shape differs per report family) ──
 
@@ -237,6 +240,12 @@ export default function ReportsPage() {
     return reportData;
   }, [reportData, selectedKeys]);
 
+  const reportCompanyName = allCompanies
+    ? "All Companies"
+    : user?.company_list?.find((c) => String(c.code) === reportCompany)?.name || user?.selected_company?.name || "";
+  const isStrength = selectedReportId === "staff-strength";
+  const strengthData = isStrength ? (reportData as StaffStrengthReport | null) : null;
+
   if (!user?.hr_admin) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -256,7 +265,7 @@ export default function ReportsPage() {
           reportType={selectedReportId}
           reportTitle={activeReportMeta?.title ?? ""}
           data={printableData}
-          companyName={allCompanies ? "All Companies" : user?.company_list?.find((c) => String(c.code) === reportCompany)?.name || user?.selected_company?.name || ""}
+          companyName={reportCompanyName}
           compc={allCompanies ? undefined : reportCompany || undefined}
           onClose={() => setShowPrintSheet(false)}
         />
@@ -325,13 +334,20 @@ export default function ReportsPage() {
             {/* Action buttons */}
             <div className="flex items-center gap-2 flex-wrap">
               <ExportDropdown />
+              {isStrength && (
+                <Button size="sm" variant="secondary" className="gap-1.5"
+                  disabled={loading || !strengthData?.rows?.length}
+                  onClick={() => strengthData && downloadStaffStrengthCsv(strengthData, reportCompanyName)}>
+                  <Download className="h-3.5 w-3.5" /> Download CSV
+                </Button>
+              )}
               <Button
                 size="sm"
                 onClick={() => setShowPrintSheet(true)}
                 disabled={loading || !reportData}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 whitespace-nowrap"
               >
-                <Printer className="h-4 w-4" /> Generate Report ({selectedKeys.size > 0 ? selectedKeys.size : "All"})
+                <Printer className="h-4 w-4" /> Generate Report ({isStrength ? "All" : selectedKeys.size > 0 ? selectedKeys.size : "All"})
               </Button>
             </div>
           </div>
@@ -357,7 +373,25 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {selectedReportId && (
+      {isStrength && (
+        <Card className="border border-gray-200 shadow-sm overflow-hidden print:hidden">
+          {loading ? (
+            <div className="flex items-center justify-center p-12 text-gray-500 gap-3">
+              <Spinner className="h-5 w-5 text-indigo-600" />
+              <span className="text-sm font-medium">Loading report records...</span>
+            </div>
+          ) : !strengthData?.rows?.length ? (
+            <div className="p-12 text-center text-gray-500">
+              <FileText className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm font-medium">No records found for these filters.</p>
+            </div>
+          ) : (
+            <StaffStrengthTable data={strengthData} />
+          )}
+        </Card>
+      )}
+
+      {selectedReportId && !isStrength && (
       <Card className="border border-gray-200 shadow-sm overflow-hidden print:hidden">
         <div className="bg-gray-50 border-b border-gray-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-3">
@@ -754,4 +788,74 @@ function ReportRow({
         </>
       );
   }
+}
+
+// ── Contractual & Permanent Staff: department × location matrix ──
+function StaffStrengthTable({ data }: { data: StaffStrengthReport }) {
+  const locs = data.locations;
+  const cell = "px-2 py-1.5 text-center tabular-nums border-l border-gray-100";
+  const sal = "px-2 py-1.5 text-right tabular-nums";
+  const show = (v?: number) => (v == null ? "" : v);
+  return (
+    <div className={TABLE_WRAP}>
+      <table className="min-w-full text-xs border-collapse">
+        <thead>
+          <tr className="bg-gray-100 border-b border-gray-200">
+            <th rowSpan={2} className={`${TH} sticky left-0 z-20 bg-gray-100 border-r border-gray-200`}>Department</th>
+            {locs.map((l) => (
+              <th key={l.key} colSpan={4} className={`${TH} text-center border-l border-gray-200`}>{l.name}</th>
+            ))}
+            <th rowSpan={2} className={`${TH} text-center border-l border-gray-200`}>Total Strength</th>
+            <th rowSpan={2} className={`${TH} text-right`}>Total Gross Salary</th>
+          </tr>
+          <tr className="bg-gray-50 border-b border-gray-200">
+            {locs.map((l) => (
+              <Fragment key={l.key}>
+                <th className={`${TH} text-center border-l border-gray-200`}>Permanent</th>
+                <th className={`${TH} text-center`}>Contract</th>
+                <th className={`${TH} text-center`}>Total</th>
+                <th className={`${TH} text-right`}>Salary</th>
+              </Fragment>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
+          {data.rows.map((r) => (
+            <tr key={r.department} className="bg-white hover:bg-gray-50">
+              <td className={`${TD} sticky left-0 z-10 bg-inherit border-r border-gray-200 font-medium`}>{r.department}</td>
+              {locs.map((l) => {
+                const c = r.cells[l.key];
+                return (
+                  <Fragment key={l.key}>
+                    <td className={cell}>{show(c?.permanent)}</td>
+                    <td className={cell}>{show(c?.contract)}</td>
+                    <td className={`${cell} font-semibold`}>{show(c?.total)}</td>
+                    <td className={sal}>{c ? money(c.salary) : ""}</td>
+                  </Fragment>
+                );
+              })}
+              <td className={`${cell} font-bold`}>{r.total_strength}</td>
+              <td className={`${sal} font-bold`}>{money(r.total_salary)}</td>
+            </tr>
+          ))}
+          <tr className="bg-indigo-50 font-bold border-t-2 border-indigo-200">
+            <td className={`${TD} sticky left-0 z-10 bg-indigo-50 border-r border-gray-200`}>Total :</td>
+            {locs.map((l) => {
+              const c = data.location_totals[l.key];
+              return (
+                <Fragment key={l.key}>
+                  <td className={cell}>{show(c?.permanent)}</td>
+                  <td className={cell}>{show(c?.contract)}</td>
+                  <td className={cell}>{show(c?.total)}</td>
+                  <td className={sal}>{money(c?.salary)}</td>
+                </Fragment>
+              );
+            })}
+            <td className={cell}>{data.totals.strength}</td>
+            <td className={sal}>{money(data.totals.salary)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 }

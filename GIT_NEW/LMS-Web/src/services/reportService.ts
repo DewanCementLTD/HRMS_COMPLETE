@@ -228,6 +228,31 @@ export interface ReportFilterParams {
   /** Monthly attendance grid — a date range, not a payroll period. */
   from_date?: string;
   to_date?: string;
+  /** Staff strength: 'P' = permanent only, 'C' = contract only. */
+  staff_type?: string;
+}
+
+// ── Contractual & Permanent Staff (all-location total strength) ──
+
+export interface StaffStrengthCell {
+  permanent: number;
+  contract: number;
+  total: number;
+  salary: number;
+}
+
+export interface StaffStrengthReport {
+  /** Location columns; `key` is the upper-cased name the cells are keyed by. */
+  locations: { key: string; name: string }[];
+  rows: {
+    department: string;
+    cells: Record<string, StaffStrengthCell>;
+    total_strength: number;
+    total_salary: number;
+  }[];
+  location_totals: Record<string, StaffStrengthCell>;
+  totals: { strength: number; salary: number };
+  meta: ReportMetaData;
 }
 
 // ── Monthly attendance grid ───────────────────────────────────────
@@ -317,6 +342,9 @@ export const fetchActiveEmployeesReport = (adminCardNo: string, params?: ReportF
 
 export const fetchPfDetailReport = (adminCardNo: string, params?: ReportFilterParams) =>
   get<PfDetailReport>("pf-detail", adminCardNo, params);
+
+export const fetchStaffStrengthReport = (adminCardNo: string, params?: ReportFilterParams) =>
+  get<StaffStrengthReport>("staff-strength", adminCardNo, params);
 
 export const fetchMonthlyAttendanceReport = (adminCardNo: string, params?: ReportFilterParams) =>
   get<MonthlyAttendanceReport>("monthly-attendance", adminCardNo, params);

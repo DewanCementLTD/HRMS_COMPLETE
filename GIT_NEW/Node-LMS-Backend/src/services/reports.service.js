@@ -305,11 +305,13 @@ const periodLabelMap = async (connection, unitId) => {
   return m;
 };
 
-const locationName = async (connection, locId) => {
+const locationName = async (connection, locId, unitId = null) => {
   if (locId === null || locId === undefined || String(locId).trim() === "") return "ALL Locations";
+  // LOC_ID repeats across companies on D-Tech: prefer the report company's row.
   const res = await connection.execute(
-    `SELECT LOC_NAME FROM HR_LOCATION WHERE LOC_ID = :l`,
-    { l: locId },
+    `SELECT LOC_NAME FROM HR_LOCATION WHERE LOC_ID = :l
+      ORDER BY CASE WHEN COMPC = :u THEN 0 ELSE 1 END`,
+    { l: locId, u: toInt(unitId) },
     { outFormat: OUT_ARRAY }
   );
   return s(res.rows?.[0]?.[0]) || String(locId);
@@ -332,7 +334,7 @@ const unitName = async (connection, unitId) => {
 const buildMeta = async (connection, { unitId, location, periods = [], filters = {} }) => {
   const [uname, lname, pmap] = await Promise.all([
     unitName(connection, unitId),
-    locationName(connection, location),
+    locationName(connection, location, unitId),
     periodLabelMap(connection, unitId),
   ]);
   return {
@@ -1639,6 +1641,136 @@ export const getMonthlyAttendanceReport = async ({
       groups,
       meta,
     };
+  } finally {
+    await connection?.close();
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// Contractual & Permanent Staff — "ALL LOCATION TOTAL STRENGTH"
+//   (legacy TM_RPT_SAL form). Department rows × location columns, each
+//   location split Permanent / Contract / Total / Salary.
+// ══════════════════════════════════════════════════════════════════
+
+/**
+ * Mirrors EMPLOYEE_V (active flag, SALARY = GROSS, DEPARTMENT, branch name) but
+ * reads HR_EMP_MASTER directly, because:
+ *  - EMPLOYEE_V's branch name looks HR_LOCATION up by LOC_ID alone, which
+ *    raises ORA-01427 on D-Tech (the same LOC_ID exists in several companies);
+ *  - EMPLOYEE hard-codes TYPE = 'PERMANENT', so Contract would always be 0.
+ *
+ * Type comes from HR_EMP_STATUS's description, never its code: the tenants
+ * number them differently (Sysnovix 2 = Permanent, D-Tech 1 = Permanent).
+ * Permanent = Permanent / Probationary / no status (as EMPLOYEE reads it);
+ * Contract = every other status (Contractual, Temporary, Daily Wages, …).
+ *
+ * An employee counts when on roll at any time in [from, to]: appointed on or
+ * before `to`, and either still active or resigned on/after `from`. With
+ * from = to that is the strength as on that date.
+ */
+const STAFF_TYPE_SQL = `CASE
+         WHEN h.EMP_STATUS IS NULL THEN 'P'
+         WHEN UPPER((SELECT MAX(x.EMP_STATUS_DESC) FROM HR_EMP_STATUS x
+                      WHERE TO_CHAR(x.EMP_STATUS) = TO_CHAR(h.EMP_STATUS))) LIKE 'PERMANENT%' THEN 'P'
+         WHEN UPPER((SELECT MAX(x.EMP_STATUS_DESC) FROM HR_EMP_STATUS x
+                      WHERE TO_CHAR(x.EMP_STATUS) = TO_CHAR(h.EMP_STATUS))) LIKE 'PROBATION%' THEN 'P'
+         WHEN (SELECT COUNT(*) FROM HR_EMP_STATUS x
+                WHERE TO_CHAR(x.EMP_STATUS) = TO_CHAR(h.EMP_STATUS)) = 0 THEN 'P'
+         ELSE 'C' END`;
+
+export const getStaffStrengthReport = async ({
+  unitIds = [], location = null, fromDate, toDate, deptNo = null, staffType = null,
+} = {}) => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const units = [...new Set((unitIds ?? []).map((u) => toInt(u)).filter((u) => u !== null))];
+    if (!units.length) throw new Error("No company in scope");
+    const binds = {
+      fd: s(fromDate), td: s(toDate),
+      mloc: opt(location), mdept: opt(deptNo),
+      mtype: staffType === "P" || staffType === "C" ? staffType : null,
+    };
+    const unitPh = units.map((u, i) => { binds[`u${i}`] = u; return `:u${i}`; }).join(", ");
+
+    // Department filter by name, so one choice works across companies (each
+    // company numbers its own departments).
+    const res = await connection.execute(
+      `SELECT v.UNIT_ID, v.DEPT_NAME, v.LOC_NAME, v.STYPE, COUNT(*) CNT, SUM(NVL(v.GROSS, 0)) SAL
+         FROM (
+           SELECT h.UNIT_ID,
+                  NVL(TRIM((SELECT MAX(d.DEPT_NAME) FROM HR_DEPT d
+                             WHERE d.DEPT_NO = h.DEPT_NO AND d.COMPC = h.UNIT_ID)), 'UNASSIGNED') DEPT_NAME,
+                  NVL(TRIM(NVL((SELECT MAX(l.LOC_NAME) FROM HR_LOCATION l
+                                 WHERE l.LOC_ID = h.LOCATION AND l.COMPC = h.UNIT_ID),
+                               (SELECT MAX(l.LOC_NAME) FROM HR_LOCATION l WHERE l.LOC_ID = h.LOCATION))),
+                      'UNASSIGNED') LOC_NAME,
+                  ${STAFF_TYPE_SQL} STYPE,
+                  h.GROSS
+             FROM HR_EMP_MASTER h
+            WHERE h.UNIT_ID IN (${unitPh})
+              AND ${optEq("TO_CHAR(h.LOCATION)", "mloc")}
+              AND NVL(h.DTOFAPPT, TO_DATE(:td, 'YYYY-MM-DD')) <= TO_DATE(:td, 'YYYY-MM-DD')
+              AND ((h.STATUS = 'A' OR h.STATUS IS NULL)
+                   OR h.DTOFRESIGN >= TO_DATE(:fd, 'YYYY-MM-DD'))
+              AND (:mdept IS NULL OR UPPER(TRIM((SELECT MAX(d.DEPT_NAME) FROM HR_DEPT d
+                                                 WHERE d.DEPT_NO = h.DEPT_NO AND d.COMPC = h.UNIT_ID)))
+                   IN (SELECT UPPER(TRIM(d2.DEPT_NAME)) FROM HR_DEPT d2
+                        WHERE TO_CHAR(d2.DEPT_NO) = :mdept AND d2.COMPC IN (${unitPh})))
+         ) v
+        WHERE (:mtype IS NULL OR v.STYPE = :mtype)
+        GROUP BY v.UNIT_ID, v.DEPT_NAME, v.LOC_NAME, v.STYPE`,
+      binds,
+      { outFormat: OUT_ARRAY }
+    );
+
+    // Locations are matched by name (case-insensitive), so "Head Office" of two
+    // companies is one column, as on the printed report.
+    const blank = () => ({ permanent: 0, contract: 0, total: 0, salary: 0 });
+    const locs = new Map();   // key → display name
+    const depts = new Map();  // key → { department, cells: Map<locKey, cell> }
+    for (const [, dept, loc, stype, cnt, sal] of res.rows ?? []) {
+      const lk = s(loc).toUpperCase();
+      const dk = s(dept).toUpperCase();
+      if (!locs.has(lk)) locs.set(lk, s(loc));
+      if (!depts.has(dk)) depts.set(dk, { department: s(dept), cells: new Map() });
+      const cells = depts.get(dk).cells;
+      if (!cells.has(lk)) cells.set(lk, blank());
+      const c = cells.get(lk);
+      if (stype === "C") c.contract += num(cnt); else c.permanent += num(cnt);
+      c.total += num(cnt);
+      c.salary += num(sal);
+    }
+
+    const locations = [...locs.entries()].sort((a, b) => a[1].localeCompare(b[1])).map(([key, name]) => ({ key, name }));
+    const location_totals = Object.fromEntries(locations.map((l) => [l.key, blank()]));
+    const totals = { strength: 0, salary: 0 };
+    const rows = [...depts.values()]
+      .sort((a, b) => a.department.localeCompare(b.department))
+      .map((d) => {
+        const cells = {};
+        let strength = 0, salary = 0;
+        for (const l of locations) {
+          const c = d.cells.get(l.key);
+          if (!c) continue;
+          cells[l.key] = c;
+          strength += c.total; salary += c.salary;
+          const t = location_totals[l.key];
+          t.permanent += c.permanent; t.contract += c.contract; t.total += c.total; t.salary += c.salary;
+        }
+        totals.strength += strength; totals.salary += salary;
+        return { department: d.department, cells, total_strength: strength, total_salary: salary };
+      });
+
+    const single = units.length === 1 ? units[0] : null;
+    const meta = await buildMeta(connection, {
+      unitId: single, location,
+      filters: {
+        from_date: s(fromDate), to_date: s(toDate),
+        department: opt(deptNo), staff_type: binds.mtype,
+      },
+    });
+    return { locations, rows, location_totals, totals, meta };
   } finally {
     await connection?.close();
   }

@@ -1057,8 +1057,8 @@ export const hrList = (compc, f = {}) => read(async (c) => {
   if (f.dept) { where += " AND LTRIM(a.DEPT_NO,'0') = LTRIM(:dept,'0')"; binds.dept = s(f.dept); }
   if (f.q) { where += " AND (UPPER(m.NAME) LIKE :q OR a.EMPCODE LIKE :q)"; binds.q = `%${s(f.q).toUpperCase()}%`; }
   const r = await c.execute(
-    `${HEAD_SELECT} WHERE a.COMPC = :compc${where} ORDER BY y.PERIOD_TO DESC, UPPER(m.NAME) FETCH FIRST 2000 ROWS ONLY`,
-    binds, { outFormat: OUT_ARRAY },
+    `${HEAD_SELECT} WHERE a.COMPC = :compc${where} ORDER BY y.PERIOD_TO DESC, UPPER(m.NAME)`,
+    binds, { outFormat: OUT_ARRAY, fetchArraySize: 1000 },
   );
   return (r.rows ?? []).map(rowToHead).map((h) => {
     const lm = lineManagerRole(h);

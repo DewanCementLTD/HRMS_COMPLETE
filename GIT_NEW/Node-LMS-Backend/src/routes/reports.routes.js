@@ -26,5 +26,6 @@ router.get("/pf-detail", validate(schemas.pfDetailSchema), requireHrAdmin, contr
 router.get("/absent-supp", validate(schemas.absentSuppSchema), requireHrAdmin, controller.getAbsentSuppReport);
 router.get("/active-employees", validate(schemas.activeEmployeesSchema), requireHrAdmin, controller.getActiveEmployeesReport);
 router.get("/monthly-attendance", validate(schemas.monthlyAttendanceSchema), requireHrAdmin, controller.getMonthlyAttendanceReport);
+router.get("/staff-strength", validate(schemas.staffStrengthSchema), requireHrAdmin, controller.getStaffStrengthReport);
 
 export default router;

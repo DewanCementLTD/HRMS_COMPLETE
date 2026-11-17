@@ -249,3 +249,31 @@ export const getPfDetailReport = async (req, res, next) => {
     next(err);
   }
 };
+
+// Location-wise staff strength. One query over every company in scope (not
+// per-company runs + merge), so locations of the same name share a column.
+export const getStaffStrengthReport = async (req, res, next) => {
+  try {
+    const query = res.locals.validated.query;
+    const all = isAll(query);
+    let unitIds, location = null;
+    if (all) {
+      unitIds = await allowedUnits(query.admin_card_no);
+    } else {
+      const sc = await scope(query);
+      unitIds = [sc.unitId];
+      location = sc.location;
+    }
+    const data = await reportsService.getStaffStrengthReport({
+      unitIds, location,
+      fromDate: query.from_date, toDate: query.to_date,
+      deptNo: query.dept_no, staffType: query.staff_type,
+    });
+    if (all) {
+      data.meta = { ...data.meta, unit_id: null, unit_name: "All Companies", all_companies: true };
+    }
+    res.json({ status: "success", data });
+  } catch (err) {
+    next(err);
+  }
+};

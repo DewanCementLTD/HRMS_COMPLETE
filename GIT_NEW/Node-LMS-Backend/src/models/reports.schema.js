@@ -91,3 +91,12 @@ export const activeEmployeesSchema = q({
 export const pfDetailSchema = q({
   empcode: z.string().trim().min(1, "empcode is required"),
 });
+
+// Contractual & Permanent Staff (location-wise strength). Employees on roll at
+// any time between the two dates; staff_type 'P' = permanent, 'C' = contract.
+export const staffStrengthSchema = q({
+  from_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "from_date must be YYYY-MM-DD"),
+  to_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "to_date must be YYYY-MM-DD"),
+  dept_no: optStr,
+  staff_type: z.enum(["P", "C"]).optional().or(z.literal("").transform(() => undefined)),
+});

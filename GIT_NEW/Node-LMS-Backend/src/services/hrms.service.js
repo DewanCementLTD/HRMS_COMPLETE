@@ -936,10 +936,8 @@ export const listEmployeesHrms = async (status = null, allowedCompanies = null, 
     const params = {};
     const { parts, sql: filterSql } = empDirectFilter(allowedCompanies, allowedBranches, params);
 
-    // Every branch is capped at 2000 rows, matching FastAPI's
-    // list_employees_hrms (hrms_repository.py) — without it a company-wide
-    // listing streams the entire HR_EMP_MASTER table to the browser.
-    const CAP = ` FETCH FIRST 2000 ROWS ONLY`;
+    // No row cap: the directory must list every employee (D-Tech has well over
+    // 2000). The web pages the rows on screen, so a full list stays quick.
 
     let sql;
     // Two statuses only. "Left" also covers the retired 'I' and 'D' codes, so
@@ -947,17 +945,17 @@ export const listEmployeesHrms = async (status = null, allowedCompanies = null, 
     if (status === "L" || status === "I") {
       const ph = LEFT_CODES.map((_, i) => `:st${i}`).join(", ");
       LEFT_CODES.forEach((code, i) => { params[`st${i}`] = code; });
-      sql = EMP_LIST_SELECT + ` WHERE h.STATUS IN (${ph})${filterSql} ORDER BY h.NAME` + CAP;
+      sql = EMP_LIST_SELECT + ` WHERE h.STATUS IN (${ph})${filterSql} ORDER BY h.NAME`;
     } else if (status === "A") {
       // A missing status has always been read as active by the dashboards.
-      sql = EMP_LIST_SELECT + ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)${filterSql} ORDER BY h.NAME` + CAP;
+      sql = EMP_LIST_SELECT + ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)${filterSql} ORDER BY h.NAME`;
     } else if (parts.length) {
-      sql = EMP_LIST_SELECT + ` WHERE ${parts.join(" AND ")} ORDER BY h.NAME` + CAP;
+      sql = EMP_LIST_SELECT + ` WHERE ${parts.join(" AND ")} ORDER BY h.NAME`;
     } else {
-      sql = EMP_LIST_SELECT + ` ORDER BY h.NAME` + CAP;
+      sql = EMP_LIST_SELECT + ` ORDER BY h.NAME`;
     }
 
-    const result = await connection.execute(sql, params, { outFormat: OUT_OBJECT });
+    const result = await connection.execute(sql, params, { outFormat: OUT_OBJECT, fetchArraySize: 1000, prefetchRows: 1000 });
     return (result.rows ?? []).map((r) => renameCardCols(lowerKeys(r)));
   } finally {
     await connection?.close();
@@ -1581,8 +1579,7 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
         GROUP BY
             h.EMPCODE, h.NAME, h."ATDTCARD#", TO_CHAR(e.CARD_NO),
             dep.DEPT_NAME, h.DEPT_NO, h.DESG_CD, h.UNIT_ID, h.LOCATION, h.STATUS
-        ORDER BY h.NAME
-        FETCH FIRST 2000 ROWS ONLY`, params, { outFormat: OUT_OBJECT });
+        ORDER BY h.NAME`, params, { outFormat: OUT_OBJECT, fetchArraySize: 1000 });
       const result = (r.rows ?? []).map(lowerKeys);
       const leaves = await fetchLeaveDaysByEmployee(connection, filterSql, params);
       for (const rec of result) {
@@ -1623,8 +1620,7 @@ export const getBulkAttendanceSummary = async (fromDate, toDate, allowedCompanie
       LEFT JOIN HR_DEPT dep
           ON TO_CHAR(dep.DEPT_NO) = TO_CHAR(h.DEPT_NO) AND TO_CHAR(dep.COMPC) = TO_CHAR(h.UNIT_ID)
       WHERE h.STATUS = 'A'${filterSql}
-      ORDER BY h.NAME
-      FETCH FIRST 2000 ROWS ONLY`, params, { outFormat: OUT_OBJECT });
+      ORDER BY h.NAME`, params, { outFormat: OUT_OBJECT, fetchArraySize: 1000 });
     return (r.rows ?? []).map(lowerKeys);
   } finally {
     await connection?.close();

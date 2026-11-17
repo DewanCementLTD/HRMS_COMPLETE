@@ -124,6 +124,9 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   pf_mem_dt: "",
 };
 
+// Employee directory rows drawn per page.
+const EMP_PAGE_SIZE = 100;
+
 // Probation period choices for the register / edit form (months).
 const PROBATION_OPTIONS = [
   { value: "", label: "Select" },
@@ -458,6 +461,9 @@ export default function HRMSPage() {
   const [form, setForm] = useState<HRMSEmployeeCreate>({ ...EMPTY_FORM });
   const [reportRange, setReportRange] = useState<AttendanceDateRange>(getPreset("month"));
   const [empFilter, setEmpFilter] = useState<EmpFilter>({ dept: "", gender: "", status: "", location: "" });
+  // The directory is no longer capped at 2000 rows, so it is drawn a page at a
+  // time; CSV/PDF still export every matching employee.
+  const [empPage, setEmpPage] = useState(0);
   const [cardData, setCardData] = useState<EmployeeCard | null>(null);
   const [rosterEmp, setRosterEmp] = useState<RosterEmployee | null>(null);
 
@@ -914,6 +920,10 @@ export default function HRMSPage() {
       if (empFilter.location && emp.location !== empFilter.location) return false;
       return true;
     });
+    const pageCount = Math.max(1, Math.ceil(visibleEmployees.length / EMP_PAGE_SIZE));
+    const page = Math.min(empPage, pageCount - 1);
+    const pageEmployees = visibleEmployees.slice(page * EMP_PAGE_SIZE, (page + 1) * EMP_PAGE_SIZE);
+    const deptNames = new Map(refDepts.map((d) => [Number(d.dept_no), d.dept_name]));
 
     return (
       <div className="animate-fade-in">
@@ -970,7 +980,7 @@ export default function HRMSPage() {
                   {STATUS_TABS.map((tab) => (
                     <button
                       key={tab.value}
-                      onClick={() => setActiveTab(tab.value)}
+                      onClick={() => { setActiveTab(tab.value); setEmpPage(0); }}
                       className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                         activeTab === tab.value
                           ? "bg-white text-indigo-700 shadow-sm"
@@ -992,6 +1002,7 @@ export default function HRMSPage() {
                     onChange={(e) => {
                       setLocalQuery(e.target.value);
                       ctrl.filterByQuery(e.target.value);
+                      setEmpPage(0);
                     }}
                   />
                 </div>
@@ -1000,7 +1011,7 @@ export default function HRMSPage() {
               <div className="flex flex-wrap gap-2">
                 <select
                   value={empFilter.dept}
-                  onChange={(e) => setEmpFilter((f) => ({ ...f, dept: e.target.value }))}
+                  onChange={(e) => { setEmpFilter((f) => ({ ...f, dept: e.target.value })); setEmpPage(0); }}
                   className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
                 >
                   <option value="">All Departments</option>
@@ -1010,7 +1021,7 @@ export default function HRMSPage() {
                 </select>
                 <select
                   value={empFilter.gender}
-                  onChange={(e) => setEmpFilter((f) => ({ ...f, gender: e.target.value }))}
+                  onChange={(e) => { setEmpFilter((f) => ({ ...f, gender: e.target.value })); setEmpPage(0); }}
                   className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
                 >
                   <option value="">All Genders</option>
@@ -1019,7 +1030,7 @@ export default function HRMSPage() {
                 </select>
                 {(empFilter.dept || empFilter.gender) && (
                   <button
-                    onClick={() => setEmpFilter({ dept: "", gender: "", status: "", location: "" })}
+                    onClick={() => { setEmpFilter({ dept: "", gender: "", status: "", location: "" }); setEmpPage(0); }}
                     className="px-3 py-1.5 text-xs text-gray-500 hover:text-red-500 border border-gray-200 rounded-lg transition-colors"
                   >
                     Clear filters
@@ -1078,9 +1089,9 @@ export default function HRMSPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {visibleEmployees.map((emp, i) => (
+                    {pageEmployees.map((emp) => (
                       <tr
-                        key={i}
+                        key={`${emp.unit_id ?? ""}-${emp.empcode}`}
                         className="hover:bg-gray-50/50 transition-colors"
                       >
                         <td className="px-4 py-3">
@@ -1107,7 +1118,7 @@ export default function HRMSPage() {
                           {emp.atdtcard || emp.card_no || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
-                          {refDepts.find((d) => d.dept_no === Number(emp.dept_no))?.dept_name || emp.dept_no || "-"}
+                          {deptNames.get(Number(emp.dept_no)) || emp.dept_no || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {emp.mobile || "-"}
@@ -1167,6 +1178,20 @@ export default function HRMSPage() {
                     ))}
                   </tbody>
                 </table>
+                {pageCount > 1 && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-gray-100 text-sm text-gray-600">
+                    <span>
+                      {page * EMP_PAGE_SIZE + 1}–{Math.min((page + 1) * EMP_PAGE_SIZE, visibleEmployees.length)} of {visibleEmployees.length}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Button variant="secondary" size="sm" disabled={page === 0} onClick={() => setEmpPage(0)}>First</Button>
+                      <Button variant="secondary" size="sm" disabled={page === 0} onClick={() => setEmpPage(page - 1)}>Prev</Button>
+                      <span className="px-2">Page {page + 1} / {pageCount}</span>
+                      <Button variant="secondary" size="sm" disabled={page >= pageCount - 1} onClick={() => setEmpPage(page + 1)}>Next</Button>
+                      <Button variant="secondary" size="sm" disabled={page >= pageCount - 1} onClick={() => setEmpPage(pageCount - 1)}>Last</Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

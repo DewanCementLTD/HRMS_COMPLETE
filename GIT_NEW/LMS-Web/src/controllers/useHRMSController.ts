@@ -56,8 +56,17 @@ export function useHRMSController() {
   const submittingRef = useRef(false);
 
   // ---- Load all employees (server already filters by selected company/branch) ----
+  // The page and the company/branch effect below can both ask for the same
+  // list on mount; an identical request already in flight is not sent twice,
+  // and only the newest request's answer is applied.
+  const loadSeq = useRef(0);
+  const inflightKey = useRef<string | null>(null);
   const loadEmployees = useCallback(async (status?: string) => {
     if (!user) return;
+    const key = `${status || ""}|${activeCompany || ""}|${activeBranch || ""}`;
+    if (inflightKey.current === key) return;
+    inflightKey.current = key;
+    const seq = ++loadSeq.current;
     setLoading(true);
     setError(null);
     try {
@@ -67,14 +76,17 @@ export function useHRMSController() {
         activeCompany || undefined,
         activeBranch || undefined,
       );
+      if (seq !== loadSeq.current) return;
       const items = res.items || [];
       setAllEmployees(items);
       setEmployees(items);
       setSearchQuery("");
     } catch (err) {
+      if (seq !== loadSeq.current) return;
       setError(err instanceof Error ? err.message : "Failed to load employees");
     } finally {
-      setLoading(false);
+      if (inflightKey.current === key) inflightKey.current = null;
+      if (seq === loadSeq.current) setLoading(false);
     }
   }, [user, activeCompany, activeBranch]);
 

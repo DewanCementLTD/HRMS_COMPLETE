@@ -7,8 +7,9 @@ import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import type {
   MonthlyAttendanceReport,
   ReportMetaData, PivotReport, ReconReport, BankAdviceReport,
-  AbsentSuppReport, ActiveEmployeesReport, PfDetailReport,
+  AbsentSuppReport, ActiveEmployeesReport, PfDetailReport, StaffStrengthReport,
 } from "@/services/reportService";
+import { downloadTableCsv } from "@/lib/printTable";
 
 export type ReportType =
   | "absent-supp"
@@ -20,13 +21,16 @@ export type ReportType =
   | "bank-advice"
   | "active-employees"
   | "pf-detail"
-  | "monthly-attendance";
+  | "monthly-attendance"
+  | "staff-strength";
 
 /** Reports whose column count needs a landscape page. */
 const LANDSCAPE: ReportType[] = [
   "active-employees", "deduction-detail", "allowance-detail", "month-wise-deduction",
   // 31 day columns — portrait cannot hold it.
   "monthly-attendance",
+  // 4 columns per location.
+  "staff-strength",
 ];
 
 // ── formatting ────────────────────────────────────────────────────
@@ -220,6 +224,9 @@ export function ReportPrintSheet({
             )}
             {reportType === "pf-detail" && (
               <PfDetailSheet data={data as PfDetailReport} {...{ companyName, compc }} />
+            )}
+            {reportType === "staff-strength" && (
+              <StaffStrengthSheet data={data as StaffStrengthReport} {...{ companyName, compc }} />
             )}
             {reportType === "monthly-attendance" && (
               <MonthlyAttendanceSheet
@@ -933,5 +940,135 @@ function MonthlyAttendanceSheet({ data, companyName, compc, meta, badges }: {
         );
       })}
     </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Contractual & Permanent Staff — "ALL LOCATION TOTAL STRENGTH"
+// ══════════════════════════════════════════════════════════════════
+
+/** "16-NOV-26", the date style of the legacy title. */
+const shortDate = (ymd?: string | number | null) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(ymd ?? ""));
+  if (!m) return "";
+  const M = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][Number(m[2]) - 1];
+  return `${m[3]}-${M}-${m[1].slice(2)}`;
+};
+
+/** Title line: one date when the range is a single day, else "FROM to TO". */
+export function staffStrengthTitle(meta?: ReportMetaData) {
+  const f = shortDate(meta?.filters?.from_date);
+  const to = shortDate(meta?.filters?.to_date);
+  const type = meta?.filters?.staff_type === "P" ? " (PERMANENT)" : meta?.filters?.staff_type === "C" ? " (CONTRACT)" : "";
+  return `ALL LOCATION TOTAL STRENGTH${type} ${f && to && f !== to ? `${f} TO ${to}` : to}`.trim();
+}
+
+const cnt = (v?: number) => (v == null ? "" : String(v));
+
+/** CSV of the strength matrix: one column per location × Permanent/Contract/Total/Salary. */
+export function downloadStaffStrengthCsv(data: StaffStrengthReport, companyName: string) {
+  const parts = ["Permanent", "Contract", "Total", "Salary"] as const;
+  const keyOf = { Permanent: "permanent", Contract: "contract", Total: "total", Salary: "salary" } as const;
+  const columns = [
+    "Department",
+    ...data.locations.flatMap((l) => parts.map((p) => `${l.name} - ${p}`)),
+    "Total Strength", "Total Gross Salary",
+  ];
+  const cells = (c: Record<string, StaffStrengthReport["location_totals"][string]>) =>
+    data.locations.flatMap((l) => parts.map((p) => {
+      const v = c[l.key]?.[keyOf[p]];
+      return v == null ? "" : p === "Salary" ? Math.round(v) : v;
+    }));
+  downloadTableCsv({
+    title: staffStrengthTitle(data.meta),
+    companyName,
+    columns,
+    rows: [
+      ...data.rows.map((r) => [r.department, ...cells(r.cells), r.total_strength, Math.round(r.total_salary)]),
+      ["Total :", ...cells(data.location_totals), data.totals.strength, Math.round(data.totals.salary)],
+    ],
+  } as Parameters<typeof downloadTableCsv>[0]);
+}
+
+function StaffStrengthSheet({ data, companyName, compc }: {
+  data: StaffStrengthReport; companyName: string; compc?: string;
+}) {
+  if (!data) return null;
+  const locs = data.locations;
+  // Narrower type as the location count grows, so the sheet stays on one page width.
+  const fs = locs.length > 6 ? "text-[7px]" : locs.length > 4 ? "text-[8px]" : "text-[9px]";
+  const H = `${TH} bg-gray-100`;
+  const C = `${TD} text-center`;
+  const R = `${TD} text-right`;
+  return (
+    <div>
+      <div className="mb-3">
+        <div className="flex items-center gap-2">
+          <CompanyLogo compc={compc} className="h-7 max-w-[70px]" />
+          <h1 className="text-lg font-bold text-blue-700 tracking-wide uppercase">{companyName}</h1>
+        </div>
+        <h2 className="text-sm font-bold mt-1">{staffStrengthTitle(data.meta)}</h2>
+        <div className="text-[10px] text-gray-700 mt-0.5">
+          {[data.meta?.location_name && data.meta.location_name !== "ALL Locations" ? data.meta.location_name : "",
+            stamp(data.meta?.generated_at)].filter(Boolean).join(" · ")}
+        </div>
+      </div>
+      <table className={`w-full border-collapse ${fs}`}>
+        <thead>
+          <tr>
+            <th className={H} rowSpan={2}>Department</th>
+            {locs.map((l) => <th key={l.key} className={H} colSpan={4}>{l.name}</th>)}
+            <th className={H} rowSpan={2}>Total<br />Strength</th>
+            <th className={H} rowSpan={2}>Total Gross<br />Salary</th>
+          </tr>
+          <tr>
+            {locs.map((l) => (
+              <Fragment key={l.key}>
+                <th className={H}>Permanent</th>
+                <th className={H}>Contract</th>
+                <th className={H}>Total</th>
+                <th className={H}>Salary</th>
+              </Fragment>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.rows.map((r) => (
+            <tr key={r.department}>
+              <td className={`${TD} whitespace-nowrap`}>{r.department}</td>
+              {locs.map((l) => {
+                const c = r.cells[l.key];
+                return (
+                  <Fragment key={l.key}>
+                    <td className={C}>{cnt(c?.permanent)}</td>
+                    <td className={C}>{cnt(c?.contract)}</td>
+                    <td className={C}>{cnt(c?.total)}</td>
+                    <td className={R}>{c ? n0(c.salary) : ""}</td>
+                  </Fragment>
+                );
+              })}
+              <td className={`${C} font-bold`}>{r.total_strength}</td>
+              <td className={`${R} font-bold`}>{n(r.total_salary)}</td>
+            </tr>
+          ))}
+          <tr className="font-bold bg-gray-50">
+            <td className={`${TD} text-center`}>Total :</td>
+            {locs.map((l) => {
+              const c = data.location_totals[l.key];
+              return (
+                <Fragment key={l.key}>
+                  <td className={C}>{cnt(c?.permanent)}</td>
+                  <td className={C}>{cnt(c?.contract)}</td>
+                  <td className={C}>{cnt(c?.total)}</td>
+                  <td className={R}>{n0(c?.salary)}</td>
+                </Fragment>
+              );
+            })}
+            <td className={C}>{data.totals.strength}</td>
+            <td className={R}>{n0(data.totals.salary)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 }

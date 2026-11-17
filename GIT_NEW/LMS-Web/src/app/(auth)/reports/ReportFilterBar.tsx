@@ -21,7 +21,9 @@ type FilterKey =
   | "deduction" | "bankAdviceType" | "employeeStatusType"
   // A calendar date range — the monthly attendance cycle (e.g. 21st to 20th)
   // straddles two payroll periods, so it can't use the period picker.
-  | "dateRange";
+  | "dateRange"
+  // Staff strength: Permanent / Contract / both.
+  | "staffType";
 
 const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "allowance-detail": ["periodRange", "salaryData", "employee"],
@@ -33,6 +35,7 @@ const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "pf-detail": ["employee"],
   "absent-supp": ["period", "department"],
   "monthly-attendance": ["dateRange", "department"],
+  "staff-strength": ["dateRange", "department", "staffType"],
   "active-employees": [
     "employeeStatusType", "designation", "desgGroup", "department",
     "grade", "empStatus", "grossRange", "employee",
@@ -63,15 +66,22 @@ export interface ReportFilters {
   employeeStatusType: "A" | "U" | "C";
   fromDate: string;
   toDate: string;
+  staffType: "" | "P" | "C";
 }
 
-export const emptyFilters = (): ReportFilters => ({
+/** Strength reports default to today (the "as on" date); others to the pay cycle. */
+const AS_ON_TODAY: ReportType[] = ["staff-strength"];
+
+export const emptyFilters = (reportId?: ReportType | null): ReportFilters => ({
   period: null, periodFrom: null, periodTo: null,
   salaryData: "C", employee: "", department: "", designation: "",
   desgGroup: "", grade: "", empStatus: "", grossFrom: "", grossTo: "",
   deduction: "", bankAdviceType: "IN", employeeStatusType: "A",
   // Default to the running 21st-to-20th cycle, the window HR prints.
-  ...defaultCycle(),
+  ...(reportId && AS_ON_TODAY.includes(reportId)
+    ? { fromDate: toLocalYmd(new Date()), toDate: toLocalYmd(new Date()) }
+    : defaultCycle()),
+  staffType: "",
 });
 
 /** The pay cycle containing today: 21st of last month to the 20th of this one. */
@@ -108,6 +118,7 @@ export function toParams(reportId: ReportType | null, f: ReportFilters): ReportF
   }
   if (keys.includes("deduction")) p.deduction_id = f.deduction;
   if (keys.includes("dateRange")) { p.from_date = f.fromDate; p.to_date = f.toDate; }
+  if (keys.includes("staffType")) p.staff_type = f.staffType;
   return p;
 }
 
@@ -299,7 +310,7 @@ export function ReportFilterBar({
           </button>
         )}
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => onChange(emptyFilters())} disabled={loading}>
+          <Button variant="secondary" size="sm" onClick={() => onChange(emptyFilters(reportId))} disabled={loading}>
             <RotateCcw className="h-4 w-4 mr-1.5" /> Reset
           </Button>
           <Button size="sm" onClick={onApply} disabled={loading || !runnable}
@@ -420,6 +431,17 @@ function FilterRenderer({
             <option value="A">All Active</option>
             <option value="C">Confirmed</option>
             <option value="U">Un-Confirmed</option>
+          </select>
+        </Field>
+      )}
+
+      {keys.includes("staffType") && (
+        <Field label="Type">
+          <select className={selectCls} value={filters.staffType}
+            onChange={(e) => set("staffType", e.target.value as "" | "P" | "C")}>
+            <option value="">Permanent &amp; Contract</option>
+            <option value="P">Permanent</option>
+            <option value="C">Contract</option>
           </select>
         </Field>
       )}
