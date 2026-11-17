@@ -190,7 +190,7 @@ export const deleteCycleGoal = (compc, cycleId, goalId) => withTx(async (c) => {
 
 /**
  * Employees a launch would cover. Filters (all optional): explicit empcodes,
- * departments, branch, employment statuses (HR_EMP_STATUS codes, e.g. '1' =
+ * departments, designations, branch, employment statuses (HR_EMP_STATUS codes, e.g. '1' =
  * probationary). Probation / confirmation cycles default to probationers.
  */
 const candidates = async (c, compc, cycle, f) => {
@@ -205,6 +205,7 @@ const candidates = async (c, compc, cycle, f) => {
     const ph = f.dept_nos.map((v, i) => { binds[`d${i}`] = String(v).replace(/^0+/, ""); return `:d${i}`; });
     where += ` AND LTRIM(m.DEPT_NO,'0') IN (${ph.join(",")})`;
   }
+  if (f.desg_cds?.length) list(f.desg_cds, "TO_CHAR(m.DESG_CD)", "dg");
   if (f.brnch) { where += " AND TO_CHAR(m.LOCATION) = :b"; binds.b = String(f.brnch); }
   const statuses = f.emp_statuses?.length ? f.emp_statuses
     : (!f.empcodes?.length && ["PROBATION", "CONFIRMATION"].includes(cycle.cycle_type) ? ["1"] : []);
@@ -258,7 +259,7 @@ export const previewLaunch = (compc, cycleId, filters) => read(async (c) => {
     items: emps.map((e) => {
       const snap = approverSnapshot(e);
       return {
-        empcode: e.empcode, name: e.name, dept_name: e.dept_name, already: e.already,
+        empcode: e.empcode, name: e.name, dept_name: e.dept_name, desg_cd: e.desg_cd, already: e.already,
         has_rpt: !!snap.rpt, has_hod1: !!snap.hod1, has_hod2: !!snap.hod2,
       };
     }),

@@ -55,6 +55,7 @@ import { EmployeePhoto } from "./EmployeePhoto";
 import { EmployeeIDCard } from "./EmployeeIDCard";
 import { AttendancePanel } from "./AttendancePanel";
 import { LeaveAllocationPanel } from "./LeaveAllocationPanel";
+import { CompanyRequired, useAllCompanies } from "@/components/layout/CompanyRequired";
 import { DutyRosterPanel, type RosterEmployee } from "./DutyRosterPanel";
 import {
   fetchDepartments, fetchDesignations,
@@ -118,9 +119,30 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   qfication: "",
   qual_detail: "",
   dtofconfirm: "",
+  probation: "",
   pf_ind: "N",
   pf_mem_dt: "",
 };
+
+// Probation period choices for the register / edit form (months).
+const PROBATION_OPTIONS = [
+  { value: "", label: "Select" },
+  ...Array.from({ length: 25 }, (_, i) => ({ value: String(i), label: i === 1 ? "1 month" : `${i} months` })),
+];
+
+/** 'YYYY-MM-DD' + n months, clamped to the month's last day (31-Jan + 1 → 28/29-Feb). */
+function addMonthsYmd(ymd: string, months: number): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd || "");
+  if (!m) return "";
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1 + months;
+  const d = Number(m[3]);
+  const ty = y + Math.floor(mo / 12);
+  const tm = ((mo % 12) + 12) % 12;
+  const last = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${ty}-${pad(tm + 1)}-${pad(Math.min(d, last))}`;
+}
 
 // Format an NIC as 4XXXX-XXXXXXX-X (5 digits - 7 digits - 1 digit).
 function formatNIC(v: string): string {
@@ -414,6 +436,7 @@ function StatusBadge({ status }: { status?: string }) {
 
 export default function HRMSPage() {
   const { user, activeCompany, activeBranch } = useAuth();
+  const allCompaniesSelected = useAllCompanies();
   const ctrl = useHRMSController();
 
   const [section, setSection] = useState<"employees" | "locations" | "setup" | "attendance" | "leave">("employees");
@@ -580,6 +603,9 @@ export default function HRMSPage() {
       qfication: e.qfication || "",
       qual_detail: e.qual_detail || "",
       dtofconfirm: e.dtofconfirm || "",
+      // Stored as '0006'; the dropdown uses plain month counts.
+      probation: e.probation != null && String(e.probation).trim() !== "" && Number.isFinite(Number(e.probation))
+        ? String(Number(e.probation)) : "",
       pf_ind: e.pf_ind === "Y" ? "Y" : "N",
       pf_mem_dt: e.pf_mem_dt || "",
     });
@@ -657,7 +683,7 @@ export default function HRMSPage() {
     return (
       <div className="animate-fade-in">
         <SectionNav />
-        <LeaveAllocationPanel adminCardNo={user.card_no} />
+        <CompanyRequired what="Leave allocation"><LeaveAllocationPanel adminCardNo={user.card_no} /></CompanyRequired>
       </div>
     );
   }
@@ -665,7 +691,7 @@ export default function HRMSPage() {
     return (
       <div className="animate-fade-in">
         <SectionNav />
-        <SetupPanel adminCardNo={user.card_no} />
+        <CompanyRequired what="Setup"><SetupPanel adminCardNo={user.card_no} /></CompanyRequired>
       </div>
     );
   }
@@ -702,6 +728,11 @@ export default function HRMSPage() {
   }
 
   function startRegister() {
+    // An employee belongs to one company, taken from the top bar.
+    if (allCompaniesSelected) {
+      alert("Select a company in the top bar before registering an employee.");
+      return;
+    }
     // Default Company/Unit to the active company, and Branch to the active
     // branch. When "All Branches" is selected (activeBranch empty), the branch
     // is left blank so HR picks it from the LOV.
@@ -1683,8 +1714,32 @@ export default function HRMSPage() {
                 label="Date of Appointment *"
                 type="date"
                 value={form.dtofappt || ""}
-                onChange={(e) => updateField("dtofappt", e.target.value)}
+                onChange={(e) => {
+                  const appt = e.target.value;
+                  // Keep the confirmation date in step with a chosen probation period.
+                  setForm((prev) => ({
+                    ...prev,
+                    dtofappt: appt,
+                    ...(prev.probation !== undefined && prev.probation !== "" && appt
+                      ? { dtofconfirm: addMonthsYmd(appt, Number(prev.probation)) } : {}),
+                  }));
+                }}
                 required
+              />
+              <Select
+                label="Probation Period (sets confirmation date)"
+                options={PROBATION_OPTIONS}
+                value={form.probation ?? ""}
+                onChange={(e) => {
+                  const p = e.target.value;
+                  // Confirmation = appointment + probation months. It stays
+                  // editable below for dates that need a manual adjustment.
+                  setForm((prev) => ({
+                    ...prev,
+                    probation: p,
+                    ...(p !== "" && prev.dtofappt ? { dtofconfirm: addMonthsYmd(prev.dtofappt, Number(p)) } : {}),
+                  }));
+                }}
               />
               <SearchableSelect
                 label="Department *"

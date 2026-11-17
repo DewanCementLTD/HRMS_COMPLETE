@@ -7,11 +7,16 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { SidebarProvider, useSidebar } from "@/components/layout/sidebar-context";
 import { Spinner } from "@/components/ui/Spinner";
+import { CompanyRequired } from "@/components/layout/CompanyRequired";
 
 // Pages that require an employee record in HR_EMP_MASTER.
 // Note: /dashboard is intentionally NOT in this list — SEC_USERNAME-only HR
 // admins should still be able to view the HR dashboard there.
 const EMPLOYEE_ONLY_ROUTES = ["/leave", "/attendance", "/profile"];
+
+// Admin screens whose backend works on exactly one company. While the top bar is
+// on "All Companies" they ask for a company instead of silently using the first.
+const SINGLE_COMPANY_ROUTES = ["/payroll", "/provident-fund", "/appraisal-admin", "/training-admin"];
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -51,6 +56,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
 function AuthShell({ children }: { children: React.ReactNode }) {
   const { collapsed, resetKey } = useSidebar();
+  const pathname = usePathname();
+  const singleCompany = SINGLE_COMPANY_ROUTES.some((r) => pathname === r || pathname.startsWith(`${r}/`));
   return (
     <div className="min-h-screen relative bg-background">
       {/* Content */}
@@ -67,7 +74,7 @@ function AuthShell({ children }: { children: React.ReactNode }) {
           {/* Keyed on resetKey so re-pressing the active sidebar item remounts
               the page and returns it to its own home view. */}
           <div key={resetKey} className="p-4 sm:p-6 lg:p-8 max-w-[1440px] mx-auto min-w-0">
-            {children}
+            {singleCompany ? <CompanyRequired>{children}</CompanyRequired> : children}
           </div>
         </main>
       </div>

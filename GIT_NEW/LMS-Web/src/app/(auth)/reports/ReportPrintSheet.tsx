@@ -273,6 +273,7 @@ function AbsentSuppSheet({ data, companyName, compc, meta, badges }: {
           <tr className="bg-gray-100">
             <th className={`${TH} w-12`}>Sr.#</th>
             <th className={`${TH} w-20`}>Code</th>
+            <th className={`${TH} w-20`}>Card No</th>
             <th className={TH}>Employee Name</th>
             <th className={TH}>Designation</th>
             <th className={`${TH} w-20`}>Absent</th>
@@ -283,12 +284,13 @@ function AbsentSuppSheet({ data, companyName, compc, meta, badges }: {
           {[...groups.entries()].map(([loc, list]) => (
             <>
               <tr key={loc}>
-                <td className={`${TD} font-bold text-red-700`} colSpan={6}>{loc}</td>
+                <td className={`${TD} font-bold text-red-700`} colSpan={7}>{loc}</td>
               </tr>
               {list.map((r, i) => (
                 <tr key={`${loc}-${r.code}-${i}`}>
                   <td className={`${TD} text-center`}>{r.sr_no}</td>
                   <td className={`${TD} font-mono`}>{r.code}</td>
+                  <td className={`${TD} font-mono`}>{r.card_no}</td>
                   <td className={`${TD} font-mono`}>{r.employee_name}</td>
                   <td className={`${TD} font-mono`}>{r.designation}</td>
                   <td className={`${TD} text-center bg-cyan-50`}>{d(r.absent)}</td>
@@ -298,7 +300,7 @@ function AbsentSuppSheet({ data, companyName, compc, meta, badges }: {
             </>
           ))}
           {!rows.length && (
-            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={6}>No records.</td></tr>
+            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={7}>No records.</td></tr>
           )}
         </tbody>
       </table>
@@ -319,7 +321,7 @@ function PivotSheet({ data, title, companyName, compc, meta, badges }: {
   // The allowance report prints an OT Hours column (orange, between the name
   // and the allowance columns); the deduction report has no equivalent.
   const ot = Boolean(data?.has_ot_hours);
-  const span = cols.length + 3 + (ot ? 1 : 0);
+  const span = cols.length + 4 + (ot ? 1 : 0);
 
   return (
     <>
@@ -328,6 +330,7 @@ function PivotSheet({ data, title, companyName, compc, meta, badges }: {
         <thead>
           <tr>
             <th className={`${TH} bg-cyan-50 w-16`}>Code</th>
+            <th className={`${TH} bg-cyan-50 w-16`}>Card No</th>
             <th className={`${TH} bg-cyan-50 text-left`}>Employee Name</th>
             {ot && <th className={`${TH} bg-orange-100 whitespace-nowrap`}>OT HOURS</th>}
             {cols.map((c) => (
@@ -340,6 +343,7 @@ function PivotSheet({ data, title, companyName, compc, meta, badges }: {
           {rows.map((r) => (
             <tr key={r.code}>
               <td className={`${TD} font-mono font-bold`}>{r.code}</td>
+              <td className={`${TD} font-mono`}>{r.card_no}</td>
               <td className={`${TD} font-medium whitespace-nowrap`}>{r.employee_name}</td>
               {ot && (
                 <td className={`${TD} text-center font-mono bg-orange-50`}>
@@ -357,7 +361,7 @@ function PivotSheet({ data, title, companyName, compc, meta, badges }: {
           )}
           {rows.length > 0 && (
             <tr className="bg-gray-100 font-bold">
-              <td className={TD} colSpan={2}>Grand Total</td>
+              <td className={TD} colSpan={3}>Grand Total</td>
               {ot && (
                 <td className={`${TD} text-center font-mono bg-orange-100`}>
                   {n0(rows.reduce((t, r) => t + (r.ot_hours || 0), 0))}
@@ -422,6 +426,7 @@ function MonthWiseSheet({ data, companyName, compc, meta }: {
         <thead>
           <tr className="bg-cyan-100">
             <th className={`${TH} w-16`}>Code</th>
+            <th className={`${TH} w-16`}>Card No</th>
             <th className={`${TH} text-left`}>Employee Name</th>
             {cols.map((c) => <th key={c} className={`${TH} whitespace-nowrap`}>{c}</th>)}
             <th className={TH}>Total</th>
@@ -431,17 +436,18 @@ function MonthWiseSheet({ data, companyName, compc, meta }: {
           {rows.map((r) => (
             <tr key={r.code}>
               <td className={`${TD} font-mono font-bold`}>{r.code}</td>
+              <td className={`${TD} font-mono`}>{r.card_no}</td>
               <td className={`${TD} whitespace-nowrap`}>{r.employee_name}</td>
               {cols.map((c) => <td key={c} className={`${TD} text-right font-mono`}>{n(r.values[c])}</td>)}
               <td className={`${TD} text-right font-mono font-bold`}>{n(r.total)}</td>
             </tr>
           ))}
           {!rows.length && (
-            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={cols.length + 3}>No records.</td></tr>
+            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={cols.length + 4}>No records.</td></tr>
           )}
           {rows.length > 0 && (
             <tr className="bg-gray-100 font-bold">
-              <td className={TD} colSpan={2}>Grand Total</td>
+              <td className={TD} colSpan={3}>Grand Total</td>
               {cols.map((c) => <td key={c} className={`${TD} text-right font-mono`}>{n0(data.column_totals?.[c])}</td>)}
               <td className={`${TD} text-right font-mono`}>{n0(data.grand_total)}</td>
             </tr>
@@ -483,10 +489,12 @@ function ReconSheet({ data, title, companyName, meta }: {
         <table key={g.trans_id} className="w-full border-collapse border border-black text-[11px] mb-4">
           <thead>
             <tr>
-              <th className={`${TH} text-blue-700`} colSpan={4}>{g.descr}</th>
+              <th className={`${TH} text-blue-700`} colSpan={6}>{g.descr}</th>
             </tr>
             <tr>
-              <th className={`${TH} text-left`} colSpan={2}>Employee Code And Name</th>
+              <th className={`${TH} w-16`}>Code</th>
+              <th className={`${TH} w-16`}>Card No</th>
+              <th className={`${TH} text-left`}>Employee Name</th>
               <th className={`${TH} w-28`}>{from.toUpperCase()}</th>
               <th className={`${TH} w-28`}>{to.toUpperCase()}</th>
               <th className={`${TH} w-24`}>Variance</th>
@@ -496,6 +504,7 @@ function ReconSheet({ data, title, companyName, meta }: {
             {g.rows.map((r, i) => (
               <tr key={`${r.code}-${i}`}>
                 <td className={`${TD} font-mono w-16 text-center`}>{r.code}</td>
+                <td className={`${TD} font-mono w-16 text-center`}>{r.card_no}</td>
                 <td className={TD}>{r.employee_name}</td>
                 <td className={`${TD} text-right font-mono`}>{n(r.from_amount)}</td>
                 <td className={`${TD} text-right font-mono`}>{n(r.to_amount)}</td>
@@ -503,7 +512,7 @@ function ReconSheet({ data, title, companyName, meta }: {
               </tr>
             ))}
             <tr className="font-bold text-blue-700">
-              <td className={TD} colSpan={2}>Total Of {g.descr}</td>
+              <td className={TD} colSpan={3}>Total Of {g.descr}</td>
               <td className={`${TD} text-right font-mono`}>{n0(g.totals.from_amount)}</td>
               <td className={`${TD} text-right font-mono`}>{n0(g.totals.to_amount)}</td>
               <td className={`${TD} text-right font-mono`}>{n0(g.totals.variance)}</td>
@@ -549,12 +558,13 @@ function BankAdviceSheet({ data, companyName, compc, meta }: {
           <thead>
             <tr className="bg-lime-200">
               <th className={`${TH} text-red-700`} colSpan={2}>{g.location_name}</th>
-              <th className={`${TH} text-blue-700`} colSpan={2}>{g.bank_name}</th>
+              <th className={`${TH} text-blue-700`} colSpan={3}>{g.bank_name}</th>
               <th className={`${TH} text-red-700`}>{g.branch_name}</th>
             </tr>
             <tr>
               <th className={`${TH} w-12`}>SR.#</th>
               <th className={`${TH} w-20`}>Code</th>
+              <th className={`${TH} w-20`}>Card No</th>
               <th className={TH}>Employee Name</th>
               <th className={TH}>Account Number</th>
               <th className={`${TH} w-32`}>Salary Payable</th>
@@ -565,13 +575,14 @@ function BankAdviceSheet({ data, companyName, compc, meta }: {
               <tr key={r.code}>
                 <td className={`${TD} text-center`}>{i + 1}</td>
                 <td className={`${TD} font-mono`}>{r.code}</td>
+                <td className={`${TD} font-mono`}>{r.card_no}</td>
                 <td className={TD}>{r.employee_name}</td>
                 <td className={`${TD} text-center font-mono`}>{r.account_number}</td>
                 <td className={`${TD} text-right font-mono`}>{n0(r.salary_payable)}</td>
               </tr>
             ))}
             <tr className="bg-lime-200 font-bold">
-              <td className={`${TD} text-center`} colSpan={4}>Total:</td>
+              <td className={`${TD} text-center`} colSpan={5}>Total:</td>
               <td className={`${TD} text-right font-mono`}>{n0(g.total)}</td>
             </tr>
           </tbody>
@@ -626,7 +637,7 @@ function ActiveEmployeesSheet({ data, companyName, compc, meta, badges }: {
       <table className="w-full border-collapse border border-black text-[9px]">
         <thead>
           <tr className="bg-gray-100">
-            {["S. #", "Unit", "Location", "Code", "Employee Name", "Grade", "Designation",
+            {["S. #", "Unit", "Location", "Code", "Card No", "Employee Name", "Grade", "Designation",
               "Department", "Section", "Qualification", "Type", "Date Of Birth",
               "Date Of Joining", "Date Of Confirm", "Gross"].map((h) => (
               <th key={h} className={`${TH} whitespace-nowrap`}>{h}</th>
@@ -640,6 +651,7 @@ function ActiveEmployeesSheet({ data, companyName, compc, meta, badges }: {
               <td className={`${TD} whitespace-nowrap`}>{r.unit}</td>
               <td className={`${TD} whitespace-nowrap`}>{r.location}</td>
               <td className={`${TD} font-mono text-center`}>{r.code}</td>
+              <td className={`${TD} font-mono text-center`}>{r.card_no}</td>
               <td className={`${TD} whitespace-nowrap`}>{r.employee_name}</td>
               <td className={`${TD} text-center`}>{r.grade}</td>
               <td className={`${TD} whitespace-nowrap`}>{r.designation}</td>
@@ -654,7 +666,7 @@ function ActiveEmployeesSheet({ data, companyName, compc, meta, badges }: {
             </tr>
           ))}
           {!rows.length && (
-            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={15}>No records.</td></tr>
+            <tr><td className={`${TD} text-center text-gray-500 py-4`} colSpan={16}>No records.</td></tr>
           )}
         </tbody>
       </table>
@@ -685,7 +697,7 @@ function PfDetailSheet({ data, companyName, compc }: {
         </div>
         <h2 className="text-sm font-bold text-red-700 underline mt-1">P.F Detail Report</h2>
         <div className="grid grid-cols-2 gap-x-8 mt-2 text-[11px] font-bold">
-          <div>Employee Code / Name :- {h?.code}{h?.name ? ` - ${h.name}` : ""}</div>
+          <div>Employee Code / Name :- {h?.code}{h?.name ? ` - ${h.name}` : ""}{h?.card_no ? ` (Card No ${h.card_no})` : ""}</div>
           <div>Department :- {h?.department}</div>
           <div className="pl-8">Unit Name :- {h?.unit}</div>
           <div>Designation :- {h?.designation}</div>
@@ -851,8 +863,8 @@ function MonthlyAttendanceSheet({ data, companyName, compc, meta, badges }: {
                   identity and day columns span both rows. */}
               <tr className="bg-gray-100">
                 <th rowSpan={2} className={`${MTH} px-0.5`}>Sr</th>
+                <th rowSpan={2} className={`${MTH} px-0.5`}>Code</th>
                 <th rowSpan={2} className={`${MTH} px-0.5`}>Card No</th>
-                <th rowSpan={2} className={`${MTH} px-0.5`}>Emp No</th>
                 <th rowSpan={2} className={`${MTH} px-1 text-left`}>Employee Name</th>
                 {days.map((d0) => (
                   <th key={d0.date} rowSpan={2} className={`${MTH} text-center px-0`}>
@@ -875,7 +887,7 @@ function MonthlyAttendanceSheet({ data, companyName, compc, meta, badges }: {
                 if (deptCaption !== null) { lastDept = r.department; sr = 0; }
                 sr += 1;
                 return (
-                  <Fragment key={`${g.branch}-${r.department}-${r.card_no}-${i}`}>
+                  <Fragment key={`${g.branch}-${r.department}-${r.code}-${i}`}>
                     {deptCaption !== null && (
                       <tr>
                         <td className={`${MTD} font-bold text-red-700`} colSpan={colCount}>
@@ -885,8 +897,8 @@ function MonthlyAttendanceSheet({ data, companyName, compc, meta, badges }: {
                     )}
                     <tr>
                       <td className={`${MTD} text-center px-0.5`}>{sr}</td>
+                      <td className={`${MTD} font-mono px-0.5 text-center break-all`}>{r.code}</td>
                       <td className={`${MTD} font-mono px-0.5 text-center break-all`}>{r.card_no}</td>
-                      <td className={`${MTD} font-mono px-0.5 text-center break-all`}>{r.emp_no}</td>
                       <td className={`${MTD} px-1 break-words`}>{r.employee_name}</td>
                       {days.map((d0) => {
                         const c = r.days?.[d0.date];

@@ -111,6 +111,7 @@ export const cycleGoalDeleteSchema = hrParams({ cycle_id: id, goal_id: id });
 const launchBody = z.object({
   empcodes: z.array(z.string().min(1).max(30)).max(2000).optional(),
   dept_nos: z.array(strCode).max(200).optional(),
+  desg_cds: z.array(strCode).max(500).optional(),
   brnch: z.union([z.string(), z.number()]).optional().nullable().transform((v) => (v === null || v === undefined || v === "" ? null : String(v))),
   emp_statuses: z.array(z.string().max(2)).max(10).optional(),
 });

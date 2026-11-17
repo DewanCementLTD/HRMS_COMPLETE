@@ -11,7 +11,7 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { ErrorBox, Empty, Pill, TextArea } from "@/components/training/TrainingUi";
 import type { EmployeeLite } from "@/services/trainingService";
 import {
-  apprHrApi, CYCLE_TYPE_LABEL, PHASE_LABEL, type Hr, type Cycle, type CycleGoal, type CycleType, type Lookups, type Phase,
+  apprHrApi, SHOW_KPI, CYCLE_TYPE_LABEL, PHASE_LABEL, type Hr, type Cycle, type CycleGoal, type CycleType, type Lookups, type Phase,
   type LaunchFilters, type LaunchPreview,
 } from "@/services/appraisalService";
 
@@ -167,12 +167,12 @@ function CycleDetail({ h, id, onBack, onOpenAppraisals }: { h: Hr; id: number; o
         </div>
         {c.goals.length === 0 ? <p className="text-sm text-gray-400">None — employees set all their goals themselves.</p> : (
           <table className="w-full text-sm">
-            <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">Level</th><th className="text-left">Objective</th><th className="text-left">KPI</th><th className="text-left">Target</th><th className="text-right">Weight</th><th /></tr></thead>
+            <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">Level</th><th className="text-left">Objective</th>{SHOW_KPI && <th className="text-left">KPI</th>}<th className="text-left">Target</th><th className="text-right">Weight</th><th /></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {c.goals.map((g) => (
                 <tr key={g.goal_id}>
                   <td className="py-1.5">{g.level_type === "CORPORATE" ? <Pill tone="indigo">Corporate</Pill> : <Pill>{g.dept_name || g.dept_no}</Pill>}</td>
-                  <td>{g.objective}</td><td className="text-gray-600">{g.kpi_text || "—"}</td><td className="text-gray-600">{g.target || "—"}</td>
+                  <td>{g.objective}</td>{SHOW_KPI && <td className="text-gray-600">{g.kpi_text || "—"}</td>}<td className="text-gray-600">{g.target || "—"}</td>
                   <td className="text-right tabular-nums">{g.weightage}</td>
                   <td className="text-right whitespace-nowrap">
                     {!closed && <>
@@ -243,8 +243,8 @@ function GoalModal({ h, cycleId, goal, lookups, onClose, onSaved }: {
           )}
         </div>
         <TextArea label="Objective" rows={2} value={g.objective ?? ""} onChange={(v) => setG({ ...g, objective: v })} />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Input label="KPI / measure" value={g.kpi_text ?? ""} onChange={(e) => setG({ ...g, kpi_text: e.target.value })} />
+        <div className={`grid gap-3 ${SHOW_KPI ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {SHOW_KPI && <Input label="KPI / measure" value={g.kpi_text ?? ""} onChange={(e) => setG({ ...g, kpi_text: e.target.value })} />}
           <Input label="Target" value={g.target ?? ""} onChange={(e) => setG({ ...g, target: e.target.value })} />
           <Input label="Weightage" type="number" min={1} max={100} value={g.weightage ?? ""} onChange={(e) => setG({ ...g, weightage: Number(e.target.value) })} />
         </div>
@@ -257,6 +257,8 @@ function LaunchCard({ h, cycle, lookups, emps, onLaunched }: {
   h: Hr; cycle: Cycle; lookups: Lookups | null; emps: EmployeeLite[]; onLaunched: () => void;
 }) {
   const [depts, setDepts] = useState<string[]>([]);
+  const [desgs, setDesgs] = useState<string[]>([]);
+  const [desgQ, setDesgQ] = useState("");
   const [statuses, setStatuses] = useState<string[]>(["PROBATION", "CONFIRMATION"].includes(cycle.cycle_type) ? ["1"] : []);
   const [picked, setPicked] = useState<string[]>([]);
   const [preview, setPreview] = useState<LaunchPreview | null>(null);
@@ -265,7 +267,7 @@ function LaunchCard({ h, cycle, lookups, emps, onLaunched }: {
   const [err, setErr] = useState<string | null>(null);
 
   const filters = (): LaunchFilters => ({
-    dept_nos: depts.length ? depts : undefined, emp_statuses: statuses.length ? statuses : undefined,
+    dept_nos: depts.length ? depts : undefined, desg_cds: desgs.length ? desgs : undefined, emp_statuses: statuses.length ? statuses : undefined,
     empcodes: picked.length ? picked : undefined,
   });
   const reset = () => { setPreview(null); setResult(null); };
@@ -292,7 +294,7 @@ function LaunchCard({ h, cycle, lookups, emps, onLaunched }: {
     <Card><CardContent className="py-4 space-y-4">
       <div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-indigo-600" /><p className="font-semibold text-ink">Launch</p>
         <span className="text-xs text-gray-400">Leave filters empty to include every active employee. Employees already in the cycle are skipped, so you can launch in batches.</span></div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700">Departments</label>
           <div className="max-h-40 overflow-y-auto rounded-xl border border-gray-200 p-2 space-y-1">
@@ -304,6 +306,25 @@ function LaunchCard({ h, cycle, lookups, emps, onLaunched }: {
                 }} />{d.dept_name}
               </label>
             ))}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <label className="block text-sm font-medium text-gray-700">Designations</label>
+            {desgs.length > 0 && <button className="ml-auto text-xs text-indigo-600 hover:underline" onClick={() => { reset(); setDesgs([]); }}>Clear ({desgs.length})</button>}
+          </div>
+          <input className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-sm" placeholder="Search designation…" value={desgQ} onChange={(e) => setDesgQ(e.target.value)} />
+          <div className="max-h-40 overflow-y-auto rounded-xl border border-gray-200 p-2 space-y-1">
+            {(lookups?.designations ?? [])
+              .filter((d) => !desgQ.trim() || (d.desg_desc ?? "").toLowerCase().includes(desgQ.trim().toLowerCase()))
+              .map((d) => (
+                <label key={d.desg_cd} className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={desgs.includes(String(d.desg_cd))} onChange={(e) => {
+                    reset();
+                    setDesgs(e.target.checked ? [...desgs, String(d.desg_cd)] : desgs.filter((x) => x !== String(d.desg_cd)));
+                  }} />{d.desg_desc}
+                </label>
+              ))}
           </div>
         </div>
         <div className="space-y-3">
@@ -349,13 +370,14 @@ function LaunchCard({ h, cycle, lookups, emps, onLaunched }: {
         <div className="overflow-x-auto rounded-xl border border-gray-100 max-h-96">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 text-xs uppercase sticky top-0"><tr>
-              <th className="text-left px-3 py-2">Employee ({preview.total})</th><th className="text-left px-3 py-2">Department</th>
+              <th className="text-left px-3 py-2">Employee ({preview.total})</th><th className="text-left px-3 py-2">Department</th><th className="text-left px-3 py-2">Designation</th>
               <th className="text-left px-3 py-2">Approvers</th><th className="px-3 py-2" /></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {preview.items.map((i) => (
                 <tr key={i.empcode} className={i.already ? "opacity-60" : ""}>
                   <td className="px-3 py-1.5">{i.name} <span className="text-xs text-gray-400">{i.empcode}</span></td>
                   <td className="px-3 py-1.5 text-gray-600">{i.dept_name}</td>
+                  <td className="px-3 py-1.5 text-gray-600">{i.desg_desc || lookups?.designations.find((d) => String(d.desg_cd) === String(i.desg_cd))?.desg_desc || "—"}</td>
                   <td className="px-3 py-1.5 text-xs text-gray-600">
                     Line manager: {i.has_rpt ? "reporting officer" : i.has_hod1 ? "HOD" : i.has_hod2 ? "HOD 2" : "HR"} · year end: {[i.has_hod1 ? "HOD" : i.has_rpt ? "reporting officer" : null, i.has_hod2 && "HOD 2", "HR"].filter(Boolean).join(" → ")}</td>
                   <td className="px-3 py-1.5">{i.already && <Pill>Already launched</Pill>}</td>

@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Pill, TextArea, Empty } from "@/components/training/TrainingUi";
-import { printTablePdf } from "@/lib/printTable";
+import { printTablePdf, downloadTableCsv, type TableExport } from "@/lib/printTable";
 import {
-  STAGE_LABEL, ROLE_LABEL, GRADES, GRADE_MEANING, GRADE_POINTS, SHEET_RULES, COMP_RATINGS, COMP_RATING_LABEL, scoreText, downloadFile,
+  STAGE_LABEL, ROLE_LABEL, GRADES, GRADE_MEANING, GRADE_POINTS, SHEET_RULES, SHOW_KPI, COMP_RATINGS, COMP_RATING_LABEL, scoreText, downloadFile,
   type Appraisal, type Stage, type Grade, type RowBody, type SheetRow, type ApprovalStep, type Attachment, type BellCurve,
   type CompRating, type CompetencyAssessment, type RowRemark,
 } from "@/services/appraisalService";
@@ -325,7 +325,7 @@ export function ObjectivesEditor({ a, editable, onSave, onDelete }: {
             <TextArea label="Task for the year (start with an action verb)" rows={2} value={edit.body.task}
               onChange={(v) => setEdit({ ...edit, body: { ...edit.body, task: v } })} />
             <div className="grid gap-3 sm:grid-cols-2">
-              <Input label="KPI (what is measured)" value={edit.body.kpi ?? ""} onChange={(e) => setEdit({ ...edit, body: { ...edit.body, kpi: e.target.value } })} />
+              {SHOW_KPI && <Input label="KPI (what is measured)" value={edit.body.kpi ?? ""} onChange={(e) => setEdit({ ...edit, body: { ...edit.body, kpi: e.target.value } })} />}
               <Input label="Success criteria (number / % / TAT — quantifiable + deadline)" value={edit.body.success_criteria ?? ""}
                 onChange={(e) => setEdit({ ...edit, body: { ...edit.body, success_criteria: e.target.value } })} />
               <Input label="Interdependencies (who you work with)" value={edit.body.interdependencies ?? ""}
@@ -355,7 +355,7 @@ export function SheetTable({ rows, show, actions }: {
         <thead className="bg-gray-50 text-gray-500 text-[11px] uppercase">
           <tr>
             <th className="px-2 py-2 text-left">No</th><th className="px-2 py-2 text-left">Accountability</th><th className="px-2 py-2 text-left">Task for the year</th>
-            <th className="px-2 py-2 text-left">KPI</th><th className="px-2 py-2 text-left">Success criteria</th><th className="px-2 py-2 text-left">Interdependencies</th>
+            {SHOW_KPI && <th className="px-2 py-2 text-left">KPI</th>}<th className="px-2 py-2 text-left">Success criteria</th><th className="px-2 py-2 text-left">Interdependencies</th>
             {show.progress && <th className="px-2 py-2 text-left">Mid-year progress</th>}
             {show.yearend && <th className="px-2 py-2 text-left">Year-end progress</th>}
             <th className="px-2 py-2 text-right">Weightage</th>
@@ -372,7 +372,7 @@ export function SheetTable({ rows, show, actions }: {
               <td className="px-2 py-2 text-gray-800">{r.accountability || "—"}
                 {r.source !== "INDIVIDUAL" && <Pill className="ml-1" tone="indigo">{r.source === "CORPORATE" ? "Corporate" : "Dept"}</Pill>}</td>
               <td className="px-2 py-2 text-gray-900">{r.task}</td>
-              <td className="px-2 py-2 text-gray-600">{r.kpi || "—"}</td>
+              {SHOW_KPI && <td className="px-2 py-2 text-gray-600">{r.kpi || "—"}</td>}
               <td className="px-2 py-2 text-gray-600">{r.success_criteria || "—"}{r.due_date ? <span className="block text-[11px] text-gray-400">by {r.due_date}</span> : null}</td>
               <td className="px-2 py-2 text-gray-600">{r.interdependencies || "—"}</td>
               {show.progress && <td className="px-2 py-2 text-gray-700 whitespace-pre-wrap">{r.midyear_progress || "—"}</td>}
@@ -590,32 +590,45 @@ export function TrendChart({ points }: { points: { label: string; score: number 
   );
 }
 
-/** Print the task sheet in the layout of the DCL form (browser print → PDF). */
-export function printTaskSheet(a: Appraisal, companyName?: string, internal = false) {
+/** Drops the KPI column (index 3 of the task-sheet layout) while KPI fields are hidden. */
+const noKpi = <T,>(cells: T[]): T[] => (SHOW_KPI ? cells : cells.filter((_, i) => i !== 3));
+
+/** The task sheet in the layout of the DCL form — shared by the PDF print and the CSV download. */
+function taskSheetTable(a: Appraisal, companyName?: string, internal = false): TableExport {
   const done = a.stage === "COMPLETED" || internal;
-  printTablePdf({
+  return {
     companyName,
     title: `Employee Task Setting & Performance Appraisal — ${a.cycle.name}`,
     meta: `${a.emp_name} (${a.empno || a.empcode}) · ${a.desg_desc} · ${a.dept_name} · joined ${a.join_date ?? "—"} · appraiser ${a.line_manager_name ?? "HR"} · `
       + `period ${a.cycle.period_from} to ${a.cycle.period_to}${done && a.final_rating ? ` · final grade ${a.final_rating}` : ""}`,
     landscape: true,
-    columns: ["No", "Accountability", "Task for the year", "KPI", "Success criteria", "Interdependencies", "Mid-year progress", "Year-end progress",
+    columns: noKpi(["No", "Accountability", "Task for the year", "KPI", "Success criteria", "Interdependencies", "Mid-year progress", "Year-end progress",
       { header: "Weightage", align: "right" }, { header: "Self rating", align: "center" }, "HOD remarks",
-      { header: "Agreed with HOD", align: "center" }, { header: "Score", align: "right" }],
+      { header: "Agreed with HOD", align: "center" }, { header: "Score", align: "right" }]),
     rows: [
-      ...a.rows.map((r, i) => [i + 1, r.accountability, r.task, r.kpi, r.success_criteria, r.interdependencies, r.midyear_progress, r.yearend_progress,
+      ...a.rows.map((r, i) => noKpi([i + 1, r.accountability, r.task, r.kpi, r.success_criteria, r.interdependencies, r.midyear_progress, r.yearend_progress,
         `${r.weightage}%`, r.self_rating ?? "", [r.mid_remarks, done ? r.reviewer_remarks : ""].filter(Boolean).join(" / "),
-        done ? r.agreed_rating ?? "" : "", done && r.score != null ? r.score.toFixed(2) : ""]),
-      ["", "", "", "", "", "", "", 'TOTAL "A"', `${a.weight_total}%`, scoreText(a.self_score), "", "", done ? scoreText(internal ? a.calc_score : a.final_score) : ""],
+        done ? r.agreed_rating ?? "" : "", done && r.score != null ? r.score.toFixed(2) : ""])),
+      noKpi(["", "", "", "", "", "", "", 'TOTAL "A"', `${a.weight_total}%`, scoreText(a.self_score), "", "", done ? scoreText(internal ? a.calc_score : a.final_score) : ""]),
     ],
-  });
+  };
 }
 
-/** Print the competency self-assessment in the layout of the DCL form. */
-export function printCompetencyForm(a: Appraisal, companyName?: string) {
+/** Print the task sheet in the layout of the DCL form (browser print → PDF). */
+export function printTaskSheet(a: Appraisal, companyName?: string, internal = false) {
+  printTablePdf(taskSheetTable(a, companyName, internal));
+}
+
+/** Download the task sheet as CSV (same columns as the print). */
+export function csvTaskSheet(a: Appraisal, companyName?: string, internal = false) {
+  downloadTableCsv(taskSheetTable(a, companyName, internal), `Task_Sheet_${a.empno || a.empcode}_${a.cycle.name}`);
+}
+
+/** The competency self-assessment in the layout of the DCL form. */
+function competencyTable(a: Appraisal, companyName?: string): TableExport {
   const c = a.competency;
   const note = (k: string, v: string) => ["", k, v || "—", "", "", ""];
-  printTablePdf({
+  return {
     companyName,
     title: `Competency Self-Assessment — ${a.cycle.name}`,
     meta: `${a.emp_name} (${a.empno || a.empcode}) · ${a.desg_desc} · ${a.dept_name} · HOD ${a.line_manager_name ?? "HR"} · `
@@ -631,5 +644,15 @@ export function printCompetencyForm(a: Appraisal, companyName?: string) {
       note("Employee declaration", c.declared_at ? `Declared by ${a.emp_name} on ${c.declared_at}` : "Not declared yet"),
       note("HOD comments", [c.hod_comments, c.hod_name, c.hod_at].filter(Boolean).join(" — ")),
     ],
-  });
+  };
+}
+
+/** Print the competency self-assessment in the layout of the DCL form. */
+export function printCompetencyForm(a: Appraisal, companyName?: string) {
+  printTablePdf(competencyTable(a, companyName));
+}
+
+/** Download the competency self-assessment as CSV. */
+export function csvCompetencyForm(a: Appraisal, companyName?: string) {
+  downloadTableCsv(competencyTable(a, companyName), `Competency_${a.empno || a.empcode}_${a.cycle.name}`);
 }

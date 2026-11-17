@@ -60,6 +60,14 @@ const numOrNone = (v) => {
 
 // Lowercase every key of an OBJECT-format row (matches Python's
 // [col[0].lower() for col in cursor.description]).
+/** Probation months (0-24) -> the ERP's PROBATION format ('0006'); null when not given. */
+const probationCode = (v) => {
+  if (v === null || v === undefined || String(v).trim() === "") return null;
+  const n = Number(String(v).trim());
+  if (!Number.isInteger(n) || n < 0 || n > 24) return null;
+  return String(n).padStart(4, "0");
+};
+
 const lowerKeys = (row) => {
   const out = {};
   for (const k of Object.keys(row)) out[k.toLowerCase()] = row[k];
@@ -273,7 +281,7 @@ export const createEmployee = async (input) => {
           HOD1, HOD2, HOD3,
           BASIC, GROSS, SHIFT, W_HOUR, BLDGRP, LOCATION,
           EMP_STATUS, NTN, BNKCODE, BRNCODE, BNKACCT, QFICATION,
-          DTOFCONFIRM
+          DTOFCONFIRM, PROBATION
       ) VALUES (
           :name, :fhname, :atdtcard,
           :sex,
@@ -288,7 +296,8 @@ export const createEmployee = async (input) => {
           :hod1, :hod2, :hod3,
           :basic, :gross, :shift, :w_hour, :bldgrp, :location,
           :emp_status, :ntn, :bnkcode, :brncode, :bnkacct, :qfication,
-          CASE WHEN :dtofconfirm IS NULL THEN NULL ELSE TO_DATE(:dtofconfirm, 'YYYY-MM-DD') END
+          CASE WHEN :dtofconfirm IS NULL THEN NULL ELSE TO_DATE(:dtofconfirm, 'YYYY-MM-DD') END,
+          :probation
       )`,
       {
         name: data.name,
@@ -327,6 +336,7 @@ export const createEmployee = async (input) => {
         bnkacct: strOrNone(data.bnkacct),
         qfication: strOrNone(data.qfication),
         dtofconfirm: strOrNone(data.dtofconfirm),
+        probation: probationCode(data.probation),
       }
     );
     await connection.commit();
@@ -393,6 +403,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
           m.QFICATION,
           TO_CHAR(m.DTOFCONFIRM, 'YYYY-MM-DD') AS DTOFCONFIRM,
+          m.PROBATION,
           m.PF_IND, TO_CHAR(m.PF_MEM_DT, 'YYYY-MM-DD') AS PF_MEM_DT,
           (SELECT MAX(s.GROSS) FROM HR_EMP_MASTER_SAL s
              WHERE s.OLD_EMPCODE = m.OLD_EMPCODE AND s.UNIT_ID = m.UNIT_ID
@@ -619,6 +630,7 @@ const UPDATE_FIELD_MAP = {
   // Provident Fund membership: the salary process deducts PF only for
   // PF_IND = 'Y' (and permanent staff), from PF_MEM_DT.
   pf_ind: "PF_IND",
+  probation: "PROBATION",
 };
 // TRANSFER_DATE is a DATE column like the rest, so it is written through
 // TO_DATE and read back as a 'YYYY-MM-DD' string for the date input.
@@ -710,6 +722,9 @@ export const updateEmployee = async (empcode, input) => {
     let val = data[key];
     if (key === "religion") {
       val = (strOrNone(String(val)) ?? "").slice(0, 4) || null;
+      if (val === null) continue;
+    } else if (key === "probation") {
+      val = probationCode(val);
       if (val === null) continue;
     } else if (key === "pf_ind") {
       val = String(val).trim().toUpperCase() === "Y" ? "Y" : "N";

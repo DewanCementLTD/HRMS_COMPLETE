@@ -111,7 +111,7 @@ const orderCols = (m) =>
 // identical partitioning, since location determines its own name — and this
 // expression is applied once on the outside.
 const LOC_NAME = (col) =>
-  `NVL(codename('LOC_ID', ${col}, null), (SELECT l.loc_name FROM hr_location l WHERE l.loc_id = ${col}))`;
+  `NVL(codename('LOC_ID', ${col}, null), (SELECT MAX(l.loc_name) FROM hr_location l WHERE l.loc_id = ${col}))`;
 
 /**
  * Optional-filter predicate: "match everything when the bind is NULL".
@@ -168,6 +168,83 @@ export const listReportPeriods = async (unitId) => {
       period_frm: r[3],
       label: monthLabel(r[3]) || s(r[1]) || `Period ${Number(r[0])}`,
     }));
+  } finally {
+    await connection?.close();
+  }
+};
+
+// ------------------------------------------------------------------
+// "All companies" support. PERIOD# is per unit (each company numbers its own
+// payroll months), so a report across companies picks a MONTH and each unit's
+// own PERIOD# for that month is looked up. Month values are YYYYMM numbers
+// (e.g. 202607) — never confused with a PERIOD#, since the client only sends
+// them while "All companies" is selected.
+// ------------------------------------------------------------------
+
+/** Units (companies) that exist, for an admin whose rights list is unrestricted. */
+export const listAllUnits = async () => {
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const res = await connection.execute(
+      `SELECT DISTINCT UNIT_ID FROM HR_EMP_MASTER WHERE UNIT_ID IS NOT NULL ORDER BY 1`,
+      {}, { outFormat: OUT_ARRAY }
+    );
+    return (res.rows ?? []).map((r) => toInt(r[0])).filter((v) => v !== null);
+  } finally {
+    await connection?.close();
+  }
+};
+
+/** Payroll months present in any of the units, newest first, as period-list entries. */
+export const listReportMonths = async (unitIds) => {
+  const units = (unitIds ?? []).map(toInt).filter((v) => v !== null);
+  if (!units.length) return [];
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const binds = {};
+    const ph = units.map((u, i) => { binds[`u${i}`] = u; return `:u${i}`; });
+    const res = await connection.execute(
+      `SELECT TO_CHAR(PERIOD_FRM, 'YYYYMM'), MIN(TO_CHAR(PERIOD_FRM, 'YYYY-MM-DD')),
+              MAX(CASE WHEN STATUS = 'O' THEN 'O' ELSE 'C' END)
+         FROM HR_ATTND_PERIOD
+        WHERE UNIT_ID IN (${ph.join(",")}) AND PERIOD_FRM IS NOT NULL
+        GROUP BY TO_CHAR(PERIOD_FRM, 'YYYYMM')
+        ORDER BY 1 DESC`,
+      binds, { outFormat: OUT_ARRAY }
+    );
+    return (res.rows ?? []).map((r) => ({
+      period: Number(r[0]),
+      scode: "",
+      status: s(r[2]),
+      period_frm: r[1],
+      label: monthLabel(r[1]),
+    }));
+  } finally {
+    await connection?.close();
+  }
+};
+
+/**
+ * One unit's PERIOD# for a YYYYMM month. `edge` widens it for range reports:
+ * "from" = that unit's first period on/after the month, "to" = its last
+ * period on/before it, "exact" = that month only. Null when there is none.
+ */
+export const unitPeriodForMonth = async (unitId, yyyymm, edge = "exact") => {
+  if (yyyymm === null || yyyymm === undefined || yyyymm === "") return null;
+  const cond = edge === "from" ? ">=" : edge === "to" ? "<=" : "=";
+  const agg = edge === "from" ? "MIN" : "MAX";
+  let connection;
+  try {
+    connection = await getDirectConnection();
+    const res = await connection.execute(
+      `SELECT ${agg}("PERIOD#") FROM HR_ATTND_PERIOD
+        WHERE UNIT_ID = :u AND TO_CHAR(PERIOD_FRM, 'YYYYMM') ${cond} :m`,
+      { u: toInt(unitId), m: String(yyyymm) }, { outFormat: OUT_ARRAY }
+    );
+    const v = res.rows?.[0]?.[0];
+    return v === null || v === undefined ? null : Number(v);
   } finally {
     await connection?.close();
   }
@@ -240,7 +317,10 @@ const locationName = async (connection, locId) => {
 
 const unitName = async (connection, unitId) => {
   const res = await connection.execute(
-    `SELECT MAX(UNIT_NAME) FROM HR_EMP_MASTER_VIEW WHERE UNIT_ID = :u`,
+    // COMPANY_INFO (the login's company names) covers a unit with no employees.
+    `SELECT NVL((SELECT MAX(v.UNIT_NAME) FROM HR_EMP_MASTER_VIEW v WHERE v.UNIT_ID = :u),
+                (SELECT MAX(ci.DESCR) FROM COMPANY_INFO ci WHERE ci.COMPC = :u))
+       FROM DUAL`,
     { u: toInt(unitId) },
     { outFormat: OUT_ARRAY }
   );
@@ -264,6 +344,36 @@ const buildMeta = async (connection, { unitId, location, periods = [], filters =
     filters,
     generated_at: new Date().toISOString(),
   };
+};
+
+/**
+ * Every report keys employees by OLD_EMPCODE (= EMPCODE) and shows it as "Code".
+ * The attendance machine card (HR_EMP_MASTER."ATDTCARD#") is shown beside it as
+ * "Card No". Looked up once per report for the unit (or every unit when the
+ * report spans all companies) and attached as `card_no`; blank when none.
+ */
+const loadCardNos = async (connection, unitId) => {
+  const res = await connection.execute(
+    `SELECT TO_CHAR(OLD_EMPCODE), TO_CHAR(UNIT_ID), TO_CHAR("ATDTCARD#")
+       FROM HR_EMP_MASTER
+      WHERE "ATDTCARD#" IS NOT NULL AND (:u IS NULL OR UNIT_ID = :u)`,
+    { u: toInt(unitId) },
+    { outFormat: OUT_ARRAY }
+  );
+  const byUnit = new Map();
+  const byCode = new Map();
+  for (const [code, unit, card] of res.rows ?? []) {
+    byUnit.set(`${s(unit)}|${s(code)}`, s(card));
+    if (!byCode.has(s(code))) byCode.set(s(code), s(card));
+  }
+  return (code, unit) => (unit != null && byUnit.get(`${s(unit)}|${s(code)}`)) || byCode.get(s(code)) || "";
+};
+
+const attachCardNos = async (connection, unitId, rows) => {
+  if (!rows.length) return rows;
+  const card = await loadCardNos(connection, unitId);
+  for (const r of rows) r.card_no = card(r.code, r.unit_id ?? unitId);
+  return rows;
 };
 
 // ══════════════════════════════════════════════════════════════════
@@ -357,6 +467,7 @@ export const getAllowanceDetailReport = async ({
     );
 
     const pivot = pivotByEmployee(res.rows ?? []);
+    await attachCardNos(connection, unitId, pivot.rows);
     const meta = await buildMeta(connection, {
       unitId, location,
       periods: [binds.p_period1, binds.p_period2],
@@ -444,6 +555,7 @@ export const getDeductionDetailReport = async ({
     );
 
     const pivot = pivotByEmployee(res.rows ?? []);
+    await attachCardNos(connection, unitId, pivot.rows);
     const meta = await buildMeta(connection, {
       unitId, location,
       periods: [binds.p_period1, binds.p_period2],
@@ -588,6 +700,7 @@ export const getAllowanceReconReport = async ({
     );
 
     const groups = groupByTrans(res.rows ?? []);
+    await attachCardNos(connection, unitId, groups.flatMap((g) => g.rows));
     const meta = await buildMeta(connection, {
       unitId, location: null,
       periods: [binds.mpf, binds.mpt],
@@ -665,6 +778,7 @@ export const getDeductionReconReport = async ({
     );
 
     const groups = groupByTrans(res.rows ?? []);
+    await attachCardNos(connection, unitId, groups.flatMap((g) => g.rows));
     const meta = await buildMeta(connection, {
       unitId, location: null,
       periods: [binds.mpf, binds.mpt],
@@ -698,7 +812,7 @@ const groupByTrans = (rawRows) => {
     const from_amount = num(r.f_amount);
     const to_amount = num(r.t_amount);
     const variance = num(r.diff);
-    g.rows.push({ code: s(r.old_empcode), employee_name: s(r.ename), from_amount, to_amount, variance });
+    g.rows.push({ code: s(r.old_empcode), unit_id: toInt(r.unit_id), employee_name: s(r.ename), from_amount, to_amount, variance });
     g.totals.from_amount += from_amount;
     g.totals.to_amount += to_amount;
     g.totals.variance += variance;
@@ -768,7 +882,7 @@ export const getMonthWiseDeductionReport = async ({
       const code = s(r.old_empcode);
       const col = pmap.get(toInt(r["period#"])) || `Period ${toInt(r["period#"])}`;
       if (!byEmp.has(code)) {
-        byEmp.set(code, { code, employee_name: s(r.name), values: {}, total: 0 });
+        byEmp.set(code, { code, unit_id: toInt(r.unit_id), employee_name: s(r.name), values: {}, total: 0 });
       }
       const e = byEmp.get(code);
       const amt = num(r.trans_amount);
@@ -777,6 +891,7 @@ export const getMonthWiseDeductionReport = async ({
     }
 
     const list = [...byEmp.values()];
+    await attachCardNos(connection, unitId, list);
     const column_totals = Object.fromEntries(
       columns.map((c) => [c, list.reduce((t, e) => t + (e.values[c] || 0), 0)])
     );
@@ -935,6 +1050,7 @@ export const getBankAdviceReport = async ({
     }
 
     const list = [...groups.values()];
+    await attachCardNos(connection, unitId, list.flatMap((g) => g.rows));
     const meta = await buildMeta(connection, {
       unitId, location,
       periods: [binds.mperiod],
@@ -1034,6 +1150,7 @@ export const getAbsentSuppReport = async ({
       absent: num(r.absent),
       s_days: num(r.s_days),
     }));
+    await attachCardNos(connection, unitId, rows);
 
     const meta = await buildMeta(connection, {
       unitId, location,
@@ -1073,7 +1190,8 @@ const EMP_DETAIL_COLS = `a.UNIT_NAME, a.LOC_NAME, a.EMP_type,
        a.GROSS,
        a.BASIC,
        nvl(a.REBATE,0) REBATE,
-       a.STATUS`;
+       a.STATUS,
+       a.UNIT_ID`;
 
 /**
  * Every optional filter here uses optEq/optRange rather than the source query's
@@ -1157,6 +1275,7 @@ export const getActiveEmployeesReport = async ({
     const rows = (res.rows ?? []).map(lowerKeys).map((r, i) => ({
       sr_no: i + 1,
       unit: s(r.unit_name),
+      unit_id: toInt(r.unit_id),
       location: s(r.loc_name),
       emp_type: s(r.emp_type),
       code: s(r.old_empcode),
@@ -1181,6 +1300,7 @@ export const getActiveEmployeesReport = async ({
       rebate: num(r.rebate),
       status: s(r.status),
     }));
+    await attachCardNos(connection, unitId, rows);
 
     const meta = await buildMeta(connection, {
       unitId, location,
@@ -1271,7 +1391,7 @@ export const getPfDetailReport = async ({ unitId, empcode } = {}) => {
     );
 
     const headerRes = await connection.execute(
-      `SELECT OLD_EMPCODE, NAME, UNIT_NAME, DEPT_NAME, DESG_DESC
+      `SELECT OLD_EMPCODE, NAME, UNIT_NAME, DEPT_NAME, DESG_DESC, UNIT_ID
          FROM HR_EMP_MASTER_VIEW
         WHERE OLD_EMPCODE = :memp AND (:munit IS NULL OR UNIT_ID = :munit)
         FETCH FIRST 1 ROWS ONLY`,
@@ -1322,6 +1442,7 @@ export const getPfDetailReport = async ({ unitId, empcode } = {}) => {
     const loanAgainstPf = loanRows.reduce((t, r) => t + num(r.loan_amt), 0);
 
     const h = headerRes.rows?.[0] ? lowerKeys(headerRes.rows[0]) : {};
+    const pfCard = await loadCardNos(connection, h.unit_id ?? unitId);
     const meta = await buildMeta(connection, {
       unitId, location: null, periods: [], filters: { employee: s(empcode) },
     });
@@ -1329,6 +1450,7 @@ export const getPfDetailReport = async ({ unitId, empcode } = {}) => {
     return {
       employee_header: {
         code: s(h.old_empcode) || s(empcode),
+        card_no: pfCard(s(h.old_empcode) || s(empcode), h.unit_id ?? unitId),
         name: s(h.name),
         unit: s(h.unit_name),
         department: s(h.dept_name),
@@ -1394,8 +1516,8 @@ export const getMonthlyAttendanceReport = async ({
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                 WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
                   AND TO_CHAR(d.COMPC) = TO_CHAR(h.UNIT_ID))     AS DEPT_NAME,
-              h.EMPCODE                                          AS CARD_NO,
-              h."ATDTCARD#"                                      AS EMP_NO,
+              h.EMPCODE                                          AS EMP_CODE,
+              h."ATDTCARD#"                                      AS CARD_NO,
               h.NAME                                             AS EMP_NAME,
               TO_CHAR(v.ROSTER_DATE, 'YYYY-MM-DD')               AS ROSTER_DATE,
               v.DAY_NAME                                         AS DAY_NAME,
@@ -1449,13 +1571,13 @@ export const getMonthlyAttendanceReport = async ({
       if (!branches.has(branch)) branches.set(branch, new Map());
       const rowsByCard = branches.get(branch);
 
-      const card = str(r.card_no);
-      const key = `${dept}|${card}`;
+      // "Code" is the employee code; "Card No" is the attendance machine card.
+      const code = str(r.emp_code);
+      const key = `${dept}|${code}`;
       if (!rowsByCard.has(key)) {
         rowsByCard.set(key, {
-          code: card,
-          card_no: card,
-          emp_no: str(r.emp_no),
+          code,
+          card_no: str(r.card_no),
           employee_name: str(r.emp_name),
           department: dept,
           branch,

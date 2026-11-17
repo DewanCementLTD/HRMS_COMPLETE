@@ -44,6 +44,8 @@ export interface HRMSEmployee {
   qfication?: string;
   qual_detail?: string;
   dtofconfirm?: string;
+  /** Probation months, HR_EMP_MASTER.PROBATION ("0006" from the API, "6" from the form). */
+  probation?: string;
   /** Provident Fund member: "Y" / "N" (HR_EMP_MASTER.PF_IND). */
   pf_ind?: string;
   /** PF membership start, YYYY-MM-DD (HR_EMP_MASTER.PF_MEM_DT). */
@@ -97,6 +99,8 @@ export interface HRMSEmployeeCreate {
   qfication?: string;
   qual_detail?: string;
   dtofconfirm?: string;
+  /** Probation months, HR_EMP_MASTER.PROBATION ("0006" from the API, "6" from the form). */
+  probation?: string;
   /** Provident Fund member: "Y" / "N" (HR_EMP_MASTER.PF_IND). */
   pf_ind?: string;
   /** PF membership start, YYYY-MM-DD (HR_EMP_MASTER.PF_MEM_DT). */

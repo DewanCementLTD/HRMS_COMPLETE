@@ -11,7 +11,7 @@ import { ErrorBox, Pill, TextArea } from "@/components/training/TrainingUi";
 import { RatingPicker, GradeBadge, DecisionModal } from "./AppraisalUi";
 import { printTablePdf } from "@/lib/printTable";
 import {
-  ROLE_LABEL, OUTCOME_LABEL, pctText,
+  ROLE_LABEL, OUTCOME_LABEL, pctText, SHOW_KPI,
   type PromotionCase, type MyCase, type CaseStatus, type CeoBody, type Designation,
 } from "@/services/appraisalService";
 
@@ -73,7 +73,7 @@ export function PromotionCaseView({ cs, hr, review, designations, companyName }:
         ...cs.eligibility.map((e) => [`  ${e.criterion}`, `${e.status ?? "—"}${e.remarks ? ` — ${e.remarks}` : ""}`]),
         ["Competency score (manager)", pctText(cs.comp_score)],
         ...cs.competencies.map((c) => [`  ${c.name} (${c.weight_pct}%)`, `self ${c.self_rating ?? "—"} · manager ${c.mgr_rating ?? "—"}`]),
-        ...cs.history.map((h) => [`  ${h.appraisal_year || `Year ${h.seq}`}`, `rating ${pctText(h.rating_pct)} · KPI ${pctText(h.kpi_pct)}`]),
+        ...cs.history.map((h) => [`  ${h.appraisal_year || `Year ${h.seq}`}`, `rating ${pctText(h.rating_pct)}${SHOW_KPI ? ` · KPI ${pctText(h.kpi_pct)}` : ""}`]),
         ["Performance score", pctText(cs.perf_score)],
         ["Overall weighted score", pctText(cs.overall_score)],
         ["Decision band", cs.decision_band],
@@ -333,22 +333,22 @@ function HistorySheet({ cs, editable, hr }: { cs: PromotionCase; editable: boole
     try { await hr!.saveHistory(rows); } catch (e) { setErr(e instanceof Error ? e.message : "Failed"); } finally { setBusy(false); }
   }
   return (
-    <Section n="3" title="Performance & KPI track record (HR)" right={<span className="text-xs">Performance score {pctText(cs.perf_score)}</span>}>
-      <p className="text-xs text-gray-500">A single strong year can be an outlier — the last 3 appraisal cycles establish the track record. Performance score = average of the 3-year average rating and the 3-year average KPI achievement. Prefilled from completed appraisals (Total &quot;A&quot; ÷ 5).</p>
+    <Section n="3" title={SHOW_KPI ? "Performance & KPI track record (HR)" : "Performance track record (HR)"} right={<span className="text-xs">Performance score {pctText(cs.perf_score)}</span>}>
+      <p className="text-xs text-gray-500">A single strong year can be an outlier — the last 3 appraisal cycles establish the track record. {SHOW_KPI ? "Performance score = average of the 3-year average rating and the 3-year average KPI achievement." : "Performance score is based on the 3-year track record."} Prefilled from completed appraisals (Total &quot;A&quot; ÷ 5).</p>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">Appraisal year</th><th className="text-right">Overall rating %</th><th className="text-right">KPI achievement %</th><th className="text-left pl-3">Key achievements / quantified results</th></tr></thead>
+          <thead className="text-xs text-gray-500 uppercase"><tr><th className="text-left py-1">Appraisal year</th><th className="text-right">Overall rating %</th>{SHOW_KPI && <th className="text-right">KPI achievement %</th>}<th className="text-left pl-3">Key achievements / quantified results</th></tr></thead>
           <tbody className="divide-y divide-gray-50">
             {rows.map((r, i) => (
               <tr key={r.seq}>
                 <td className="py-1.5">{editable ? <input className="w-28 px-2 py-1 rounded border border-gray-200" value={r.appraisal_year} onChange={(e) => upd(i, { appraisal_year: e.target.value })} /> : r.appraisal_year || "—"}</td>
                 <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.rating_pct ?? ""} onChange={(e) => upd(i, { rating_pct: num(e.target.value) })} /> : pctText(r.rating_pct)}</td>
-                <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.kpi_pct ?? ""} onChange={(e) => upd(i, { kpi_pct: num(e.target.value) })} /> : pctText(r.kpi_pct)}</td>
+                {SHOW_KPI && <td className="text-right">{editable ? <input type="number" min={0} max={100} className="w-24 px-2 py-1 rounded border border-gray-200 text-right" value={r.kpi_pct ?? ""} onChange={(e) => upd(i, { kpi_pct: num(e.target.value) })} /> : pctText(r.kpi_pct)}</td>}
                 <td className="pl-3">{editable ? <input className="w-full px-2 py-1 rounded border border-gray-200" value={r.achievements} onChange={(e) => upd(i, { achievements: e.target.value })} /> : <span className="text-xs text-gray-600">{r.achievements}</span>}</td>
               </tr>
             ))}
           </tbody>
-          <tfoot className="bg-gray-50 font-semibold"><tr><td className="py-1.5 px-1">3-year average</td><td className="text-right">{pctText(cs.history_avg.rating)}</td><td className="text-right">{pctText(cs.history_avg.kpi)}</td><td className="pl-3">Performance score: {pctText(cs.perf_score)}</td></tr></tfoot>
+          <tfoot className="bg-gray-50 font-semibold"><tr><td className="py-1.5 px-1">3-year average</td><td className="text-right">{pctText(cs.history_avg.rating)}</td>{SHOW_KPI && <td className="text-right">{pctText(cs.history_avg.kpi)}</td>}<td className="pl-3">Performance score: {pctText(cs.perf_score)}</td></tr></tfoot>
         </table>
       </div>
       {editable && <div className="flex items-center gap-2"><ErrorBox error={err} /><Button className="ml-auto" size="sm" onClick={save} loading={busy}><Save className="h-4 w-4 mr-1" />Save history</Button></div>}

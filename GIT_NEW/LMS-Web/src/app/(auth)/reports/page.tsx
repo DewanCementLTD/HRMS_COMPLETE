@@ -9,7 +9,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import * as reportService from "@/services/reportService";
 import { ReportPrintSheet, ReportType } from "./ReportPrintSheet";
-import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable } from "./ReportFilterBar";
+import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable, ALL_COMPANIES } from "./ReportFilterBar";
 
 interface ReportMeta {
   id: ReportType;
@@ -68,6 +68,17 @@ export default function ReportsPage() {
   const [showPrintSheet, setShowPrintSheet] = useState(false);
 
   const [filters, setFilters] = useState<ReportFilters>(emptyFilters());
+  // Company the reports run for — follows the top bar (its "All Companies" maps
+  // to ALL) but can be changed here per report run.
+  const topCompany = activeCompany || ((user?.company_list?.length ?? 0) > 1 ? ALL_COMPANIES : String(user?.company_list?.[0]?.code ?? ""));
+  const [reportCompany, setReportCompany] = useState<string>(topCompany);
+  const allCompanies = reportCompany === ALL_COMPANIES;
+  const changeReportCompany = (c: string) => {
+    setReportCompany(c);
+    // Period numbers are per company (months when ALL), so re-pick them.
+    setFilters((f) => ({ ...f, period: null, periodFrom: null, periodTo: null }));
+  };
+  useEffect(() => { changeReportCompany(topCompany); }, [topCompany]);
   // Bumped by Apply; reports only refetch when this changes, not on every keystroke.
   const [runToken, setRunToken] = useState(0);
 
@@ -96,8 +107,9 @@ export default function ReportsPage() {
       // Company/branch ride along from the sidebar; the backend re-resolves them
       // against this admin's rights before they reach any bind.
       const params = {
-        compc: activeCompany || undefined,
-        brnch: activeBranch || undefined,
+        compc: reportCompany || undefined,
+        // A branch belongs to the top-bar company; other companies / ALL run for every branch.
+        brnch: reportCompany && reportCompany === String(activeCompany) ? activeBranch || undefined : undefined,
         ...toParams(selectedReportId, filters),
       };
 
@@ -124,7 +136,7 @@ export default function ReportsPage() {
     }
     // `filters` is read through the Apply token so typing doesn't refetch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardNo, user?.hr_admin, selectedReportId, activeCompany, activeBranch, runToken]);
+  }, [cardNo, user?.hr_admin, selectedReportId, reportCompany, activeCompany, activeBranch, runToken]);
 
   // Switching company/branch/report reruns automatically; filter edits need Apply.
   useEffect(() => { loadReport(); }, [loadReport]);
@@ -170,12 +182,14 @@ export default function ReportsPage() {
     const q = query.toLowerCase();
     return rows.filter((r) =>
       String(r.code ?? "").toLowerCase().includes(q) ||
+      String(r.card_no ?? "").toLowerCase().includes(q) ||
       String(r.employee_name ?? r.month_year ?? "").toLowerCase().includes(q)
     );
   }, [rows, query]);
 
+  // Codes can repeat across companies, so the company is part of the key.
   const getRowKey = (r: Record<string, unknown>, idx: number) =>
-    String(r.code ?? r.period ?? r.sr_no ?? idx);
+    `${r.unit_id ?? ""}|${String(r.code ?? r.period ?? r.sr_no ?? idx)}`;
 
   const toggleSelectRow = (key: string) =>
     setSelectedKeys((prev) => {
@@ -242,8 +256,8 @@ export default function ReportsPage() {
           reportType={selectedReportId}
           reportTitle={activeReportMeta?.title ?? ""}
           data={printableData}
-          companyName={user?.selected_company?.name || ""}
-          compc={activeCompany || undefined}
+          companyName={allCompanies ? "All Companies" : user?.company_list?.find((c) => String(c.code) === reportCompany)?.name || user?.selected_company?.name || ""}
+          compc={allCompanies ? undefined : reportCompany || undefined}
           onClose={() => setShowPrintSheet(false)}
         />
       )}
@@ -332,6 +346,8 @@ export default function ReportsPage() {
           onChange={setFilters}
           onApply={() => setRunToken((t) => t + 1)}
           loading={loading}
+          company={reportCompany}
+          onCompanyChange={changeReportCompany}
         />
       )}
 
@@ -364,7 +380,7 @@ export default function ReportsPage() {
             <Search className="h-3.5 w-3.5 text-gray-400 shrink-0" />
             <input
               className="bg-transparent text-xs outline-none w-full placeholder:text-gray-400"
-              placeholder="Search code or name..."
+              placeholder="Search code, card no or name..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -394,6 +410,7 @@ export default function ReportsPage() {
                       className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                     />
                   </th>
+                  {allCompanies && <th className={TH}>Company</th>}
                   <ReportHead reportId={selectedReportId} columns={columns} hasOtHours={hasOtHours} />
                 </tr>
               </thead>
@@ -417,6 +434,7 @@ export default function ReportsPage() {
                           className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         />
                       </td>
+                      {allCompanies && <td className={`${TD} text-gray-600`}>{String(r.company ?? "")}</td>}
                       <ReportRow reportId={selectedReportId} columns={columns} row={r} idx={idx} hasOtHours={hasOtHours} />
                     </tr>
                   );
@@ -488,7 +506,8 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
       return (
         <>
           <th className={`${TH} w-14`}>Sr.#</th>
-          <th className={`${TH} ${STICKY_ID}`}>Card No</th>
+          <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           <th className={TH}>Branch</th>
           <th className={TH}>Department</th>
@@ -509,6 +528,7 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
         <>
           <th className={`${TH} w-14`}>Sr.#</th>
           <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           <th className={TH}>Designation</th>
           <th className={TH}>Department</th>
@@ -522,6 +542,7 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
       return (
         <>
           <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           {hasOtHours && <th className={`${TH} text-center`}>OT Hours</th>}
           {columns.map((c) => <th key={c} className={`${TH} text-right`}>{c}</th>)}
@@ -534,6 +555,7 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
         <>
           <th className={TH}>Type</th>
           <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           <th className={`${TH} text-right`}>From Period</th>
           <th className={`${TH} text-right`}>To Period</th>
@@ -545,6 +567,7 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
         <>
           <th className={TH}>Bank / Branch</th>
           <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           <th className={TH}>Account Number</th>
           <th className={`${TH} text-right`}>Salary Payable</th>
@@ -555,6 +578,7 @@ function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; c
         <>
           <th className={`${TH} w-12`}>S.#</th>
           <th className={`${TH} ${STICKY_ID}`}>Code</th>
+          <th className={TH}>Card No</th>
           <th className={TH}>Employee Name</th>
           <th className={TH}>Unit</th>
           <th className={TH}>Location</th>
@@ -604,7 +628,8 @@ function ReportRow({
       return (
         <>
           <td className={`${TD} font-mono`}>{idx + 1}</td>
-          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("card_no")}</td>
+          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           <td className={`${TD} text-gray-600`}>{str("branch")}</td>
           <td className={`${TD} text-gray-600`}>{str("department")}</td>
@@ -641,6 +666,7 @@ function ReportRow({
         <>
           <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
           <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           <td className={`${TD} text-gray-600`}>{str("designation")}</td>
           <td className={`${TD} text-gray-600`}>{str("department")}</td>
@@ -655,6 +681,7 @@ function ReportRow({
       return (
         <>
           <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           {hasOtHours && (
             <td className={`${TD} text-center font-mono bg-amber-50/60`}>
@@ -674,6 +701,7 @@ function ReportRow({
         <>
           <td className={`${TD} text-gray-600 font-medium`}>{str("__group")}</td>
           <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           <td className={`${TD} text-right font-mono`}>{money(val("from_amount"))}</td>
           <td className={`${TD} text-right font-mono`}>{money(val("to_amount"))}</td>
@@ -685,6 +713,7 @@ function ReportRow({
         <>
           <td className={`${TD} text-gray-600`}>{str("__group")}</td>
           <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           <td className={`${TD} font-mono`}>{str("account_number")}</td>
           <td className={`${TD} text-right font-mono font-bold text-emerald-700`}>{money(val("salary_payable"))}</td>
@@ -695,6 +724,7 @@ function ReportRow({
         <>
           <td className={`${TD} font-mono`}>{String(r.sr_no ?? idx + 1)}</td>
           <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
+          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
           <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
           <td className={`${TD} text-gray-600`}>{str("unit")}</td>
           <td className={`${TD} text-gray-600`}>{str("location")}</td>

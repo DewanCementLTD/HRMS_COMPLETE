@@ -127,7 +127,7 @@ export default function ProfilePage() {
     { icon: Phone, label: "Mobile", value: profile?.mobile_no },
     { icon: CalendarDays, label: "Date of Birth", value: formatDate(profile?.date_of_birth || "") },
     { icon: CalendarDays, label: "Date of Joining", value: formatDate(profile?.date_of_join || "") },
-    { icon: User, label: "Father's Name", value: profile?.father_name },
+    { icon: User, label: "Father / Husband Name", value: profile?.father_name },
     { icon: Shield, label: "NIC No", value: profile?.nic_no },
     { icon: Briefcase, label: "Employee Type", value: profile?.type },
   ];

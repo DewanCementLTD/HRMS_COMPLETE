@@ -8,7 +8,7 @@ import { ErrorBox, Pill } from "@/components/training/TrainingUi";
 import { GradePicker, GradeBadge, ScaleLegend, CompPicker, CompGuide, Behaviours, CompetencyView } from "./AppraisalUi";
 import { money, type Course } from "@/services/trainingService";
 import {
-  GRADE_POINTS, type Appraisal, type Designation, type RecsBody, type Grade, type CompRating, type YearEndBody,
+  GRADE_POINTS, SHOW_KPI, type Appraisal, type Designation, type RecsBody, type Grade, type CompRating, type YearEndBody,
 } from "@/services/appraisalService";
 
 
@@ -57,7 +57,7 @@ export function MidYearForm({ a, onSave, onSubmit }: {
           <div key={r.emp_goal_id} className="p-3 grid gap-2 lg:grid-cols-[minmax(14rem,1.2fr)_1.4fr_auto] lg:items-start">
             <div className="min-w-0">
               <p className="text-sm text-gray-900"><span className="text-gray-400 mr-1">{i + 1}.</span>{r.task}</p>
-              <p className="text-[11px] text-gray-400">{r.accountability || "—"} · KPI {r.kpi || "—"} · {r.weightage}%</p>
+              <p className="text-[11px] text-gray-400">{r.accountability || "—"}{SHOW_KPI ? ` · KPI ${r.kpi || "—"}` : ""} · {r.weightage}%</p>
               {r.success_criteria && <p className="text-[11px] text-gray-500">Target: {r.success_criteria}</p>}
             </div>
             <textarea rows={2} className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm" placeholder="Mid-year progress — facts & numbers"
@@ -250,7 +250,7 @@ export function AgreedRatingsForm({ a, onSave }: {
           <div key={r.emp_goal_id} className="p-3 grid gap-2 lg:grid-cols-[minmax(14rem,1.2fr)_1fr_auto] lg:items-start">
             <div className="min-w-0">
               <p className="text-sm text-gray-900"><span className="text-gray-400 mr-1">{i + 1}.</span>{r.task}</p>
-              <p className="text-[11px] text-gray-400">{r.accountability || "—"} · KPI {r.kpi || "—"} · target {r.success_criteria || "—"} · {r.weightage}%</p>
+              <p className="text-[11px] text-gray-400">{r.accountability || "—"}{SHOW_KPI ? ` · KPI ${r.kpi || "—"}` : ""} · target {r.success_criteria || "—"} · {r.weightage}%</p>
               <p className="text-xs text-gray-600 mt-1"><span className="text-gray-400">Mid-year progress: </span>{r.midyear_progress || "—"}</p>
               {r.mid_remarks && <p className="text-xs text-gray-600"><span className="text-gray-400">HOD remarks (mid-year): </span>{r.mid_remarks}</p>}
               <p className="text-xs text-gray-600 whitespace-pre-wrap"><span className="text-gray-400">Year-end progress: </span>{r.yearend_progress || "—"}</p>

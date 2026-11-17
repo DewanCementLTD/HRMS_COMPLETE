@@ -139,6 +139,9 @@ const selectCls =
   "w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm bg-white font-medium " +
   "focus:outline-none focus:ring-2 focus:ring-indigo-300";
 
+/** Value of the report Company picker that runs the report across every company. */
+export const ALL_COMPANIES = "ALL";
+
 export function ReportFilterBar({
   reportId,
   adminCardNo,
@@ -146,6 +149,8 @@ export function ReportFilterBar({
   onChange,
   onApply,
   loading,
+  company,
+  onCompanyChange,
 }: {
   reportId: ReportType | null;
   adminCardNo: string;
@@ -153,6 +158,9 @@ export function ReportFilterBar({
   onChange: (next: ReportFilters) => void;
   onApply: () => void;
   loading: boolean;
+  /** Company the report runs for: a company code, or ALL_COMPANIES. */
+  company: string;
+  onCompanyChange: (compc: string) => void;
 }) {
   const { user, activeCompany, activeBranch } = useAuth();
   if (!reportId) return null;
@@ -173,8 +181,14 @@ export function ReportFilterBar({
   const [empStatuses, setEmpStatuses] = useState<referenceService.EmpStatus[]>([]);
   const [deductions, setDeductions] = useState<{ deduction_id: string; deduction_desc: string }[]>([]);
 
-  const compc = activeCompany || undefined;
-  const brnch = activeBranch || undefined;
+  const companies = user?.company_list ?? [];
+  const allCompanies = company === ALL_COMPANIES;
+  // Lookups: the report's own company (ALL → month list across companies).
+  // Branch only applies while the report runs for the top-bar company.
+  const compc = company || undefined;
+  const brnch = company && String(company) === String(activeCompany) ? activeBranch || undefined : undefined;
+  // Shared reference lists take no "ALL"; empty = every company in the admin's rights.
+  const refCompc = allCompanies ? undefined : compc;
 
   // Periods, designation groups and deduction types come from the reports
   // module itself — periods depend on the resolved unit, so this reloads when
@@ -202,16 +216,16 @@ export function ReportFilterBar({
       const settle = <T,>(p: Promise<{ items: T[] }>): Promise<T[]> =>
         p.then((r) => r.items || []).catch(() => []);
       const [d, g, s, dg] = await Promise.all([
-        settle(referenceService.fetchDepartments(compc, brnch)),
-        settle(referenceService.fetchGrades(compc, brnch)),
-        settle(referenceService.fetchEmpStatuses(compc)),
-        settle(referenceService.fetchDesignations(undefined, compc, brnch)),
+        settle(referenceService.fetchDepartments(refCompc, brnch)),
+        settle(referenceService.fetchGrades(refCompc, brnch)),
+        settle(referenceService.fetchEmpStatuses(refCompc)),
+        settle(referenceService.fetchDesignations(undefined, refCompc, brnch)),
       ]);
       if (cancelled) return;
       setDepartments(d); setGrades(g); setEmpStatuses(s); setDesignations(dg);
     })();
     return () => { cancelled = true; };
-  }, [compc, brnch]);
+  }, [refCompc, brnch]);
 
   // Default the period range to the newest period once the list arrives or report changes.
   useEffect(() => {
@@ -239,8 +253,7 @@ export function ReportFilterBar({
     [periods]
   );
 
-  const companyName = user?.selected_company?.name || "—";
-  const branchName = user?.selected_branch?.name || "All Branches";
+  const branchName = brnch ? user?.selected_branch?.name || "All Branches" : "All Branches";
   const runnable = isRunnable(reportId, filters);
 
   return (
@@ -251,13 +264,20 @@ export function ReportFilterBar({
         <span className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
           <Filter className="h-3.5 w-3.5 text-indigo-600" /> Scope
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-100 px-2.5 py-1 text-xs font-semibold text-indigo-800">
-          <Building2 className="h-3.5 w-3.5" /> {companyName}
-        </span>
+        <label className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-100 pl-2.5 pr-1 py-0.5 text-xs font-semibold text-indigo-800">
+          <Building2 className="h-3.5 w-3.5" />
+          <select aria-label="Company" className="bg-transparent font-semibold text-indigo-800 focus:outline-none py-0.5 pr-1"
+            value={company} onChange={(e) => onCompanyChange(e.target.value)}>
+            {companies.length > 1 && <option value={ALL_COMPANIES}>All Companies</option>}
+            {companies.map((c) => <option key={c.code} value={String(c.code)}>{c.name}</option>)}
+          </select>
+        </label>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
           <MapPin className="h-3.5 w-3.5" /> {branchName}
         </span>
-        <span className="text-[11px] text-gray-400">follows the sidebar selection</span>
+        <span className="text-[11px] text-gray-400">
+          {allCompanies ? "every company in your rights · periods are matched by month" : "branch follows the top-bar selection"}
+        </span>
       </div>
 
       {/* Primary filters row */}

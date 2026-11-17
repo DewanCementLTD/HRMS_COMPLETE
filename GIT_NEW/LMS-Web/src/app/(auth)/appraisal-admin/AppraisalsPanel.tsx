@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, CornerUpLeft, Search, SlidersHorizontal, UserCog, Ban, CheckCheck, Printer, Lock } from "lucide-react";
+import { ArrowLeft, Check, CornerUpLeft, Search, SlidersHorizontal, UserCog, Ban, CheckCheck, Printer, Lock, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -11,7 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { ErrorBox, Empty, Pill, TextArea } from "@/components/training/TrainingUi";
 import {
   StagePill, StageTracker, ScoreStrip, ObjectivesEditor, SheetTable, SheetHeader, Trail, EvidenceList, DecisionModal, BellCurveChart,
-  GradeBadge, GradePicker, printTaskSheet, CompetencyView, MidRemarksEditor, midRemarksBody, printCompetencyForm,
+  GradeBadge, GradePicker, printTaskSheet, CompetencyView, MidRemarksEditor, midRemarksBody, printCompetencyForm, csvTaskSheet, csvCompetencyForm,
 } from "@/components/appraisal/AppraisalUi";
 import { RecommendationsForm, RecommendationsView } from "@/components/appraisal/AppraisalForms";
 import type { EmployeeLite } from "@/services/trainingService";
@@ -170,8 +170,12 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
         <StagePill stage={a.stage} />
         {a.emp_ack_at && <Pill tone="green">Employee signed off</Pill>}
         <div className="ml-auto flex gap-2">
-          <Button size="sm" variant="secondary" onClick={() => printTaskSheet(a, user?.selected_company?.name, true)}><Printer className="h-4 w-4 mr-1" />Print</Button>
-          {showCompetency && <Button size="sm" variant="secondary" onClick={() => printCompetencyForm(a, user?.selected_company?.name)}><Printer className="h-4 w-4 mr-1" />Competency form</Button>}
+          <ExportMenu label="Print"
+            onCsv={() => csvTaskSheet(a, user?.selected_company?.name, true)}
+            onPdf={() => printTaskSheet(a, user?.selected_company?.name, true)} />
+          {showCompetency && <ExportMenu label="Competency form"
+            onCsv={() => csvCompetencyForm(a, user?.selected_company?.name)}
+            onPdf={() => printCompetencyForm(a, user?.selected_company?.name)} />}
           {open && <Button size="sm" variant="secondary" onClick={() => setReassign(true)}><UserCog className="h-4 w-4 mr-1" />Approvers</Button>}
           {open && <Button size="sm" variant="danger" onClick={() => setCancel(true)}><Ban className="h-4 w-4 mr-1" />Cancel</Button>}
         </div>
@@ -244,6 +248,27 @@ function HrDetail({ h, id, onBack }: { h: Hr; id: number; onBack: () => void }) 
         <DecisionModal decision="return" onClose={() => setCancel(false)}
           note={<p className="text-sm text-red-600">Cancelling closes this appraisal for good. Give the reason below.</p>}
           onConfirm={(remarks) => apprHrApi.cancel(h, id, remarks).then(onBack)} />
+      )}
+    </div>
+  );
+}
+
+/** Print button with the same CSV / PDF choice the Reports tab offers. */
+function ExportMenu({ label, onCsv, onPdf }: { label: string; onCsv: () => void; onPdf: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <Button size="sm" variant="secondary" onClick={() => setOpen(!open)}><Printer className="h-4 w-4 mr-1" />{label} <span className="ml-1 text-xs">▾</span></Button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-md z-20 overflow-hidden">
+            <button className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm hover:bg-gray-50" onClick={() => { setOpen(false); onCsv(); }}>
+              <Download className="h-4 w-4 text-gray-400" />Download CSV</button>
+            <button className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm hover:bg-gray-50 border-t border-gray-100" onClick={() => { setOpen(false); onPdf(); }}>
+              <Printer className="h-4 w-4 text-gray-400" />Print / PDF</button>
+          </div>
+        </>
       )}
     </div>
   );

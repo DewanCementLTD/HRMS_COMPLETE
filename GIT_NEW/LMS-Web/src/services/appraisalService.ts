@@ -58,6 +58,12 @@ export const OUTCOME_LABEL: Record<string, string> = {
 };
 export const SHEET_RULES = { maxRows: 8, minWeight: 5, maxWeight: 40, total: 100 };
 
+/**
+ * KPI fields (goal KPI text, task-sheet KPI column, promotion KPI achievement %) are hidden
+ * in the UI for now. Data, API and scoring are unchanged — flip to true to show them again.
+ */
+export const SHOW_KPI = false;
+
 export interface Cycle {
   cycle_id: number; name: string; cycle_type: CycleType; fy_year: number; period_from: string; period_to: string;
   goal_deadline: string | null; self_deadline: string | null; review_deadline: string | null; status: CycleStatus; phase: Phase; remarks?: string;
@@ -177,9 +183,9 @@ export interface BellBand {
 export interface BellCurve { total: number; average: number | null; bands: BellBand[]; warnings: string[] }
 export interface LaunchPreview {
   total: number;
-  items: { empcode: string; name: string; dept_name: string; already: boolean; has_rpt: boolean; has_hod1: boolean; has_hod2: boolean }[];
+  items: { empcode: string; name: string; dept_name: string; desg_cd?: string; desg_desc?: string; already: boolean; has_rpt: boolean; has_hod1: boolean; has_hod2: boolean }[];
 }
-export interface LaunchFilters { empcodes?: string[]; dept_nos?: string[]; brnch?: string | null; emp_statuses?: string[] }
+export interface LaunchFilters { empcodes?: string[]; dept_nos?: string[]; desg_cds?: string[]; brnch?: string | null; emp_statuses?: string[] }
 
 export interface RecRow {
   kind: "INCREMENT" | "PROMOTION"; rec_id: number; appraisal_id: number; empcode: string; emp_name: string; cycle_name: string;

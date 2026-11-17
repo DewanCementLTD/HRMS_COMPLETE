@@ -30,8 +30,14 @@ export function TopBar() {
   const companies = user?.company_list ?? [];
   // Only the selected company's branches. (Branches carry compc; older
   // sessions without it are shown as-is.)
-  const companyCode = user?.selected_company?.code ?? "";
-  const branches = (user?.branch_list ?? []).filter(
+  const companyCode = String(user?.selected_company?.code ?? "");
+  // "All Companies" (empty code) is offered only to users with rights to more
+  // than one company; company_list is already limited to their rights.
+  const allowAllCompanies = companies.length > 1;
+  const allCompanies = allowAllCompanies && !!user?.selected_company && companyCode === "";
+  // Branch codes are per company, so the branch switcher is hidden while
+  // "All Companies" is selected.
+  const branches = allCompanies ? [] : (user?.branch_list ?? []).filter(
     (b) => !companyCode || !b.compc || String(b.compc) === String(companyCode)
   );
 
@@ -45,6 +51,8 @@ export function TopBar() {
           icon={Building2}
           caption="Company"
           variant={variant}
+          allowAll={allowAllCompanies}
+          allLabel="All Companies"
         />
       )}
       {branches.length > 0 && (

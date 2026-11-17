@@ -73,6 +73,9 @@ const employeeBody = {
   qfication: z.string().optional(),
   qual_detail: z.string().optional(),
   dtofconfirm: z.string().optional(),
+  // Probation period in months (0-24) — HR_EMP_MASTER.PROBATION, stored by the
+  // ERP as a zero-padded 4-character string ('0006').
+  probation: z.union([z.string(), z.number()]).optional().nullable(),
   // Provident Fund membership (HR_EMP_MASTER.PF_IND / PF_MEM_DT).
   pf_ind: z.enum(["Y", "N"]).optional(),
   pf_mem_dt: z.string().optional(),

@@ -11,7 +11,9 @@ import { apiRequest } from "./api";
 // ── Shared shapes ─────────────────────────────────────────────────
 
 export interface ReportMetaData {
-  unit_id: number;
+  unit_id: number | null;
+  /** Report merged across every company in the admin's rights. */
+  all_companies?: boolean;
   unit_name: string;
   location: string | null;
   location_name: string;
@@ -24,6 +26,11 @@ export interface ReportMetaData {
 /** Cross-tab reports: one row per employee, one column per allowance/deduction. */
 export interface PivotRow {
   code: string;
+  /** Attendance machine card (HR_EMP_MASTER."ATDTCARD#"); blank when none. */
+  card_no?: string;
+  /** Set when the report spans all companies. */
+  company?: string;
+  unit_id?: number | null;
   employee_name: string;
   location?: string;
   /** Overtime hours (allowance report only; null elsewhere). */
@@ -44,6 +51,11 @@ export interface PivotReport {
 /** Reconciliation reports: one block per allowance/deduction. */
 export interface ReconRow {
   code: string;
+  /** Attendance machine card (HR_EMP_MASTER."ATDTCARD#"); blank when none. */
+  card_no?: string;
+  /** Set when the report spans all companies. */
+  company?: string;
+  unit_id?: number | null;
   employee_name: string;
   from_amount: number;
   to_amount: number;
@@ -62,6 +74,11 @@ export interface ReconReport {
 
 export interface BankAdviceRow {
   code: string;
+  /** Attendance machine card (HR_EMP_MASTER."ATDTCARD#"); blank when none. */
+  card_no?: string;
+  /** Set when the report spans all companies. */
+  company?: string;
+  unit_id?: number | null;
   employee_name: string;
   account_number: string;
   gross: number;
@@ -86,12 +103,16 @@ export interface BankAdviceReport {
 
 export interface AbsentSuppRow {
   sr_no: number;
-  unit_id: number;
   period: number;
   location_name: string;
   department: string;
   designation: string;
   code: string;
+  /** Attendance machine card (HR_EMP_MASTER."ATDTCARD#"); blank when none. */
+  card_no?: string;
+  /** Set when the report spans all companies. */
+  company?: string;
+  unit_id?: number | null;
   employee_name: string;
   absent: number;
   s_days: number;
@@ -107,6 +128,11 @@ export interface ActiveEmployeeRow {
   location: string;
   emp_type: string;
   code: string;
+  /** Attendance machine card (HR_EMP_MASTER."ATDTCARD#"); blank when none. */
+  card_no?: string;
+  /** Set when the report spans all companies. */
+  company?: string;
+  unit_id?: number | null;
   employee_name: string;
   father_name: string;
   address: string;
@@ -145,7 +171,7 @@ export interface PfLedgerRow {
   balance: number;
 }
 export interface PfDetailReport {
-  employee_header: { code: string; name: string; unit: string; department: string; designation: string };
+  employee_header: { code: string; card_no?: string; name: string; unit: string; department: string; designation: string };
   ledger: PfLedgerRow[];
   totals: {
     actual_basic: number; earned_basic: number;
@@ -170,7 +196,9 @@ export interface ReportPeriod {
   label: string;
 }
 export interface ReportLookups {
-  unit_id: number;
+  unit_id: number | null;
+  /** True when periods are months across every company (compc=ALL). */
+  all_companies?: boolean;
   periods: ReportPeriod[];
   desg_groups: { desg_grp: string }[];
   deductions: { deduction_id: string; deduction_desc: string }[];
@@ -230,7 +258,6 @@ export interface MonthlyAttendanceRow {
   card_no: string;
   department: string;
   branch: string;
-  emp_no: string;
   employee_name: string;
   days: Record<string, MonthlyAttendanceCell>;
   absent_days: number;

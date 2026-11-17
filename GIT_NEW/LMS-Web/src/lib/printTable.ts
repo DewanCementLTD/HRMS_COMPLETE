@@ -80,3 +80,29 @@ export function printTablePdf(opts: {
   win.document.write(html);
   win.document.close();
 }
+
+/** The options printTablePdf takes — also what downloadTableCsv takes, so one spec gives both. */
+export type TableExport = Parameters<typeof printTablePdf>[0];
+
+const csvCell = (v: unknown) => {
+  const s = String(v ?? "");
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+/** Download the same table as CSV (UTF-8 with BOM so Excel keeps Urdu / special characters). */
+export function downloadTableCsv(opts: TableExport, fileName?: string) {
+  const headers = opts.columns.map((c) => (typeof c === "string" ? c : c.header));
+  const lines = [
+    ...[opts.companyName, opts.title, opts.meta].filter((x) => x && String(x).trim()).map((x) => [x]),
+    [],
+    headers,
+    ...opts.rows,
+  ].map((r) => r.map(csvCell).join(","));
+  const name = (fileName || [opts.companyName, opts.title].filter(Boolean).join(" - ") || "export")
+    .replace(/[^\w\- ]+/g, "_").replace(/\s+/g, "_");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([`﻿${lines.join("\r\n")}`], { type: "text/csv;charset=utf-8" }));
+  a.download = `${name}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
+}
