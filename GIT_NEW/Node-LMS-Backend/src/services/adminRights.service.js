@@ -90,7 +90,8 @@ const lookupUserRights = async (connection, mobile, empcode) => {
       { outFormat: OUT_FORMAT_OBJECT }
     ),
     connection.execute(
-      `SELECT sb.BRNCH AS BRNCH FROM SEC_USERBRCH sb WHERE sb.USRID = :usrid ORDER BY sb.BRNCH`,
+      `SELECT distinct sb.BRNCH AS BRNCH FROM SEC_USERBRCH sb WHERE sb.USRID = :usrid 
+       and comcp ORDER BY sb.BRNCH`,
       { usrid },
       { outFormat: OUT_FORMAT_OBJECT }
     ),
