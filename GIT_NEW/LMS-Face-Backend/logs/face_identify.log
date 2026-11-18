@@ -1116,3 +1116,5 @@
 2026-11-18 16:14:43,681 INFO [IDENTIFY] matched=100001.3 similarity=0.6575
 2026-11-18 16:23:43,284 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
 2026-11-18 16:23:43,578 INFO [FAISS] Loaded 225 embeddings
+2026-11-18 16:30:32,403 INFO [STARTUP] env=.env schema=hrms dsn=127.0.0.1:1521/orclpdb
+2026-11-18 16:30:32,548 INFO [FAISS] Loaded 225 embeddings
