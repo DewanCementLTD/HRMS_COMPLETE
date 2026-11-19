@@ -11,6 +11,7 @@ import type {
   LateReport,
 } from "@/services/reportService";
 import { downloadTableCsv } from "@/lib/printTable";
+import { AttendanceFormatSheet, isAttFormat, narrowReport } from "./attendanceFormats";
 
 export type ReportType =
   | "absent-supp"
@@ -24,7 +25,13 @@ export type ReportType =
   | "pf-detail"
   | "monthly-attendance"
   | "staff-strength"
-  | "late";
+  | "late"
+  // HR_Report_Format.xlsx attendance formats (all read /reports/monthly-attendance)
+  | "monthly-absent"
+  | "monthly-late"
+  | "monthly-late-times"
+  | "late-arrival"
+  | "time-sheet";
 
 /** Reports whose column count needs a landscape page. */
 const LANDSCAPE: ReportType[] = [
@@ -35,6 +42,7 @@ const LANDSCAPE: ReportType[] = [
   "staff-strength",
   // The per-day list is long.
   "late",
+  "monthly-absent", "monthly-late", "monthly-late-times", "late-arrival",
 ];
 
 // ── formatting ────────────────────────────────────────────────────
@@ -235,10 +243,11 @@ export function ReportPrintSheet({
             {reportType === "staff-strength" && (
               <StaffStrengthSheet data={data as StaffStrengthReport} {...{ companyName, compc }} />
             )}
-            {reportType === "monthly-attendance" && (
-              <MonthlyAttendanceSheet
+            {isAttFormat(reportType) && (
+              <AttendanceFormatSheet
+                type={reportType}
                 data={data as MonthlyAttendanceReport}
-                {...{ companyName, compc, meta, badges }}
+                {...{ companyName, compc }}
               />
             )}
           </div>
@@ -250,6 +259,9 @@ export function ReportPrintSheet({
 
 function countRecords(t: ReportType, data: unknown): number {
   if (!data) return 0;
+  if (isAttFormat(t)) {
+    return (narrowReport(t, data as MonthlyAttendanceReport)?.groups ?? []).reduce((n, g) => n + g.rows.length, 0);
+  }
   const dd = data as Record<string, unknown>;
   if (Array.isArray(dd.rows)) return dd.rows.length;
   if (Array.isArray(dd.ledger)) return dd.ledger.length;
@@ -809,143 +821,6 @@ function PfDetailSheet({ data, companyName, compc }: {
           </tr>
         </tbody>
       </table>
-    </>
-  );
-}
-
-/**
- * Monthly attendance grid — the wide day-by-day sheet HR prints each cycle.
- *
- * Laid out like the ERP original: a branch caption, then a department caption,
- * then one row per employee with the punch pair stacked in each day column and
- * the cycle totals on the right. Cells are tinted the way the attendance
- * screens tint them, so late / half day / absent / leave read at a glance.
- */
-/** Grid cells carry their own padding: the shared TH/TD set px-1.5, which is
- *  far too wide once 31 day columns have to share the page. */
-const MTH = "border border-black py-[2px] font-bold text-center align-middle";
-const MTD = "border border-black py-[1px] align-middle";
-
-function MonthlyAttendanceSheet({ data, companyName, compc, meta, badges }: {
-  data: MonthlyAttendanceReport; companyName: string; compc?: string;
-  meta?: ReportMetaData; badges: string[];
-}) {
-  const days = data?.days ?? [];
-  const groups = data?.groups ?? [];
-  const colCount = 4 + days.length + 4;
-
-  return (
-    <>
-      <StandardHeader
-        title="Monthly Attendance Report"
-        {...{ companyName, compc, meta, badges }}
-      />
-      {groups.map((g) => {
-        // Rows arrive sorted by department, so a caption is emitted whenever it
-        // changes rather than nesting another loop.
-        let lastDept: string | null = null;
-        let sr = 0;
-        // table-fixed so every branch's table lines up: with automatic layout
-        // each table sizes its own columns and the branches print at different
-        // widths, which is what made the sheet look ragged.
-        return (
-          <table key={g.branch} className="w-full table-fixed border-collapse border border-black text-[7px] leading-tight mb-4">
-            {/* Percentage widths that add up to 100%: the table then fits the
-                printable width exactly, whatever the day count, so no column can
-                be pushed off the page and every branch table lines up. */}
-            <colgroup>
-              <col style={{ width: "2.2%" }} />
-              <col style={{ width: "5.5%" }} />
-              <col style={{ width: "5.5%" }} />
-              <col style={{ width: "13%" }} />
-              {days.map((d0) => (
-                <col key={d0.date} style={{ width: `${63.8 / Math.max(days.length, 1)}%` }} />
-              ))}
-              <col style={{ width: "2.5%" }} />
-              <col style={{ width: "2.5%" }} />
-              <col style={{ width: "2.5%" }} />
-              <col style={{ width: "2.5%" }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className={`${MTH} text-left bg-gray-200`} colSpan={colCount}>
-                  Branch : {g.branch}
-                </th>
-              </tr>
-              {/* Two header rows so the four count columns sit under a single
-                  "Total" caption, the way the ERP original prints it. The
-                  identity and day columns span both rows. */}
-              <tr className="bg-gray-100">
-                <th rowSpan={2} className={`${MTH} px-0.5`}>Sr</th>
-                <th rowSpan={2} className={`${MTH} px-0.5`}>Code</th>
-                <th rowSpan={2} className={`${MTH} px-0.5`}>Card No</th>
-                <th rowSpan={2} className={`${MTH} px-1 text-left`}>Employee Name</th>
-                {days.map((d0) => (
-                  <th key={d0.date} rowSpan={2} className={`${MTH} text-center px-0`}>
-                    <div>{d0.date.slice(8, 10)}</div>
-                    <div className="font-normal">{d0.dow}</div>
-                  </th>
-                ))}
-                <th colSpan={4} className={`${MTH} text-center`}>Total</th>
-              </tr>
-              <tr className="bg-gray-100">
-                <th className={`${MTH} text-center px-0`}>Pre</th>
-                <th className={`${MTH} text-center px-0`}>Abs</th>
-                <th className={`${MTH} text-center px-0`}>Late</th>
-                <th className={`${MTH} text-center px-0`}>Lv</th>
-              </tr>
-            </thead>
-            <tbody>
-              {g.rows.map((r, i) => {
-                const deptCaption = r.department !== lastDept ? r.department : null;
-                if (deptCaption !== null) { lastDept = r.department; sr = 0; }
-                sr += 1;
-                return (
-                  <Fragment key={`${g.branch}-${r.department}-${r.code}-${i}`}>
-                    {deptCaption !== null && (
-                      <tr>
-                        <td className={`${MTD} font-bold text-red-700`} colSpan={colCount}>
-                          Department : {deptCaption}
-                        </td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td className={`${MTD} text-center px-0.5`}>{sr}</td>
-                      <td className={`${MTD} font-mono px-0.5 text-center break-all`}>{r.code}</td>
-                      <td className={`${MTD} font-mono px-0.5 text-center break-all`}>{r.card_no}</td>
-                      <td className={`${MTD} px-1 break-words`}>{r.employee_name}</td>
-                      {days.map((d0) => {
-                        const c = r.days?.[d0.date];
-                        const tint = !c ? ""
-                          : c.is_leave ? "bg-indigo-100"
-                          : c.is_absent ? "bg-red-100"
-                          : c.is_half_day ? "bg-orange-100"
-                          : c.is_late ? "bg-yellow-100"
-                          : c.is_rest ? "bg-sky-100"
-                          : "";
-                        return (
-                          <td key={d0.date} className={`${MTD} text-center px-0 leading-tight ${tint}`}>
-                            {!c ? "" : c.is_leave ? (c.leave_type || "L")
-                              : c.is_absent ? "A"
-                              : c.is_rest && !c.in_time ? "R"
-                              : c.in_time || c.out_time
-                                ? <>{c.in_time ?? "—"}<br />{c.out_time ?? "—"}</>
-                                : ""}
-                          </td>
-                        );
-                      })}
-                      <td className={`${MTD} text-center px-0 bg-cyan-50`}>{r.present_days}</td>
-                      <td className={`${MTD} text-center px-0 bg-cyan-50`}>{r.absent_days}</td>
-                      <td className={`${MTD} text-center px-0 bg-cyan-50`}>{r.late_days}</td>
-                      <td className={`${MTD} text-center px-0 bg-cyan-50`}>{r.leave_days}</td>
-                    </tr>
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        );
-      })}
     </>
   );
 }

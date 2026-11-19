@@ -236,7 +236,7 @@ export const getAbsentSuppReport = handler(
 
 export const getMonthlyAttendanceReport = handler(
   reportsService.getMonthlyAttendanceReport,
-  (q) => ({ fromDate: q.from_date, toDate: q.to_date, deptNo: q.dept_no })
+  (q) => ({ fromDate: q.from_date, toDate: q.to_date, deptNo: q.dept_no, empcode: q.empcode })
 );
 
 export const getLateReport = handler(

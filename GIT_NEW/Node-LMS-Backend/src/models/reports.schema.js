@@ -73,6 +73,8 @@ export const monthlyAttendanceSchema = q({
   from_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "from_date must be YYYY-MM-DD"),
   to_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "to_date must be YYYY-MM-DD"),
   dept_no: optStr,
+  // One employee (Time Sheet); blank = everyone.
+  empcode: optStr,
 });
 
 // Late report: the same date range + department as the monthly grid.

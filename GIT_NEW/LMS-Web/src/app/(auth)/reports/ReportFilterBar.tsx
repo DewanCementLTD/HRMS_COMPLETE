@@ -37,6 +37,11 @@ const REPORT_FILTERS: Record<ReportType, FilterKey[]> = {
   "monthly-attendance": ["dateRange", "department"],
   // A date range, not a payroll period: quick to pick and the same for every company.
   "late": ["dateRange", "department"],
+  "monthly-absent": ["dateRange", "department"],
+  "monthly-late": ["dateRange", "department"],
+  "monthly-late-times": ["dateRange", "department"],
+  "late-arrival": ["dateRange", "department"],
+  "time-sheet": ["dateRange", "department", "employee"],
   "staff-strength": ["dateRange", "department", "staffType"],
   "active-employees": [
     "employeeStatusType", "designation", "desgGroup", "department",

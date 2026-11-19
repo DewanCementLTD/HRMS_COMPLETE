@@ -42,6 +42,19 @@ const adminCompcBrnch = async (adminCardNo) => {
   return await setupCompanyBranch(adminCardNo, null, null);
 };
 
+/**
+ * Setup screen extras (only when ?with_usage=1 and a company is given): each row
+ * gets emp_count = active employees using it. With a branch, departments and
+ * designations are narrowed to those used in that branch — HR_DEPT/HR_DESG have
+ * no branch column, so usage is the only meaningful branch filter for them.
+ */
+const withUsage = async (kind, items, keyField, compc, brnch, flag) => {
+  if (!["1", "true", "y"].includes(String(flag ?? "").toLowerCase()) || !compc) return items;
+  const counts = await refService.getEmployeeUsage(kind, compc, brnch || null);
+  const rows = items.map((it) => ({ ...it, emp_count: counts.get(refService.usageCode(it[keyField])) ?? 0 }));
+  return brnch ? rows.filter((r) => r.emp_count > 0) : rows;
+};
+
 const handleResult = (res, result) => {
   if (result.status === "error") {
     return res.status(400).json({ detail: result.message });
@@ -51,8 +64,9 @@ const handleResult = (res, result) => {
 
 export const listDepartments = async (req, res, next) => {
   try {
-    const { compc, brnch } = res.locals.validated.query;
-    res.json({ items: await refService.getDepartments(compc, brnch) });
+    const { compc, brnch, with_usage } = res.locals.validated.query;
+    const items = await refService.getDepartments(compc, brnch);
+    res.json({ items: await withUsage("departments", items, "dept_no", compc, brnch, with_usage) });
   } catch (err) { next(err); }
 };
 
@@ -65,8 +79,9 @@ export const listGrades = async (req, res, next) => {
 
 export const listDesignations = async (req, res, next) => {
   try {
-    const { grade_cd, compc, brnch } = res.locals.validated.query;
-    res.json({ items: await refService.getDesignations(grade_cd, compc, brnch) });
+    const { grade_cd, compc, brnch, with_usage } = res.locals.validated.query;
+    const items = await refService.getDesignations(grade_cd, compc, brnch);
+    res.json({ items: await withUsage("designations", items, "desg_cd", compc, brnch, with_usage) });
   } catch (err) { next(err); }
 };
 
@@ -153,15 +168,19 @@ export const listLocations = async (req, res, next) => {
       const { finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);
       if (finalBranches) allowedBranches = finalBranches;
     }
-    res.json({ items: await refService.getLocations(allowedBranches, compc) });
+    const items = await refService.getLocations(allowedBranches, compc);
+    // Locations ARE the branches, so the count is company-wide (no branch narrowing).
+    res.json({ items: await withUsage("locations", items, "lcode", compc, null, with_usage) });
   } catch (err) { next(err); }
 };
 
 export const createDepartment = async (req, res, next) => {
   try {
-    const { admin_card_no } = res.locals.validated.query;
+    const { admin_card_no, compc: qCompc, brnch: qBrnch } = res.locals.validated.query;
     const { dept_name } = res.locals.validated.body;
-    const [compc, brnch] = await adminCompcBrnch(admin_card_no);
+    // The company picked in Setup (checked against the admin's rights), not
+    // just the admin's first company.
+    const [compc, brnch] = await setupCompanyBranch(admin_card_no, qCompc, qBrnch);
     handleResult(res, await refService.addDepartment(dept_name, compc, brnch));
   } catch (err) { next(err); }
 };
@@ -177,9 +196,11 @@ export const createGrade = async (req, res, next) => {
 
 export const createDesignation = async (req, res, next) => {
   try {
-    const { admin_card_no } = res.locals.validated.query;
+    const { admin_card_no, compc: qCompc, brnch: qBrnch } = res.locals.validated.query;
     const { grade_cd, desg_desc } = res.locals.validated.body;
-    const [compc, brnch] = await adminCompcBrnch(admin_card_no);
+    // The company picked in Setup (checked against the admin's rights), not
+    // just the admin's first company.
+    const [compc, brnch] = await setupCompanyBranch(admin_card_no, qCompc, qBrnch);
     handleResult(res, await refService.addDesignation(grade_cd, desg_desc, compc, brnch));
   } catch (err) { next(err); }
 };

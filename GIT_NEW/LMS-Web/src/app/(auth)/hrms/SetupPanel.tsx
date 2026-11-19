@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import {
   Plus, Check, Loader2, RefreshCw, Settings, Pencil, X, Trash2, Upload,
   Image as ImageIcon, Building2, BadgeCheck, Landmark, ChevronRight, ClipboardList, CalendarClock, CalendarHeart,
@@ -13,7 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { uploadCompanyLogo } from "@/services/documentService";
 import { companyLogoUrl } from "@/components/ui/CompanyLogo";
 import {
-  fetchDepartments, fetchGrades, fetchDesignations, updateDesignation, deleteDesignation, updateDepartment, deleteDepartment, fetchShifts, fetchShiftLov, fetchBloodGroups, fetchLocations, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
+  fetchDepartmentsUsage, fetchGrades, fetchDesignationsUsage, fetchLocationsUsage, updateDesignation, deleteDesignation, updateDepartment, deleteDepartment, fetchShifts, fetchShiftLov, fetchBloodGroups, addDepartment, addDesignation, addBloodGroup, addLocation, updateLocation, fetchEmpStatuses, fetchBanks, fetchBankBranches, fetchQualifications, addEmpStatus, deleteEmpStatus, addBank, deleteBank, addBankBranch, deleteBankBranch, addQualification, deleteQualification, fetchInterviewTypes, addInterviewType, deleteInterviewType, type Department, type Grade, type Designation, type Shift, type ShiftLov, type BloodGroup, type Location, type EmpStatus, type Bank, type BankBranch, type Qualification, type InterviewType, updateEmpStatus, updateQualification, updateBank, updateBankBranch, updateInterviewType, updateBloodGroup, deleteBloodGroup,
   fetchLeaveTypes, type LeaveTypeMaster,
 } from "@/services/referenceService";
 import { ShiftsSection } from "./ShiftsSection";
@@ -76,6 +76,13 @@ const GROUPS: SetupGroup[] = [
     tabs: ["company_logo"],
   },
 ];
+
+/** Tabs whose data is per branch (or can be narrowed to one). */
+const BRANCH_TABS: Tab[] = ["departments", "designations", "shifts", "roster_defaults", "holidays", "leave_types", "interview_types"];
+/** Stored per branch — always run for one branch, never "All". */
+const BRANCH_REQUIRED: Tab[] = ["shifts", "roster_defaults"];
+/** Shared by every company — no company/branch filter applies. */
+const GLOBAL_TABS: Tab[] = ["emp_statuses", "qualifications", "blood_groups"];
 
 // ─── Inline add row ───────────────────────────────────────
 
@@ -441,7 +448,7 @@ function LocationsTable({
         <table className="min-w-full divide-y divide-gray-100">
           <thead className="bg-gray-50">
             <tr>
-              {["Description", "Short Name", "Region", "City", ""].map((c, i) => (
+              {["Description", "Short Name", "Region", "City", "Employees", ""].map((c, i) => (
                 <th key={i} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">{c}</th>
               ))}
             </tr>
@@ -463,10 +470,10 @@ function LocationsTable({
               />
             )}
             {loading && (
-              <tr><td colSpan={5} className="py-10 text-center"><Spinner /></td></tr>
+              <tr><td colSpan={6} className="py-10 text-center"><Spinner /></td></tr>
             )}
             {!loading && locs.length === 0 && (
-              <tr><td colSpan={5} className="py-10 text-center text-sm text-gray-400">No records found.</td></tr>
+              <tr><td colSpan={6} className="py-10 text-center text-sm text-gray-400">No records found.</td></tr>
             )}
             {!loading && locs.map((loc) =>
               editLcode === loc.lcode ? (
@@ -482,6 +489,7 @@ function LocationsTable({
                       />
                     </td>
                   ))}
+                  <td className="px-4 py-2 text-sm text-gray-500">{loc.emp_count ?? "—"}</td>
                   <td className="px-4 py-2">
                     <div className="flex items-center gap-2">
                       <button
@@ -505,6 +513,7 @@ function LocationsTable({
                   <td className="px-4 py-2.5 text-sm text-gray-500">{loc.sname || "—"}</td>
                   <td className="px-4 py-2.5 text-sm text-gray-500">{loc.regioncode || "—"}</td>
                   <td className="px-4 py-2.5 text-sm text-gray-500">{loc.city || "—"}</td>
+                  <td className="px-4 py-2.5 text-sm text-gray-500">{loc.emp_count ?? "—"}</td>
                   <td className="px-4 py-2.5">
                     <button
                       onClick={() => startEdit(loc)}
@@ -603,9 +612,32 @@ function CompanyLogoTab({ adminCardNo, compc, companyName }: { adminCardNo: stri
 // ─── Main panel ───────────────────────────────────────────
 
 export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
-  const { activeCompany, activeBranch, user } = useAuth();
+  const { activeCompany: topCompany, activeBranch: topBranch, user } = useAuth();
   const [groupId, setGroupId] = useState<string>("organization");
   const [tab, setTab] = useState<Tab>("departments");
+
+  // Company / branch the master tables are shown for. Starts from the top bar
+  // and follows it, but can be changed here without leaving Setup.
+  const firstCompany = String(user?.company_list?.[0]?.code ?? "");
+  const [compc, setCompc] = useState<string>(topCompany || firstCompany);
+  const [brnch, setBrnch] = useState<string>(topCompany ? topBranch : "");
+  useEffect(() => {
+    setCompc(topCompany || firstCompany);
+    setBrnch(topCompany ? topBranch : "");
+  }, [topCompany, topBranch, firstCompany]);
+  const branchOptions = useMemo(
+    () => (user?.branch_list ?? []).filter((b) => !b.compc || String(b.compc) === String(compc)),
+    [user?.branch_list, compc],
+  );
+  function changeCompany(c: string) {
+    setCompc(c);
+    // Branch codes are per company: keep the branch only if it exists there.
+    setBrnch((b) => ((user?.branch_list ?? []).some((x) => x.code === b && (!x.compc || String(x.compc) === c)) ? b : ""));
+  }
+  // Shifts and roster defaults are stored per branch, so they always need one.
+  useEffect(() => {
+    if (BRANCH_REQUIRED.includes(tab) && !brnch && branchOptions.length) setBrnch(branchOptions[0].code);
+  }, [tab, brnch, branchOptions]);
 
   // Data
   const [depts,  setDepts]  = useState<Department[]>([]);
@@ -628,18 +660,18 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     setLoading(true);
     try {
       switch (t) {
-        case "departments":  { const r = await fetchDepartments(activeCompany, activeBranch);  setDepts(r.items);  break; }
+        case "departments":  { const r = await fetchDepartmentsUsage(compc, brnch || undefined);  setDepts(r.items);  break; }
         case "designations": {
           // Grades are loaded alongside so the "filter by grade" dropdown works.
           const [r, g] = await Promise.all([
-            fetchDesignations(undefined, activeCompany, activeBranch),
-            fetchGrades(activeCompany, activeBranch),
+            fetchDesignationsUsage(compc, brnch || undefined),
+            fetchGrades(compc),
           ]);
           setDesigs(r.items); setGrades(g.items); break;
         }
         case "shifts":       {
           const [r, l] = await Promise.all([
-            fetchShifts(activeCompany, activeBranch),
+            fetchShifts(compc, brnch),
             fetchShiftLov(),
           ]);
           setShifts(r.items); setShiftLov(l.items); break;
@@ -647,14 +679,14 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         // Blood groups, employee statuses and qualifications are global — not
         // filtered by the selected company/branch.
         case "blood_groups": { const r = await fetchBloodGroups();  setBgs(r.items);    break; }
-        case "locations":    { const r = await fetchLocations(activeCompany);                  setLocs(r.items);   break; }
+        case "locations":    { const r = await fetchLocationsUsage(compc);             setLocs(r.items);   break; }
         case "emp_statuses": { const r = await fetchEmpStatuses(); setEmpStatuses(r.items); break; }
         case "qualifications": { const r = await fetchQualifications(); setQuals(r.items); break; }
-        case "interview_types": { const r = await fetchInterviewTypes(activeCompany, activeBranch); setIvTypes(r.items); break; }
-        case "leave_types":  { const r = await fetchLeaveTypes(activeCompany, activeBranch); setLeaveTypes(r.items); break; }
-        case "banks":        { const r = await fetchBanks(activeCompany); setBanks(r.items); break; }
+        case "interview_types": { const r = await fetchInterviewTypes(compc, brnch); setIvTypes(r.items); break; }
+        case "leave_types":  { const r = await fetchLeaveTypes(compc, brnch); setLeaveTypes(r.items); break; }
+        case "banks":        { const r = await fetchBanks(compc); setBanks(r.items); break; }
         case "bank_branches": {
-          const r = await fetchBanks(activeCompany); setBanks(r.items);
+          const r = await fetchBanks(compc); setBanks(r.items);
           if (branchBank) { const b = await fetchBankBranches(branchBank); setBankBranches(b.items); }
           else setBankBranches([]);
           break;
@@ -665,7 +697,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     } finally {
       setLoading(false);
     }
-  }, [activeCompany, activeBranch, branchBank]);
+  }, [compc, brnch, branchBank]);
 
   useEffect(() => { load(tab); }, [tab, load]);
 
@@ -681,18 +713,18 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
   // ── Departments ──────────────────────────────────────────
   const deptTable = (
     <MasterTable
-      columns={["Dept No", "Department Name"]}
-      rows={depts.map((d) => [d.dept_no, d.dept_name])}
+      columns={["Dept No", "Department Name", brnch ? "Employees (branch)" : "Employees"]}
+      rows={depts.map((d) => [d.dept_no, d.dept_name, d.emp_count ?? 0])}
       loading={loading}
       onRefresh={() => load("departments")}
       addFields={[
         { key: "dept_name", label: "Department Name", placeholder: "e.g. Human Resources", col: 1 },
       ]}
       onAdd={async (v) => {
-        await addDepartment(adminCardNo, v.dept_name);
+        await addDepartment(adminCardNo, v.dept_name, compc);
       }}
-      onEdit={async (i, v) => { await updateDepartment(adminCardNo, depts[i].dept_no, v, activeCompany); }}
-      onDelete={async (i) => { await deleteDepartment(adminCardNo, depts[i].dept_no, activeCompany); }}
+      onEdit={async (i, v) => { await updateDepartment(adminCardNo, depts[i].dept_no, v, compc); }}
+      onDelete={async (i) => { await deleteDepartment(adminCardNo, depts[i].dept_no, compc); }}
     />
   );
 
@@ -721,8 +753,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         </span>
       </div>
       <MasterTable
-        columns={["Grade", "Desig Code", "Description", "PF FPO (Rs.)"]}
-        rows={filteredDesigs.map((d) => [d.grade_cd, d.desg_cd, d.desg_desc, d.fpo_amount])}
+        columns={["Grade", "Desig Code", "Description", "PF FPO (Rs.)", brnch ? "Employees (branch)" : "Employees"]}
+        rows={filteredDesigs.map((d) => [d.grade_cd, d.desg_cd, d.desg_desc, d.fpo_amount, d.emp_count ?? 0])}
         loading={loading}
         onRefresh={() => load("designations")}
         editColumns={[0, 2, 3]}
@@ -733,16 +765,16 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           if (!Number.isFinite(n) || n < 0) throw new Error("Enter the FPO amount in rupees, e.g. 625 or 300 (0 to clear)");
           await updateDesignation(
             adminCardNo, filteredDesigs[i].desg_cd,
-            { grade_cd: vals[0], desg_desc: vals[2], fpo_amount: String(n) }, activeCompany,
+            { grade_cd: vals[0], desg_desc: vals[2], fpo_amount: String(n) }, compc,
           );
         }}
-        onDelete={async (i) => { await deleteDesignation(adminCardNo, filteredDesigs[i].desg_cd, activeCompany); }}
+        onDelete={async (i) => { await deleteDesignation(adminCardNo, filteredDesigs[i].desg_cd, compc); }}
         addFields={[
           { key: "grade_cd",  label: "Grade Code",   placeholder: "e.g. G1", col: 0 },
           { key: "desg_desc", label: "Designation",  placeholder: "e.g. Senior Officer", col: 2 },
         ]}
         onAdd={async (v) => {
-          await addDesignation(adminCardNo, v.grade_cd, v.desg_desc);
+          await addDesignation(adminCardNo, v.grade_cd, v.desg_desc, compc);
         }}
       />
     </div>
@@ -755,8 +787,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       lov={shiftLov}
       loading={loading}
       adminCardNo={adminCardNo}
-      compc={activeCompany}
-      brnch={activeBranch}
+      compc={compc}
+      brnch={brnch}
       onRefresh={() => load("shifts")}
     />
   );
@@ -774,8 +806,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       onAdd={async (v) => {
         await addBloodGroup(adminCardNo, v.blood_group);
       }}
-      onEdit={async (i, v) => { await updateBloodGroup(adminCardNo, bgs[i].pk, v, activeCompany); }}
-      onDelete={async (i) => { await deleteBloodGroup(adminCardNo, bgs[i].pk, activeCompany); }}
+      onEdit={async (i, v) => { await updateBloodGroup(adminCardNo, bgs[i].pk, v, compc); }}
+      onDelete={async (i) => { await deleteBloodGroup(adminCardNo, bgs[i].pk, compc); }}
     />
   );
 
@@ -785,7 +817,7 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       locs={locs}
       loading={loading}
       adminCardNo={adminCardNo}
-      compc={activeCompany}
+      compc={compc}
       onRefresh={() => load("locations")}
     />
   );
@@ -798,9 +830,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("emp_statuses")}
       addFields={[{ key: "descr", label: "Status", placeholder: "e.g. Permanent" }]}
-      onAdd={async (v) => { await addEmpStatus(adminCardNo, v.descr, activeCompany); }}
-      onEdit={async (i, v) => { await updateEmpStatus(adminCardNo, empStatuses[i].emp_status, v, activeCompany); }}
-      onDelete={async (i) => { await deleteEmpStatus(adminCardNo, empStatuses[i].emp_status, activeCompany); }}
+      onAdd={async (v) => { await addEmpStatus(adminCardNo, v.descr, compc); }}
+      onEdit={async (i, v) => { await updateEmpStatus(adminCardNo, empStatuses[i].emp_status, v, compc); }}
+      onDelete={async (i) => { await deleteEmpStatus(adminCardNo, empStatuses[i].emp_status, compc); }}
     />
   );
 
@@ -812,10 +844,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("qualifications")}
       addFields={[{ key: "descr", label: "Qualification", placeholder: "e.g. BSc Computer Science" }]}
-      onAdd={async (v) => { await addQualification(adminCardNo, v.descr, activeCompany); }}
+      onAdd={async (v) => { await addQualification(adminCardNo, v.descr, compc); }}
       editColumn={0}
-      onEdit={async (i, v) => { await updateQualification(adminCardNo, quals[i].descr, v, activeCompany); }}
-      onDelete={async (i) => { await deleteQualification(adminCardNo, quals[i].descr, activeCompany); }}
+      onEdit={async (i, v) => { await updateQualification(adminCardNo, quals[i].descr, v, compc); }}
+      onDelete={async (i) => { await deleteQualification(adminCardNo, quals[i].descr, compc); }}
     />
   );
 
@@ -827,10 +859,10 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("interview_types")}
       addFields={[{ key: "descr", label: "Interview Type", placeholder: "e.g. Panel Discussion" }]}
-      onAdd={async (v) => { await addInterviewType(adminCardNo, v.descr, activeCompany); }}
+      onAdd={async (v) => { await addInterviewType(adminCardNo, v.descr, compc); }}
       editColumn={0}
-      onEdit={async (i, v) => { await updateInterviewType(adminCardNo, ivTypes[i].type_id, v, activeCompany); }}
-      onDelete={async (i) => { await deleteInterviewType(adminCardNo, ivTypes[i].type_id, activeCompany); }}
+      onEdit={async (i, v) => { await updateInterviewType(adminCardNo, ivTypes[i].type_id, v, compc); }}
+      onDelete={async (i) => { await deleteInterviewType(adminCardNo, ivTypes[i].type_id, compc); }}
     />
   );
 
@@ -842,9 +874,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       loading={loading}
       onRefresh={() => load("banks")}
       addFields={[{ key: "bnkname", label: "Bank Name", placeholder: "e.g. HBL" }]}
-      onAdd={async (v) => { await addBank(adminCardNo, v.bnkname, activeCompany); }}
-      onEdit={async (i, v) => { await updateBank(adminCardNo, banks[i].bnkcode, v, activeCompany); }}
-      onDelete={async (i) => { await deleteBank(adminCardNo, banks[i].bnkcode, activeCompany); }}
+      onAdd={async (v) => { await addBank(adminCardNo, v.bnkname, compc); }}
+      onEdit={async (i, v) => { await updateBank(adminCardNo, banks[i].bnkcode, v, compc); }}
+      onDelete={async (i) => { await deleteBank(adminCardNo, banks[i].bnkcode, compc); }}
     />
   );
 
@@ -869,9 +901,9 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
           loading={loading}
           onRefresh={() => load("bank_branches")}
           addFields={[{ key: "brnname", label: "Branch Name", placeholder: "e.g. Main Branch" }]}
-          onAdd={async (v) => { await addBankBranch(adminCardNo, branchBank, v.brnname, activeCompany); }}
-          onEdit={async (i, v) => { await updateBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, v, activeCompany); }}
-          onDelete={async (i) => { await deleteBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, activeCompany); }}
+          onAdd={async (v) => { await addBankBranch(adminCardNo, branchBank, v.brnname, compc); }}
+          onEdit={async (i, v) => { await updateBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, v, compc); }}
+          onDelete={async (i) => { await deleteBankBranch(adminCardNo, branchBank, bankBranches[i].brncode, compc); }}
         />
       ) : (
         <p className="text-sm text-gray-400 py-6 text-center">Select a bank to manage its branches.</p>
@@ -885,8 +917,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
       items={leaveTypes}
       loading={loading}
       adminCardNo={adminCardNo}
-      compc={activeCompany}
-      brnch={activeBranch}
+      compc={compc}
+      brnch={brnch}
       onRefresh={() => load("leave_types")}
     />
   );
@@ -900,16 +932,16 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     roster_defaults: (
       <RosterDefaultPanel
         adminCardNo={adminCardNo}
-        compc={activeCompany || undefined}
-        brnch={activeBranch || undefined}
+        compc={compc || undefined}
+        brnch={brnch || undefined}
       />
     ),
     // Self-contained like roster_defaults: loads and saves its own data.
     holidays: (
       <HolidaysPanel
         adminCardNo={adminCardNo}
-        compc={activeCompany || undefined}
-        brnch={activeBranch || undefined}
+        compc={compc || undefined}
+        brnch={brnch || undefined}
       />
     ),
     blood_groups: bgTable,
@@ -923,8 +955,8 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
     company_logo: (
       <CompanyLogoTab
         adminCardNo={adminCardNo}
-        compc={activeCompany}
-        companyName={user?.selected_company?.name ?? ""}
+        compc={compc}
+        companyName={user?.company_list?.find((c) => String(c.code) === compc)?.name ?? ""}
       />
     ),
   };
@@ -988,6 +1020,38 @@ export function SetupPanel({ adminCardNo }: { adminCardNo: string }) {
         )}
         <span className="text-xs text-slate-500 ml-auto hidden md:block">{group.desc}</span>
       </div>
+
+      {/* Company / branch filter for the open master table */}
+      {!GLOBAL_TABS.includes(activeTab) ? (
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50/70 px-3 py-2">
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <span className="font-medium">Company</span>
+            <select value={compc} onChange={(e) => changeCompany(e.target.value)}
+              className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+              {(user?.company_list ?? []).map((c) => <option key={c.code} value={String(c.code)}>{c.name}</option>)}
+            </select>
+          </label>
+          {BRANCH_TABS.includes(activeTab) && (
+            <label className="flex items-center gap-2 text-sm text-slate-600">
+              <span className="font-medium">Branch</span>
+              <select value={brnch} onChange={(e) => setBrnch(e.target.value)}
+                className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                {!BRANCH_REQUIRED.includes(activeTab) && <option value="">All branches</option>}
+                {branchOptions.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
+              </select>
+            </label>
+          )}
+          {(activeTab === "departments" || activeTab === "designations") && (
+            <span className="text-xs text-slate-500">
+              {brnch
+                ? "Showing only those used by active employees of this branch. Pick \"All branches\" to see (and add to) the full company list."
+                : "Departments and designations belong to the whole company; Employees counts its active staff."}
+            </span>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-slate-500">{TAB_LABEL[activeTab]} are shared by all companies and branches.</p>
+      )}
 
       {/* Content */}
       <div>{contentMap[activeTab]}</div>

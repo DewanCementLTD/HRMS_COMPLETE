@@ -292,6 +292,49 @@ export const getDesignations = async (grade_cd = null, compc = null, brnch = nul
   }
 };
 
+// ── Setup usage counts ──────────────────────────────────────────
+// HR_DEPT / HR_DESG have no branch column — a department belongs to the whole
+// company. For Setup's branch filter we therefore count the company's active
+// employees per department / designation / branch (optionally inside one
+// branch), so the screen can show "used by N employees" and narrow the list to
+// what a branch actually uses.
+const USAGE_KEY = {
+  departments: "LTRIM(TO_CHAR(h.DEPT_NO),'0')",
+  designations: "LTRIM(TO_CHAR(h.DESG_CD),'0')",
+  locations: "LTRIM(TRIM(TO_CHAR(h.LOCATION)),'0')",
+};
+
+export const getEmployeeUsage = async (kind, compc, brnch = null) => {
+  const keyExpr = USAGE_KEY[kind];
+  if (!keyExpr || compc === null || compc === undefined || String(compc).trim() === "") return new Map();
+  let conn;
+  try {
+    conn = await getDirectConnection();
+    const binds = { c: String(compc).trim() };
+    let brCond = "";
+    if (brnch !== null && brnch !== undefined && String(brnch).trim() !== "") {
+      brCond = "AND TRIM(TO_CHAR(h.LOCATION)) = TRIM(:b)";
+      binds.b = String(brnch).trim();
+    }
+    const res = await conn.execute(
+      `SELECT ${keyExpr} AS K, COUNT(*) AS N
+         FROM HR_EMP_MASTER h
+        WHERE TO_CHAR(h.UNIT_ID) = :c
+          AND (h.STATUS = 'A' OR h.STATUS IS NULL)
+          ${brCond}
+        GROUP BY ${keyExpr}`,
+      binds,
+      { outFormat: OUT_FORMAT_ARRAY },
+    );
+    return new Map((res.rows || []).map((r) => [String(r[0] ?? "").trim(), Number(r[1]) || 0]));
+  } finally {
+    if (conn) await conn.close();
+  }
+};
+
+/** Normalised code for matching a master row against HR_EMP_MASTER (leading zeros dropped). */
+export const usageCode = (v) => String(v ?? "").trim().replace(/^0+(?=.)/, "");
+
 // FPO amount of a designation (HR_DESG.FPO_AMOUNT, keyed by DESG_CD + COMPC).
 // The PF formula deducts it: PF = (earned gross − FPO) / 1.55 × 8.33%.
 export const updateDesignationFpo = async (desgCd, fpoAmount, compc) => {

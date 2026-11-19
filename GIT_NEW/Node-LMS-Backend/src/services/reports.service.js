@@ -28,7 +28,7 @@
  */
 
 import { getDirectConnection } from "../config/database.js";
-import { deriveRosterDay } from '../utils/rosterStatus.js';
+import { deriveRosterDay, timeSpentMinutes } from '../utils/rosterStatus.js';
 import { branchNameSql } from '../utils/branchName.js';
 
 const OUT_OBJECT = 4002; // oracledb.OUT_FORMAT_OBJECT
@@ -1494,10 +1494,43 @@ export const getPfDetailReport = async ({ unitId, empcode } = {}) => {
 // view the attendance screens read, so a day shown here matches what those show.
 // ═══════════════════════════════════════════════════════════════════
 
+const hhmm = (v) => {
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(v ?? '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+};
+const fmtMin = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
 const DOW_LETTER = { SUNDAY: 'S', MONDAY: 'M', TUESDAY: 'T', WEDNESDAY: 'W', THURSDAY: 'T', FRIDAY: 'F', SATURDAY: 'S' };
 
+/**
+ * The one- or two-letter code each day prints as in the HR formats
+ * (HR_Report_Format.xlsx): PO present on time, PL present late, HD half day,
+ * A absent, R rest day, H holiday, otherwise the leave type (CL, ML, EL, OD …).
+ */
+const dayCode = (d) => {
+  if (d.is_leave) return (d.leave_type || 'L').toUpperCase();
+  if (d.is_holiday) return 'H';
+  if (d.is_rest) return 'R';
+  if (d.is_absent) return 'A';
+  if (d.is_half_day) return 'HD';
+  if (d.is_morning_late) return 'PL';
+  return 'PO';
+};
+
+/** Deduction days a code costs: absent / without-pay = 1, half day = 0.5. */
+const DED_BY_CODE = { A: 1, ABS: 1, WP: 1, HD: 0.5 };
+
+const ymdOf = (v) => {
+  if (!v) return null;
+  if (v instanceof Date) {
+    return `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, '0')}-${String(v.getDate()).padStart(2, '0')}`;
+  }
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(String(v));
+  return m ? m[1] : null;
+};
+
 export const getMonthlyAttendanceReport = async ({
-  unitId, location = null, fromDate, toDate, deptNo = null,
+  unitId, location = null, fromDate, toDate, deptNo = null, empcode = null,
 } = {}) => {
   let connection;
   try {
@@ -1511,9 +1544,24 @@ export const getMonthlyAttendanceReport = async ({
     if (opt(deptNo) !== null) { deptCond = "AND LTRIM(TO_CHAR(h.DEPT_NO),'0') = LTRIM(TO_CHAR(:mdept),'0')"; binds.mdept = opt(deptNo); }
     let locCond = '';
     if (opt(location) !== null) { locCond = 'AND TRIM(h.LOCATION) = TRIM(:mloc)'; binds.mloc = opt(location); }
+    let empCond = '';
+    // Either the employee code or the Emp No (ATDTCARD#, e.g. A-483) the formats print.
+    if (opt(empcode) !== null) { empCond = 'AND (h.EMPCODE = TRIM(:memp) OR UPPER(TRIM(h."ATDTCARD#")) = UPPER(TRIM(:memp)))'; binds.memp = opt(empcode); }
 
     const res = await connection.execute(
       `SELECT TRIM(h.LOCATION)                                   AS BRANCH_CODE,
+              (SELECT MIN(g.DESG_DESC) KEEP (DENSE_RANK FIRST ORDER BY
+                        CASE WHEN TO_CHAR(g.COMPC) = TO_CHAR(h.UNIT_ID) THEN 0 ELSE 1 END)
+                 FROM HR_DESG g
+                WHERE LTRIM(g.DESG_CD,'0') = LTRIM(h.DESG_CD,'0')) AS DESG_DESC,
+              TRIM(h.GRADE_CD)                                   AS GRADE_CD,
+              TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD')                  AS DOJ,
+              NVL((SELECT MAX(x.EMP_STATUS_DESC) FROM HR_EMP_STATUS x
+                    WHERE TO_CHAR(x.EMP_STATUS) = TO_CHAR(h.EMP_STATUS)), 'PERMANENT') AS EMP_TYPE,
+              v.SHIFT_START_TIME                                 AS SHIFT_START,
+              TO_CHAR(NVL(d2.OUT_DATE, v.OUT_DATE), 'YYYY-MM-DD') AS OUT_DATE,
+              d2.W_HRS                                           AS W_HRS,
+              d2.W_MNT                                           AS W_MNT,
               ${branchNameSql('h.LOCATION', 'h.UNIT_ID')}          AS BRANCH_NAME,
               (SELECT MIN(d.DEPT_NAME) FROM HR_DEPT d
                 WHERE LTRIM(d.DEPT_NO,'0') = LTRIM(h.DEPT_NO,'0')
@@ -1546,11 +1594,15 @@ export const getMonthlyAttendanceReport = async ({
         WHERE TO_CHAR(h.UNIT_ID) = TO_CHAR(:munit)
           AND h.STATUS = 'A'
           AND TRUNC(v.ROSTER_DATE) BETWEEN TO_DATE(:mfrom, 'YYYY-MM-DD') AND TO_DATE(:mto, 'YYYY-MM-DD')
+          -- Days still to come have no punches yet and would all read "Absent":
+          -- the printed formats stop at the day they are run.
+          AND TRUNC(v.ROSTER_DATE) <= TRUNC(SYSDATE)
           ${locCond}
           ${deptCond}
+          ${empCond}
         ORDER BY BRANCH_NAME NULLS LAST, DEPT_NAME NULLS LAST, h.NAME, v.ROSTER_DATE`,
       binds,
-      { outFormat: OUT_OBJECT },
+      { outFormat: OUT_OBJECT, fetchArraySize: 1000, prefetchRows: 1000 },
     );
 
     const str = (v) => String(v ?? '').trim();
@@ -1581,6 +1633,10 @@ export const getMonthlyAttendanceReport = async ({
           code,
           card_no: str(r.card_no),
           employee_name: str(r.emp_name),
+          designation: str(r.desg_desc),
+          grade: str(r.grade_cd),
+          doj: str(r.doj),
+          emp_type: str(r.emp_type).toUpperCase(),
           department: dept,
           branch,
           days: {},
@@ -1588,6 +1644,12 @@ export const getMonthlyAttendanceReport = async ({
           late_days: 0,
           leave_days: 0,
           present_days: 0,
+          // HR format summary: PL count, half days, deduction and earned days.
+          pl_days: 0,
+          half_days: 0,
+          ded_days: 0,
+          day_count: 0,
+          e_days: 0,
         });
       }
       const row = rowsByCard.get(key);
@@ -1599,7 +1661,20 @@ export const getMonthlyAttendanceReport = async ({
       const shift = str(r.shift).toUpperCase();
       const d = deriveRosterDay({ ...r, roster_shift: shift });
 
+      const dcode = dayCode(d);
+      const inMin = hhmm(d.in_time);
+      const startMin = hhmm(r.shift_start);
+      const lateBy = d.is_morning_late && inMin !== null && startMin !== null && inMin > startMin ? inMin - startMin : 0;
+      const wMin = r.w_hrs !== null && r.w_hrs !== undefined
+        ? Number(r.w_hrs) * 60 + Number(r.w_mnt || 0)
+        : (d.in_time && d.out_time ? timeSpentMinutes(d.in_time, d.out_time) : 0);
+
       row.days[date] = {
+        code: dcode,
+        late_by: lateBy ? fmtMin(lateBy) : '',
+        work_hours: wMin > 0 ? fmtMin(wMin) : '',
+        out_date: d.out_time ? (ymdOf(r.out_date) || date) : null,
+        shift_start: startMin === null ? '' : str(r.shift_start).slice(0, 5),
         in_time: d.in_time,
         out_time: d.out_time,
         shift,
@@ -1619,6 +1694,11 @@ export const getMonthlyAttendanceReport = async ({
       if (d.is_late) row.late_days += 1;
       if (d.is_leave) row.leave_days += 1;
       if (d.is_present) row.present_days += 1;
+      if (dcode === 'PL') row.pl_days += 1;
+      if (dcode === 'HD') row.half_days += 1;
+      row.ded_days += DED_BY_CODE[dcode] ?? 0;
+      row.day_count += 1;
+      row.e_days = row.day_count - row.ded_days;
     }
 
     const groups = [...branches.entries()].map(([branch, rowsByCard]) => ({
@@ -1652,11 +1732,6 @@ export const getMonthlyAttendanceReport = async ({
 // ══════════════════════════════════════════════════════════════════
 
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const hhmm = (v) => {
-  const m = /^(\d{1,2}):(\d{2})/.exec(String(v ?? '').trim());
-  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
-};
-const fmtMin = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 
 /**
  * A date range rather than a payroll period: periods differ per company (and

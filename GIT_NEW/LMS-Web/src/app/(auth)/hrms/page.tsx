@@ -703,7 +703,8 @@ export default function HRMSPage() {
     return (
       <div className="animate-fade-in">
         <SectionNav />
-        <CompanyRequired what="Setup"><SetupPanel adminCardNo={user.card_no} /></CompanyRequired>
+        {/* Setup has its own company / branch picker, so "All Companies" is fine here. */}
+        <SetupPanel adminCardNo={user.card_no} />
       </div>
     );
   }

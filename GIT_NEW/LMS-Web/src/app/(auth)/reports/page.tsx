@@ -11,6 +11,8 @@ import * as reportService from "@/services/reportService";
 import { ReportPrintSheet, ReportType, downloadStaffStrengthCsv, downloadLateCsv } from "./ReportPrintSheet";
 import type { StaffStrengthReport, LateReport } from "@/services/reportService";
 import { ReportFilterBar, ReportFilters, emptyFilters, toParams, isRunnable, ALL_COMPANIES, isMultiCompany } from "./ReportFilterBar";
+import { isAttFormat, keepRow, lateDates, AttScreenHead, AttScreenRow, AttLegend, downloadAttCsv, narrowReport } from "./attendanceFormats";
+import type { MonthlyAttendanceReport, MonthlyAttendanceRow } from "@/services/reportService";
 
 interface ReportMeta {
   id: ReportType;
@@ -32,7 +34,12 @@ const REPORT_CATALOG: ReportMeta[] = [
   // General (non-monetary)
   { id: "absent-supp", title: "Employee Absent and Supplimentary Days Report", category: "general", description: "Absent days and supplementary days per employee for a period" },
   { id: "active-employees", title: "ALL Active Employee Detail Report", category: "general", description: "Active employee roster with grade, designation, department and joining dates" },
-  { id: "monthly-attendance", title: "Employee Monthly Attendance Report", category: "general", description: "Day-by-day attendance grid for a date range, split by branch and department" },
+  { id: "monthly-attendance", title: "Monthly Attendance Report", category: "general", description: "Colour-coded day grid (PO, PL, HD, A, R, H, leaves) per department with DED and earned days" },
+  { id: "monthly-absent", title: "Monthly Absent Report", category: "general", description: "Absent and half days per employee, by department, with deduction days" },
+  { id: "monthly-late", title: "Monthly Late Report", category: "general", description: "Late (PL) days per employee on the day grid, by department, with the late count" },
+  { id: "monthly-late-times", title: "Monthly Late Report (In / Out Times)", category: "general", description: "In and out time of every day for employees who came late, late days highlighted" },
+  { id: "late-arrival", title: "Monthly Late Arrival Report", category: "general", description: "Arrival time on each late day, only the dates someone was late, with total" },
+  { id: "time-sheet", title: "Time Sheet", category: "general", description: "One page per employee: daily in/out, date out, work hours, late arrival and remarks" },
   { id: "late", title: "Employee Late Report", category: "general", description: "Late arrivals and early outs per employee for any date range, with the dates and time late" },
   { id: "staff-strength", title: "Contractual And Permanent Staff", category: "general", description: "All-location total strength: permanent, contract and salary per department and location" },
 ];
@@ -128,6 +135,11 @@ export default function ReportsPage() {
         "active-employees": () => reportService.fetchActiveEmployeesReport(cardNo, params),
         "pf-detail": () => reportService.fetchPfDetailReport(cardNo, params),
         "monthly-attendance": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "monthly-absent": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "monthly-late": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "monthly-late-times": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "late-arrival": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
+        "time-sheet": () => reportService.fetchMonthlyAttendanceReport(cardNo, params),
         "staff-strength": () => reportService.fetchStaffStrengthReport(cardNo, params),
         "late": () => reportService.fetchLateReport(cardNo, params),
       };
@@ -167,8 +179,11 @@ export default function ReportsPage() {
     if (Array.isArray(d.groups)) {
       // Flatten grouped reports for the on-screen list, tagging the group name.
       const flat: Record<string, unknown>[] = [];
+      const att = isAttFormat(selectedReportId) ? selectedReportId : null;
       for (const g of d.groups as Record<string, unknown>[]) {
         for (const r of (g.rows as Record<string, unknown>[]) ?? []) {
+          // Attendance formats keep only their rows (absent sheet: with deductions, late sheets: with a late day).
+          if (att && !keepRow(att, r as unknown as MonthlyAttendanceRow)) continue;
           flat.push({
             ...r,
             __group: g.descr ?? g.branch ?? `${g.bank_name} — ${g.branch_name}`,
@@ -177,11 +192,14 @@ export default function ReportsPage() {
       }
       // The monthly grid's columns are its days, so the generic table can lay
       // one column out per date exactly as the pivot reports do.
-      const days = (d.days as { date: string }[] | undefined)?.map((x) => x.date) ?? [];
+      let days = (d.days as { date: string }[] | undefined)?.map((x) => x.date) ?? [];
+      if (selectedReportId === "late-arrival") {
+        days = lateDates((d.days ?? []) as MonthlyAttendanceReport["days"], flat as unknown as MonthlyAttendanceRow[]).map((x) => x.date);
+      }
       return { ...none, columns: days, rows: flat };
     }
     return none;
-  }, [reportData]);
+  }, [reportData, selectedReportId]);
 
   const filteredRows = useMemo(() => {
     if (!query.trim()) return rows;
@@ -230,9 +248,13 @@ export default function ReportsPage() {
     if (Array.isArray(d.rows)) return { ...d, rows: (d.rows as Record<string, unknown>[]).filter(keep) };
     if (Array.isArray(d.ledger)) return { ...d, ledger: (d.ledger as Record<string, unknown>[]).filter(keep) };
     if (Array.isArray(d.groups)) {
-      // Row keys are assigned over the flattened list, so re-flatten to match.
+      // Row keys are assigned over the flattened list, so re-flatten to match
+      // (attendance formats flatten only the rows they keep).
+      const base = isAttFormat(selectedReportId)
+        ? (narrowReport(selectedReportId, d as unknown as MonthlyAttendanceReport) as unknown as Record<string, unknown>)
+        : d;
       let i = 0;
-      const groups = (d.groups as Record<string, unknown>[])
+      const groups = (base.groups as Record<string, unknown>[])
         .map((g) => {
           const rows = ((g.rows as Record<string, unknown>[]) ?? []).filter((r) => keep(r, i++));
           return { ...g, rows };
@@ -241,7 +263,7 @@ export default function ReportsPage() {
       return { ...d, groups };
     }
     return reportData;
-  }, [reportData, selectedKeys]);
+  }, [reportData, selectedKeys, selectedReportId]);
 
   const reportCompanyName = reportCompany === ALL_COMPANIES
     ? "All Companies"
@@ -346,6 +368,13 @@ export default function ReportsPage() {
                   <Download className="h-3.5 w-3.5" /> Download CSV
                 </Button>
               )}
+              {isAttFormat(selectedReportId) && (
+                <Button size="sm" variant="secondary" className="gap-1.5"
+                  disabled={loading || rows.length === 0}
+                  onClick={() => reportData && downloadAttCsv(selectedReportId, printableData as MonthlyAttendanceReport, reportCompanyName)}>
+                  <Download className="h-3.5 w-3.5" /> Download CSV
+                </Button>
+              )}
               {isStrength && (
                 <Button size="sm" variant="secondary" className="gap-1.5"
                   disabled={loading || !strengthData?.rows?.length}
@@ -433,6 +462,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
+        {isAttFormat(selectedReportId) && !loading && filteredRows.length > 0 && <AttLegend type={selectedReportId} />}
         {loading ? (
           <div className="flex items-center justify-center p-12 text-gray-500 gap-3">
             <Spinner className="h-5 w-5 text-indigo-600" />
@@ -547,28 +577,8 @@ function ExportDropdown() {
 // deduction sets are whatever the period actually contains.
 
 function ReportHead({ reportId, columns, hasOtHours }: { reportId: ReportType; columns: string[]; hasOtHours: boolean }) {
+  if (isAttFormat(reportId)) return <AttScreenHead type={reportId} columns={columns} stickyId={STICKY_ID} />;
   switch (reportId) {
-    case "monthly-attendance":
-      return (
-        <>
-          <th className={`${TH} w-14`}>Sr.#</th>
-          <th className={`${TH} ${STICKY_ID}`}>Code</th>
-          <th className={TH}>Card No</th>
-          <th className={TH}>Employee Name</th>
-          <th className={TH}>Branch</th>
-          <th className={TH}>Department</th>
-          {/* One column per calendar day, labelled with the day number. */}
-          {columns.map((d) => (
-            <th key={d} className={`${TH} text-center px-1.5`} title={d}>
-              {d.slice(8, 10)}
-            </th>
-          ))}
-          <th className={`${TH} text-center`}>Present</th>
-          <th className={`${TH} text-center`}>Absent</th>
-          <th className={`${TH} text-center`}>Late</th>
-          <th className={`${TH} text-center`}>Leave</th>
-        </>
-      );
     case "late":
       return (
         <>
@@ -678,51 +688,10 @@ function ReportRow({
   const str = (k: string) => String(r[k] ?? "");
   const val = (k: string) => r[k] as number | undefined;
 
+  if (isAttFormat(reportId)) {
+    return <AttScreenRow type={reportId} columns={columns} row={r as unknown as MonthlyAttendanceRow} idx={idx} stickyId={STICKY_ID} />;
+  }
   switch (reportId) {
-    case "monthly-attendance": {
-      // Each day cell shows the punch pair, or the reason there wasn't one:
-      // the leave code, A for absent, R for a rostered rest day.
-      const days = (r.days ?? {}) as Record<string, {
-        in_time: string | null; out_time: string | null; leave_type: string | null;
-        is_absent: boolean; is_late: boolean; is_half_day: boolean;
-        is_leave: boolean; is_rest: boolean; remarks: string | null;
-      }>;
-      return (
-        <>
-          <td className={`${TD} font-mono`}>{idx + 1}</td>
-          <td className={`${TD} font-mono font-bold text-gray-900 ${STICKY_ID}`}>{str("code")}</td>
-          <td className={`${TD} font-mono text-gray-700`}>{str("card_no")}</td>
-          <td className={`${TD} font-medium text-gray-900`}>{str("employee_name")}</td>
-          <td className={`${TD} text-gray-600`}>{str("branch")}</td>
-          <td className={`${TD} text-gray-600`}>{str("department")}</td>
-          {columns.map((d) => {
-            const c = days[d];
-            const tint = !c ? ""
-              : c.is_leave ? "bg-indigo-50 text-indigo-700"
-              : c.is_absent ? "bg-red-50 text-red-700"
-              : c.is_half_day ? "bg-orange-50 text-orange-700"
-              : c.is_late ? "bg-amber-50 text-amber-800"
-              : c.is_rest ? "bg-sky-50 text-sky-700"
-              : "";
-            return (
-              <td key={d} className={`${TD} px-1.5 text-center text-[11px] leading-tight ${tint}`}
-                  title={c?.remarks ?? undefined}>
-                {!c ? "" : c.is_leave ? (c.leave_type || "L")
-                  : c.is_absent ? "A"
-                  : c.is_rest && !c.in_time ? "R"
-                  : c.in_time || c.out_time
-                    ? <span className="whitespace-nowrap">{c.in_time ?? "—"}<br />{c.out_time ?? "—"}</span>
-                    : ""}
-              </td>
-            );
-          })}
-          <td className={`${TD} text-center font-mono`}>{String(r.present_days ?? 0)}</td>
-          <td className={`${TD} text-center font-mono text-red-700`}>{String(r.absent_days ?? 0)}</td>
-          <td className={`${TD} text-center font-mono text-amber-700`}>{String(r.late_days ?? 0)}</td>
-          <td className={`${TD} text-center font-mono text-indigo-700`}>{String(r.leave_days ?? 0)}</td>
-        </>
-      );
-    }
     case "late":
       return (
         <>

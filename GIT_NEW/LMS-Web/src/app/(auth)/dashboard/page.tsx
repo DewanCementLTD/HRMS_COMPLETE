@@ -164,7 +164,7 @@ export default function DashboardPage() {
   return (
     <div className="animate-fade-in space-y-5">
       <WelcomeHero
-        title={`Welcome back, ${dashboard?.emp_name || "User"}!`}
+        title={`WELCOME BACK, ${dashboard?.emp_name || "User"}!`}
         subtitle="Here's your HRMS overview for today."
         actions={
           user?.hr_admin && hrStats ? (

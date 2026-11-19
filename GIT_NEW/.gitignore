@@ -63,4 +63,5 @@ LMS-Backend/AI/pipeline.log
 LMS-Backend/logs/
 LMS-Face-Backend/logs/face_identify.log
 
-
+# ── Report format docs ──
+HR_Report_Format.xlsx

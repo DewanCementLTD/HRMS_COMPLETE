@@ -266,6 +266,17 @@ export interface MonthlyAttendanceDay {
 }
 
 export interface MonthlyAttendanceCell {
+  /** Printed code: PO, PL, HD, A, R, H or the leave type (CL, ML, EL, OD …). */
+  code: string;
+  /** "HH:MM" past the shift start on a late day, else "". */
+  late_by: string;
+  /** "HH:MM" worked, else "". */
+  work_hours: string;
+  /** YYYY-MM-DD of the out punch (a night shift ends the next day). */
+  out_date: string | null;
+  shift_start: string;
+  is_holiday?: boolean;
+  is_morning_late?: boolean;
   in_time: string | null;
   out_time: string | null;
   shift: string;
@@ -281,6 +292,21 @@ export interface MonthlyAttendanceCell {
 export interface MonthlyAttendanceRow {
   code: string;
   card_no: string;
+  designation: string;
+  /** HR_EMP_MASTER.GRADE_CD — printed as "Cadre" on the time sheet. */
+  grade: string;
+  doj: string;
+  emp_type: string;
+  company?: string;
+  unit_id?: number | string;
+  /** Present-late days (PL). */
+  pl_days: number;
+  half_days: number;
+  /** Deduction days: A / WP = 1, HD = 0.5. */
+  ded_days: number;
+  day_count: number;
+  /** Earned days = days in range − deduction days. */
+  e_days: number;
   department: string;
   branch: string;
   employee_name: string;

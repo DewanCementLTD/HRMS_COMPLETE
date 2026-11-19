@@ -1,8 +1,8 @@
 import { apiRequest } from "./api";
 
-export interface Department  { dept_no: number; dept_name: string }
+export interface Department  { dept_no: number; dept_name: string; emp_count?: number }
 export interface Grade       { grade_cd: string; descr: string }
-export interface Designation { grade_cd: string; desg_cd: string; desg_desc: string; fpo_amount?: number | null }
+export interface Designation { grade_cd: string; desg_cd: string; desg_desc: string; fpo_amount?: number | null; emp_count?: number }
 export interface Shift {
   shift_head_pk?: number;
   shift: string;
@@ -40,7 +40,7 @@ export interface Cadre       { pk: number; cadre: string }
 export interface Unit            { unit_id: number; unit_name: string }
 export interface Religion        { code: string; label: string }
 export interface ReportingOfficer { empcode: string; name: string; unit_id?: number | string | null }
-export interface Location    { lcode: string; descr: string; sname: string; regioncode: string; city: string }
+export interface Location    { lcode: string; descr: string; sname: string; regioncode: string; city: string; emp_count?: number }
 export interface EmpStatus   { emp_status: string; descr: string }
 export interface Bank        { bnkcode: string; bnkname: string }
 export interface BankBranch  { brncode: string; brnname: string }
@@ -113,14 +113,23 @@ export const fetchLocations          = (compc?: string, adminCardNo?: string) =>
 
 const q = (adminCardNo: string) => `?admin_card_no=${encodeURIComponent(adminCardNo)}`;
 
-export const addDepartment  = (adminCardNo: string, dept_name: string) =>
-  apiRequest<Department>(`/reference/departments${q(adminCardNo)}`, { method: "POST", body: { dept_name } });
+export const addDepartment  = (adminCardNo: string, dept_name: string, compc?: string) =>
+  apiRequest<Department>(`/reference/departments${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "POST", body: { dept_name } });
 
 export const addGrade       = (adminCardNo: string, grade_cd: string, descr: string) =>
   apiRequest<Grade>(`/reference/grades${q(adminCardNo)}`, { method: "POST", body: { grade_cd, descr } });
 
-export const addDesignation = (adminCardNo: string, grade_cd: string, desg_desc: string) =>
-  apiRequest<Designation>(`/reference/designations${q(adminCardNo)}`, { method: "POST", body: { grade_cd, desg_desc } });
+export const addDesignation = (adminCardNo: string, grade_cd: string, desg_desc: string, compc?: string) =>
+  apiRequest<Designation>(`/reference/designations${q(adminCardNo)}${compc ? `&compc=${encodeURIComponent(compc)}` : ""}`, { method: "POST", body: { grade_cd, desg_desc } });
+
+// Setup screen: rows carry emp_count (active employees using them); with a
+// branch, departments / designations are narrowed to the ones that branch uses.
+export const fetchDepartmentsUsage  = (compc: string, brnch?: string) =>
+  apiRequest<{ items: Department[] }>(`/reference/departments${cbQuery(compc, brnch, "with_usage=1")}`);
+export const fetchDesignationsUsage = (compc: string, brnch?: string) =>
+  apiRequest<{ items: Designation[] }>(`/reference/designations${cbQuery(compc, brnch, "with_usage=1")}`);
+export const fetchLocationsUsage    = (compc: string, adminCardNo?: string) =>
+  apiRequest<{ items: Location[] }>(`/reference/locations${cbQuery(compc, undefined, `with_usage=1${adminCardNo ? `&admin_card_no=${encodeURIComponent(adminCardNo)}` : ""}`)}`);
 
 export const addShift       = (adminCardNo: string, fields: ShiftInput, compc?: string, brnch?: string) => {
   const parts = [`admin_card_no=${encodeURIComponent(adminCardNo)}`];
