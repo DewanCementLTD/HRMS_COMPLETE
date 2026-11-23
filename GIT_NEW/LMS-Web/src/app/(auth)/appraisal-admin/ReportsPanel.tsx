@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Play, Printer, Download } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -10,6 +10,7 @@ import { printTablePdf } from "@/lib/printTable";
 import type { Department } from "@/services/trainingService";
 import { apprHrApi, type Hr, type Cycle, type Report } from "@/services/appraisalService";
 import { ErrorBox, Empty } from "@/components/training/TrainingUi";
+import { CompanyPicker, ALL_COMPANIES } from "../reports/ReportFilterBar";
 
 const REPORTS: { id: string; label: string; desc: string; dept?: boolean; noCycle?: boolean }[] = [
   { id: "employees", label: "Employee performance", desc: "Every task sheet of the cycle: self total, agreed Total \"A\", HOD grade, HR grade, final grade, sign-off", dept: true },
@@ -29,25 +30,66 @@ const csvCell = (v: unknown) => {
 };
 const fmt = (v: unknown) => (v == null || v === "" ? "—" : typeof v === "number" ? v.toLocaleString("en-US", { maximumFractionDigits: 2 }) : String(v));
 
+const deptKey = (name: string) => name.trim().toUpperCase();
+
 export function ReportsPanel({ h }: { h: Hr }) {
   const { user } = useAuth();
+  const companies = useMemo(() => user?.company_list ?? [], [user?.company_list]);
+  // Report scope: one company code, a comma list, or ALL_COMPANIES. Starts on the top-bar company.
+  const [company, setCompany] = useState(() => h.compc || String(companies[0]?.code ?? ""));
+  const picked = useMemo(() => {
+    const codes = companies.map((c) => String(c.code));
+    if (company === ALL_COMPANIES) return codes;
+    const list = company.split(",").filter((c) => codes.includes(c));
+    if (list.length) return list;
+    return h.compc ? [h.compc] : codes.slice(0, 1);
+  }, [company, companies, h.compc]);
+  const multi = picked.length > 1;
+  const companyName = (code: string) => companies.find((c) => String(c.code) === code)?.name ?? code;
+
   const [type, setType] = useState("employees");
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [cycleId, setCycleId] = useState("");
-  const [depts, setDepts] = useState<Department[]>([]);
+  // Departments per company: codes differ between companies, so the filter works by department name.
+  const [deptsBy, setDeptsBy] = useState<Record<string, Department[]>>({});
   const [dept, setDept] = useState("");
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const pickedKey = picked.join(",");
   useEffect(() => {
-    apprHrApi.cycles(h).then((r) => {
-      const usable = r.items.filter((c) => c.status !== "DRAFT");
-      setCycles(usable);
-      if (usable[0]) setCycleId(String((usable.find((c) => c.status === "ACTIVE") ?? usable[0]).cycle_id));
-    }).catch(() => {});
-    apprHrApi.lookups(h).then((l) => setDepts(l.departments)).catch(() => {});
-  }, [h]);
+    let live = true;
+    const codes = pickedKey.split(",").filter(Boolean);
+    Promise.all(codes.map((code) => apprHrApi.cycles({ ...h, compc: code }).then((r) => r.items).catch(() => [] as Cycle[])))
+      .then((lists) => {
+        if (!live) return;
+        // The same CYCLE_ID in several companies is one cycle (copied by trigger), so list it once.
+        const byId = new Map<number, Cycle>();
+        for (const c of lists.flat()) if (c.status !== "DRAFT" && !byId.has(c.cycle_id)) byId.set(c.cycle_id, c);
+        const usable = [...byId.values()].sort((a, b) => (b.period_to ?? "").localeCompare(a.period_to ?? "") || b.cycle_id - a.cycle_id);
+        setCycles(usable);
+        setCycleId((cur) => {
+          if (usable.some((c) => String(c.cycle_id) === cur)) return cur;
+          const first = usable.find((c) => c.status === "ACTIVE") ?? usable[0];
+          return first ? String(first.cycle_id) : "";
+        });
+      });
+    Promise.all(codes.map((code) => apprHrApi.lookups({ ...h, compc: code })
+      .then((l): [string, Department[]] => [code, l.departments])
+      .catch((): [string, Department[]] => [code, []])))
+      .then((pairs) => { if (live) setDeptsBy(Object.fromEntries(pairs)); });
+    return () => { live = false; };
+  }, [h, pickedKey]);
+
+  const deptOptions = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const list of Object.values(deptsBy)) {
+      for (const d of list) if (!names.has(deptKey(d.dept_name))) names.set(deptKey(d.dept_name), d.dept_name);
+    }
+    return [...names.values()].sort((a, b) => a.localeCompare(b));
+  }, [deptsBy]);
+  const deptValue = deptOptions.some((n) => deptKey(n) === deptKey(dept)) ? dept : "";
 
   const def = REPORTS.find((r) => r.id === type)!;
 
@@ -55,7 +97,29 @@ export function ReportsPanel({ h }: { h: Hr }) {
     setLoading(true);
     setError(null);
     try {
-      setReport(await apprHrApi.report(h, type, { cycle_id: def.noCycle ? undefined : cycleId, dept: def.dept ? dept : undefined }));
+      const parts = await Promise.all(picked.map(async (code) => {
+        let deptNo: string | undefined;
+        if (def.dept && deptValue) {
+          const d = (deptsBy[code] ?? []).find((x) => deptKey(x.dept_name) === deptKey(deptValue));
+          if (!d) return null; // this company has no such department
+          deptNo = String(d.dept_no);
+        }
+        const r = await apprHrApi.report({ ...h, compc: code }, type, { cycle_id: def.noCycle ? undefined : cycleId, dept: deptNo });
+        return { code, r };
+      }));
+      const got = parts.filter((p): p is { code: string; r: Report } => !!p);
+      if (!multi) {
+        setReport(got[0]?.r ?? { title: def.label, cycle: null, columns: [], rows: [] });
+        return;
+      }
+      const base = got.find((p) => p.r.columns.length) ?? got[0];
+      setReport({
+        title: base?.r.title ?? def.label,
+        cycle: got.find((p) => p.r.cycle)?.r.cycle ?? null,
+        columns: base?.r.columns.length ? [{ key: "company", label: "Company" }, ...base.r.columns] : [],
+        rows: got.flatMap((p) => p.r.rows.map((row) => ({ company: companyName(p.code), ...row }))),
+        warnings: got.flatMap((p) => (p.r.warnings ?? []).map((w) => `${companyName(p.code)}: ${w}`)),
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -63,13 +127,15 @@ export function ReportsPanel({ h }: { h: Hr }) {
     }
   }
 
+  const scopeName = company === ALL_COMPANIES && multi ? "All Companies" : picked.map(companyName).join(", ");
+
   const numericCol = (key: string) => (report?.rows ?? []).some((r) => typeof r[key] === "number");
 
   function print() {
     if (!report) return;
     printTablePdf({
-      companyName: user?.selected_company?.name, title: report.title,
-      meta: [report.cycle?.name, dept ? depts.find((d) => String(d.dept_no) === dept)?.dept_name : ""].filter(Boolean).join(" · ") || undefined,
+      companyName: scopeName || user?.selected_company?.name, title: report.title,
+      meta: [report.cycle?.name, def.dept ? deptValue : ""].filter(Boolean).join(" · ") || undefined,
       landscape: report.columns.length > 7,
       columns: report.columns.map((c) => ({ header: c.label, align: numericCol(c.key) ? "right" as const : "left" as const })),
       rows: report.rows.map((r) => report.columns.map((c) => fmt(r[c.key]))),
@@ -100,6 +166,13 @@ export function ReportsPanel({ h }: { h: Hr }) {
         </div>
         <p className="text-xs text-gray-500">{def.desc}</p>
         <div className="flex flex-wrap gap-3 items-end">
+          {companies.length > 1 && (
+            <div className="space-y-1.5"><label className="block text-sm font-medium text-gray-700">Company</label>
+              <div className="px-3 py-2 rounded-xl border border-gray-300 text-sm min-w-56 bg-white">
+                <CompanyPicker companies={companies} value={multi ? company : picked[0] ?? ""}
+                  onChange={(v) => { setCompany(v); setReport(null); }} />
+              </div></div>
+          )}
           {!def.noCycle && (
             <div className="space-y-1.5"><label className="block text-sm font-medium text-gray-700">Cycle</label>
               <select className="px-3 py-2.5 rounded-xl border border-gray-300 text-sm min-w-56" value={cycleId} onChange={(e) => setCycleId(e.target.value)}>
@@ -108,8 +181,8 @@ export function ReportsPanel({ h }: { h: Hr }) {
           )}
           {def.dept && (
             <div className="space-y-1.5"><label className="block text-sm font-medium text-gray-700">Department</label>
-              <select className="px-3 py-2.5 rounded-xl border border-gray-300 text-sm" value={dept} onChange={(e) => setDept(e.target.value)}>
-                <option value="">All departments</option>{depts.map((d) => <option key={d.dept_no} value={d.dept_no}>{d.dept_name}</option>)}
+              <select className="px-3 py-2.5 rounded-xl border border-gray-300 text-sm" value={deptValue} onChange={(e) => setDept(e.target.value)}>
+                <option value="">All departments</option>{deptOptions.map((n) => <option key={n} value={n}>{n}</option>)}
               </select></div>
           )}
           <Button onClick={run} loading={loading} disabled={!def.noCycle && !cycleId}><Play className="h-4 w-4 mr-1" />Run report</Button>
@@ -122,6 +195,7 @@ export function ReportsPanel({ h }: { h: Hr }) {
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <p className="font-semibold text-ink">{report.title}</p>
             {report.cycle && <span className="text-xs text-gray-400">{report.cycle.name}</span>}
+            {multi && <span className="text-xs text-indigo-600">{scopeName}</span>}
             <span className="text-xs text-gray-400">{report.rows.length} row(s)</span>
             <div className="ml-auto flex gap-2">
               <Button size="sm" variant="secondary" onClick={csv} disabled={!report.rows.length}><Download className="h-4 w-4 mr-1" />CSV</Button>

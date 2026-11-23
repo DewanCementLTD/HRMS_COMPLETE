@@ -184,7 +184,7 @@ export const isMultiCompany = (c: string) => c === ALL_COMPANIES || c.includes("
  * Company picker for the report scope: tick one, several or all companies.
  * The value is a code, a comma list, or ALL_COMPANIES when every one is ticked.
  */
-function CompanyPicker({
+export function CompanyPicker({
   companies,
   value,
   onChange,
