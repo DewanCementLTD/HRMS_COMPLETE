@@ -969,7 +969,10 @@ export const getBankAdviceReport = async ({
           AND ${optEq('F.Desg_GRP', 'mdesh_ord')}
           AND D.PERIOD# = :mperiod
           AND A.UNIT_ID = :munit
-          AND A.STATUS = 'A'
+          -- Leavers are paid for the days they worked in their last period.
+          AND (A.STATUS = 'A'
+               OR TRUNC(A.DTOFRESIGN) >= (SELECT TRUNC(MAX(p.PERIOD_FRM)) FROM HR_ATTND_PERIOD p
+                                           WHERE p.UNIT_ID = A.UNIT_ID AND p.PERIOD# = D.PERIOD#))
           AND NVL(A.HOLD_SAL, 'N') = 'N'
           AND ${optEq('A.LOCATION', 'mlocation')}
           AND A.LOCATION = E.LOC_ID
@@ -1007,7 +1010,10 @@ export const getBankAdviceReport = async ({
           AND ${optEq('F.Desg_GRP', 'mdesh_ord')}
           AND D.PERIOD# = :mperiod
           AND A.UNIT_ID = :munit
-          AND A.STATUS = 'A'
+          -- Leavers are paid for the days they worked in their last period.
+          AND (A.STATUS = 'A'
+               OR TRUNC(A.DTOFRESIGN) >= (SELECT TRUNC(MAX(p.PERIOD_FRM)) FROM HR_ATTND_PERIOD p
+                                           WHERE p.UNIT_ID = A.UNIT_ID AND p.PERIOD# = D.PERIOD#))
           AND NVL(A.HOLD_SAL, 'N') = 'N'
           AND ${optEq('A.LOCATION', 'mlocation')}
           AND A.LOCATION = E.LOC_ID
@@ -1556,6 +1562,7 @@ export const getMonthlyAttendanceReport = async ({
                 WHERE LTRIM(g.DESG_CD,'0') = LTRIM(h.DESG_CD,'0')) AS DESG_DESC,
               TRIM(h.GRADE_CD)                                   AS GRADE_CD,
               TO_CHAR(h.DTOFAPPT, 'YYYY-MM-DD')                  AS DOJ,
+              TO_CHAR(h.DTOFRESIGN, 'YYYY-MM-DD')                AS LEFT_ON,
               NVL((SELECT MAX(x.EMP_STATUS_DESC) FROM HR_EMP_STATUS x
                     WHERE TO_CHAR(x.EMP_STATUS) = TO_CHAR(h.EMP_STATUS)), 'PERMANENT') AS EMP_TYPE,
               v.SHIFT_START_TIME                                 AS SHIFT_START,
@@ -1592,7 +1599,12 @@ export const getMonthlyAttendanceReport = async ({
                 ON TO_CHAR(d2.CARD_NO) = TO_CHAR(v.CARD_NO)
                AND d2.ROSTER_DATE = v.ROSTER_DATE
         WHERE TO_CHAR(h.UNIT_ID) = TO_CHAR(:munit)
-          AND h.STATUS = 'A'
+          -- Active staff, plus anyone who left inside the range: they worked
+          -- part of it and their salary is processed on those days.
+          AND (h.STATUS = 'A' OR TRUNC(h.DTOFRESIGN) >= TO_DATE(:mfrom, 'YYYY-MM-DD'))
+          -- Nothing after the last working day: the roster is pre-built ~60
+          -- days ahead and would otherwise read "Absent" for the rest.
+          AND (h.DTOFRESIGN IS NULL OR TRUNC(v.ROSTER_DATE) <= TRUNC(h.DTOFRESIGN))
           AND TRUNC(v.ROSTER_DATE) BETWEEN TO_DATE(:mfrom, 'YYYY-MM-DD') AND TO_DATE(:mto, 'YYYY-MM-DD')
           -- Days still to come have no punches yet and would all read "Absent":
           -- the printed formats stop at the day they are run.
@@ -1636,6 +1648,8 @@ export const getMonthlyAttendanceReport = async ({
           designation: str(r.desg_desc),
           grade: str(r.grade_cd),
           doj: str(r.doj),
+          // Last working day of someone who left inside the range, else null.
+          left_on: str(r.left_on) || null,
           emp_type: str(r.emp_type).toUpperCase(),
           department: dept,
           branch,
@@ -1772,7 +1786,10 @@ export const getLateReport = async ({
          JOIN EMPLOYEE e      ON TO_CHAR(e.CARD_NO) = TO_CHAR(v.CARD_NO)
          JOIN HR_EMP_MASTER h ON h.EMPCODE = e.EMPCODE
         WHERE TO_CHAR(h.UNIT_ID) = TO_CHAR(:munit)
-          AND (h.STATUS = 'A' OR h.STATUS IS NULL)
+          -- Active staff plus leavers whose last working day is in the range,
+          -- up to that day only (same rule as the monthly attendance grid).
+          AND ((h.STATUS = 'A' OR h.STATUS IS NULL) OR TRUNC(h.DTOFRESIGN) >= TO_DATE(:mfrom, 'YYYY-MM-DD'))
+          AND (h.DTOFRESIGN IS NULL OR TRUNC(v.ROSTER_DATE) <= TRUNC(h.DTOFRESIGN))
           AND v.ROSTER_DATE >= TO_DATE(:mfrom, 'YYYY-MM-DD')
           AND v.ROSTER_DATE <  TO_DATE(:mto, 'YYYY-MM-DD') + 1
           AND (v.MORNING_LATE = 'Y' OR v.EARLY_OUT_LATE = 'Y')

@@ -32,6 +32,8 @@ export interface HRMSEmployee {
   location?: string;
   /** Date HR moved the employee to their current branch, as YYYY-MM-DD. */
   transfer_date?: string;
+  /** Last working day of a Left employee, YYYY-MM-DD (DTOFRESIGN). */
+  dtofresign?: string;
   user_paswd?: string;
   track_location?: string;
   track_location_hr?: number;
@@ -105,6 +107,9 @@ export interface HRMSEmployeeCreate {
   pf_ind?: string;
   /** PF membership start, YYYY-MM-DD (HR_EMP_MASTER.PF_MEM_DT). */
   pf_mem_dt?: string;
+  /** Last working day of a Left employee, YYYY-MM-DD (HR_EMP_MASTER.DTOFRESIGN).
+   *  The salary run pays a leaver for the days up to and including it. */
+  dtofresign?: string;
 }
 
 export interface HRDashboardStats {

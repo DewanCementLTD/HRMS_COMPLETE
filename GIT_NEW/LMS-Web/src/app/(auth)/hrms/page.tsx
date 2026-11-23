@@ -113,6 +113,7 @@ const EMPTY_FORM: HRMSEmployeeCreate = {
   bldgrp: "",
   location: "",
   transfer_date: "",
+  dtofresign: "",
   // Extended profile fields
   emp_status: "",
   ntn: "",
@@ -200,6 +201,12 @@ const statusOptions = [
  * 'D'/'I' row displayed "Active" and saved as Left the moment anything was
  * saved. Never let the form hold a value the dropdown cannot show.
  */
+/** Today as YYYY-MM-DD in the browser's own time zone. */
+const todayYmd = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
 const toStatusOption = (raw?: string) =>
   String(raw ?? "").trim().toUpperCase() === "L" ||
   ["D", "I"].includes(String(raw ?? "").trim().toUpperCase())
@@ -497,6 +504,9 @@ export default function HRMSPage() {
   // The branch the employee was loaded with. Comparing against it is what tells
   // us HR is transferring them, rather than just re-saving the same record.
   const [originalLocation, setOriginalLocation] = useState<string>("");
+  // Status the record had when loaded: the last working day is required only
+  // when this save is what moves an Active employee to Left.
+  const [originalStatus, setOriginalStatus] = useState<string>("");
   const [resettingPw, setResettingPw] = useState(false);
   const [pwMessage, setPwMessage] = useState<string | null>(null);
 
@@ -569,6 +579,7 @@ export default function HRMSPage() {
     if (populatedFor === e.empcode) return;
     setPopulatedFor(e.empcode);
     setOriginalLocation(e.location != null ? String(e.location) : "");
+    setOriginalStatus(toStatusOption(e.status));
     setForm({
       name: e.name || "",
       fhname: e.fhname || "",
@@ -589,6 +600,7 @@ export default function HRMSPage() {
       // TRANSFER_DATE is a DATE column; an <input type="date"> silently blanks
       // on anything but YYYY-MM-DD, so trim a time component if one comes back.
       transfer_date: String(e.transfer_date || "").slice(0, 10),
+      dtofresign: String(e.dtofresign || "").slice(0, 10),
       status: toStatusOption(e.status),
       user_paswd: e.user_paswd || "",
       hr_admin: e.hr_admin || "N",
@@ -736,6 +748,7 @@ export default function HRMSPage() {
     setForm({ ...EMPTY_FORM });
     setPopulatedFor(null);
     setOriginalLocation("");
+    setOriginalStatus("");
     setPwMessage(null);
     setView("list");
   }
@@ -768,6 +781,7 @@ export default function HRMSPage() {
     setForm({ ...EMPTY_FORM });
     setPopulatedFor(null);
     setOriginalLocation("");
+    setOriginalStatus("");
     ctrl.loadEmployee(empcode).then(() => setView("edit"));
   }
 
@@ -861,6 +875,9 @@ export default function HRMSPage() {
     const movingBranch =
       view === "edit" && !!originalLocation && String(form.location ?? "") !== originalLocation;
     if (movingBranch && !form.transfer_date) return "Transfer Date (the branch has changed)";
+    if (view === "edit" && form.status === "L" && originalStatus === "A" && !form.dtofresign)
+      return "Last Working Day (the employee is being marked Left)";
+    if (form.dtofresign && form.dtofresign > todayYmd()) return "a Last Working Day that is not in the future";
     // Without HOD 1 the employee's leave has no first approver and would sit
     // unapproved forever. Optional only where the tenant config says so (YDC).
     if (uiConfig.hod1_required && !form.hod1) return "HOD 1";
@@ -1866,8 +1883,27 @@ export default function HRMSPage() {
                 label="Status"
                 options={statusOptions}
                 value={form.status || "A"}
-                onChange={(e) => updateField("status", e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  updateField("status", v);
+                  // Marking someone Left starts from "left today"; HR can pick
+                  // the real (earlier) last day. Back to Active clears it.
+                  if (v === "L" && !form.dtofresign) updateField("dtofresign", todayYmd());
+                  if (v === "A") updateField("dtofresign", "");
+                }}
               />
+              {/* Left employees: the salary run pays them for the days up to
+                  and including this date (HR_EMP_MASTER.DTOFRESIGN). */}
+              {isEdit && form.status === "L" && (
+                <Input
+                  label={originalStatus === "A" ? "Last Working Day *" : "Last Working Day"}
+                  type="date"
+                  max={todayYmd()}
+                  value={form.dtofresign || ""}
+                  onChange={(e) => updateField("dtofresign", e.target.value)}
+                  required={originalStatus === "A"}
+                />
+              )}
               {/* Company is not selectable: an employee belongs to the HR user's
                   own company, which comes from the sidebar selection. Shown
                   read-only so it is still visible on the record. */}

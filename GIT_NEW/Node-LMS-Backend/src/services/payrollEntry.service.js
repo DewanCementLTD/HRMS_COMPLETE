@@ -239,15 +239,22 @@ export const listPayrollEmployees = async (compc, period = null) => {
   let connection;
   try {
     connection = await getDirectConnection();
+    // Employees who left inside the period are still paid for the days they
+    // worked (HR_SALARY_PROCES_PRO includes them), so HR must be able to enter
+    // their absent days, allowances and deductions for that last month.
+    const [per] = await resolvePeriodForRead(connection, compc, period);
     const result = await connection.execute(
       `SELECT DISTINCT
               h.EMPCODE, h.NAME, h.BASIC, h.UNIT_ID, h.LOCATION,
-              NVL(h.STATUS, 'A') AS emp_status
+              NVL(h.STATUS, 'A') AS emp_status,
+              TO_CHAR(h.DTOFRESIGN, 'YYYY-MM-DD') AS left_on
          FROM HR_EMP_MASTER h
         WHERE h.UNIT_ID = :u
-          AND UPPER(NVL(h.STATUS, 'A')) IN ('A', 'E')
+          AND (UPPER(NVL(h.STATUS, 'A')) IN ('A', 'E')
+               OR TRUNC(h.DTOFRESIGN) >= (SELECT TRUNC(MAX(p.PERIOD_FRM)) FROM HR_ATTND_PERIOD p
+                                           WHERE p.UNIT_ID = :u AND p."PERIOD#" = :p))
         ORDER BY h.NAME`,
-      { u: toInt(compc) },
+      { u: toInt(compc), p: per },
       { outFormat: OUT_ARRAY }
     );
     return (result.rows ?? []).map((r) => ({
@@ -257,6 +264,7 @@ export const listPayrollEmployees = async (compc, period = null) => {
       compc: toInt(r[3]),
       brnch: t(r[4]),
       status: t(r[5]),
+      left_on: t(r[6]) || null,
     }));
   } finally {
     await connection?.close();

@@ -296,6 +296,9 @@ export interface MonthlyAttendanceRow {
   /** HR_EMP_MASTER.GRADE_CD — printed as "Cadre" on the time sheet. */
   grade: string;
   doj: string;
+  /** Last working day (YYYY-MM-DD) of someone who left inside the range; their
+   *  days stop there instead of reading Absent for the rest of the month. */
+  left_on?: string | null;
   emp_type: string;
   company?: string;
   unit_id?: number | string;

@@ -399,6 +399,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           m.BASIC, m.GROSS, m.SHIFT, m.W_HOUR,
           m.BLDGRP, m.LOCATION,
           TO_CHAR(m.TRANSFER_DATE, 'YYYY-MM-DD') AS TRANSFER_DATE,
+          TO_CHAR(m.DTOFRESIGN, 'YYYY-MM-DD') AS DTOFRESIGN,
           m.TRACK_LOCATION, m.TRACK_LOCATION_HR,
           m.EMP_STATUS, m.NTN, m.BNKCODE, m.BRNCODE, m.BNKACCT,
           m.QFICATION,
@@ -438,6 +439,7 @@ export const getEmployeeByEmpcode = async (empcode) => {
           BASIC, GROSS, SHIFT, W_HOUR,
           BLDGRP, LOCATION,
           TO_CHAR(TRANSFER_DATE, 'YYYY-MM-DD') AS TRANSFER_DATE,
+          TO_CHAR(DTOFRESIGN, 'YYYY-MM-DD') AS DTOFRESIGN,
           TRACK_LOCATION, TRACK_LOCATION_HR
       FROM HR_EMP_MASTER
       WHERE EMPCODE = :empcode`;
@@ -715,6 +717,28 @@ export const updateEmployee = async (empcode, input) => {
       if (!("dtofresign" in data)) data = { ...data, dtofresign: null };
       if (!("resg_dt" in data)) data = { ...data, resg_dt: null };
     }
+
+    // Left: a blank last working day is "not supplied", never "clear it" — the
+    // salary run pays a leaver up to that date, so wiping it would drop their
+    // last month. (Defaulted to today below when this save is the move to Left.)
+    if (data.status === EMPLOYEE_STATUS.LEFT && "dtofresign" in data && !strOrNone(data.dtofresign)) {
+      const { dtofresign: _blank, ...rest } = data;
+      data = rest;
+    }
+  }
+
+  // The last working day is today or earlier: marking someone Left takes
+  // effect at once, so a future date would only misstate when they left.
+  const resignDate = "dtofresign" in data ? strOrNone(data.dtofresign) : null;
+  if (resignDate) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(resignDate)) {
+      return { status: "error", message: "Last working day must be a date (YYYY-MM-DD)" };
+    }
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    if (resignDate > today) {
+      return { status: "error", message: "Last working day cannot be in the future" };
+    }
   }
 
   for (const [key, col] of Object.entries(UPDATE_FIELD_MAP)) {
@@ -773,6 +797,20 @@ export const updateEmployee = async (empcode, input) => {
   // start from the confirmation date, else today.
   if (params.pf_ind === "Y" && !params.pf_mem_dt) {
     setParts.push("PF_MEM_DT = NVL(PF_MEM_DT, NVL(DTOFCONFIRM, TRUNC(SYSDATE)))");
+  }
+
+  // Moving an Active employee to Left without a last working day means "left
+  // today". Only on that move (the CASE reads the row's status before this
+  // UPDATE): re-saving an old Left record must never stamp today's date, or the
+  // next salary run would pay them for this month. RESG_DT, the date HR
+  // recorded the resignation, is filled the same way when empty.
+  if (data.status === EMPLOYEE_STATUS.LEFT) {
+    if (!("dtofresign" in data)) {
+      setParts.push("DTOFRESIGN = CASE WHEN NVL(STATUS, 'A') = 'A' THEN NVL(DTOFRESIGN, TRUNC(SYSDATE)) ELSE DTOFRESIGN END");
+    }
+    if (!("resg_dt" in data)) {
+      setParts.push("RESG_DT = CASE WHEN NVL(STATUS, 'A') = 'A' THEN NVL(RESG_DT, TRUNC(SYSDATE)) ELSE RESG_DT END");
+    }
   }
 
   const hasQual =

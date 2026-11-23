@@ -119,6 +119,10 @@ export const dmy = (ymd?: string | number | null) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd ?? ""));
   return m ? `${m[3]}-${MON[Number(m[2]) - 1]}-${m[1].slice(2)}` : "";
 };
+/** Name as printed, with "(Left 18-Aug-26)" for someone who left in the range. */
+const nameOf = (r: MonthlyAttendanceRow) =>
+  r.left_on ? `${r.employee_name} (Left ${dmy(r.left_on)})` : r.employee_name;
+
 const dayName = (ymd: string) => {
   const [y, m, d] = ymd.split("-").map(Number);
   return DAY_LONG[new Date(y, m - 1, d).getDay()] ?? "";
@@ -174,7 +178,7 @@ export function downloadAttCsv(type: AttFormat, data: MonthlyAttendanceReport, c
       ...days.map((d) => d.date.slice(8, 10)), ...summary,
     ],
     rows: rows.map((r, i) => [
-      String(i + 1), ...(multi ? [r.company ?? ""] : []), r.branch, r.department, r.code, r.card_no, r.employee_name, r.designation,
+      String(i + 1), ...(multi ? [r.company ?? ""] : []), r.branch, r.department, r.code, r.card_no, nameOf(r), r.designation,
       ...days.map((d) => cell(r, d.date)),
       ...(summary.length === 2 ? [String(r.ded_days), String(r.e_days)]
         : summary[0] === "Late" ? [String(r.pl_days)] : [String(dedOf(type, r))]),
@@ -214,7 +218,14 @@ export function AttScreenRow({ type, columns, row: r, idx, stickyId }: {
       <td className={`${STD} font-mono`}>{idx + 1}</td>
       <td className={`${STD} font-mono text-gray-700`}>{r.code}</td>
       <td className={`${STD} font-mono font-bold text-gray-900 ${stickyId}`}>{r.card_no}</td>
-      <td className={`${STD} font-medium text-gray-900`}>{r.employee_name}</td>
+      <td className={`${STD} font-medium text-gray-900`}>
+        {r.employee_name}
+        {r.left_on && (
+          <span className="ml-1.5 rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 whitespace-nowrap">
+            Left {dmy(r.left_on)}
+          </span>
+        )}
+      </td>
       <td className={`${STD} text-gray-600`}>{r.designation}</td>
       <td className={`${STD} text-gray-600`}>{r.department}</td>
       {columns.map((d) => {
@@ -385,7 +396,7 @@ function GridSheet({ type, data, companyName, compc }: {
                       <td className={`${PTD} text-center`}>{i + 1}</td>
                       <td className={`${PTD} text-center`}>{r.code}</td>
                       <td className={`${PTD} text-center`}>{r.card_no}</td>
-                      <td className={`${PTD} px-0.5 uppercase`}>{r.employee_name}</td>
+                      <td className={`${PTD} px-0.5 uppercase`}>{nameOf(r)}</td>
                       <td className={`${PTD} px-0.5 uppercase`}>{r.designation}</td>
                       {days.map((d) => {
                         const code = cellCode(type, r.days?.[d.date]);
@@ -463,7 +474,7 @@ function LateTimesSheet({ data, companyName, compc }: { data: MonthlyAttendanceR
                       <td className={`${PTD} text-center`}>{i + 1}</td>
                       <td className={`${PTD} text-center`}>{r.code}</td>
                       <td className={`${PTD} text-center`}>{r.card_no}</td>
-                      <td className={`${PTD} px-0.5 text-center uppercase`}>{r.employee_name}</td>
+                      <td className={`${PTD} px-0.5 text-center uppercase`}>{nameOf(r)}</td>
                       <td className={`${PTD} px-0.5 text-center uppercase`}>{r.designation}</td>
                       {days.map((d) => {
                         const c = r.days?.[d.date];
@@ -522,7 +533,7 @@ function LateArrivalSheet({ data, companyName }: { data: MonthlyAttendanceReport
             <tr key={`${r.unit_id ?? ""}-${r.code}-${i}`}>
               <td className={`${PTD} text-center`}>{i + 1}</td>
               <td className={`${PTD} text-center font-bold`}>{r.card_no || r.code}</td>
-              <td className={`${PTD} px-1 font-bold uppercase`}>{r.employee_name}</td>
+              <td className={`${PTD} px-1 font-bold uppercase`}>{nameOf(r)}</td>
               <td className={`${PTD} px-1 font-bold uppercase text-[7px]`}>{r.department}</td>
               {cols.map((d) => {
                 const c = r.days?.[d.date];
@@ -555,7 +566,7 @@ function TimeSheetSheet({ data, companyName }: { data: MonthlyAttendanceReport; 
           </div>
           <div className="h-[6px] border border-black bg-gray-300 mt-1 mb-3" />
           <div className="border border-black rounded-[18px] px-8 py-2 mb-4 grid grid-cols-2 gap-x-8 text-[11px] font-bold leading-[1.9]">
-            <div>Name :&nbsp; {r.employee_name.toUpperCase()}</div>
+            <div>Name :&nbsp; {nameOf(r).toUpperCase()}</div>
             <div>Card No :&nbsp; {r.code}</div>
             <div>EMP # :&nbsp; {r.card_no}</div>
             <div>Cadre :&nbsp; {r.grade}</div>

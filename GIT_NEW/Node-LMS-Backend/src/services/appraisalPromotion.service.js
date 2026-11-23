@@ -94,7 +94,7 @@ export const createPromotionCase = async (c, head, actor) => {
   // Sheet 3 starts from the employee's last three completed appraisals (score out of 5 → %).
   const hist = await c.execute(
     `SELECT y.NAME, y.FY_YEAR, h.FINAL_SCORE, h.FINAL_RATING
-       FROM HR_PERFORMANCE_HISTORY h JOIN HR_APPRAISAL_CYCLE y ON y.CYCLE_ID = h.CYCLE_ID
+       FROM HR_PERFORMANCE_HISTORY h JOIN HR_APPRAISAL_CYCLE y ON y.CYCLE_ID = h.CYCLE_ID AND y.COMPC = h.COMPC
       WHERE h.EMPCODE = :e ORDER BY h.PERIOD_TO DESC FETCH FIRST 3 ROWS ONLY`,
     { e: head.empcode }, { outFormat: OUT_ARRAY },
   );
@@ -141,7 +141,7 @@ const CASE_SELECT = `
          a.FINAL_RATING, a.FINAL_SCORE, y.NAME, m.EMPNO
     FROM HR_PROMOTION_CASE p
     JOIN HR_APPRAISAL_MASTER a ON a.APPRAISAL_ID = p.APPRAISAL_ID
-    JOIN HR_APPRAISAL_CYCLE y ON y.CYCLE_ID = a.CYCLE_ID
+    JOIN HR_APPRAISAL_CYCLE y ON y.CYCLE_ID = a.CYCLE_ID AND y.COMPC = a.COMPC
     LEFT JOIN HR_EMP_MASTER m ON m.EMPCODE = p.EMPCODE`;
 
 const rowToCase = (x) => {

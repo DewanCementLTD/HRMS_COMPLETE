@@ -18,11 +18,11 @@ import { SHEET_RULES } from "./appraisalRules.js";
 const CYCLE_SELECT = `
   SELECT y.CYCLE_ID, y.NAME, y.CYCLE_TYPE, y.FY_YEAR, y.PERIOD_FROM, y.PERIOD_TO, y.GOAL_DEADLINE,
          y.SELF_DEADLINE, y.REVIEW_DEADLINE, y.STATUS, y.REMARKS, y.PHASE,
-         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.STAGE <> 'CANCELLED'),
-         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.STAGE = 'COMPLETED'),
-         (SELECT COUNT(*) FROM HR_GOAL_MASTER g WHERE g.CYCLE_ID = y.CYCLE_ID),
-         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.STAGE IN ('OBJ_SETTING','OBJ_REVIEW')),
-         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.STAGE IN ('MIDYEAR','MID_REVIEW'))
+         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.COMPC = y.COMPC AND a.STAGE <> 'CANCELLED'),
+         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.COMPC = y.COMPC AND a.STAGE = 'COMPLETED'),
+         (SELECT COUNT(*) FROM HR_GOAL_MASTER g WHERE g.CYCLE_ID = y.CYCLE_ID AND g.COMPC = y.COMPC),
+         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.COMPC = y.COMPC AND a.STAGE IN ('OBJ_SETTING','OBJ_REVIEW')),
+         (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = y.CYCLE_ID AND a.COMPC = y.COMPC AND a.STAGE IN ('MIDYEAR','MID_REVIEW'))
     FROM HR_APPRAISAL_CYCLE y`;
 
 export const rowToCycle = (x) => ({
@@ -46,7 +46,7 @@ export const loadCycle = async (c, compc, cycleId) => {
 
 export const getCycle = (compc, cycleId) => read(async (c) => {
   const cycle = await loadCycle(c, compc, cycleId);
-  return { ...cycle, goals: await listCycleGoalsC(c, cycleId) };
+  return { ...cycle, goals: await listCycleGoalsC(c, compc, cycleId) };
 });
 
 export const saveCycle = (compc, actor, id, body) => withTx(async (c) => {
@@ -85,9 +85,9 @@ export const saveCycle = (compc, actor, id, body) => withTx(async (c) => {
 /** Delete a cycle that was never launched. */
 export const deleteCycle = (compc, actor, id) => withTx(async (c) => {
   const cur = await loadCycle(c, compc, id);
-  const used = await c.execute(`SELECT COUNT(*) FROM HR_APPRAISAL_MASTER WHERE CYCLE_ID = :id`, { id }, { outFormat: OUT_ARRAY });
+  const used = await c.execute(`SELECT COUNT(*) FROM HR_APPRAISAL_MASTER WHERE CYCLE_ID = :id AND COMPC = :compc`, { id, compc }, { outFormat: OUT_ARRAY });
   if (num(used.rows[0][0]) > 0) throw new AppraisalError("This cycle already has appraisals — close it instead", 409);
-  await c.execute(`DELETE FROM HR_GOAL_MASTER WHERE CYCLE_ID = :id`, { id });
+  await c.execute(`DELETE FROM HR_GOAL_MASTER WHERE CYCLE_ID = :id AND COMPC = :compc`, { id, compc });
   await c.execute(`DELETE FROM HR_APPRAISAL_CYCLE WHERE CYCLE_ID = :id AND COMPC = :compc`, { id, compc });
   await writeLog(c, { compc, entity: "CYCLE", entityId: id, action: "DELETE", details: { name: cur.name }, actor });
   return { deleted: true };
@@ -102,8 +102,8 @@ export const setCycleStatus = (compc, actor, id, status) => withTx(async (c) => 
   const allowed = { DRAFT: ["ACTIVE"], ACTIVE: ["CLOSED"], CLOSED: ["ACTIVE"] };
   if (!allowed[cur.status]?.includes(status)) throw new AppraisalError(`A ${cur.status.toLowerCase()} cycle cannot be set to ${status.toLowerCase()}`);
   await c.execute(
-    `UPDATE HR_APPRAISAL_CYCLE SET STATUS = :st, UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id`,
-    { st: status, actor, id },
+    `UPDATE HR_APPRAISAL_CYCLE SET STATUS = :st, UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id AND COMPC = :compc`,
+    { st: status, actor, id, compc },
   );
   await writeLog(c, { compc, entity: "CYCLE", entityId: id, action: `STATUS_${status}`, details: { from: cur.status }, actor });
   return { cycle_id: id, status };
@@ -120,8 +120,8 @@ export const setCyclePhase = (compc, actor, id, phase) => withTx(async (c) => {
   const order = ["OBJECTIVES", "MIDYEAR", "YEAREND"];
   if (order.indexOf(phase) < order.indexOf(cur.phase) - 1) throw new AppraisalError("Phases can only go back one step at a time");
   await c.execute(
-    `UPDATE HR_APPRAISAL_CYCLE SET PHASE = :ph, UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id`,
-    { ph: phase, actor, id },
+    `UPDATE HR_APPRAISAL_CYCLE SET PHASE = :ph, UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id AND COMPC = :compc`,
+    { ph: phase, actor, id, compc },
   );
   await writeLog(c, { compc, entity: "CYCLE", entityId: id, action: `PHASE_${phase}`, details: { from: cur.phase }, actor });
   return { cycle_id: id, phase, objectives_open: cur.objectives_open, midyear_open: cur.midyear_open };
@@ -131,13 +131,13 @@ export const setCyclePhase = (compc, actor, id, phase) => withTx(async (c) => {
 // Corporate / department accountabilities of a cycle
 // ---------------------------------------------------------------------------
 
-const listCycleGoalsC = async (c, cycleId) => {
+const listCycleGoalsC = async (c, compc, cycleId) => {
   const r = await c.execute(
     `SELECT g.GOAL_ID, g.LEVEL_TYPE, g.DEPT_NO,
             (SELECT MAX(d.DEPT_NAME) FROM HR_DEPT d WHERE LTRIM(TO_CHAR(d.DEPT_NO),'0') = LTRIM(g.DEPT_NO,'0') AND d.COMPC = g.COMPC),
             g.OBJECTIVE, g.KPI_TEXT, g.TARGET, g.WEIGHTAGE
-       FROM HR_GOAL_MASTER g WHERE g.CYCLE_ID = :id ORDER BY g.LEVEL_TYPE, g.DEPT_NO NULLS FIRST, g.GOAL_ID`,
-    { id: cycleId }, { outFormat: OUT_ARRAY },
+       FROM HR_GOAL_MASTER g WHERE g.CYCLE_ID = :id AND g.COMPC = :compc ORDER BY g.LEVEL_TYPE, g.DEPT_NO NULLS FIRST, g.GOAL_ID`,
+    { id: cycleId, compc }, { outFormat: OUT_ARRAY },
   );
   return (r.rows ?? []).map((x) => ({
     goal_id: num(x[0]), level_type: s(x[1]), dept_no: s(x[2]) || null, dept_name: s(x[3]),
@@ -160,8 +160,8 @@ export const saveCycleGoal = (compc, actor, cycleId, goalId, body) => withTx(asy
     const r = await c.execute(
       `UPDATE HR_GOAL_MASTER SET LEVEL_TYPE = :lvl, DEPT_NO = :dept, OBJECTIVE = :obj, KPI_TEXT = :kpi, TARGET = :tgt,
               WEIGHTAGE = :w, UPDATED_BY = :actor, UPDATED_AT = SYSDATE
-        WHERE GOAL_ID = :gid AND CYCLE_ID = :cid`,
-      { ...b, gid: goalId, cid: cycleId },
+        WHERE GOAL_ID = :gid AND CYCLE_ID = :cid AND COMPC = :compc`,
+      { ...b, gid: goalId, cid: cycleId, compc },
     );
     if (!r.rowsAffected) throw new AppraisalError("Goal not found", 404);
     return { goal_id: goalId, note: cycle.appraisal_count ? "Already launched appraisals keep their copy of this goal" : undefined };
@@ -179,7 +179,7 @@ export const deleteCycleGoal = (compc, cycleId, goalId) => withTx(async (c) => {
   await loadCycle(c, compc, cycleId);
   const used = await c.execute(`SELECT COUNT(*) FROM HR_EMPLOYEE_GOAL WHERE GOAL_ID = :g`, { g: goalId }, { outFormat: OUT_ARRAY });
   if (num(used.rows[0][0]) > 0) throw new AppraisalError("This goal has been copied into launched appraisals and cannot be deleted", 409);
-  const r = await c.execute(`DELETE FROM HR_GOAL_MASTER WHERE GOAL_ID = :g AND CYCLE_ID = :cid`, { g: goalId, cid: cycleId });
+  const r = await c.execute(`DELETE FROM HR_GOAL_MASTER WHERE GOAL_ID = :g AND CYCLE_ID = :cid AND COMPC = :compc`, { g: goalId, cid: cycleId, compc });
   if (!r.rowsAffected) throw new AppraisalError("Goal not found", 404);
   return { deleted: true };
 });
@@ -220,7 +220,7 @@ const candidates = async (c, compc, cycle, f) => {
             (SELECT MAX(TO_CHAR(e.HOD1)) FROM EMPLOYEE e WHERE e.EMPCODE = m.EMPCODE),
             (SELECT MAX(TO_CHAR(e.HOD2)) FROM EMPLOYEE e WHERE e.EMPCODE = m.EMPCODE),
             ${EMP_DEPT_SQL},
-            (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = :cid AND a.EMPCODE = m.EMPCODE)
+            (SELECT COUNT(*) FROM HR_APPRAISAL_MASTER a WHERE a.CYCLE_ID = :cid AND a.COMPC = m.UNIT_ID AND a.EMPCODE = m.EMPCODE)
        FROM HR_EMP_MASTER m
       WHERE m.UNIT_ID = :compc AND NVL(m.STATUS,'A') = 'A'${where}
       ORDER BY UPPER(m.NAME)`,
@@ -269,7 +269,7 @@ export const previewLaunch = (compc, cycleId, filters) => read(async (c) => {
 export const launchCycle = (compc, actor, cycleId, filters) => withTx(async (c) => {
   const cycle = await loadCycle(c, compc, cycleId);
   if (cycle.status === "CLOSED") throw new AppraisalError("This cycle is closed");
-  const goals = await listCycleGoalsC(c, cycleId);
+  const goals = await listCycleGoalsC(c, compc, cycleId);
   const emps = await candidates(c, compc, cycle, filters);
   if (!emps.length) throw new AppraisalError("No active employees match these filters");
 
@@ -310,7 +310,7 @@ export const launchCycle = (compc, actor, cycleId, filters) => withTx(async (c) 
     created++;
   }
   if (cycle.status === "DRAFT" && created) {
-    await c.execute(`UPDATE HR_APPRAISAL_CYCLE SET STATUS = 'ACTIVE', UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id`, { actor, id: cycleId });
+    await c.execute(`UPDATE HR_APPRAISAL_CYCLE SET STATUS = 'ACTIVE', UPDATED_BY = :actor, UPDATED_AT = SYSDATE WHERE CYCLE_ID = :id AND COMPC = :compc`, { actor, id: cycleId, compc });
   }
   await writeLog(c, { compc, entity: "CYCLE", entityId: cycleId, action: "LAUNCH", details: { created, skipped: skipped.length }, actor });
   return { created, skipped };
