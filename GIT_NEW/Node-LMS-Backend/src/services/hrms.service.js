@@ -934,7 +934,7 @@ const EMP_LIST_SELECT = `
   SELECT
       h.EMPCODE, h.NAME, h.FHNAME, h."ATDTCARD#",
       h.DEPT_NAME , h.DESG_DESC, h."MOBILE#", h.EMAIL,
-      substr(h.STATUS,1,1) h.HR_ADMIN, h.UNIT_ID,
+      substr(h.STATUS,1,1), h.HR_ADMIN, h.UNIT_ID,
       TO_CHAR(h.old_empcode) AS CARD_NO,
       h.SEX, h.LOCATION,
       h.TRACK_LOCATION, h.TRACK_LOCATION_HR
