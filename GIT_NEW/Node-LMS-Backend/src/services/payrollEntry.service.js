@@ -291,7 +291,7 @@ const loanOutstanding = async (connection, doc) => {
   const amt = Number(r[1] || 0);
   const rec = Number(r[2] || 0);
   const manualRes = await connection.execute(
-    `SELECT NVL(SUM(RECOVERD_AMT),0) FROM HR_LOAN_RECOVERY WHERE "DOC#" = :d`,
+    `SELECT NVL(SUM(RECOVERD_AMT),0) FROM HR_LOAN_RECOVERY WHERE "DOC#" = :d and UNIT_ID = :u`,
     { d: toInt(doc) },
     { outFormat: OUT_ARRAY }
   );
@@ -306,7 +306,7 @@ export const listRecoverableLoans = async (compc, brnch = null) => {
     const result = await connection.execute(
       `SELECT l."DOC#", l.OLD_EMPCODE, t.LOAN_DESC, l.LOAN_CD,
               NVL(l.LOAN_AMT,0), NVL(l.LOAN_RECOVER,0),
-              NVL((SELECT SUM(rc.RECOVERD_AMT) FROM HR_LOAN_RECOVERY rc WHERE rc."DOC#" = l."DOC#"),0),
+              NVL((SELECT SUM(rc.RECOVERD_AMT) FROM HR_LOAN_RECOVERY rc WHERE rc."DOC#" = l."DOC#" and rc.unit_id = l.unit_id ),0),
               ${empCols("l")},
               (SELECT MAX(e.LOCATION) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = l.OLD_EMPCODE OR e.EMPCODE = l.OLD_EMPCODE)
        FROM HR_LOAN_MST l
@@ -352,7 +352,7 @@ export const listLoanRecoveries = async (compc, doc = null, brnch = null) => {
               NVL(l.LOAN_AMT,0),
               (SELECT t.LOAN_DESC FROM HR_LOAN_TYPE t WHERE t.LOAN_CD = l.LOAN_CD)
        FROM HR_LOAN_RECOVERY rc
-       LEFT JOIN HR_LOAN_MST l ON l."DOC#" = rc."DOC#"
+       LEFT JOIN HR_LOAN_MST l ON l."DOC#" = rc."DOC#" and l.unit_id = rc.unit_id 
        WHERE ${conds.join(" AND ")}
        ORDER BY rc."DOC#" DESC, rc.USR_DATE_UPD DESC`,
       params,
