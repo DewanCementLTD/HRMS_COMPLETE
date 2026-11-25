@@ -162,7 +162,7 @@ export const listReportingOfficers = async (req, res, next) => {
 
 export const listLocations = async (req, res, next) => {
   try {
-    const { admin_card_no, compc, brnch } = res.locals.validated.query;
+    const { admin_card_no, compc, brnch, with_usage } = res.locals.validated.query;
     let allowedBranches = null;
     if (admin_card_no) {
       const { finalBranches } = await resolveFilterLists(admin_card_no, compc, brnch);

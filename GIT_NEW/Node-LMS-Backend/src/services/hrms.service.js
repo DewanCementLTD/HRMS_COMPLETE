@@ -933,12 +933,12 @@ export const resetEmployeePassword = async (empcode, password) => {
 const EMP_LIST_SELECT = `
   SELECT
       h.EMPCODE, h.NAME, h.FHNAME, h."ATDTCARD#",
-      h.DEPT_NO, h.DESG_CD, h."MOBILE#", h.EMAIL,
+      h.DEPT_NAME , h.DESG_DESC, h."MOBILE#", h.EMAIL,
       h.STATUS, h.HR_ADMIN, h.UNIT_ID,
       TO_CHAR(h.old_empcode) AS CARD_NO,
       h.SEX, h.LOCATION,
       h.TRACK_LOCATION, h.TRACK_LOCATION_HR
-  FROM HR_EMP_MASTER h`;
+  FROM HR_EMP_MASTER_view h`;
 
 export const searchEmployeesHrms = async (query, allowedCompanies = null, allowedBranches = null) => {
   let connection;
