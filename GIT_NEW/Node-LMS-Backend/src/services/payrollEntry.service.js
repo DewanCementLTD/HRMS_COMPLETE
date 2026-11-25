@@ -341,17 +341,25 @@ export const listLoanRecoveries = async (compc, doc = null, brnch = null) => {
     const params = { u: toInt(compc) };
     if (doc !== null && doc !== undefined) { conds.push('rc."DOC#" = :d'); params.d = toInt(doc); }
     const result = await connection.execute(
-      `SELECT rc.ROWID, rc."DOC#", rc."PERIOD#", NVL(rc.RECOVERD_AMT,0), rc.RECOVERY_TYPE,
-              NVL(rc.BALANCE_AMT,0), rc.REMARKS, rc.OLD_EMPCODE,
-              ${empCols("rc")},
-              (SELECT MAX(e.LOCATION) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = rc.OLD_EMPCODE OR e.EMPCODE = rc.OLD_EMPCODE),
-              NVL(l.LOAN_AMT,0),
-              (SELECT t.LOAN_DESC FROM HR_LOAN_TYPE t WHERE t.LOAN_CD = l.LOAN_CD)
-       FROM HR_LOAN_RECOVERY rc
-       LEFT JOIN HR_LOAN_MST l ON l."DOC#" = rc."DOC#" and l.unit_id = rc.unit_id 
-       WHERE ${conds.join(" AND ")}
-       ORDER BY rc."DOC#" DESC, rc.USR_DATE_UPD DESC`,
-      params,
+      `SSELECT a.ROWID,
+       a."DOC#",
+       a."PERIOD#",
+       NVL(a.RECOVERD_AMT, 0),
+       a.RECOVERY_TYPE,
+       NVL(a.BALANCE_AMT, 0),
+       a.REMARKS,
+       b.OLD_EMPCODE,
+       c.NAME,c.DEPT_NAME,c.DESG_DESC,
+       NVL(b.LOAN_AMT, 0),
+       (SELECT t.LOAN_DESC FROM HR_LOAN_TYPE t WHERE t.LOAN_CD = b.LOAN_CD)
+  FROM HR_LOAN_RECOVERY a, hr_loan_mst b, hr_emp_master_view c
+ where a.doc# = b.doc#
+   and a.unit_id = b.unit_id
+   and b.old_empcode = c.OLD_EMPCODE
+   and b.unit_id = c.UNIT_ID
+   and b.unit_id = :u
+   order by a.doc# desc ,unit_id `,
+     
       { outFormat: OUT_ARRAY }
     );
     const b = toStr(brnch);
