@@ -66,14 +66,10 @@ const label = (frm) => {
 // matching the fixes used elsewhere (leading-zero codes; department scoped per
 // company). Mirrors _EMP_COLS.format(alias=...).
 const empCols = (alias) => `
-    (SELECT MAX(e.NAME) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = ${alias}.OLD_EMPCODE OR e.EMPCODE = ${alias}.OLD_EMPCODE),
-    (SELECT MAX(e.EMPCODE) FROM HR_EMP_MASTER e WHERE e.OLD_EMPCODE = ${alias}.OLD_EMPCODE OR e.EMPCODE = ${alias}.OLD_EMPCODE),
-    (SELECT MIN(dg.DESG_DESC) FROM HR_EMP_MASTER e JOIN HR_DESG dg
-            ON LTRIM(dg.DESG_CD,'0')=LTRIM(e.DESG_CD,'0') AND TO_CHAR(dg.COMPC)=TO_CHAR(e.UNIT_ID)
-       WHERE e.OLD_EMPCODE = ${alias}.OLD_EMPCODE OR e.EMPCODE = ${alias}.OLD_EMPCODE),
-    (SELECT MIN(d.DEPT_NAME) FROM HR_EMP_MASTER e JOIN HR_DEPT d
-            ON LTRIM(d.DEPT_NO,'0')=LTRIM(e.DEPT_NO,'0') AND TO_CHAR(d.COMPC)=TO_CHAR(e.UNIT_ID)
-       WHERE e.OLD_EMPCODE = ${alias}.OLD_EMPCODE OR e.EMPCODE = ${alias}.OLD_EMPCODE)
+    select a.NAME,a.EMPCODE,a.DESG_DESC,a.DEPT_NAME 
+from hr_emp_master_view a 
+where a.OLD_EMPCODE = ${alias}.OLD_EMPCODE 
+and a.UNIT_ID = ${alias}.unit_id 
 `;
 
 // Value stored in *.OLD_EMPCODE for an employee — prefer their OLD_EMPCODE,
@@ -281,7 +277,7 @@ export const recoveryTypes = () => RECOVERY_TYPES.map((r) => ({ ...r }));
 // loan_amt - LOAN_RECOVER - sum(manual recoveries already recorded).
 const loanOutstanding = async (connection, doc) => {
   const loanRes = await connection.execute(
-    `SELECT OLD_EMPCODE, NVL(LOAN_AMT,0), NVL(LOAN_RECOVER,0) FROM HR_LOAN_MST WHERE "DOC#" = :d`,
+    `SELECT OLD_EMPCODE, NVL(LOAN_AMT,0), NVL(LOAN_RECOVER,0) FROM HR_LOAN_MST WHERE "DOC#" = :d and unit_id = :u`,
     { d: toInt(doc) },
     { outFormat: OUT_ARRAY }
   );
