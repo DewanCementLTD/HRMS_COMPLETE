@@ -983,10 +983,10 @@ export const listEmployeesHrms = async (status = null, allowedCompanies = null, 
     if (status === "L" || status === "I") {
       const ph = LEFT_CODES.map((_, i) => `:st${i}`).join(", ");
       LEFT_CODES.forEach((code, i) => { params[`st${i}`] = code; });
-      sql = EMP_LIST_SELECT + ` WHERE h.STATUS IN (${ph})${filterSql} ORDER BY h.NAME`;
+      sql = EMP_LIST_SELECT + ` WHERE substr(h.STATUS,1,1) IN (${ph})${filterSql} ORDER BY h.NAME`;
     } else if (status === "A") {
       // A missing status has always been read as active by the dashboards.
-      sql = EMP_LIST_SELECT + ` WHERE (h.STATUS = 'A' OR h.STATUS IS NULL)${filterSql} ORDER BY h.NAME`;
+      sql = EMP_LIST_SELECT + ` WHERE (substr(h.STATUS,1,1) = 'A' OR substr(h.STATUS,1,1) IS NULL)${filterSql} ORDER BY h.NAME`;
     } else if (parts.length) {
       sql = EMP_LIST_SELECT + ` WHERE ${parts.join(" AND ")} ORDER BY h.NAME`;
     } else {
