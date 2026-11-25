@@ -65,11 +65,18 @@ const label = (frm) => {
 // Reusable employee-info subselects (name / empcode / designation / department),
 // matching the fixes used elsewhere (leading-zero codes; department scoped per
 // company). Mirrors _EMP_COLS.format(alias=...).
+// Four scalar subqueries (NAME, EMPCODE, DESG_DESC, DEPT_NAME), matched on
+// OLD_EMPCODE + UNIT_ID so a code that exists in two companies never mixes them.
+// HR_EMP_MASTER_VIEW has no EMPCODE column, so that one comes from HR_EMP_MASTER.
 const empCols = (alias) => `
-    select a.NAME,a.EMPCODE,a.DESG_DESC,a.DEPT_NAME 
-from hr_emp_master_view a 
-where a.OLD_EMPCODE = ${alias}.OLD_EMPCODE 
-and a.UNIT_ID = ${alias}.unit_id 
+    (SELECT MAX(v.NAME) FROM HR_EMP_MASTER_VIEW v
+      WHERE v.OLD_EMPCODE = ${alias}.OLD_EMPCODE AND v.UNIT_ID = ${alias}.UNIT_ID),
+    (SELECT MAX(e.EMPCODE) FROM HR_EMP_MASTER e
+      WHERE e.OLD_EMPCODE = ${alias}.OLD_EMPCODE AND e.UNIT_ID = ${alias}.UNIT_ID),
+    (SELECT MAX(v.DESG_DESC) FROM HR_EMP_MASTER_VIEW v
+      WHERE v.OLD_EMPCODE = ${alias}.OLD_EMPCODE AND v.UNIT_ID = ${alias}.UNIT_ID),
+    (SELECT MAX(v.DEPT_NAME) FROM HR_EMP_MASTER_VIEW v
+      WHERE v.OLD_EMPCODE = ${alias}.OLD_EMPCODE AND v.UNIT_ID = ${alias}.UNIT_ID)
 `;
 
 // Value stored in *.OLD_EMPCODE for an employee — prefer their OLD_EMPCODE,
@@ -275,10 +282,10 @@ export const recoveryTypes = () => RECOVERY_TYPES.map((r) => ({ ...r }));
 
 // Return [old_empcode, loan_amt, outstanding] for a loan, where outstanding =
 // loan_amt - LOAN_RECOVER - sum(manual recoveries already recorded).
-const loanOutstanding = async (connection, doc) => {
+const loanOutstanding = async (connection, doc, unit) => {
   const loanRes = await connection.execute(
     `SELECT OLD_EMPCODE, NVL(LOAN_AMT,0), NVL(LOAN_RECOVER,0) FROM HR_LOAN_MST WHERE "DOC#" = :d and unit_id = :u`,
-    { d: toInt(doc) },
+    { d: toInt(doc), u: toInt(unit) },
     { outFormat: OUT_ARRAY }
   );
   const r = loanRes.rows?.[0];
@@ -288,7 +295,7 @@ const loanOutstanding = async (connection, doc) => {
   const rec = Number(r[2] || 0);
   const manualRes = await connection.execute(
     `SELECT NVL(SUM(RECOVERD_AMT),0) FROM HR_LOAN_RECOVERY WHERE "DOC#" = :d and UNIT_ID = :u`,
-    { d: toInt(doc) },
+    { d: toInt(doc), u: toInt(unit) },
     { outFormat: OUT_ARRAY }
   );
   const manual = Number(manualRes.rows?.[0]?.[0] || 0);
@@ -341,25 +348,23 @@ export const listLoanRecoveries = async (compc, doc = null, brnch = null) => {
     const params = { u: toInt(compc) };
     if (doc !== null && doc !== undefined) { conds.push('rc."DOC#" = :d'); params.d = toInt(doc); }
     const result = await connection.execute(
-      `SSELECT a.ROWID,
-       a."DOC#",
-       a."PERIOD#",
-       NVL(a.RECOVERD_AMT, 0),
-       a.RECOVERY_TYPE,
-       NVL(a.BALANCE_AMT, 0),
-       a.REMARKS,
-       b.OLD_EMPCODE,
-       c.NAME,c.DEPT_NAME,c.DESG_DESC,
-       NVL(b.LOAN_AMT, 0),
-       (SELECT t.LOAN_DESC FROM HR_LOAN_TYPE t WHERE t.LOAN_CD = b.LOAN_CD)
-  FROM HR_LOAN_RECOVERY a, hr_loan_mst b, hr_emp_master_view c
- where a.doc# = b.doc#
-   and a.unit_id = b.unit_id
-   and b.old_empcode = c.OLD_EMPCODE
-   and b.unit_id = c.UNIT_ID
-   and b.unit_id = :u
-   order by a.doc# desc ,unit_id `,
-     
+      // Salary-process recoveries (type '1') leave HR_LOAN_RECOVERY.OLD_EMPCODE
+      // empty, so the employee comes from the loan (falling back to the row).
+      `SELECT x.RID, x."DOC#", x."PERIOD#", NVL(x.RECOVERD_AMT,0), x.RECOVERY_TYPE,
+              NVL(x.BALANCE_AMT,0), x.REMARKS, x.OLD_EMPCODE,
+              ${empCols("x")},
+              (SELECT MAX(v.LOCATION) FROM HR_EMP_MASTER_VIEW v
+                WHERE v.OLD_EMPCODE = x.OLD_EMPCODE AND v.UNIT_ID = x.UNIT_ID),
+              NVL(x.LOAN_AMT,0),
+              (SELECT t.LOAN_DESC FROM HR_LOAN_TYPE t WHERE t.LOAN_CD = x.LOAN_CD)
+       FROM (SELECT rc.ROWID RID, rc."DOC#", rc."PERIOD#", rc.RECOVERD_AMT, rc.RECOVERY_TYPE,
+                    rc.BALANCE_AMT, rc.REMARKS, rc.USR_DATE_UPD, rc.UNIT_ID,
+                    NVL(l.OLD_EMPCODE, rc.OLD_EMPCODE) OLD_EMPCODE, l.LOAN_AMT, l.LOAN_CD
+               FROM HR_LOAN_RECOVERY rc
+               LEFT JOIN HR_LOAN_MST l ON l."DOC#" = rc."DOC#" AND l.UNIT_ID = rc.UNIT_ID
+              WHERE ${conds.join(" AND ")}) x
+       ORDER BY x."DOC#" DESC, x.USR_DATE_UPD DESC`,
+      params,
       { outFormat: OUT_ARRAY }
     );
     const b = toStr(brnch);
@@ -397,7 +402,7 @@ export const createLoanRecovery = async (compc, doc, recoveryType, recoveredAmt,
     if (amt === null || amt <= 0) return { status: "error", message: "Recovery amount must be greater than zero" };
     const [per] = await resolvePeriod(connection, u, period);
     if (per === null) return { status: "error", message: "No open period for this company. Open a period first." };
-    const [oldEmp, , outstanding] = await loanOutstanding(connection, d);
+    const [oldEmp, , outstanding] = await loanOutstanding(connection, d, u);
     if (oldEmp === null) return { status: "error", message: "Loan not found" };
     if (amt > outstanding + 0.01) {
       return {
