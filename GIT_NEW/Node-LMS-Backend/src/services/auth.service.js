@@ -494,7 +494,9 @@ export const getProfile = async (card_no) => {
        h.LOCATION AS "brnch",
        h.LOC_NAME AS "brnchnm",
        h.LOC_NAME AS "location",
-       h.PATH AS "photo_path"
+       -- HR_EMP_MASTER_VIEW has no PATH column; the photo path lives on the table.
+       (SELECT MAX(m.PATH) FROM HR_EMP_MASTER m
+         WHERE m.OLD_EMPCODE = h.OLD_EMPCODE AND m.UNIT_ID = h.UNIT_ID) AS "photo_path"
   FROM HR_EMP_MASTER_view h
  WHERE TO_CHAR(h.OLD_EMPCODE) = :card_no
     OR h."ATDTCARD#" = :card_no

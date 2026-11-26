@@ -19,6 +19,7 @@ import { getDirectConnection } from "../config/database.js";
 import {
   PF_DEFAULTS, buildHistory, computeSettlement, fiscalYearOf, fyLabel,
 } from "../utils/pfEngine.js";
+import { PF_CONTRIB_BASIS } from "../config/tenant.js";
 
 const OUT_ARRAY = 4001; // oracledb.OUT_FORMAT_ARRAY
 
@@ -158,8 +159,23 @@ const groupBy = (rows, key) => {
  * deduction in HR_SALARY_PROCES_PRO. A calendar month finalised under two periods (e.g.
  * July 2026 = periods 48 and 96 in unit 1) counts once, from the latest period.
  * What payroll actually deducted is carried alongside for comparison.
+ *
+ * "Permanent" is read from HR_EMP_STATUS by its description, not a fixed code:
+ * the tenants number it differently (sysnovix 2 = PERMANENT, YDC 1 = Permanent).
+ * With PF_CONTRIB_BASIS=payroll (YDC) the tenant's own salary process is the
+ * rule: a month counts when PF was deducted, and that amount is credited.
  */
 const loadContributions = async (connection, unit, oldEmp, toDate, pfDedCode) => {
+  const payrollBasis = PF_CONTRIB_BASIS === "payroll";
+  const eligibility = payrollBasis
+    ? "AND DEDUCTED > 0"
+    : "";
+  const statusCond = payrollBasis
+    ? ""
+    : `AND EXISTS (SELECT 1 FROM HR_EMP_STATUS st
+                    WHERE TO_CHAR(st.EMP_STATUS) = TRIM(f.EMP_STATUS)
+                      AND UPPER(TRIM(st.EMP_STATUS_DESC)) LIKE 'PERMANENT%')
+          AND p.PERIOD_TO >= COALESCE(e.PF_MEM_DT, e.DTOFCONFIRM, e.DTOFAPPT, p.PERIOD_TO)`;
   const res = await connection.execute(
     `SELECT OLD_EMPCODE, "PERIOD#", PFRM, PTO, EARNED_GROSS, DESG_CD, FPO, DEDUCTED FROM (
        SELECT f.OLD_EMPCODE, f."PERIOD#", TO_CHAR(p.PERIOD_FRM,'YYYY-MM-DD') PFRM, TO_CHAR(p.PERIOD_TO,'YYYY-MM-DD') PTO,
@@ -175,10 +191,9 @@ const loadContributions = async (connection, unit, oldEmp, toDate, pfDedCode) =>
          JOIN HR_EMP_MASTER e ON e.OLD_EMPCODE = f.OLD_EMPCODE AND e.UNIT_ID = f.UNIT_ID
         WHERE f.UNIT_ID = :u AND (:e IS NULL OR f.OLD_EMPCODE = :e)
           AND UPPER(TRIM(NVL(e.PF_IND,'N'))) = 'Y'
-          AND TRIM(f.EMP_STATUS) = '2'
-          AND p.PERIOD_TO >= COALESCE(e.PF_MEM_DT, e.DTOFCONFIRM, e.DTOFAPPT, p.PERIOD_TO)
+          ${statusCond}
           AND p.PERIOD_TO <= TO_DATE(:t,'YYYY-MM-DD'))
-      WHERE RN = 1
+      WHERE RN = 1 ${eligibility}
       ORDER BY OLD_EMPCODE, PTO`,
     { u: unit, e: oldEmp, t: toDate, ded: pfDedCode },
     { outFormat: OUT_ARRAY }
@@ -188,6 +203,8 @@ const loadContributions = async (connection, unit, oldEmp, toDate, pfDedCode) =>
     earned_gross: Number(r[4]), desg_cd: trimOrEmpty(r[5]),
     fpo: r[6] === null ? 0 : Number(r[6]), fpo_missing: r[6] === null,
     payroll_deducted: r[7] === null ? null : Number(r[7]),
+    // Engine uses `amount` when present, else the formula.
+    ...(payrollBasis ? { amount: Number(r[7] || 0) } : {}),
   })), "old_empcode");
 };
 

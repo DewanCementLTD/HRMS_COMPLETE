@@ -28,6 +28,13 @@ export const APPROVER_PICKER_SCOPE =
 export const EMP_CODE_STYLE =
   String(process.env.EMP_CODE_STYLE ?? '').trim().toLowerCase() === 'numeric' ? 'numeric' : 'text';
 
+// PF ledger monthly contribution: 'formula' (default, sysnovix) recomputes
+// (earned gross - FPO) / 1.55 x 8.33% for permanent members; 'payroll' credits
+// exactly what the tenant's own salary process deducted (YDC keeps its ERP rule,
+// basic x 8.33%), counting only the months in which PF was actually deducted.
+export const PF_CONTRIB_BASIS =
+  String(process.env.PF_CONTRIB_BASIS ?? '').trim().toLowerCase() === 'payroll' ? 'payroll' : 'formula';
+
 export const uiConfig = () => ({
   hod1_required: HOD1_REQUIRED,
   approver_picker_scope: APPROVER_PICKER_SCOPE,
